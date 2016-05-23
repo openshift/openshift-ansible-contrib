@@ -1,0 +1,41 @@
+- hosts: localhost
+  gather_facts: no
+  become: no
+  vars_files:
+      - vars/main.yaml
+  roles:
+# Create VPC and subnets in multiple AZ
+      - { role: vpc-multi-az, when: create_vpc == "yes" }
+      - { role: vpc-facts, when: create_vpc == "no" }
+# Upload ssh-key
+      - { role: ssh-key, when: create_key == "yes" }
+# Create role and policy to be used by OSE
+      - iam
+# Create master and node security groups
+      - bastion-sg
+      - master-elb-sg
+      - router-elb-sg
+      - master-sg
+      - app-node-sg
+      - infra-node-sg
+# Create Private Route53 Hosted Zone and associate DHCP to the new VPC
+      - { role: dhcp-assoc, when: create_vpc == "yes"}
+# Create bastion server and bastion security group (Comment out if you currently have a bastion and modify vars/main.yaml to reflect the bastion sg)
+      - { role: bastion-instance, when: byo_bastion == "no" }
+      - { role: bastion-eip, when: byo_bastion == "no"}
+      - { role: bastion-route53, when: byo_bastion == "no"}
+# Create master instances using AMI created and Route53 DNS
+      - master-instances
+      - master-instances-route53
+# Create elb for OpenShift Masters
+      - master-elb
+      -  master-elb-route53
+# Create OpenShift Infrastucture nodes using AMI created and Route53 DNS
+      - infra-node-instances
+      - infra-instances-route53
+# Create OpenShift Application nodes using AMI created and Route53 DNS
+      - app-node-instances
+      - app-instances-route53
+# Create elb for OpenShift Registry and Router and Route53 DNS
+      - router-elb
+      - router-elb-route53

@@ -1,0 +1,10 @@
+---
+- name: Make the OSE directory
+  command: mkdir -p /etc/origin
+- name: Create aws.conf ini file
+  ini_file:
+    dest: /etc/origin/aws.conf
+    section: Global
+    option: Zone
+    value: "{{ region }}c"
+

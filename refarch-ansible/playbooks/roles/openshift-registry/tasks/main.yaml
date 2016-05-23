@@ -1,0 +1,104 @@
+---
+- name: Switch to default project
+  command: oc project default
+
+- name: Check whether a registry exists or not
+  command: oadm registry --dry-run
+  register: registry_out
+  ignore_errors: true
+
+- name: Install registry
+  command: "oadm registry --selector='role=infra' --config=/etc/origin/master/admin.kubeconfig --service-account=registry"
+  when: registry_out | failed
+  ignore_errors: true
+
+- name: Make sure registry deployment version is non-zero
+  shell: "oc get --no-headers dc/docker-registry | awk '{print $3}'"
+  register: deployer_waiter_out
+  until: '"0" not in deployer_waiter_out.stdout'
+  retries: 15
+  delay: 10
+
+- name: Determine registry deployment version
+  shell: "oc get --no-headers dc/docker-registry | awk '{print $3}'"
+  register: registry_version_out
+
+- name: Wait for registry to be running
+  shell: oc get pod | grep -v deploy | awk '/docker-registry-{{ registry_version_out.stdout }}/{ print $3 }'
+  register: deployer_output
+  until: deployer_output.stdout | search("Running")
+  retries: 15
+  delay: 10
+
+# we use a template to then lay down YAML to create the PV
+# this sets facts that are then consumed in the template
+- name: Set the facts for the registry PV template
+  set_fact:
+    pv_name: "registry-pv"
+    capacity: "{{ registry_volume_size }}"
+    volid: "{{ hostvars['localhost']['registry_volid'] }}"
+
+- name: Create a YAML file for the PV for the Registry volume
+  template:
+    src: pv.yaml.j2
+    dest: /root/registry-pv.yaml
+
+- name: Check for registry PV
+  command: oc get pv "{{ pv_name }}"
+  register: registry_pv_out
+  ignore_errors: true
+
+# as before
+- name: Set the facts for the registry PVC template
+  set_fact:
+    claim_name: "registry-pvc"
+    capacity: "{{ registry_volume_size }}"
+    access_mode: "ReadWriteMany"
+
+- name: Check for registry PVC
+  command: oc get pvc "{{ claim_name }}"
+  register: registry_pvc_out
+  ignore_errors: true
+
+- name: Create a YAML file for the PVC for the Registry volume
+  template:
+    src: pvc.yaml.j2
+    dest: /root/registry-pvc.yaml
+
+- name: Create PV from YAML for registry EBS volume
+  command: oc create -f /root/registry-pv.yaml
+  when: registry_pv_out | failed
+
+- name: Create PVC from YAML for registry EBS volume
+  command: oc create -f /root/registry-pvc.yaml
+  when: registry_pvc_out | failed
+
+- name: Check if registry is still using empty directory
+  command: oc volume dc/docker-registry
+  register: registry_dc_out
+
+- name: Attach volume to registry DC
+  command: >
+    oc volume dc/docker-registry --add --overwrite -t persistentVolumeClaim
+    --claim-name=registry-pvc --name=registry-storage
+  when: "'empty directory' in registry_dc_out.stdout"
+  register: registry_volume_attached
+
+- name: Make sure registry deployment version is non-zero
+  shell: "oc get --no-headers dc/docker-registry | awk '{print $3}'"
+  register: deployer_waiter_out
+  until: '"0" not in deployer_waiter_out.stdout'
+  retries: 15
+  delay: 10
+
+- name: Determine registry deployment version
+  shell: "oc get --no-headers dc/docker-registry | awk '{print $3}'"
+  register: registry_version_out
+
+- name: Wait for registry to be running
+  shell: oc get pod | grep -v deploy | awk '/docker-registry-{{ registry_version_out.stdout }}/{ print $3 }'
+  register: deployer_output
+  until: deployer_output.stdout | search("Running")
+  retries: 15
+  delay: 10
+

@@ -1,0 +1,26 @@
+{
+    "Parameters" : {
+      "VPC": {
+        "Type" : "String"
+      },
+      "Region": {
+        "Type": "String"
+      }
+     },
+    "Resources" : {
+        "DHCPOpts" : {
+            "Type" : "AWS::EC2::DHCPOptions",
+            "Properties" : {
+                "DomainName": "ec2.internal",
+                "DomainNameServers": [ "AmazonProvidedDNS" ]
+            }
+        },
+        "AssociateOpts" : {
+            "Type" : "AWS::EC2::VPCDHCPOptionsAssociation",
+            "Properties" : {
+                "VpcId": { "Ref" : "VPC" },
+                "DhcpOptionsId": { "Ref" : "DHCPOpts" }
+            }
+        }
+     }
+}

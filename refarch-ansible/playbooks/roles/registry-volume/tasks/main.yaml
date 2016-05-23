@@ -1,0 +1,11 @@
+---
+- name: OpenShift Registry volume
+  ec2_vol:
+     volume_size: "{{ registry_volume_size }}"
+     volume_type: gp2
+     region: "{{ region }}"
+     zone: "{{ lookup('az1', region) }}"
+     name: "{{ openshift_master_cluster_hostname }}-registry-volume"
+  register: registry_vol
+- name: Change volume fact name
+  set_fact: registry_volid="{{ registry_vol.volume_id }}"

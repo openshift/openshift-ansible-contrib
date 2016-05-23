@@ -1,0 +1,8 @@
+---
+- name: Register host
+  redhat_subscription:
+    username: "{{ rhn_user }}"
+    password: "{{ rhn_password }}"
+    state: present
+    pool: "^(60 Day Supported OpenShift Enterprise|OpenShift Enterprise, Standard|OpenShift Enterprise, Premium|Employee)"
+  register: register_result

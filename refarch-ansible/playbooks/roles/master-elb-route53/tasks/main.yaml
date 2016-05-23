@@ -1,0 +1,10 @@
+---
+- name: Add DNS entry to Route53
+  route53:
+     command: create
+     zone: "{{ public_hosted_zone }}"
+     record: "{{ openshift_master_cluster_hostname }}"
+     type: CNAME
+     ttl: 60
+     value: "{{ master_elb.elb.dns_name }}"
+     overwrite: yes

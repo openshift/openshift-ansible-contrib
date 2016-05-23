@@ -1,0 +1,51 @@
+---
+- name: Launch instance infra node in Subnet1
+  ec2:
+     keypair: "{{ keypair }}"
+     group: ose_infra_node_sg
+     instance_type: "{{ node_instance_type }}"
+     image: "{{ ami }}"
+     wait: true
+     volumes:
+       - device_name: /dev/sda1
+         volume_type: gp2
+         volume_size: 20
+         delete_on_termination: true
+       - device_name: /dev/xvdb
+         volume_type: gp2
+         volume_size: "{{ docker_storage }}"
+         delete_on_termination: true
+     region: "{{ region }}"
+     vpc_subnet_id: "{{ subnet1 }}"
+     instance_profile_name: ose-ebs
+     assign_public_ip: yes
+     instance_tags:
+       Name: infra-node01
+       openshift-role: infra
+     count: 1
+  register: infra0
+- name: Launch instance infra node in Subnet2
+  ec2:
+     keypair: "{{ keypair }}"
+     group: ose_infra_node_sg
+     instance_type: "{{ node_instance_type }}"
+     image: "{{ ami }}"
+     wait: true
+     volumes:
+       - device_name: /dev/sda1
+         volume_type: gp2
+         volume_size: 20
+         delete_on_termination: true
+       - device_name: /dev/xvdb
+         volume_type: gp2
+         volume_size: "{{ docker_storage }}"
+         delete_on_termination: true
+     region: "{{ region }}"
+     vpc_subnet_id: "{{ subnet2 }}"
+     instance_profile_name: ose-ebs
+     assign_public_ip: yes
+     instance_tags:
+       Name: infra-node02
+       openshift-role: infra
+     count: 1
+  register: infra1

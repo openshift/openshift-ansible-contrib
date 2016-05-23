@@ -1,0 +1,42 @@
+---
+- name: create OSE node security group
+  ec2_group:
+     region: "{{ region }}"
+     name: ose_app_node_sg
+     vpc_id: "{{ vpc }}"
+     description: Secuity Group for Openshift Node
+     rules:
+       # allow ssh access
+       - proto: tcp
+         from_port: 22
+         to_port: 22
+         group_name: bastion_sg
+       # allow kubelet communication
+       - proto: tcp
+         from_port: 10250
+         to_port: 10250
+         group_name: ose_master_sg
+       - proto: tcp
+         from_port: 10255
+         to_port: 10255
+         group_name: ose_master_sg
+       - proto: udp
+         from_port: 10255
+         to_port: 10255
+         group_name: ose_master_sg
+       # SDN communication
+       - proto: udp
+         from_port: 4789
+         to_port: 4789
+         cidr_ip: 10.20.0.0/16
+     rules_egress:
+       - proto: all
+         cidr_ip: 0.0.0.0/0
+  register: ose_app_node_sg
+- name: Tag security group with a name
+  ec2_tag:
+     resource: "{{ ose_app_node_sg.group_id }}"
+     region: "{{ region }}"
+     state: present
+     tags:
+       Name: ose_app_node_sg

@@ -1,0 +1,20 @@
+# AWS instance specific configuration
+bastion_instance_type: t2.micro
+docker_storage: 25
+vpc_prefix: ose-multi-az-vpc
+subnet_prefix: OSE-Public-Subnet
+
+# Route53
+master_instance_prefix: ose-master
+app_instance_prefix: ose-app-node
+infra_instance_prefix: ose-infra-node
+
+# Set create bastion to true to create a bastion. If a bastion exists already specify the security group id
+
+# OpenShift variables
+debug_level: 2
+openshift_master_cluster_hostname: "openshift-master.{{ public_hosted_zone }}"
+openshift_master_cluster_public_hostname: "openshift-master.{{ public_hosted_zone }}"
+osm_default_subdomain: "apps.{{ public_hosted_zone }}"
+deployment_type: openshift-enterprise
+openshift_master_identity_providers: [ {'name': 'google', 'kind': 'GoogleIdentityProvider', 'login': 'true', 'challenge': 'false', 'mapping_method': 'claim', 'client_id': '246358064255-5ic2e4b1b9ipfa7hddfkhuf8s6eq2rfj.apps.googleusercontent.com', 'client_secret': 'Za3PWZg7gQxM26HBljgBMBBF', 'hosted_domain': 'redhat.com'} ]

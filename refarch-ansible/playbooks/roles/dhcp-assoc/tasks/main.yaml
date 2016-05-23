@@ -1,0 +1,11 @@
+---
+- name: DHCP Options and associate with VPC
+  cloudformation:
+    stack_name: "DHCPOptions"
+    state: "present"
+    region: "{{ region }}"
+    template: "roles/dhcp-assoc/files/dhcp-assoc.json"
+    template_parameters:
+        VPC: "{{ vpc }}"
+        Region: "{{ region }}"
+  when: region == "us-east-1"

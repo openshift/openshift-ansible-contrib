@@ -1,0 +1,29 @@
+---
+- name: create ELB OSE Router security group
+  ec2_group:
+     region: "{{ region }}"
+     name: ose_elb_router_sg
+     vpc_id: "{{ vpc }}"
+     description: Secuity Group for Openshift Router
+     rules:
+       # allow HTTPS
+       - proto: tcp
+         from_port: 443
+         to_port: 443
+         cidr_ip: 0.0.0.0/0
+       # allow HTTPS
+       - proto: tcp
+         from_port: 80
+         to_port: 80
+         cidr_ip: 0.0.0.0/0
+     rules_egress:
+       - proto: all
+         cidr_ip: 0.0.0.0/0
+  register: router_elb_sg
+- name: Tag security group with a name
+  ec2_tag:
+     resource: "{{router_elb_sg.group_id}}"
+     region: "{{ region }}"
+     state: present
+     tags:
+         Name: ose_elb_router_sg

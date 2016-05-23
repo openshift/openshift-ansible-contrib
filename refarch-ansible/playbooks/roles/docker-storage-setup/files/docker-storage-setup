@@ -1,0 +1,3 @@
+DEVS=/dev/xvdb
+VG=docker-vol
+DATA_SIZE=100%VG

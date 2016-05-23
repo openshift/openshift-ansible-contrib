@@ -1,0 +1,17 @@
+---
+- name: Launch Bastion instance
+  ec2:
+     keypair: "{{ keypair }}"
+     group: bastion_sg
+     instance_type: "{{ bastion_instance_type }}"
+     image: "{{ ami }}"
+     wait: true
+     region: "{{ region }}"
+     vpc_subnet_id: "{{ subnet1 }}"
+     assign_public_ip: yes
+     instance_tags:
+         Name: bastion
+     user_data: |
+         #!/bin/bash
+         yum -y update
+  register: ec2

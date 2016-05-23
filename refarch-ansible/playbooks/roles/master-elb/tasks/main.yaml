@@ -1,0 +1,36 @@
+---
+- name: Create master ELB
+  ec2_elb_lb:
+     name: "ose-master-elb"
+     state: present
+     subnets:
+         - "{{ subnet1 }}"
+         - "{{ subnet2 }}"
+         - "{{ subnet3 }}"
+     security_group_ids: "{{ master_elb_sg.group_id }}"
+     region: "{{ region }}"
+     listeners:
+       - protocol: tcp
+         load_balancer_port: "{{ console_port }}"
+         instance_protocol: tcp
+         instance_port: "{{ console_port }}"
+     health_check:
+         ping_protocol: tcp
+         ping_port: "{{ console_port }}"
+         response_timeout: 2
+         interval: 5 # seconds
+         unhealthy_threshold: 2
+         healthy_threshold: 2
+  register: master_elb
+
+- name: Add instances to Master ELB
+  ec2_elb:
+     instance_id: "{{ item }}"
+     ec2_elbs: ose-master-elb
+     state: present
+     region: "{{ region }}"
+     wait: no
+  with_items:
+      - "{{ master0.instance_ids }}"
+      - "{{ master1.instance_ids }}"
+      - "{{ master2.instance_ids }}"

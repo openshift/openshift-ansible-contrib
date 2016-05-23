@@ -1,0 +1,40 @@
+---
+- name: Add masters to requisite groups
+  add_host:
+    name: "{{ item }}"
+    groups: masters, etcd, nodes, cluster_hosts
+    openshift_node_labels:
+      role: master
+  with_items:
+      - "{{ hostvars[groups['tag_openshift-role_master'].0]['ec2_route53_names'] }}"
+      - "{{ hostvars[groups['tag_openshift-role_master'].1]['ec2_route53_names'] }}"
+      - "{{ hostvars[groups['tag_openshift-role_master'].2]['ec2_route53_names'] }}"
+
+- name: Add a master to the primary masters group
+  add_host:
+    name: "{{ item }}"
+    groups: primary_master
+    openshift_node_labels:
+      role: infra
+  with_items:
+      - "{{ hostvars[groups['tag_openshift-role_master'].0]['ec2_route53_names'] }}"
+
+- name: Add infra instances to host group
+  add_host:
+    name: "{{ item }}"
+    groups: nodes, cluster_hosts
+    openshift_node_labels:
+      role: infra
+  with_items:
+      - "{{ hostvars[groups['tag_openshift-role_infra'].0]['ec2_route53_names'] }}"
+      - "{{ hostvars[groups['tag_openshift-role_infra'].1]['ec2_route53_names'] }}"
+
+- name: Add app instances to host group
+  add_host:
+    name: "{{ item }}"
+    groups: nodes, cluster_hosts
+    openshift_node_labels:
+      role: app
+  with_items:
+      - "{{ hostvars[groups['tag_openshift-role_app'].0]['ec2_route53_names'] }}"
+      - "{{ hostvars[groups['tag_openshift-role_app'].1]['ec2_route53_names'] }}"

@@ -1,0 +1,6 @@
+---
+- name: OSE ec2 key
+  ec2_key:
+    name: "{{ keypair }}"
+    region: "{{ region }}"
+    key_material: "{{ ssh_key }}"

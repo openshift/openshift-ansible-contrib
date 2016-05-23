@@ -1,0 +1,11 @@
+---
+- name: disable unneeded repos
+  command: subscription-manager repos --disable='*'
+  when: register_result | changed
+
+- name: ensure proper repos are assigned
+  command: subscription-manager repos --enable={{ item }}
+  with_items:
+      - rhel-7-server-rpms
+      - rhel-7-server-extras-rpms
+      - rhel-7-server-ose-3.2-rpms

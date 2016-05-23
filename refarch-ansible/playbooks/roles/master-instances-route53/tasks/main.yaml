@@ -1,0 +1,58 @@
+---
+- name: Add DNS entry to Route53
+  route53:
+     command: create
+     zone: "{{ public_hosted_zone }}"
+     record: "{{ master_instance_prefix }}01.{{ public_hosted_zone }}"
+     type: A
+     ttl: 60
+     value: "{{ item.private_ip }}"
+     overwrite: yes
+  with_items: master0.instances
+- name: Create Reverse DNS records
+  route53:
+    command: create
+    zone: 20.10.in-addr.arpa
+    overwrite: yes
+    record: "{{ item.private_ip | ipaddr('revdns') }}"
+    type: PTR
+    value: "{{ master_instance_prefix }}01.{{ public_hosted_zone }}"
+  with_items: master0.instances
+- name: Add DNS entry to Route53
+  route53:
+     command: create
+     zone: "{{ public_hosted_zone }}"
+     record: "{{ master_instance_prefix }}02.{{ public_hosted_zone }}"
+     type: A
+     ttl: 60
+     value: "{{ item.private_ip }}"
+     overwrite: yes
+  with_items: master1.instances
+- name: Create Reverse DNS records
+  route53:
+    command: create
+    zone: 20.10.in-addr.arpa
+    overwrite: yes
+    record: "{{ item.private_ip | ipaddr('revdns') }}"
+    type: PTR
+    value: "{{ master_instance_prefix }}02.{{ public_hosted_zone }}"
+  with_items: master1.instances
+- name: Add DNS entry to Route53
+  route53:
+     command: create
+     zone: "{{ public_hosted_zone }}"
+     record: "{{ master_instance_prefix }}03.{{ public_hosted_zone }}"
+     type: A
+     ttl: 60
+     value: "{{ item.private_ip }}"
+     overwrite: yes
+  with_items: master2.instances
+- name: Create Reverse DNS records
+  route53:
+    command: create
+    zone: 20.10.in-addr.arpa
+    overwrite: yes
+    record: "{{ item.private_ip | ipaddr('revdns') }}"
+    type: PTR
+    value: "{{ master_instance_prefix }}03.{{ public_hosted_zone }}"
+  with_items: master2.instances

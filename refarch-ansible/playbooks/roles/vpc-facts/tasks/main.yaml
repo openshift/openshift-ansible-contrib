@@ -1,0 +1,9 @@
+---
+- name: Change the name of the subnet fact
+  set_fact: subnet1="{{subnet_id1}}"
+- name: Change the name of the subnet fact
+  set_fact: subnet2="{{subnet_id2}}"
+- name: Change the name of the subnet fact
+  set_fact: subnet3="{{subnet_id3}}"
+- name: Change the fact name
+  set_fact: vpc="{{vpc_id}}"

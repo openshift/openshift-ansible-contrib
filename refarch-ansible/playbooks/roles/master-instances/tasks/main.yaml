@@ -1,0 +1,73 @@
+---
+- name: Launch instance
+  ec2:
+     keypair: "{{ keypair }}"
+     group: ose_master_sg
+     instance_type: "{{ master_instance_type }}"
+     image: "{{ ami }}"
+     wait: true
+     region: "{{ region }}"
+     volumes:
+       - device_name: /dev/sda1
+         volume_type: gp2
+         volume_size: 20
+         delete_on_termination: true
+       - device_name: /dev/xvdb
+         volume_type: gp2
+         volume_size: "{{ docker_storage }}"
+         delete_on_termination: true
+     vpc_subnet_id: "{{ subnet1 }}"
+     assign_public_ip: yes
+     instance_profile_name: ose-ebs
+     instance_tags:
+       Name: "{{ master_instance_prefix }}01"
+       openshift-role: master
+  register: master0
+- name: Launch instance
+  ec2:
+     keypair: "{{ keypair }}"
+     group: ose_master_sg
+     instance_type: "{{ master_instance_type }}"
+     image: "{{ ami }}"
+     wait: true
+     region: "{{ region }}"
+     volumes:
+       - device_name: /dev/sda1
+         volume_type: gp2
+         volume_size: 20
+         delete_on_termination: true
+       - device_name: /dev/xvdb
+         volume_type: gp2
+         volume_size: "{{ docker_storage }}"
+         delete_on_termination: true
+     vpc_subnet_id: "{{ subnet2 }}"
+     assign_public_ip: yes
+     instance_profile_name: ose-ebs
+     instance_tags:
+       Name: "{{ master_instance_prefix }}02"
+       openshift-role: master
+  register: master1
+- name: Launch instance
+  ec2:
+     keypair: "{{ keypair }}"
+     group: ose_master_sg
+     instance_type: "{{ master_instance_type }}"
+     image: "{{ ami }}"
+     wait: true
+     region: "{{ region }}"
+     volumes:
+       - device_name: /dev/sda1
+         volume_type: gp2
+         volume_size: 20
+         delete_on_termination: true
+       - device_name: /dev/xvdb
+         volume_type: gp2
+         volume_size: "{{ docker_storage }}"
+         delete_on_termination: true
+     vpc_subnet_id: "{{ subnet3 }}"
+     assign_public_ip: yes
+     instance_profile_name: ose-ebs
+     instance_tags:
+       Name: "{{ master_instance_prefix }}03"
+       openshift-role: master
+  register: master2
