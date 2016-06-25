@@ -1,0 +1,3 @@
+---
+- name: Scale the router
+  command: "oc scale dc/router --replicas=2"

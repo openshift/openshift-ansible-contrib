@@ -1,0 +1,8 @@
+---
+- name: Create IAM Role and Policy
+  cloudformation:
+    stack_name: "RoleAndPolicy"
+    state: "present"
+    region: "{{ region }}"
+    template: "roles/iam/files/policy-role.json"
+

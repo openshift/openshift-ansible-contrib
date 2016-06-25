@@ -1,0 +1,24 @@
+---
+- name: Create bastion security group
+  ec2_group:
+     region: "{{ region }}"
+     name: bastion_sg
+     vpc_id: "{{ vpc }}"
+     description: Secuity Group for Bastion host
+     rules:
+       # allow ssh access
+       - proto: tcp
+         from_port: 22
+         to_port: 22
+         cidr_ip: 0.0.0.0/0
+     rules_egress:
+       - proto: all
+         cidr_ip: 0.0.0.0/0
+  register: bastion_sg
+- name: Tag security group with a name
+  ec2_tag:
+     resource: "{{bastion_sg.group_id}}"
+     region: "{{ region }}"
+     state: present
+     tags:
+       Name: "bastion_sg"

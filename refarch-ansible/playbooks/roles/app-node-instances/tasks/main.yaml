@@ -1,0 +1,54 @@
+---
+- name: Launch instance
+  ec2:
+     keypair: "{{ keypair }}"
+     group: ose_app_node_sg
+     instance_type: "{{ node_instance_type }}"
+     image: "{{ ami }}"
+     wait: true
+     volumes:
+       - device_name: /dev/sda1
+         volume_type: gp2
+         volume_size: 25
+         delete_on_termination: true
+       - device_name: /dev/xvdb
+         volume_type: gp2
+         volume_size: "{{ docker_storage }}"
+         delete_on_termination: true
+     region: "{{ region }}"
+     vpc_subnet_id: "{{ subnet1 }}"
+     instance_profile_name: ose-ebs
+     assign_public_ip: yes
+     instance_tags:
+       Name: app-node01
+       openshift-role: app
+     count: 1
+  register: app0
+- name: Launch instance
+  ec2:
+     keypair: "{{ keypair }}"
+     group: ose_app_node_sg
+     instance_type: "{{ node_instance_type }}"
+     image: "{{ ami }}"
+     wait: true
+     volumes:
+       - device_name: /dev/sda1
+         volume_type: gp2
+         volume_size: 25
+         delete_on_termination: true
+       - device_name: /dev/xvdb
+         volume_type: gp2
+         volume_size: "{{ docker_storage }}"
+         delete_on_termination: true
+     region: "{{ region }}"
+     vpc_subnet_id: "{{ subnet2 }}"
+     instance_profile_name: ose-ebs
+     assign_public_ip: yes
+     instance_tags:
+       Name: app-node02
+       openshift-role: app
+     count: 1
+  register: app1
+- name: Sleep...due to bastion we can't check ssh
+  pause:
+     seconds: 40

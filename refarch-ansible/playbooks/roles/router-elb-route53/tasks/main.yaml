@@ -1,0 +1,10 @@
+---
+- name: Add DNS entry to Route53
+  route53:
+     command: create
+     zone: "{{ public_hosted_zone }}"
+     record: "*.{{ osm_default_subdomain }}"
+     type: CNAME
+     ttl: 60
+     value: "{{ router_elb.elb.dns_name }}"
+     overwrite: yes

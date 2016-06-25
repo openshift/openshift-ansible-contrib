@@ -1,0 +1,24 @@
+---
+- name: create ELB OSE-Master security group
+  ec2_group:
+     region: "{{ region }}"
+     name: ose_elb_master_sg
+     vpc_id: "{{ vpc }}"
+     description: Secuity Group for Openshift Master ELB
+     rules:
+       # allow Openshift Master console access
+       - proto: tcp
+         from_port: "{{ console_port }}"
+         to_port: "{{ console_port }}"
+         cidr_ip: 0.0.0.0/0
+     rules_egress:
+       - proto: all
+         cidr_ip: 0.0.0.0/0
+  register: master_elb_sg
+- name: Tag security group with a name
+  ec2_tag:
+     resource: "{{master_elb_sg.group_id}}"
+     region: "{{ region }}"
+     state: present
+     tags:
+         Name: ose_elb_master_sg

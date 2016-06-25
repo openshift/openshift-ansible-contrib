@@ -1,0 +1,39 @@
+{
+    "Resources" : {
+        "OSERole" : {
+            "Type"  : "AWS::IAM::Role",
+            "Properties" : {
+                "AssumeRolePolicyDocument" : {
+                    "Statement" : [ {
+                        "Effect" : "Allow",
+                        "Principal" : {
+                            "Service" : [ "ec2.amazonaws.com" ]
+                       },
+                        "Action" : [ "sts:AssumeRole" ]
+                    } ]
+                },
+                 "Path" : "/"
+            }
+        },
+
+        "OSEPolicies" : {
+            "Type" : "AWS::IAM::Policy",
+            "Properties" : {
+                "PolicyName" : "ose-access",
+                "PolicyDocument" : {
+                    "Statement" : [ {
+                        "Effect" : "Allow",
+                        "Action" : [
+                           "ec2:Decribe*",
+                           "ec2:CreateVolume",
+                           "ec2:AttachVolume",
+                           "ec2:DetachVolume"
+                              ],
+                        "Resource" : "*"
+                   }]
+               },
+               "Roles" : [ { "Ref" : "OSERole" } ]
+            }
+        }
+     }
+}

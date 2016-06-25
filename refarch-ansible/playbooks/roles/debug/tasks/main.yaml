@@ -1,0 +1,3 @@
+---
+- name: OpenShift Registry volume
+  debug: var=registry_vol

@@ -1,0 +1,6 @@
+---
+- name: allocate a new elastic IP and associate it with an instance
+  ec2_eip:
+     instance_id: "{{ ec2.instance_ids[0] }}"
+     region: "{{ region }}"
+  register: eip

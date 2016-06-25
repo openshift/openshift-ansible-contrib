@@ -1,0 +1,107 @@
+---
+- name: create OSE-Master security group
+  ec2_group:
+     region: "{{ region }}"
+     name: ose_master_sg
+     vpc_id: "{{ vpc }}"
+     description: Secuity Group for Openshift Master
+     rules:
+       # allow ssh access
+       - proto: tcp
+         from_port: 22
+         to_port: 22
+         group_name: bastion_sg
+       # allow Openshift Master console access
+       - proto: tcp
+         from_port: "{{ console_port }}"
+         to_port: "{{ console_port }}"
+         group_name: "ose_elb_master_sg"
+       - proto: tcp
+         from_port: 8444
+         to_port: 8444
+         cidr_ip: 10.20.0.0/16
+       - proto: tcp
+         from_port: 8443
+         to_port: 8443
+         cidr_ip: 10.20.0.0/16
+       - proto: tcp
+         from_port: 9090
+         to_port: 9090
+         cidr_ip: 10.20.0.0/16
+       - proto: tcp
+         from_port: 5000
+         to_port: 5000
+         cidr_ip: 10.20.0.0/16
+       - proto: tcp
+         from_port: 10255
+         to_port: 10255
+         cidr_ip: 10.20.0.0/16
+       - proto: udp
+         from_port: 10255
+         to_port: 10255
+         cidr_ip: 10.20.0.0/16
+       # allow DNS service
+       - proto: tcp
+         from_port: 53
+         to_port: 53
+         cidr_ip: 10.20.0.0/16
+       - proto: tcp
+         from_port: 8053
+         to_port: 8053
+         cidr_ip: 10.20.0.0/16
+       - proto: udp
+         from_port: 5404
+         to_port: 5404
+         cidr_ip: 10.20.0.0/16
+       - proto: udp
+         from_port: 5405
+         to_port: 5405
+         cidr_ip: 10.20.0.0/16
+       - proto: udp
+         from_port: 8053
+         to_port: 8053
+         cidr_ip: 10.20.0.0/16
+       # DNS
+       - proto: udp
+         from_port: 53
+         to_port: 53
+         cidr_ip: 10.20.0.0/16
+       # allow SDN communication
+       - proto: udp
+         from_port: 4789
+         to_port: 4789
+         cidr_ip: 10.20.0.0/16
+       # allow ETCD
+       - proto: tcp
+         from_port: 2379
+         to_port: 2379
+         cidr_ip: 10.20.0.0/16
+       # allow ETCD clustering
+       - proto: tcp
+         from_port: 2380
+         to_port: 2380
+         cidr_ip: 10.20.0.0/16
+       # Fluentd Port
+       - proto: tcp
+         from_port: 24224
+         to_port: 24224
+         cidr_ip: 10.20.0.0/16
+       - proto: udp
+         from_port: 24224
+         to_port: 24224
+         cidr_ip: 10.20.0.0/16
+       - proto: tcp
+         from_port: 2224
+         to_port: 2224
+         cidr_ip: 10.20.0.0/16
+     rules_egress:
+       - proto: all
+         cidr_ip: 0.0.0.0/0
+  register: master_sg
+- name: Tag security group with a name
+  ec2_tag:
+     resource: "{{master_sg.group_id}}"
+     region: "{{ region }}"
+     state: present
+     tags:
+       Name: ose_master_sg
