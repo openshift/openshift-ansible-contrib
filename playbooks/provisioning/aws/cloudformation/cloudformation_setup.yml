@@ -27,7 +27,7 @@
       tags:
         environment: "{{ env_id }}"
         clusterid: "{{ cluster_id }}"
-      template: files/cloudformation.json
+      template: "{{ cloudformation_template | default('files/cloudformation.json') }}"
       template_parameters:
         Route53HostedZone: "{{ r53_zone }}."
         MasterApiPort: "{{ api_port }}"
