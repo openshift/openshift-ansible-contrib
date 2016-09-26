@@ -4,5 +4,6 @@
     username: "{{ rhsm_user }}"
     password: "{{ rhsm_password }}"
     state: present
-    pool: "^(60 Day Supported OpenShift Enterprise|OpenShift Enterprise, Standard|OpenShift Enterprise, Premium|Employee)"
+    pool: "^{{ rhsm_pool }}"
   register: register_result
+  when: ansible_os_family == "RedHat"

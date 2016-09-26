@@ -1,5 +1,6 @@
 ---
 - name: Scale the router
-  command: "oc scale dc/router --replicas=2"
+  command: "{{ openshift.common.client_binary }} scale dc/router --replicas=2"
+
 - name: Scale the registry
-  command: "oc scale dc/docker-registry --replicas=2"
+  command: "{{ openshift.common.client_binary }} scale dc/docker-registry --replicas=2"

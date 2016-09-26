@@ -1,6 +1,10 @@
 ---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
 - name: Install the required rpms
-  yum: name={{ item }} state=latest
+  package: name={{ item }} state=latest
   with_items:
       - wget
       - git
@@ -11,3 +15,4 @@
       - bash-completion
       - docker
       - python-httplib2
+  when: not openshift.common.is_atomic | bool

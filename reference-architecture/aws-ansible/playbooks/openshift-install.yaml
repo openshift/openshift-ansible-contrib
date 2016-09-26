@@ -18,7 +18,7 @@
       - host-up
       
 - hosts: cluster_hosts
-  gather_facts: no
+  gather_facts: yes
   become: yes
   serial: 1
   user: ec2-user
@@ -28,7 +28,7 @@
       - rhsm-subscription
       
 - hosts: cluster_hosts
-  gather_facts: no
+  gather_facts: yes
   become: yes
   user: ec2-user
   vars_files:

@@ -2,7 +2,8 @@
 - name: register the version of openshift
   shell: "rpm -qa | grep atomic-openshift-node  | grep -v tuned| awk -F- '{print $4}'"
   register: version
+  when: not containerized
 - name: Pull images to speed up deployment times
   command: "docker pull {{ item }}:v{{version.stdout}}"
   with_items: "{{ preload_images }}"
-  when: deployment_type == "openshift-enterprise"
+  when: deployment_type == "openshift-enterprise" and not containerized

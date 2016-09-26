@@ -1,35 +1,36 @@
 ---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
 - name: Create the validation project
-  command: oc new-project validate
+  command: "{{ openshift.common.client_binary }} new-project validate"
 
 - name: Create Hello world app
-  shell: oc new-app https://github.com/openshift/cakephp-ex.git --name=php
+  shell: "{{ openshift.common.client_binary }} new-app --template cakephp-example"
 
 - name: Wait for build to complete
-  shell: oc get pod | grep -v deploy | awk '/php-1-build/{ print $3 }'
+  shell: "{{ openshift.common.client_binary }} get pod | grep -v deploy | awk '/cakephp-example-1-build/{ print $3 }'"
   register: build_output
   until: build_output.stdout | search("Completed")
   retries: 30
   delay: 15
 
 - name: Wait for App to be running
-  shell: oc get pod | grep -v deploy | grep -v build  | awk '/php-1-*/{print $3}'
+  shell: "{{ openshift.common.client_binary }} get pod | grep -v deploy | grep -v build  | awk '/cakephp-example-1-*/{print $3}'"
   register: deployer_output
   until: deployer_output.stdout | search("Running")
   retries: 30
   delay: 15
-
-- name: Expose the Application
-  shell: oc expose service php
 
 - name: Sleep to allow for route propegation
   pause:
      seconds: 5
 - name: check the status of the page
   uri:
-     url: "http://php-validate.{{ wildcard_zone }}"
+     url: "http://cakephp-example-validate.{{ wildcard_zone }}"
      status_code: 200
      method: GET
 
 - name: Delete the Project
-  command: oc delete project validate
+  command: "{{ openshift.common.client_binary }} delete project validate"
