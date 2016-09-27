@@ -1,0 +1,16 @@
+---
+- name: register hosts to portal (FIXME needs to be replaced by upstream ansible2.0 stuff)
+  hosts: all
+  gather_facts: no
+  vars:
+    rh_sat6_org: "{{ lookup('env','RH_SAT6_ORG') }}"
+    rh_sat6_activationkey: "{{ lookup('env','RH_SAT6_ACTIVATIONKEY') }}"
+  roles:
+    - goern.rh-subscription-manager
+  when: testing
+
+- name: Set up authorized_keys for the ose3-installer user
+  hosts: [ masters, nodes, etcd, lb ]
+  authorized_key: user=root key="{{ item }}"
+  with_file:
+    - public_keys/goern

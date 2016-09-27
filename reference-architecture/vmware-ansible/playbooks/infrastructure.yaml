@@ -1,0 +1,34 @@
+# Create our supporting infrastructure first
+# How to infrastructure must run first, then either test or prod then haproxy if need be
+# then install and then configure
+
+- include: setup-nfs.yaml
+  tags: ['nfs', 'all']
+
+#- include: test-ose.yaml
+ # tags: ['test', 'alltest']
+
+- include: prod-ose.yaml
+  tags: ['prod', 'allprod', 'all']
+
+- include: setup-haproxy.yaml
+  tags: ['haproxy', 'all']
+
+- include: openshift-install.yaml
+  tags: ['ose-install', 'allprod', 'alltest', 'all']
+
+- include: openshift-configure.yaml
+  tags: ['ose-configure', 'allprod', 'alltest', 'all']
+
+- include: openshift-validate.yaml
+  tags: ['ose-demo', 'allprod', 'alltest', 'all']
+
+- include: cleanup-vsphere.yaml
+  tags: ['clean']
+# Have to create certs on server first
+#- include: auth.yaml
+#  tags: ['auth']
+
+
+#- include: refresh_inventory.yaml
+#  tags: ['inventory', 'test']

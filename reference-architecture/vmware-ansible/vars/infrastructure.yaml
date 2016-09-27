@@ -1,0 +1,83 @@
+---
+infrastructure_hosts:
+  nfs_server:
+    guestname: 'nfs-0'
+    tag: 'nfs'
+  auth_proxy_0:
+    guestname: 'auth-proxy-0'
+    tag: 'auth'
+  haproxy:
+    guestname: 'haproxy-0'
+    tag: 'proxy'
+
+production_hosts:
+  master-0:
+    guestname: 'master-0'
+    tag: 'master'
+  master-1:
+    guestname: 'master-1'
+    tag: 'master'
+  master-2:
+    guestname: 'master-2'
+    tag: 'master'
+  infra-0:
+    guestname: 'infra-0'
+    tag: 'infra'
+  infra-1:
+    guestname: 'infra-1'
+    tag: 'infra'
+  app-0:
+    guestname: 'app-0'
+    tag: 'app'
+  app-1:
+    guestname: 'app-1'
+    tag: 'app'
+  app-2:
+    guestname: 'app-2'
+    tag: 'app'
+
+host_inventory:
+  nfs-0:
+    guestname: 'nfs-0'
+    ip4addr: '10.19.114.224'
+    tag: 'nfs'
+  auth-proxy-0:
+    guestname: 'auth-proxy-0'
+    ip4addr: '10.19.114.225'
+    tag: 'auth'
+  haproxy-0:
+    guestname: 'haproxy-0'
+    ip4addr: '10.19.114.238'
+    tag: 'haproxy'
+  master-0:
+    guestname: 'master-0'
+    ip4addr: '10.19.114.230'
+    tag: 'master'
+  master-1:
+    guestname: 'master-1'
+    ip4addr: '10.19.114.231'
+    tag: 'master'
+  master-2:
+    guestname: 'master-2'
+    ip4addr: '10.19.114.232'
+    tag: 'master'
+  infra-0:
+    guestname: 'infra-0'
+    ip4addr: '10.19.114.233'
+    tag: 'infra'
+  infra-1:
+    guestname: 'infra-1'
+    ip4addr: '10.19.114.234'
+    tag: 'infra'
+  app-0:
+    guestname: 'app-0'
+    ip4addr: '10.19.114.235'
+    tag: 'app'
+  app-1:
+    guestname: 'app-1'
+    ip4addr: '10.19.114.236'
+    tag: 'app'
+  app-2:
+    guestname: 'app-2'
+    ip4addr: '10.19.114.237'
+    tag: 'app'

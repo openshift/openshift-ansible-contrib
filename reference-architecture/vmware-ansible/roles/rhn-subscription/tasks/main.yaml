@@ -1,0 +1,25 @@
+---
+- name: Is the host already registered?
+  command: "subscription-manager list"
+  register: subscribed
+  ignore_errors: yes
+
+- name: Register host via Activation key
+  redhat_subscription:
+    activationkey: "{{ rhsm_activation_key }}"
+    org_id: "{{ rhsm_org_id }}"
+    state: present
+    pool: "^(60 Day Supported OpenShift Enterprise|OpenShift Enterprise, Standard|OpenShift Enterprise, Premium|Employee)"
+  when: "'Subscribed' not in subscribed.stdout and rhsm_activation_key is defined and auth_method=='key'"
+  register: register_key_result
+  ignore_errors: yes
+
+- name: Register host via RH CDN
+  redhat_subscription:
+    username: "{{ rhsm_user }}"
+    password: "{{ rhsm_password }}"
+    state: present
+    pool: "^(60 Day Supported OpenShift Enterprise|OpenShift Enterprise, Standard|OpenShift Enterprise, Premium|Employee)"
+  when: "'Subscribed' not in subscribed.stdout and rhsm_user is defined and auth_method=='user'"
+  register: register_user_result
+  ignore_errors: yes

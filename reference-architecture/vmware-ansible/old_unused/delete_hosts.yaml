@@ -1,0 +1,82 @@
+---
+- hosts: localhost
+  connection: local
+  user: root
+  become: false
+  gather_facts: false
+  serial: 1
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+
+  # learn from here: http://everythingshouldbevirtual.com/creating-vsphere-vms-using-ansible
+
+  tasks:
+  - name: power off OSE3 testing hosts
+    ignore_errors: yes
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      guest: "{{ item.value.guestname }}"
+      state: "powered_off"
+    with_dict: "{{testing_hosts}}"
+    tags: ['testing', 'vm_shutdown']
+
+  - name: power off OSE3 infrastructure hosts
+    ignore_errors: yes
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      guest: "{{ item.value.guestname }}"
+      state: "powered_off"
+    with_dict: "{{infrastructure_hosts}}"
+    tags: ['infrastructure', 'vm_shutdown']
+
+  - name: power off OSE3 production hosts
+    ignore_errors: yes
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      guest: "{{ item.value.guestname }}"
+      state: "powered_off"
+    with_dict: "{{production_hosts}}"
+    tags: ['production', 'vm_shutdown']
+
+  - name: delete OSE3 testing hosts
+    ignore_errors: yes
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      guest: "{{ item.value.guestname }}"
+      state: absent
+      force: yes
+    with_dict: "{{testing_hosts}}"
+    tags: ['testing', 'vm_delete']
+
+  - name: delete infrastructure hosts
+    ignore_errors: yes
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      guest: "{{ item.value.guestname }}"
+      state: absent
+      force: yes
+    with_dict: "{{infrastructure_hosts}}"
+    tags: ['infrastructure', 'vm_delete']
+
+  - name: delete production hosts
+    ignore_errors: yes
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      guest: "{{ item.value.guestname }}"
+      state: absent
+      force: yes
+    with_dict: "{{production_hosts}}"
+    tags: ['production', 'vm_delete']

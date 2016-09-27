@@ -1,0 +1,13 @@
+TYPE=Ethernet
+BOOTPROTO=static
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+IPV6INIT=no
+NAME=public
+DEVICE=eno16780032
+ONBOOT=yes
+IPADDR={{item.ip4}}
+PREFIX=32
+GATEWAY={{item.gw4}}
+PEERDNS=yes
+DNS1={{item.dns}}

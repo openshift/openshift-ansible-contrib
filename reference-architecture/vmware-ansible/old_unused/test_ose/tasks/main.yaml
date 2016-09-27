@@ -1,0 +1,7 @@
+---
+- name: Copy PersistentVolume json files to master in testing environment
+  copy: src=../nfs-0/root/persistent-volume.{{ item }}.json dest=/root/
+  with_sequence: start={{osnl_volume_num_start}} count={{osnl_number_of_volumes}} format=pv{{osnl_volume_size}}g%04d
+  ignore_errors: true
+  when: inventory_hostname == 'test-master-0'
+# TODO Make modularity

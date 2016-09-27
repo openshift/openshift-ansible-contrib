@@ -1,0 +1,72 @@
+---
+  # This resembles https://sgallagh.wordpress.com/2016/05/26/openshift-and-sssd-part-1-basic-ldap-authentication/
+- name: Prepare OpenShift Enterprise for using the Authentication Proxy
+  hosts: 'test-master-0' # FIXME this could be parameterized
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+
+  tasks:
+  - name: Create directory to store certificates
+    file: path=/etc/origin/proxy/ state=directory
+
+  - name: Create certificates
+    command: oadm ca create-server-cert \
+      --cert='/etc/origin/proxy/auth_proxy.crt' \
+      --key='/etc/origin/proxy/auth_proxy.key' \
+      --hostnames="{{inventory_hostname}}","{{hostvars[inventory_hostname].ansible_eno16780032.ipv4.address}}","{{infrastructure_hosts['auth_proxy_0']['hostname']}}","{{infrastructure_hosts['auth_proxy_0']['guestname']}}" \
+      --signer-cert=/etc/origin/master/ca.crt \
+      --signer-key='/etc/origin/master/ca.key' \
+      --signer-serial='/etc/origin/master/ca.serial.txt'
+
+  - name: Create API client signer certificate
+    command:  oadm ca create-signer-cert \
+      --cert='/etc/origin/proxy/proxyca.crt' \
+      --key='/etc/origin/proxy/proxyca.key' \
+      --name='openshift-proxy-signer@`date +%s`' \
+      --serial='/etc/origin/proxy/proxyca.serial.txt'
+
+  - name: Create API client configuration
+    command:  oadm create-api-client-config \
+      --certificate-authority='/etc/origin/proxy/proxyca.crt' \
+      --client-dir='/etc/origin/proxy' \
+      --signer-cert='/etc/origin/proxy/proxyca.crt' \
+      --signer-key='/etc/origin/proxy/proxyca.key' \
+      --signer-serial='/etc/origin/proxy/proxyca.serial.txt' \
+      --user='system:proxy'
+
+  # remember, this /opt/ansible/tmp/ is in a container, and even more tmp than /tmp
+  - name: Copy certificates to local host
+    fetch: src="{{item}}" dest=/opt/ansible/tmp/
+    with_items:
+      - /etc/origin/proxy/ca.crt
+      - /etc/origin/proxy/auth_proxy.crt
+      - /etc/origin/proxy/auth_proxy.key
+      - /etc/origin/proxy/system:proxy.crt
+      - /etc/origin/proxy/system:proxy.key
+
+- name: Configure Authentication Proxy
+  hosts: auth_proxy
+  user: root
+  become: false
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+
+## TODO can remove this static-ipaddress role does this
+  tasks:
+  - name: Set hostname of auth proxy
+    hostname: name="{{infrastructure_hosts.auth_proxy_0.hostname}}"
+    ignore_errors: yes
+
+- name: Provision auth proxy
+  hosts: auth_proxy
+  user: root
+  become: false
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+
+  roles:
+    - e2e_vcenter_host
+    - openshift_auth_proxy

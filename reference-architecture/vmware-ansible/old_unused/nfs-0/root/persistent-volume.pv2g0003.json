@@ -1,0 +1,21 @@
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolume",
+  "metadata": {
+    "name": "pv-nfs-0-pv2g0003",
+    "labels": {
+      "type": "nfs"
+    }
+  },
+  "spec": {
+    "capacity": {
+      "storage": "2Gi"
+    },
+    "accessModes": [ "ReadWriteMany" ],
+    "persistentVolumeReclaimPolicy": "Recycle",
+    "nfs": {
+      "server": "nfs-0.vcenter.e2e.bos.redhat.com",
+      "path": "/srv/nfs/openshift/pv2g0003"
+    }
+  }
+}

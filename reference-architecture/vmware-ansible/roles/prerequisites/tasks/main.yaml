@@ -1,0 +1,21 @@
+---
+- name: Adding updated VM to inventory with hostname
+  add_host: hostname="{{host_inventory[inventory_hostname].guestname}}" ansible_ssh_host="{{host_inventory[inventory_hostname].hostname}}"
+  with_items: "{{ groups['cluster_hosts'] }}"
+
+- name: Network Restart to activate new interface
+  service: name=network state=restarted
+  ignore_errors: true
+
+- name: Install the required rpms
+  yum: name={{ item }} state=latest
+  with_items:
+      - wget
+      - git
+      - net-tools
+      - bind-utils
+      - iptables-services
+      - bridge-utils
+      - bash-completion
+      - docker
+      - python-httplib2

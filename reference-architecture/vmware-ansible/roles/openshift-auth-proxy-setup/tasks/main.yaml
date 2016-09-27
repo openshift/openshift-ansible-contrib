@@ -1,0 +1,39 @@
+- name: Generate Certificate
+  command: "openshift start --public-master={{openshift_master_cluster_public_hostname}}:{{console_port}} --write-config=/etc/origin"
+  register: domain_join
+  ignore_errors: true
+
+- name: Create directory to store certificates
+  file: path=/etc/origin/proxy/ state=directory
+
+- name: Create certificates
+  command: oadm ca create-server-cert \
+    --cert='/etc/origin/proxy/{{openshift_master_cluster_public_hostname}}.crt' \
+    --key='/etc/origin/proxy/{{openshift_master_cluster_public_hostname}}.key' \
+    --hostnames={{openshift_master_cluster_public_hostname}},"{{host_inventory['auth-proxy-0']['ip4addr']}}"  \
+    --signer-cert=/etc/origin/master/ca.crt \
+    --signer-key='/etc/origin/master/ca.key' \
+    --signer-serial='/etc/origin/master/ca.serial.txt'
+
+- name: Create API client signer certificate
+  command:  oadm ca create-signer-cert \
+    --cert='/etc/origin/proxy/proxyca.crt' \
+    --key='/etc/origin/proxy/proxyca.key' \
+    --name='openshift-proxy-signer@`date +%s`' \
+    --serial='/etc/origin/proxy/proxyca.serial.txt'
+
+#- name: Create API client configuration
+#  command:  oadm create-api-client-config \
+#    --certificate-authority='/etc/origin/proxy/proxyca.crt' \
+#    --client-dir='/etc/origin/proxy' \
+#    --signer-cert='/etc/origin/proxy/proxyca.crt' \
+#    --signer-serial='/etc/origin/proxy/proxyca.serial.txt' \
+#    --user='system:proxy'
+- name: Copy certificates to local host
+  fetch: src="{{item}}" dest=/opt/ansible/tmp/
+  with_items:
+    - /etc/origin/proxy/ca.crt
+    - /etc/origin/proxy/auth_proxy.crt
+    - /etc/origin/proxy/auth_proxy.key
+#    - /etc/origin/proxy/system:proxy.crt
+#    - /etc/origin/proxy/system:proxy.key

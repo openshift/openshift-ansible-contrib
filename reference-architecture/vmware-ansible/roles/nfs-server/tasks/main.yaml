@@ -1,0 +1,51 @@
+---
+  # Parts borrowed from github.com/openshift/openshift-ansible/playbooks/common/openshift-nfs/roles/openshift_storage_nfs_lvm/tasks/main.yml
+  - name: Install NFS server
+    package: name=nfs-utils use=yum state=present
+
+  - name: configure NFS services
+    file: src=etc-sysconfig-nfs dest=/etc/sysconfig/nfs owner=root group=root mode=0644
+
+  # figure if we need to reconfigure firewall if we run in a vApp
+  # https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Storage_Administration_Guide/nfs-serverconfig.html#s2-nfs-nfs-firewall-config
+
+  - name: Start rpcbind
+    service: name=rpcbind state=started enabled=yes
+
+  - name: Start nfs
+    service: name=nfs-server state=started enabled=yes
+
+  - name: Stop firewalld
+    service: name=firewalld state=stopped enabled=no
+
+  - name: Create openshift volume group
+    lvg: vg=openshift pvs=/dev/sdb
+
+  - name: Create lvm volumes
+    lvol: vg=openshift lv=nfs size=95%FREE force=yes
+
+  - name: Create local partition on lvm lv
+    filesystem:
+      fstype: xfs
+      dev: /dev/openshift/nfs
+
+  - name: Mount the partition
+    mount:
+      name: /registry
+      src: /dev/openshift/nfs
+      fstype: xfs
+      state: mounted
+
+  - name: Make mounts owned by nfsnobody
+    file: path=/registry owner=nfsnobody group=nfsnobody mode=0700
+
+  # Making the registry an NFS share
+  - name: Export the directories
+    lineinfile:
+      dest: /etc/exports
+      line: "/registry *(rw,sync,all_squash)"
+    notify: restart nfs
+
+
+  - name: Reload NFS exports
+    command: exportfs -ra

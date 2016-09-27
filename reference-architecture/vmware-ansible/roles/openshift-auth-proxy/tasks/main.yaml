@@ -1,0 +1,51 @@
+---
+# remember, this /opt/ansible/tmp/ is in a container, and even more tmp than /tmp
+# TODO this paths should not be hardcoded
+
+- name: copy certificate to Authentication Proxy
+  copy: src=/opt/ansible/tmp/test-master-0/etc/origin/proxy/auth_proxy.crt dest=/etc/pki/tls/certs/
+
+- name: copy private key to Authentication Proxy
+  copy: src=/opt/ansible/tmp/test-master-0/etc/origin/proxy/auth_proxy.key dest=/etc/pki/tls/private/
+
+- name: copy CA certificate to Authentication Proxy
+  copy: src=/opt/ansible/tmp/test-master-0/etc/origin/proxy/ca.crt dest=/etc/pki/CA/certs/
+
+- name: assemble and copy proxy user certificates
+  assemble: remote_src=false src=/opt/ansible/tmp/test-master-0/etc/origin/proxy regexp="^system.*" dest=/etc/pki/tls/certs/authproxy.pem delimiter=''
+
+- name: install required packages
+  yum: name="{{item}}" enablerepo=rhel-7-server-optional-rpms state=latest
+  with_items:
+    - sssd
+    - sssd-dbus
+    - realmd
+    - adcli
+    - httpd
+    - mod_session
+    - mod_ssl
+    - mod_authnz_pam
+    - mod_lookup_identity
+
+- name: join Active Directory domain
+  command: "realm join {{active_directory_realm}}"
+  notify: restart sssd
+  register: domain_join
+  ignore_errors: true
+
+- name: deploy OpenShift PAM file
+  copy: src=openshift-pam dest=/etc/pam.d/openshift mode=0644
+
+- name: deploy OpenShift httpd configure
+  template: src=openshift-httpd.j2 dest=/etc/httpd/conf.d/openshift-proxy.conf owner=bin group=wheel mode=0644
+
+- name: open firewall to allow access to {80|443}/tcp
+  firewalld: service="{{item}}" permanent=true state=enabled
+  with_items:
+    - http
+    - https
+  notify: restart firewalld
+
+- name: allow httpd to use pam
+  command: setsebool -P allow_httpd_mod_auth_pam on
+  notify: restart httpd

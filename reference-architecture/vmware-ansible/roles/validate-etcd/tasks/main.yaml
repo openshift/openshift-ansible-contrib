@@ -1,0 +1,14 @@
+---
+- name: Validate etcd
+  command: "etcdctl -C https://{{ ansible_nodename }}:2379 --ca-file=/etc/origin/master/master.etcd-ca.crt --cert-file=/etc/origin/master/master.etcd-client.crt --key-file=/etc/origin/master/master.etcd-client.key cluster-health | grep 'cluster is'"
+  register: etcd_health
+
+- name: ETCD Cluster is healthy
+  debug:
+      msg: "Cluster is healthy"
+  when: etcd_health.stdout.find('cluster is healthy') != -1
+
+- name: ETCD Cluster is NOT healthy
+  debug:
+      msg: "Cluster is NOT healthy"
+  when: etcd_health.stdout.find('cluster is healthy') == -1

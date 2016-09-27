@@ -1,0 +1,35 @@
+FROM centos:7
+
+MAINTAINER Christoph Görn <goern@redhat.com>
+
+ENV ANSIBLE_VERSION="2.0.1.0" \
+    PYTHON_VERSION="2.7.5"
+
+# Labels consumed by OpenShift
+LABEL io.k8s.description="This is Ansible 2.0" \
+      io.k8s.display-name="Ansible 2.0.1.0" \
+      io.openshift.tags="ansible, ansible20"
+
+# Labels consumed by Red Hat build service
+LABEL Component="e2e/ansible20" \
+      Name="ansible" \
+      Version="2.0.1.0" \
+      Release="2"
+
+# install all that is required to use http://docs.ansible.com/ansible/vsphere_guest_module.html
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum update-minimal -y --security --sec-severity=Important --sec-severity=Critical --setopt=tsflags=nodocs && \
+    yum install -y --setopt=tsflags=nodocs ansible python-pip && \
+    pip install --upgrade pip && \
+    pip install pysphere && \
+    yum clean all && \
+    rm /etc/ansible/hosts && \
+    yum install -y --setopt=tsflags=nodocs git && \
+    git clone https://github.com/openshift/openshift-ansible /opt/openshift-ansible && \
+    yum erase -y git
+
+VOLUME [ "/etc/ansible/hosts", "/opt/ansible" ]
+
+WORKDIR "/opt/ansible"
+
+ENTRYPOINT [ "ansible-playbook" ]

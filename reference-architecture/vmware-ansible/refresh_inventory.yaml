@@ -1,0 +1,7 @@
+---
+- hosts: localhost
+  name: refresh inventory via scripts
+  remote_user: root
+
+  tasks:
+    - meta: refresh_inventory

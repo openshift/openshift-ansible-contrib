@@ -1,0 +1,365 @@
+---
+- name: Create NFS server VM on vCenter
+  hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+
+  tags: ['nfs', 'infrastructure']
+
+  tasks:
+  - name: Create NFS VM on vCenter
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      # validate_certs: no # this requires ansible21
+      #cluster: "{{ cluster}}"
+      guest: "{{ nfs_server }}"
+      from_template: yes
+      template_src: "{{template_name}}"
+      vm_extra_config:
+        notes: "infrastructure-nfs"
+        folder: "{{ folder }}"
+      esxi:
+        datacenter: "{{datacenter}}"
+        hostname: "10.19.0.83"
+    tags: ['nfs', 'infrastructure', 'vm_creation']
+
+
+#  - name: TODO create vmware template with one disk and attach additional disk to VM using ansible
+
+  - name: Get facts of NFS VM
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      vmware_guest_facts: yes
+      guest: "{{ nfs_server }}"
+    register: actual_nfs_host
+    until: actual_nfs_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
+    retries: 10
+    delay: 10
+    tags: ['nfs', 'infrastructure']
+
+  - debug: var=actual_nfs_host
+  - name: Add NFS server to inventory
+    add_host: hostname={{actual_nfs_host.ansible_facts.hw_name}} ansible_ssh_host={{actual_nfs_host.ansible_facts.hw_eth0.ipaddresses[0]}} groups="nfs_group"
+    tags: ['nfs', 'infrastructure']
+
+- include: playbooks/nfs_service.yaml
+
+
+- name: Create Bastion Host VM on vCenter
+  hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+
+  tags: ["bastion", "infrastructure"]
+
+  tasks:
+  - name: create Bastion VM on vCenter
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      # validate_certs: no # this requires ansible21
+      cluster: "{{ cluster}}"
+      resource_pool: "/Resources/{{ resource_pool }}"
+      guest: "{{ item.value.guestname }}"
+      from_template: yes
+      template_src: "{{template_name}}"
+      power_on_after_clone: true
+      vm_extra_config:
+        folder: "{{ folder }}"
+        notes: "infrastructure-bastion"
+      esxi:
+        datacenter: "{{datacenter}}"
+        hostname: "10.19.0.83"
+    with_dict: "{{infrastructure_hosts}}"
+    when: item.value.guestname == 'bastion'
+    tags: ["bastion", "infrastructure", "vm_creation"]
+
+  - name: get facts of Bastion VM
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      vmware_guest_facts: yes
+      guest: "{{infrastructure_hosts.bastion_host.guestname}}"
+    register: actual_bastion_host
+    until: actual_bastion_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
+    retries: 10
+    delay: 10
+    tags: ["bastion", "infrastructure"]
+
+  - debug: var=actual_bastion_host.ansible_facts.hw_eth0.ipaddresses[0]
+    tags: ["debug"]
+
+  - name: Add Bastion Host to inventory
+    add_host: hostname="{{infrastructure_hosts.bastion_host.guestname}}" ansible_ssh_host="{{actual_bastion_host.ansible_facts.hw_eth0.ipaddresses[0]}}" groups="bastion"
+    tags: ["bastion", "infrastructure"]
+
+- include: playbooks/bastion_host.yaml
+
+
+- name: Create testing environment on vCenter
+  hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+
+  tags:
+    - testing
+
+  tasks:
+  - name: Create testing VMs on vCenter
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      # validate_certs: no # this requires ansible21
+      guest: "{{ item.value.guestname }}"
+      from_template: yes
+      template_src: "{{template_name}}"
+      power_on_after_clone: true
+      vm_extra_config:
+        folder: "{{ folder }}"
+        notes: "{{ item.value.tag }}"
+      esxi:
+        datacenter: "{{datacenter}}"
+        hostname: "10.19.0.83"
+    with_dict: "{{ testing_hosts }}"
+    tags: ['testing', 'infrastructure_setup', 'vm_creation']
+
+  - name: Get facts of testing VMs
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      vmware_guest_facts: yes
+      guest: "{{ item.value.guestname }}"
+    register: actual_testing_hosts
+    with_dict: "{{ testing_hosts }}"
+    until:  actual_testing_hosts.ansible_facts.hw_eth0.ipaddresses[0] is defined
+    retries: 10
+    delay: 10
+    tags: ['testing', 'infrastructure_setup']
+
+  - debug: var=actual_testing_hosts
+
+  - name: Add testing VMs to inventory
+    add_host: hostname={{item.ansible_facts.hw_name}} ansible_ssh_host={{item.ansible_facts.hw_eth0.ipaddresses[0]}} groups="testing_group"
+    with_items: "{{ actual_testing_hosts.results }}"
+    tags: ['testing', 'infrastructure_setup']
+
+
+- include: playbooks/testing.yaml
+
+
+- name: UNIMPLEMENTED Deploy OpenShift Enterprise 3 to testing environment on vCenter
+  hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+    - vars/openshift_testing.yaml
+
+  tags: ['testing', 'ose3_deployment']
+
+#- include: openshift-ansible/playbooks/byo/openshift-cluster/config.yml
+#  tags: ['testing', 'ose3_deployment']
+#  vars:
+# 3.2 items
+#    openshift_additional_repos: [{'id': 'ose3-devel', 'name': 'ose-devel', 'baseurl': ''http://download.lab.bos.redhat.com/rcm-guest/puddles/RHAOS/AtomicOpenShift/3.2/2016-05-03.3/$basearch/o', 'enabled': 1, 'gpgcheck': 0}]
+#    openshift_docker_additional_registries: "repo.{{ public_hosted_zone }}:5000"
+#    openshift_docker_insecure_registries: "repo.{{ public_hosted_zone }}:5000"
+#    openshift_pkg_version: "-3.2.0.41"
+#
+#    openshift_debug_level: "{{ debug_level }}"
+#    openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
+#    openshift_master_debug_level: "{{ master_debug_level | default(debug_level, true) }}"
+#
+#    openshift_node_kubelet_args:
+#      max-pods:
+#      - "100"
+#
+#    openshift_master_access_token_max_seconds: 2419200
+
+- name: Create production environment on vCenter
+  hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+
+  tags:
+    - production
+
+  tasks:
+  - name: create production VMs on vCenter
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      # validate_certs: no # this requires ansible21
+      cluster: "{{ cluster}}"
+      resource_pool: "{{ resource_pool }}"
+      guest: "{{ item.value.guestname }}"
+      from_template: yes
+      template_src: "{{template_name}}"
+      power_on_after_clone: true
+      vm_extra_config:
+        folder: "{{ folder }}"
+        notes: "{{ item.value.tag }}"
+      esxi:
+        datacenter: "{{datacenter}}"
+        hostname: "10.19.0.83"
+    with_dict: "{{production_hosts}}"
+    tags: ['production', 'infrastructure_setup', 'vm_creation']
+
+  - name: get facts of production Hosts
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      vmware_guest_facts: yes
+      guest: "{{ item.value.guestname }}"
+    register: actual_production_hosts
+    with_dict: "{{production_hosts}}"
+    until: actual_production_hosts.ansible_facts.hw_eth0.ipaddresses[0] is defined
+    retries: 10
+    delay: 10
+    tags: ['production', 'infrastructure_setup']
+
+  - name: Add production Hosts to inventory
+    add_host: hostname={{item.ansible_facts.hw_name}} ansible_ssh_host={{item.ansible_facts.hw_eth0.ipaddresses[0]}} groups="production"
+    with_items: "{{actual_production_hosts.results}}"
+    tags: ['production', 'infrastructure_setup']
+
+- include: playbooks/production.yaml
+
+- name: UNIMPLEMENTED Deploy OpenShift Enterprise 3 to production environment on vCenter
+  hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+    - vars/openshift_production.yaml
+
+  tags: ['production', 'ose3_deployment']
+
+- name: Post installation steps for OpenShift Enterprise 3 on vCenter
+  hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+
+  tags:  ['testing', 'post_installation', 'deploy_currentweather']
+
+  tasks:
+  - name: get facts of testing Hosts
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      vmware_guest_facts: yes
+      guest: "{{ item.value.guestname }}"
+    register: actual_testing_hosts
+    with_dict: "{{testing_hosts}}"
+    until: actual_testing_hosts.ansible_facts.hw_eth0.ipaddresses[0] is defined
+    retries: 10
+    delay: 10
+    tags: ['testing', 'post_installation', 'deploy_currentweather']
+
+  - name: Add testing Hosts to inventory
+    add_host: hostname={{item.ansible_facts.hw_name}} ansible_ssh_host={{item.ansible_facts.hw_eth0.ipaddresses[0]}} groups="testing"
+    with_items: "{{actual_testing_hosts.results}}"
+    tags: ['testing', 'post_installation', 'deploy_currentweather']
+
+- include: playbooks/deploy_the_registry.yaml
+- include: playbooks/deploy_currentweather.yaml
+
+
+- name: Create Authentication Proxy VM on vCenter
+  hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+    - vars/infrastructure.yaml
+
+  tags: ['auth_proxy', 'post_installation', 'infrastructure']
+
+  tasks:
+  - name: create VM on vCenter
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      # validate_certs: no # this requires ansible21
+      cluster: "{{ cluster}}"
+      resource_pool: "{{ resource_pool }}"
+      guest: "{{ item.value.guestname }}"
+      from_template: yes
+      template_src: "{{template_name}}"
+      power_on_after_clone: true
+      vm_extra_config:
+        folder: "{{ folder }}"
+        notes: "infrastructure-auth"
+      esxi:
+        datacenter: "{{datacenter}}"
+        hostname: "10.19.0.83"
+    with_dict: "{{infrastructure_hosts}}"
+    when: item.value.guestname == 'auth-proxy-0'
+    tags: ['auth_proxy', 'post_installation', 'infrastructure', 'vm_creation']
+
+  - name: get facts of auth proxy VM
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      vmware_guest_facts: yes
+      guest: "{{infrastructure_hosts.auth_proxy_0.guestname}}"
+    register: actual_auth_proxy_host
+    until: actual_auth_proxy_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
+    retries: 10
+    delay: 10
+    tags: ['auth_proxy', 'post_installation', 'infrastructure']
+
+  - name: get facts of testing VMs
+    vsphere_guest:
+      vcenter_hostname: "{{ vcenter_host }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      vmware_guest_facts: yes
+      guest: "{{ item.value.guestname }}"
+    register: actual_testing_hosts
+    with_dict: "{{testing_hosts}}"
+    until: actual_testing_hosts.ansible_facts.hw_eth0.ipaddresses[0] is defined
+    retries: 10
+    delay: 10
+    tags: ['auth_proxy', 'post_installation', 'infrastructure']
+
+  - name: Add auth proxy to inventory
+    add_host: hostname="{{infrastructure_hosts.auth_proxy_0.guestname}}" ansible_ssh_host="{{actual_auth_proxy_host.ansible_facts.hw_eth0.ipaddresses[0]}}" groups="auth_proxy"
+    tags: ['auth_proxy', 'post_installation', 'infrastructure']
+
+  - name: Add testing Hosts to inventory
+    add_host: hostname={{item.ansible_facts.hw_name}} ansible_ssh_host={{item.ansible_facts.hw_eth0.ipaddresses[0]}} groups="testing"
+    with_items: "{{actual_testing_hosts.results}}"
+    tags: ['auth_proxy', 'post_installation', 'infrastructure']
+
+- include: playbooks/auth_proxy.yaml

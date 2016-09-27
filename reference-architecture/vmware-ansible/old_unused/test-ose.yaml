@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+  roles:
+    - create-vm-test-ose
+  tags: ['create_vms']
+
+- name: fulfill OSE3 prerequisites on testing hosts roles
+  hosts: testing_group
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+
+  roles:
+    - static-ipaddress
+    - rhn-subscription
+    - rhn-repos
+    - vmware-guest-setup
+    - test-ose

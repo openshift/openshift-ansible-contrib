@@ -1,0 +1,20 @@
+---
+- name: be sure chrony is installed
+  yum: name=chrony state=installed
+
+- name: be sure katello-agent is installed
+  yum: name=katello-agent state=installed
+
+- name: be sure chrony is configured
+  template: src=chrony.conf.j2 dest=/etc/chrony.conf
+  notify:
+    - restart chronyd
+
+- name: be sure chronyd is running and enabled
+  service: name=chronyd state=running enabled=yes
+
+- name: set link to localtime
+  file: state=link
+        src=/usr/share/zoneinfo/{{timezone}}
+        dest=/etc/localtime
+        force=yes

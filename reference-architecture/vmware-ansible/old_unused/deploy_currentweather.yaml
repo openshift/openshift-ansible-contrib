@@ -1,0 +1,42 @@
+---
+- name: deploy ACME Corp's Currentweather to OSE3
+  hosts: "test-master-0"
+  user: root
+  become: false
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+
+  tags: ['deploy_currentweather', 'post_installation']
+
+  tasks:
+  - name: Create Currentweather project
+    command: oc new-project currentweather
+    ignore_errors: true
+    tags: ['deploy_currentweather', 'post_installation']
+
+  - name: Switch to currentweather project
+    command: oc project currentweather
+    tags: ['deploy_currentweather', 'post_installation']
+
+  - name: Clear off all that is deployed
+    command: oc delete all --all
+    ignore_errors: true
+    tags: ['deploy_currentweather', 'post_installation']
+
+# FIXME TODO check if we redeploy and than replace rather than create
+  - name: Create currentweather template
+    command: oc create -f https://raw.githubusercontent.com/goern/currentweather/master/openshift/currentweather-template.yaml
+    tags: ['deploy_currentweather', 'post_installation']
+
+  - name: Add admin as a currentweather admin
+    command: oadm policy add-role-to-user admin -n currentweather admin
+    tags: ['deploy_currentweather', 'post_installation']
+
+  - name: Create currentweather application from template
+    command: oc new-app currentweather
+    tags: ['deploy_currentweather', 'post_installation']
+
+  - name: Delete route that we dont need
+    command: oc delete route route53-syseng-us
+    tags: ['deploy_currentweather', 'post_installation']

@@ -1,0 +1,45 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  vars_files:
+      - ../vars/main.yaml
+      - ../vars/infrastructure.yaml
+  roles:
+      # Group systems
+      - instance-groups
+
+- hosts: schedulable_nodes
+  gather_facts: yes
+  become: yes
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+  roles:
+      - openshift-images
+      - openshift-emptydir-quota
+
+- hosts: primary_master
+  gather_facts: yes
+  become: yes
+  vars_files:
+      - ../vars/main.yaml
+      - ../vars/infrastructure.yaml
+  roles:
+      - openshift-registry
+
+- hosts: masters
+  gather_facts: no
+  vars_files:
+      - ../vars/main.yaml
+      - ../vars/infrastructure.yaml
+  roles:
+      - openshift-default-selector
+
+- hosts: primary_master
+  gather_facts: yes
+  become: yes
+  vars_files:
+      - ../vars/main.yaml
+      - ../vars/infrastructure.yaml
+  roles:
+      - openshift-infra-pod-scale

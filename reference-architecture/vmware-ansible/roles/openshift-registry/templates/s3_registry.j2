@@ -1,0 +1,23 @@
+version: 0.1
+log:
+  level: debug
+http:
+  addr: :5000
+storage:
+  cache:
+    layerinfo: inmemory
+  s3:
+    accesskey: "{{ hostvars['localhost']['s3user_id'] }}"
+    secretkey: "{{ hostvars['localhost']['s3user_secret'] }}"
+    region: {{ region }}
+    bucket: "{{ hostvars['localhost']['s3_bucket'] }}"
+    encrypt: true
+    secure: true
+    v4auth: true
+    rootdirectory: /registry
+auth:
+  openshift:
+    realm: openshift
+middleware:
+  repository:
+    - name: openshift

@@ -1,0 +1,21 @@
+---
+openshift_additional_repos: "[{'id': 'aep-devel', 'name': 'aep-devel', 'baseurl': 'http://download.lab.bos.redhat.com/rcm-guest/puddles/RHAOS/AtomicOpenShift/3.2/2016-05-12.2/$basearch/os', 'enabled': 1, 'gpgcheck': 0}]"
+openshift_pkg_version: "-3.2.0.44"
+openshift_docker_additional_registries: "brew-pulp-docker01.web.prod.ext.phx2.redhat.com:8888"
+openshift_docker_insecure_registries: "brew-pulp-docker01.web.prod.ext.phx2.redhat.com:8888"
+
+# Allow all auth
+openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"
+#openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+
+#osm_default_node_selector: 'region=primary'
+#openshift_router_selector: 'region=infra'
+#openshift_registry_selector: 'region=infra'
+
+osn_storage_plugin_deps: []
+
+openshift_use_openshift_sdn: true
+os_sdn_network_plugin_name: "redhat/openshift-ovs-multitenant"
+
+# This is the PersistentVolume to be used by the registry in testing environment
+registry_pv: "pv-nfs-0-pv2g0000"

@@ -1,0 +1,18 @@
+# This file is managed by Ansible
+
+server clock.corp.redhat.com iburst
+server clock.redhat.com iburst
+server clock2.redhat.com iburst
+
+driftfile /var/lib/chrony/drift
+makestep 10 3
+
+keyfile /etc/chrony.keys
+commandkey 1
+generatecommandkey
+
+noclientlog
+logchange 0.5
+
+logdir /var/log/chrony
+log measurements statistics tracking

@@ -1,0 +1,25 @@
+---
+- hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+  roles:
+    - create_vm_bastion
+  tags: ['create_vms']
+
+- name: Deploy Bastion VM
+  hosts: bastion
+  user: root
+  become: false
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+
+  roles:
+    - static_ipaddress
+    - rhn-subscription
+    - rhn-repos
+    - e2e_vcenter_host
+    - bastion

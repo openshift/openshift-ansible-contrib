@@ -1,0 +1,18 @@
+---
+- name: Deploy NFS server
+  hosts: nfs_group
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+
+- name: Provision NFS server
+  hosts: nfs_group
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+
+  roles:
+    - static_ipaddress
+    - e2e_vcenter_host
+    - nfs-server
+  tags: ['nfs', 'infrastructure']

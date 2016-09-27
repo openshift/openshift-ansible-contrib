@@ -1,0 +1,72 @@
+---
+- name: deploy a OSE3 registry within testing environment, This implements https://docs.openshift.com/enterprise/3.2/install_config/install/docker_registry.html#registry-production-use
+  hosts: "test-master-0"
+  user: root
+  become: false
+  vars_files:
+    - ../vars/main.yaml
+    - ../vars/infrastructure.yaml
+    - ../vars/testing.yaml
+
+  tags: ['testing', 'post_installation', 'deploy_registry']
+
+  tasks:
+  - name: Switch to default project
+    command: oc project default
+    tags: ['testing', 'post_installation', 'deploy_registry']
+
+  - name: Check whether a registry exists or not
+    command: oadm registry --dry-run
+    register: registry_out
+    ignore_errors: true
+    tags: ['testing', 'post_installation', 'deploy_registry']
+
+  - name: Install registry
+    command: "oadm registry --selector='region=infra' --config=/etc/origin/master/admin.kubeconfig --service-account=registry"
+    when: registry_out | failed
+    ignore_errors: true
+    tags: ['testing', 'post_installation', 'deploy_registry']
+
+  # TODO check if we can eliminate redundancy with https://gitlab.cee.redhat.com/e2e/ose-on-aws/blob/master/refarch-ansible/playbooks/roles/openshift-registry/tasks/main.yaml#L39
+
+  - name: Create a YAML file for the PersistentVolumeClaim
+    template:
+      src: pvc.yaml.j2
+      dest: /root/registry-pvc.yaml
+    tags: ['testing', 'post_installation', 'deploy_registry']
+
+  - name: Check for PersistentVolumeClaim
+    command: oc get pvc registry-storage
+    register: registry_pvc_out
+    ignore_errors: true
+
+  - name: Create PersistentVolumeClaim from YAML
+    command: oc create -f /root/registry-pvc.yaml
+    when: registry_pvc_out | failed
+    tags: ['testing', 'post_installation', 'deploy_registry']
+
+  - name: Check if registry is still using empty directory
+    command: oc volume dc/docker-registry
+    register: registry_dc_out
+    tags: ['testing', 'post_installation', 'deploy_registry']
+
+  - name: Attach volume to registry DC
+    command: >
+      oc volume dc/docker-registry --add --overwrite -t persistentVolumeClaim
+      --claim-name=registry-storage --name=registry-storage
+    when: "'empty directory' in registry_dc_out.stdout"
+    register: registry_volume_attached
+    tags: ['testing', 'post_installation', 'deploy_registry']
+
+  - name: Make sure registry deployment version is non-zero
+    shell: "oc get --no-headers dc/docker-registry | awk '{print $3}'"
+    register: deployer_waiter_out
+    until: '"0" not in deployer_waiter_out.stdout'
+    retries: 15
+    delay: 10
+    tags: ['testing', 'post_installation', 'deploy_registry']
+
+  - name: Determine registry deployment version
+    shell: "oc get --no-headers dc/docker-registry | awk '{print $3}'"
+    register: registry_version_out
+    tags: ['testing', 'post_installation', 'deploy_registry']
