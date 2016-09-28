@@ -14,7 +14,4 @@
   service: name=chronyd state=running enabled=yes
 
 - name: set link to localtime
-  file: state=link
-        src=/usr/share/zoneinfo/{{timezone}}
-        dest=/etc/localtime
-        force=yes
+  command: timedatectl set-timezone {{timezone}}
