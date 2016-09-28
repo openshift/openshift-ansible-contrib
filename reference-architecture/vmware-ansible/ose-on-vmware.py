@@ -48,7 +48,7 @@ import click, os, sys, fileinput
                 hide_input=True,)
 @click.option('--rhsm_activation_key', default='act-dev-infra-openshift3', help='Red Hat Subscription Management User')
 @click.option('--rhsm_org_id', default='Default_Organization', help='Red Hat Subscription Management Password')
-@click.option('--rhsm_pool', help='Red Hat Subscription Management User')
+@click.option('--rhsm_pool', help='Red Hat Subscription Management Pool ID or Subscription Name', default="Red Hat OpenShift Container Platform, Standard, 2-Core")
 
 ### Miscellaneous options
 @click.option('--byo_lb', default='no', help='skip haproxy install when one exists within the environment',
