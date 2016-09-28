@@ -1,39 +1,4 @@
 ---
-# These will be the variables that can be overloaded via the wrapper script
-vcenter_host: '10.19.114.221'
-vcenter_username: 'administrator@vsphere.local'
-vcenter_password: 'P@ssw0rd'
-#vcenter_template_name: 'ose3-server-template-2.0.2'
-#vcenter_folder: 'ose3'
-#vcenter_datacenter: 'Boston'
-#vcenter_cluster: 'devel'
-#vcenter_datastore: 'ose3-vmware'
-#vcenter_resource_pool: '/Resources/OSE3'
-#public_hosted_zone: "vcenter.e2e.bos.redhat.com"
-#app_dns_prefix: "apps"
-#vm_dns: '10.19.114.5'
-#vm_gw: '10.19.115.254'
-#vm_interface_name: 'eno16780032'
-# Network Variables
-# TODO Do we need this? connection_name_from_template: 'public'
-#wildcard_zone: "{{ app_dns_prefix }}.{{ public_hosted_zone }}"
-# RHN variables
-#rhsm_activation_key: 'act-dev-infra-openshift3'
-#rhsm_org_id: 'Default_Organization'
-# OR rhsm_user: sysengra
-# rhsm_password: supersecretpasswordhere
-#lb_fqdn: 'haproxy-0.vcenter.e2e.bos.redhat.com'
-# Registry variables
-#nfs_registry_host: 'nfs-0.vcenter.e2e.bos.redhat.com'
-#nfs_registry_mountpoint: '/registry'
-
-
-# Do we even need this?
-AdRealm: 'e2e.bos.redhat.com'
-AdBindDN: "cn=openshift,cn=users,dc=e2e,dc=bos,dc=redhat,dc=com"
-AdBindPassword: "password"
-AdBindUrl: "ldap://e2e.bos.redhat.com:389/cn=users,dc=e2e,dc=bos,dc=redhat,dc=com?sAMAccountName"
-
 # OpenShift variables
 openshift_master_cluster_hostname: "{{ lb_fqdn }}"
 openshift_master_cluster_public_hostname: "{{ lb_fqdn }}"

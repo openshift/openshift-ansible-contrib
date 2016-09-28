@@ -48,6 +48,7 @@ import click, os, sys, fileinput
                 hide_input=True,)
 @click.option('--rhsm_activation_key', default='act-dev-infra-openshift3', help='Red Hat Subscription Management User')
 @click.option('--rhsm_org_id', default='Default_Organization', help='Red Hat Subscription Management Password')
+@click.option('--rhsm_pool', help='Red Hat Subscription Management User')
 
 ### Miscellaneous options
 @click.option('--byo_lb', default='no', help='skip haproxy install when one exists within the environment',
@@ -68,14 +69,14 @@ import click, os, sys, fileinput
 @click.option('-v', '--verbose', count=True)
 @click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook')
 @click.option('-l', '--local', is_flag=True,help='Local installation of ansible instead of our container')
-	
+
 def launch_refarch_env(console_port=8443,
                     deployment_type=None,
                     vcenter_host=None,
                     vcenter_username=None,
                     vcenter_password=None,
                     vcenter_template_name=None,
-		    vcenter_folder=None,
+		            vcenter_folder=None,
                     vcenter_datacenter=None,
                     vcenter_cluster=None,
                     vcenter_datastore=None,
@@ -89,13 +90,14 @@ def launch_refarch_env(console_port=8443,
                     rhsm_password=None,
                     rhsm_activation_key=None,
                     rhsm_org_id=None,
+                    rhsm_pool=None,
                     byo_lb=None,
                     lb_fqdn=None,
                     byo_nfs=None,
                     nfs_registry_host=None,
                     nfs_registry_mountpoint=None,
                     no_confirm=False,
-		    tag=None,
+		            tag=None,
                     verbose=0,
 		    local=None):
 
@@ -113,7 +115,8 @@ def launch_refarch_env(console_port=8443,
     rhsm_activation_key = click.prompt("Satellite Server Activation Key?")
   if rhsm_org_id is None:
     rhsm_org_id = click.prompt("Organization ID for Satellite Server?", confirmation_prompt=True)
-
+  if rhsm_pool is None:
+    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
@@ -162,8 +165,8 @@ def launch_refarch_env(console_port=8443,
 	  click.echo('\trhsm_user: %s' % rhsm_user)
 	  click.echo('\trhsm_password: *******')
 
-  
-  if rhsm_activation_key is not None: 
+
+  if rhsm_activation_key is not None:
 	  auth_method = 'key'
 	  click.echo('\trhsm_activation_key: %s' % rhsm_activation_key)
 	  click.echo('\trhsm_org_id: rhsm_org_id')
@@ -245,6 +248,7 @@ def launch_refarch_env(console_port=8443,
     rhsm_password=%s \
     rhsm_activation_key=%s \
     rhsm_org_id=%s \
+    rhsm_pool=%s \
     lb_fqdn=%s \
     auth_method=%s \
     nfs_registry_host=%s \

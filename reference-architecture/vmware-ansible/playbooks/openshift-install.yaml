@@ -9,7 +9,7 @@
       - instance-groups
 
 - hosts: cluster_hosts
-  gather_facts: no
+  gather_facts: yes
   vars_files:
       - ../vars/infrastructure.yaml
       - ../vars/main.yaml
@@ -33,7 +33,7 @@
       - docker-storage-setup
 
 - name: call openshift includes for installer
-  include:  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml 
+  include:  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
   vars:
     debug_level: 2
     console_port: 8443

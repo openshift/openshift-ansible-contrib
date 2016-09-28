@@ -30,7 +30,6 @@ RUN git clone https://github.com/openshift/openshift-ansible && mkdir -p /usr/sh
 # Awaiting PR merge
 
 COPY vsphere_guest.py /usr/lib/python2.7/site-packages/ansible/modules/core/cloud/vmware/
-#COPY vi_virtual_machine.py /usr/lib/python2.7/site-packages/pysphere/
 WORKDIR "/opt/ansible"
 
 ENTRYPOINT [ "ansible-playbook" ]

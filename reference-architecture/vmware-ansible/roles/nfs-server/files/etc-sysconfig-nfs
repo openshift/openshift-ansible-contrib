@@ -1,4 +1,4 @@
-# This file is managed by Ansible.
+# {{ ansible_managed }}
 #
 #LOCKDARG=
 LOCKD_TCPPORT=32803

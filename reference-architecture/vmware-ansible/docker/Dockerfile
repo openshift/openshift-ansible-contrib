@@ -26,7 +26,6 @@ VOLUME [ "/etc/ansible/hosts", "/opt/ansible" ]
 # Add in patched version of vsphere_guest.py
 # Awaiting PR merge
 COPY vsphere_guest.py /usr/lib/python2.7/site-packages/ansible/modules/core/cloud/vmware/
-#COPY vi_virtual_machine.py /usr/lib/python2.7/site-packages/pysphere/
 WORKDIR "/opt/ansible"
 
 ENTRYPOINT [ "ansible-playbook" ]

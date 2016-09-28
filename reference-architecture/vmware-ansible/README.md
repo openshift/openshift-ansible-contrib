@@ -10,15 +10,15 @@ The repository contains Ansible playbooks which deploy 3 Masters, 2 infrastructu
 Internal DNS should be set up to reflect the number of nodes in the environment. The default VM network should have a DHCP server set up for initial provisioning. Lastly, in the var/infrastructure.yaml ip information should also be provided for the nodes in question. Here, VM guest names and other items can be customized.
 
 ### OpenShift Playbooks
-The code in this repository handles all of the VMware specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-aws.py.
+The code in this repository handles all of the VMware specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-vmware.py.
 
 ```
 subscription-manager repos --enable rhel-7-server-optional-rpms
 subscription-manager repos --enable rhel-7-server-ose-3.2-rpms
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm*
 yum -y install atomic-openshift-utils \
-                 python2-boto \
                  git \
+                 pyOpenSSL \
                  python-netaddr \
                  python-httplib2
 
@@ -82,10 +82,10 @@ cp ~/.ssh/id_rsa ose-on-vmware/vmware-ansible/ssh_key/ose3-installer
 ### VMware Template Name
 This is your VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.2. The deployment assumes that initially DHCP will be configured. Once the new VM is started with vmtoolsd running, we extract out the DHCP address then use our infrastructure vars for the static ip addresses to use.
 
-### New AWS Environment (Greenfield)
+### New VMware Environment (Greenfield)
 When installing all components into your VMware environment perform the following.   This will create the haproxy, the nfs server for the registry, and all the production OpenShift VMs. Additionally, the installer script will attempt to copy your existing public key to the VMs.
 ```
-./ose-on-vmware.py --vcenter_host=my_vcenter_host --vcenter_username="administrator@vsphere.local" --vcenter_password="***" --vcenter_template_name=ose3-server-template-2.0.2 --rhsm-user=rh-user --rhsm-password=password --public-hosted-zone=vcenter.e2e.bos.redhat.com --vm_dns=4.4.4.4 --vm_gw=10.0.0.1 --vm_interface_name=eth0
+./ose-on-vmware.py --vcenter_host=my_vcenter_host --vcenter_username="administrator@vsphere.local" --vcenter_password="***" --vcenter_template_name=ose3-server-template-2.0.2 --rhsm-user=rh-user --rhsm-password=password --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --public-hosted-zone=vcenter.e2e.bos.redhat.com --vm_dns=4.4.4.4 --vm_gw=10.0.0.1 --vm_interface_name=eth0
 ```
 
 ### Existing VM Environment and Deployment (Brownfield)
@@ -99,5 +99,5 @@ Lastly, the ose-demo tag will deploy a sample application and test cluster healt
 
 Notice in the instance below we are supplying our own external NFS server and load balancer.
 ```
-./ose-on-vmware.py --vcenter_host=my_vcenter_host --vcenter_username="administrator@vsphere.local" --vcenter_password="***" --vcenter_template_name=ose3-server-template-2.0.2 --rhsm-user=rh-user --rhsm-password=password --public-hosted-zone=vcenter.e2e.bos.redhat.com --vm_dns=4.4.4.4 --vm_gw=10.0.0.1 --vm_interface_name=eth0 --byo_lb=yes --lb_fqdn=loadbalancer.yourorg.com --byo_nfs=yes --nfs_registry_host=your_nfsserver.yourorg.com --nfs_registry_mountpoint=/registry --tag ose-install,ose-configure,ose-demo
+./ose-on-vmware.py --vcenter_host=my_vcenter_host --vcenter_username="administrator@vsphere.local" --vcenter_password="***" --vcenter_template_name=ose3-server-template-2.0.2 --rhsm-user=rh-user --rhsm-password=password --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --public-hosted-zone=vcenter.e2e.bos.redhat.com --vm_dns=4.4.4.4 --vm_gw=10.0.0.1 --vm_interface_name=eth0 --byo_lb=yes --lb_fqdn=loadbalancer.yourorg.com --byo_nfs=yes --nfs_registry_host=your_nfsserver.yourorg.com --nfs_registry_mountpoint=/registry --tag ose-install,ose-configure,ose-demo
 ```

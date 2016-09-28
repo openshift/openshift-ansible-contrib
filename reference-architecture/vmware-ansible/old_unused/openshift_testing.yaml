@@ -1,7 +1,0 @@
----
-debug_level: 1
-
-deployment_type: "openshift-enterprise"
-openshift_install_examples: true
-
-openshift_set_hostname: true
