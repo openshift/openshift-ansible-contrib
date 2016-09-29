@@ -3,9 +3,6 @@ infrastructure_hosts:
   nfs_server:
     guestname: 'nfs-0'
     tag: 'nfs'
-  auth_proxy_0:
-    guestname: 'auth-proxy-0'
-    tag: 'auth'
   haproxy:
     guestname: 'haproxy-0'
     tag: 'proxy'
@@ -41,10 +38,6 @@ host_inventory:
     guestname: 'nfs-0'
     ip4addr: '10.19.114.224'
     tag: 'nfs'
-  auth-proxy-0:
-    guestname: 'auth-proxy-0'
-    ip4addr: '10.19.114.225'
-    tag: 'auth'
   haproxy-0:
     guestname: 'haproxy-0'
     ip4addr: '10.19.114.238'
