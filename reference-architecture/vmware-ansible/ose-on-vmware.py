@@ -167,11 +167,13 @@ def launch_refarch_env(console_port=8443,
   	click.echo('\tbyo_nfs: %s' % byo_nfs)
 	if byo_nfs == "no":
   		click.echo('\tNFS VM name: %s' % nfs_host)
-	  	click.echo('\tbyo_lb: %s' % lb_host)
+	  	click.echo('\tbyo_lb: %s' % byo_lb)
 	if byo_lb == "no":
   		click.echo('\tHAproxy LB VM name: %s' % lb_host)
 	  	click.echo('\tStarting IP: %s' % vm_ipaddr_start)
-	
+	click.echo("")
+	if not no_confirm:
+    		click.confirm('Continue using these values?', abort=True)	
 	# Create the inventory file and exit 
 	total_nodes=int(master_nodes)+int(app_nodes)+int(infra_nodes)+int(support_nodes)
 
