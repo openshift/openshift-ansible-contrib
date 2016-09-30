@@ -164,6 +164,7 @@ def launch_refarch_env(console_port=8443,
   	click.echo('\tapp_nodes: %s' % app_nodes)
   	click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
   	click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
+	click.echo('\tose_hostname_prefix: %s' % ose_hostname_prefix)
   	click.echo('\tbyo_nfs: %s' % byo_nfs)
 	if byo_nfs == "no":
   		click.echo('\tNFS VM name: %s' % nfs_host)
@@ -271,6 +272,7 @@ def launch_refarch_env(console_port=8443,
 	        del ip4addr[0]
 	print "# Here is what should go into your DNS records"
 	print("\n".join(bind_entry))
+	print "Please note, if you have chosen to bring your own loadbalancer and NFS Server you will need to ensure that these records are added to DNS and properly resolve. "
 
 	with open('infrastructure.json', 'w') as outfile:
 	    json.dump(d, outfile)
@@ -366,7 +368,7 @@ def launch_refarch_env(console_port=8443,
     else:
 	command='docker run -t --rm --volume `pwd`:/opt/ansible:rw --net=host ansible:2.2-latest'
 
-    command=command + ' --tags %s -e \'vcenter_host=%s \
+    command=command + ' --extra-vars "@./infrastructure.json" --tags %s -e \'vcenter_host=%s \
     vcenter_username=%s \
     vcenter_password=%s \
     vcenter_template_name=%s \

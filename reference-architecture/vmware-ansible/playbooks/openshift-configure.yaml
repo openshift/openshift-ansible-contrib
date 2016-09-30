@@ -3,7 +3,7 @@
   gather_facts: yes
   vars_files:
       - ../vars/main.yaml
-      - ../vars/infrastructure.yaml
+#      - ../vars/infrastructure.yaml
   roles:
       # Group systems
       - instance-groups
@@ -13,7 +13,7 @@
   become: yes
   vars_files:
     - ../vars/main.yaml
-    - ../vars/infrastructure.yaml
+ #   - ../vars/infrastructure.yaml
   roles:
       - openshift-images
       - openshift-emptydir-quota
@@ -23,7 +23,7 @@
   become: yes
   vars_files:
       - ../vars/main.yaml
-      - ../vars/infrastructure.yaml
+  #    - ../vars/infrastructure.yaml
   roles:
       - openshift-registry
 
@@ -31,7 +31,7 @@
   gather_facts: no
   vars_files:
       - ../vars/main.yaml
-      - ../vars/infrastructure.yaml
+   #   - ../vars/infrastructure.yaml
   roles:
       - openshift-default-selector
 
@@ -40,6 +40,6 @@
   become: yes
   vars_files:
       - ../vars/main.yaml
-      - ../vars/infrastructure.yaml
+    #  - ../vars/infrastructure.yaml
   roles:
       - openshift-infra-pod-scale
