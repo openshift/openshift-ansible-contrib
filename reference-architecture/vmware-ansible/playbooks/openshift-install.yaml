@@ -3,7 +3,7 @@
   gather_facts: yes
   vars_files:
       - ../vars/main.yaml
-      - ../vars/infrastructure.yaml
+#      - ../vars/infrastructure.yaml
   roles:
       # Group systems
       - instance-groups
@@ -11,7 +11,7 @@
 - hosts: cluster_hosts
   gather_facts: yes
   vars_files:
-      - ../vars/infrastructure.yaml
+ #     - ../vars/infrastructure.yaml
       - ../vars/main.yaml
   roles:
       - prerequisites
@@ -19,7 +19,7 @@
 - hosts: schedulable_nodes
   gather_facts: no
   vars_files:
-      - ../vars/infrastructure.yaml
+  #    - ../vars/infrastructure.yaml
       - ../vars/main.yaml
   roles:
       - openshift-volume-quota
@@ -27,7 +27,7 @@
 - hosts: cluster_hosts
   gather_facts: no
   vars_files:
-      - ../vars/infrastructure.yaml
+   #   - ../vars/infrastructure.yaml
       - ../vars/main.yaml
   roles:
       - docker-storage-setup

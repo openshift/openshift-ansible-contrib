@@ -4,7 +4,7 @@
   become: false
   vars_files:
     - ../vars/main.yaml
-    - ../vars/infrastructure.yaml
+   # - ../vars/infrastructure.yaml
   tasks:
     - name: Delete production VMs
       vsphere_guest:

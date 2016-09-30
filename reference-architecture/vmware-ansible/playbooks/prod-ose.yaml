@@ -2,7 +2,7 @@
 - hosts: localhost
   vars_files:
     - ../vars/main.yaml
-    - ../vars/infrastructure.yaml
+#    - ../vars/infrastructure.yaml
   roles:
     - create-vm-prod-ose
   tags: ['create_vms']
@@ -11,7 +11,7 @@
   hosts: production_group
   vars_files:
     - ../vars/main.yaml
-    - ../vars/infrastructure.yaml
+ #   - ../vars/infrastructure.yaml
 
   roles:
     - static-ipaddress
