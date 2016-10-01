@@ -10,4 +10,5 @@
 # Upload ssh-key
       - { role: ssh-key, when: create_key == "yes" }
 # Create VPC and subnets in multiple AZ
+      - pre-install-check 
       - cloudformation-infra
