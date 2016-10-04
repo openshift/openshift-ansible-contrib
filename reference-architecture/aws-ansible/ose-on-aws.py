@@ -14,6 +14,8 @@ import sys
               show_default=True)
 
 ### AWS/EC2 options
+@click.option('--stack-name', default='OpenShift-Infra', help='CloudFormation stack name',
+              show_default=True)
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
 @click.option('--ami', default='ami-10251c7a', help='ec2 ami',
@@ -65,8 +67,12 @@ import sys
               help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
+@click.option('--vars-file', default='vars/main.yaml',
+            help="Location of environment specific variables",
+            show_default=True)
 
-def launch_refarch_env(region=None,
+def launch_refarch_env(stack_name=None,
+                    region=None,
                     ami=None,
                     no_confirm=False,
                     master_instance_type=None,
@@ -91,11 +97,16 @@ def launch_refarch_env(region=None,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_pool=None,
+                    vars_file=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
+
+  # If user specified a custom vars_file and not a custom stack_name
+  if vars_file !='platform/vars/main.yaml' and stack_name == 'OpenShift-Infra':
+    stack_name = click.prompt('Specify a name for the CloudFormation stack')
 
   # Create ssh key pair in AWS if none is specified
   if create_key in 'yes' and key_path in 'no':
@@ -143,6 +154,7 @@ def launch_refarch_env(region=None,
   # Display information to the user about their choices
   click.echo('Configured values:')
   click.echo('\tami: %s' % ami)
+  click.echo('\tstack_name: %s' % stack_name)
   click.echo('\tregion: %s' % region)
   click.echo('\tmaster_instance_type: %s' % master_instance_type)
   click.echo('\tnode_instance_type: %s' % node_instance_type)
@@ -167,6 +179,7 @@ def launch_refarch_env(region=None,
   click.echo('\trhsm_user: %s' % rhsm_user)
   click.echo('\trhsm_password: *******')
   click.echo('\trhsm_pool: %s' % rhsm_pool)
+  click.echo('\tvars_file: %s' % vars_file)
   click.echo("")
 
   if not no_confirm:
@@ -193,6 +206,7 @@ def launch_refarch_env(region=None,
 
     command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
     ami=%s \
+    stack_name=%s \
     keypair=%s \
     create_key=%s \
     key_path=%s \
@@ -214,8 +228,10 @@ def launch_refarch_env(region=None,
     deployment_type=%s \
     rhsm_user=%s \
     rhsm_password=%s \
-    rhsm_pool=%s \' %s' % (region,
+    rhsm_pool=%s \
+    vars_file=%s \' %s' % (region,
                     ami,
+                    stack_name,
                     keypair,
                     create_key,
                     key_path,
@@ -238,6 +254,7 @@ def launch_refarch_env(region=None,
                     rhsm_user,
                     rhsm_password,
                     rhsm_pool,
+                    vars_file
                     playbook)
 
     if verbose > 0:

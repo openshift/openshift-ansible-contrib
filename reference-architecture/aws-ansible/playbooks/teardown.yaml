@@ -3,6 +3,6 @@
   gather_facts: no
   become: no
   vars_files:
-      - vars/main.yaml
+      - "{{ vars_file }}"
   roles:
       - terminate-all
