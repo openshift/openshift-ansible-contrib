@@ -161,7 +161,7 @@ def launch_refarch_env(console_port=8443,
   tags.append('prod')
 
   if byo_lb == "no":
-      support_nodes=support_nodes+1
+      # the lb will always get the address of the wildcard if it exists
       lb_host = lb_fqdn
       lb_fqdn = lb_host + '.' + public_hosted_zone
       tags.append('haproxy')
@@ -333,7 +333,7 @@ def launch_refarch_env(console_port=8443,
 	        d['host_inventory'][infra_name]['tag'] = "infra"
        		d['production_hosts'][infra_name] = {}
 	        d['production_hosts'][infra_name]['guestname'] = infra_name
-       		d['production_hosts'][infra_name]['tag'] = "app"
+       		d['production_hosts'][infra_name]['tag'] = "infra"
 	        infra_list.append(infra_name)
         	bind_entry.append(infra_name + "        A       "       + ip4addr[0])
 	        del ip4addr[0]

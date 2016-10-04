@@ -12,9 +12,9 @@
     vm_extra_config:
       notes: "{{ item.value.tag }}"
       folder: "{{ vcenter_folder }}"
-    esxi:
-      datacenter: "{{vcenter_datacenter}}"
-      hostname: "10.19.114.222"
+#    esxi:
+ #     datacenter: "{{vcenter_datacenter}}"
+  #    hostname: "10.19.114.222"
   with_dict: "{{infrastructure_hosts}}"
   when: item.value.guestname == 'haproxy-0'
 

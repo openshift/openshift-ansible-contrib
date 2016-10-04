@@ -13,10 +13,7 @@
     groups: primary_master
     openshift_node_labels:
       role: master
-  with_items:
-    - master-0
-  #"{{ groups['master'] }}"
-  #when: 0 in "{{ hostvars[item].inventory_hostname }}"
+  with_items: "{{ groups['master'][0] }}"
 
 - name: Add infra instances to host group
   add_host:

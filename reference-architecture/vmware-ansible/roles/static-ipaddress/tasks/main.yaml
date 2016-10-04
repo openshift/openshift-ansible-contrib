@@ -36,3 +36,6 @@
     - "ifcfg-{{ vm_interface_name }}"
     - "ifcfg-{{ vm_interface_name }}:1"
   when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
+
+- name: Adding updated VM to inventory with hostname
+  add_host: hostname="{{host_inventory[inventory_hostname].guestname}}" ansible_ssh_host="{{host_inventory[inventory_hostname].guestname}}.{{public_hosted_zone}}"
