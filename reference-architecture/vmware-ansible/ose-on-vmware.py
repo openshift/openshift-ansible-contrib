@@ -278,7 +278,7 @@ def launch_refarch_env(console_port=8443,
 	if byo_lb == "no":
 	        d['host_inventory'][lb_host] = {}
         	d['host_inventory'][lb_host]['guestname'] = lb_host
-	        d['host_inventory'][lb_host]['ip4addr'] = ip4addr[0]
+	        d['host_inventory'][lb_host]['ip4addr'] = wild_ip
        		d['host_inventory'][lb_host]['tag'] = "loadbalancer"
 	        d['infrastructure_hosts']["haproxy"] = {}
         	d['infrastructure_hosts']["haproxy"]['guestname'] = lb_host
