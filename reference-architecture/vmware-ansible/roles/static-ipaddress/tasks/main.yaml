@@ -13,7 +13,7 @@
     - ip4: "{{host_inventory[inventory_hostname].ip4addr}}"
       gw4: "{{ vm_gw }}"
       dns: "{{ vm_dns }}"
-      device: "{{ vm_interface_name }}"
+      device: "{{ vm_interface_name }}:1"
   when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
 
 - name: Network Restart to activate new interface
@@ -22,11 +22,12 @@
   when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
 
 - name: Reconfiguring public network interface to use static address with new file
-  template: src=ifcfg-public.j3 dest=/etc/sysconfig/network-scripts/ifcfg-public owner=root group=root mode=0644
+  template: src=ifcfg-public.j2 dest=/etc/sysconfig/network-scripts/ifcfg-public owner=root group=root mode=0644
   with_items:
     - ip4: "{{host_inventory[inventory_hostname].ip4addr}}"
       gw4: "{{ vm_gw }}"
       dns: "{{ vm_dns }}"
+      device: "{{ vm_interface_name }}"
   when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
 
 - name: Ensure that the old ifcfgs are removed

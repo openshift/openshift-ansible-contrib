@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # vim: sw=2 ts=2
 
-import click, os, sys, fileinput, json, iptools
+import click, os, sys, fileinput, json, iptools, ldap
 
 @click.command()
 
@@ -77,6 +77,13 @@ import click, os, sys, fileinput, json, iptools
 @click.option('--vm_ipaddr_start', default='10.19.114.224', help='Starting IP address to use')
 @click.option('--ose_hostname_prefix', default=None, help='A prefix for your VM guestnames and DNS names: e.g. ose3-')
 
+#Create OpenShift Ansible variables
+@click.option('--create_ose_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
+@click.option('--ldap_user', default='openshift', help='User to bind LDAP to')
+@click.option('--ldap_user_password', default='password', help='LDAP User password')
+@click.option('--ldap_fqdn', default='e2e.bos.redhat.com', help='LDAP FQDN to build bindURL')
+# Need load balancer FQDN here and to check for byo_lb
+
 def launch_refarch_env(console_port=8443,
                     deployment_type=None,
                     vcenter_host=None,
@@ -112,7 +119,11 @@ def launch_refarch_env(console_port=8443,
 		    infra_nodes=None,
 		    app_nodes=None,
 		    vm_ipaddr_start=None,
-		    ose_hostname_prefix=None):
+		    ose_hostname_prefix=None,
+	  	    create_ose_vars=None,
+		    ldap_user=None,
+		    ldap_user_password=None,
+		    ldap_fqdn=None):
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
@@ -157,6 +168,62 @@ def launch_refarch_env(console_port=8443,
   else:
       lb_fqdn = click.prompt("Please enter the load balancer fqdn for installation:")
 
+  if create_ose_vars is True:
+  	click.echo('Configured OSE variables:')
+	click.echo('\tldap_fqdn: %s' % ldap_fqdn)
+	click.echo('\tldap_user: %s' % ldap_user)
+  	click.echo('\tldap_user_password: %s' % ldap_user_password)
+  	click.echo('\twildcard_zone: %s' % wildcard_zone)
+  	click.echo('\tbyo_lb: %s' % byo_lb)
+  	click.echo('\tlb_fqdn: %s' % lb_fqdn)
+	
+	if not no_confirm:
+    		click.confirm('Continue using these values?', abort=True)
+
+	l_bdn = ""
+
+	for d in ldap_fqdn.split("."):
+        	l_bdn = l_bdn + "dc=" + d + ","
+
+	l = ldap.initialize("ldap://" + ldap_fqdn)
+	try:
+    		l.protocol_version = ldap.VERSION3
+		l.set_option(ldap.OPT_REFERRALS, 0)
+
+		bind = l.simple_bind_s(ldap_user, ldap_user_password)
+
+    		base = l_bdn[:-1]
+    		criteria = "(&(objectClass=user)(sAMAccountName=" + ldap_user + "))"
+    		attributes = 'displayName', 'distinguishedName'
+    		result = l.search_s(base, ldap.SCOPE_SUBTREE, criteria, attributes)
+
+    		results = [entry for dn, entry in result if isinstance(entry, dict)]
+	finally:
+    		l.unbind()
+
+	for result in results:
+
+        	bindDN = str(result['distinguishedName']).strip("'[]")
+	        url_base = bindDN.replace(("CN=" + ldap_user + ","), "")
+	        url = "ldap://" + ldap_fqdn + ":389/" + url_base + "?sAMAccountName"
+	
+	install_file = "playbooks/openshift-install.yaml"
+
+	for line in fileinput.input(install_file, inplace=True):
+	# Parse our ldap url
+        	if line.startswith("      url:"):
+                	print "      url: " + url
+	        elif line.startswith("      bindPassword:"):
+        	        print "      bindPassword: " + ldap_user_password
+	        elif line.startswith("      bindDN:"):
+        	        print "      bindDN: " + bindDN
+	        elif line.startswith("    wildcard_zone:"):
+        	        print "    wildcard_zone: " + wildcard_zone
+	        elif line.startswith("    load_balancer_hostname:"):
+        	        print "    load_balancer_hostname: " + lb_fqdn
+        	else:
+                	print line,
+	 
   if create_inventory is True:
   	click.echo('Configured inventory values:')
 	click.echo('\tmaster_nodes: %s' % master_nodes)
@@ -167,10 +234,10 @@ def launch_refarch_env(console_port=8443,
 	click.echo('\tose_hostname_prefix: %s' % ose_hostname_prefix)
   	click.echo('\tbyo_nfs: %s' % byo_nfs)
 	if byo_nfs == "no":
-  		click.echo('\tNFS VM name: %s' % nfs_host)
+  		click.echo('\tnfs_host: %s' % nfs_host)
 	  	click.echo('\tbyo_lb: %s' % byo_lb)
 	if byo_lb == "no":
-  		click.echo('\tHAproxy LB VM name: %s' % lb_host)
+  		click.echo('\tlh_host: %s' % lb_host)
 	  	click.echo('\tStarting IP: %s' % vm_ipaddr_start)
 	click.echo("")
 	if not no_confirm:
@@ -261,7 +328,7 @@ def launch_refarch_env(console_port=8443,
 		else:
                 	infra_name="infra-"+str(i)
 		d['host_inventory'][infra_name] = {}
-	        d['host_inventory'][infra_name]['guestname'] = master_name
+	        d['host_inventory'][infra_name]['guestname'] = infra_name
         	d['host_inventory'][infra_name]['ip4addr'] = ip4addr[0]
 	        d['host_inventory'][infra_name]['tag'] = "infra"
        		d['production_hosts'][infra_name] = {}
@@ -360,9 +427,7 @@ def launch_refarch_env(console_port=8443,
     tags = ",".join(tags)
     if tag:
 	tags = tag
-    # We'll be doing a docker run instead
-    #command='docker run -t --rm --dns=10.19.114.2 --volume `pwd`:/opt/ansible:Z --volume `pwd`/openshift-ansible:/usr/share/ansible/openshift-ansible ansible:2.1.0.0-1-latest --tags %s -e \'vcenter_host=%s \
-    # Should we be using a container or a local install  be doing a docker run instead
+    
     if local:
 	command='ansible-playbook'
     else:
