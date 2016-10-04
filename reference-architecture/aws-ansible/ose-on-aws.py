@@ -68,7 +68,7 @@ import sys
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
 @click.option('--vars-file', default='vars/main.yaml',
-            help="Location of environment specific variables",
+            help="Location of environment specific variables, either fully qualified or relative to the playbooks directory",
             show_default=True)
 
 def launch_refarch_env(stack_name=None,
@@ -105,7 +105,7 @@ def launch_refarch_env(stack_name=None,
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
 
   # If user specified a custom vars_file and not a custom stack_name
-  if vars_file !='platform/vars/main.yaml' and stack_name == 'OpenShift-Infra':
+  if vars_file !='vars/main.yaml' and stack_name == 'OpenShift-Infra':
     stack_name = click.prompt('Specify a name for the CloudFormation stack')
 
   # Create ssh key pair in AWS if none is specified
