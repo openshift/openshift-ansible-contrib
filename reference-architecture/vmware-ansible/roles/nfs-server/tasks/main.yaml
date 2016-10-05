@@ -18,6 +18,9 @@
   - name: Stop firewalld
     service: name=firewalld state=stopped enabled=no
 
+  - name: Stop iptables 
+    service: name=iptables state=stopped enabled=no
+  
   - name: Create openshift volume group
     lvg: vg=openshift pvs=/dev/sdb
 
@@ -42,7 +45,7 @@
   # Making the registry an NFS share
   - name: Export the directories
     lineinfile:
-      dest: /etc/exports
+      dest: "/etc/exports"
       line: "/registry *(rw,sync,all_squash)"
     notify: restart nfs
 

@@ -67,11 +67,11 @@ import click, os, sys, fileinput, json, iptools, ldap
 @click.option('-l', '--local', is_flag=True,help='Local installation of ansible instead of our container')
 # Create inventory options
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
-@click.option('--master_nodes', default='3', help='Number of master nodes to create')
-@click.option('--infra_nodes', default='2', help='Number of infra nodes to create')
-@click.option('--app_nodes', default='3', help='Number of app nodes to create')
+@click.option('--master_nodes', default='3', help='Number of master nodes to create', show_default=True)
+@click.option('--infra_nodes', default='2', help='Number of infra nodes to create', show_default=True)
+@click.option('--app_nodes', default='3', help='Number of app nodes to create', show_default=True)
 @click.option('--vm_ipaddr_start', default='10.19.114.224', help='Starting IP address to use')
-@click.option('--ose_hostname_prefix', default=None, help='A prefix for your VM guestnames and DNS names: e.g. ose3-')
+@click.option('--ose_hostname_prefix', default=None, help='A prefix for your VM guestnames and DNS names: e.g. ose3-', show_default=True)
 
 #Create OpenShift Ansible variables
 @click.option('--create_ose_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
@@ -166,9 +166,10 @@ def launch_refarch_env(console_port=8443,
 	click.echo('\tldap_fqdn: %s' % ldap_fqdn)
 	click.echo('\tldap_user: %s' % ldap_user)
   	click.echo('\tldap_user_password: %s' % ldap_user_password)
-  	click.echo('\twildcard_zone: %s' % wildcard_zone)
+	click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
+        click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
   	click.echo('\tbyo_lb: %s' % byo_lb)
-  	click.echo('\tlb_fqdn: %s' % lb_fqdn)
+  	click.echo('\tlb_host: %s' % lb_host)
 	
 	if not no_confirm:
     		click.confirm('Continue using these values?', abort=True)
@@ -211,9 +212,9 @@ def launch_refarch_env(console_port=8443,
 	        elif line.startswith("      bindDN:"):
         	        print "      bindDN: " + bindDN
 	        elif line.startswith("    wildcard_zone:"):
-        	        print "    wildcard_zone: " + wildcard_zone
+        	        print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
 	        elif line.startswith("    load_balancer_hostname:"):
-        	        print "    load_balancer_hostname: " + lb_fqdn
+        	        print "    load_balancer_hostname: " + lb_host + "." + public_hosted_zone
         	else:
                 	print line,
 	 
@@ -230,8 +231,8 @@ def launch_refarch_env(console_port=8443,
   		click.echo('\tnfs_host: %s' % nfs_host)
 	  	click.echo('\tbyo_lb: %s' % byo_lb)
 	if byo_lb == "no":
-  		click.echo('\tlh_host: %s' % lb_host)
-	  	click.echo('\tStarting IP: %s' % vm_ipaddr_start)
+  		click.echo('\tlb_host: %s' % lb_host)
+	  	click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
 	click.echo("")
 	if not no_confirm:
     		click.confirm('Continue using these values?', abort=True)	
@@ -266,7 +267,7 @@ def launch_refarch_env(console_port=8443,
 	        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_host
         	d['infrastructure_hosts']["nfs_server"]['tag'] = "nfs"
 	        support_list.append(nfs_host)
-        	bind_entry.append(nfs_host + "  A       "       + ip4addr[0])
+        	bind_entry.append(nfs_host + "		A       " + ip4addr[0])
 	        del ip4addr[0]
 	if byo_lb == "no":
 	        d['host_inventory'][lb_host] = {}
@@ -277,7 +278,7 @@ def launch_refarch_env(console_port=8443,
         	d['infrastructure_hosts']["haproxy"]['guestname'] = lb_host
 	        d['infrastructure_hosts']["haproxy"]['tag'] = "loadbalancer"
         	support_list.append(lb_host)
-	        bind_entry.append(lb_host + "   A       "       + wild_ip)
+	        bind_entry.append(lb_host + "		A       " + wild_ip)
 
 	master_list = []
 	d['production_hosts'] = {}
@@ -294,7 +295,7 @@ def launch_refarch_env(console_port=8443,
 	        d['production_hosts'][master_name]['guestname'] = master_name
 	        d['production_hosts'][master_name]['tag'] = "master"
 	        master_list.append(master_name)
-	        bind_entry.append(master_name + "       A       "       + ip4addr[0])
+	        bind_entry.append(master_name + "	A       " + ip4addr[0])
 	        del ip4addr[0]
 	app_list = []
 	for i in range(0, int(app_nodes)):
@@ -312,7 +313,7 @@ def launch_refarch_env(console_port=8443,
 	        d['production_hosts'][app_name]['guestname'] = app_name
        		d['production_hosts'][app_name]['tag'] = "app"
 	        app_list.append(app_name)
-        	bind_entry.append(app_name + "  A       "       + ip4addr[0])
+        	bind_entry.append(app_name + "		A       " + ip4addr[0])
 	        del ip4addr[0]
 	infra_list = []
 	for i in range(0, int(infra_nodes)):
@@ -328,7 +329,7 @@ def launch_refarch_env(console_port=8443,
 	        d['production_hosts'][infra_name]['guestname'] = infra_name
        		d['production_hosts'][infra_name]['tag'] = "infra"
 	        infra_list.append(infra_name)
-        	bind_entry.append(infra_name + "        A       "       + ip4addr[0])
+        	bind_entry.append(infra_name + "        A       " + ip4addr[0])
 	        del ip4addr[0]
 	print "# Here is what should go into your DNS records"
 	print("\n".join(bind_entry))

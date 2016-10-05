@@ -31,6 +31,9 @@
   when: inventory_hostname == 'haproxy-0'
   notify: restart haproxy
 
+- name: Ensure Firewalld is disabled
+  service: name=firewalld state=stopped enabled=no
+
 - name: Ensure HAProxy is started and enabled on boot.
   service: name=haproxy state=started enabled=yes
   when: inventory_hostname == 'haproxy-0'

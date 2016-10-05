@@ -38,6 +38,13 @@
   command: oc volume dc/docker-registry
   register: registry_dc_out
 
+- name: Determine if the NFS server share is accessible
+  command: showmount -e "{{ nfs_registry_host }}"
+  register: nfs_showmount
+  until: nfs_showmount.stdout | search("{{ nfs_registry_mountpoint }}")
+  retries: 5
+  delay: 10
+
 - name: Attach volume to registry DC
   command: >
     oc volume dc/docker-registry --add --overwrite
