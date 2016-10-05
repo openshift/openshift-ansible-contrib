@@ -42,8 +42,8 @@ import click, os, sys, fileinput, json, iptools, ldap
 @click.option('--rhsm_user', help='Red Hat Subscription Management User')
 @click.option('--rhsm_password', help='Red Hat Subscription Management Password',
                 hide_input=True,)
-@click.option('--rhsm_activation_key', default='act-dev-infra-openshift3', help='Red Hat Subscription Management User')
-@click.option('--rhsm_org_id', default='Default_Organization', help='Red Hat Subscription Management Password')
+@click.option('--rhsm_activation_key',  help='Red Hat Subscription Management User')
+@click.option('--rhsm_org_id',  help='Red Hat Subscription Management Password')
 @click.option('--rhsm_pool', help='Red Hat Subscription Management Pool ID or Subscription Name', default="Red Hat OpenShift Container Platform, Standard, 2-Core")
 
 ### Miscellaneous options
@@ -129,10 +129,10 @@ def launch_refarch_env(console_port=8443,
   if rhsm_password is None and rhsm_user:
     rhsm_password = click.prompt("RHSM password?", hide_input=True, confirmation_prompt=True)
 
-  if rhsm_activation_key is None:
+  if rhsm_activation_key is None and rhsm_user is None:
     rhsm_activation_key = click.prompt("Satellite Server Activation Key?")
-  if rhsm_org_id is None:
-    rhsm_org_id = click.prompt("Organization ID for Satellite Server?", confirmation_prompt=True)
+  if rhsm_org_id is None and rhsm_activation_key:
+    rhsm_org_id = click.prompt("Organization ID for Satellite Server?")
   if rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
   # Calculate various DNS values
