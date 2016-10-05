@@ -254,7 +254,7 @@ def launch_refarch_env(stack_name=None,
                     rhsm_user,
                     rhsm_password,
                     rhsm_pool,
-                    vars_file
+                    vars_file,
                     playbook)
 
     if verbose > 0:
