@@ -4,6 +4,7 @@
 
 - name: be sure katello-agent is installed
   yum: name=katello-agent state=installed
+  when: auth_method=='key'
 
 - name: be sure chrony is configured
   template: src=chrony.conf.j2 dest=/etc/chrony.conf

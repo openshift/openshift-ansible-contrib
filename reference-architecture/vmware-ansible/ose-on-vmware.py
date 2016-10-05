@@ -149,8 +149,10 @@ def launch_refarch_env(console_port=8443,
       nfs_registry_mountpoint ='/registry'
       tags.append('nfs')
   else:
-      nfs_registry_host = click.prompt("Please enter the NFS Server fqdn for persistent registry:")
-      nfs_registry_mountpoint = click.prompt("Please enter NFS share name for persistent registry:")
+  	if nfs_registry_host is None:
+  		nfs_registry_host = click.prompt("Please enter the NFS Server fqdn for persistent registry:")
+	if nfs_registry_mountpoint is None:
+  		nfs_registry_mountpoint = click.prompt("Please enter NFS share name for persistent registry:")
 
   tags.append('prod')
 
@@ -159,7 +161,8 @@ def launch_refarch_env(console_port=8443,
       lb_fqdn = lb_host + '.' + public_hosted_zone
       tags.append('haproxy')
   else:
-      lb_fqdn = click.prompt("Please enter the load balancer fqdn for installation:")
+  	if lb_fqdn is None:
+  		lb_fqdn = click.prompt("Please enter the load balancer fqdn for installation:")
 
   if create_ose_vars is True:
   	click.echo('Configured OSE variables:')

@@ -88,19 +88,38 @@ This is your VMware template name. The template should be configured with open-v
 ### New VMware Environment (Greenfield)
 When installing all components into your VMware environment perform the following.   This will create the haproxy, the nfs server for the registry, and all the production OpenShift VMs. Additionally, the installer script will attempt to copy your existing public key to the VMs.
 ```
-./ose-on-vmware.py --vcenter_host=my_vcenter_host --vcenter_username="administrator@vsphere.local" --vcenter_password="***" --vcenter_template_name=ose3-server-template-2.0.2 --rhsm-user=rh-user --rhsm-password=password --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --public-hosted-zone=vcenter.e2e.bos.redhat.com --vm_dns=4.4.4.4 --vm_gw=10.0.0.1 --vm_interface_name=eth0
+ ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ose-on-vmware.py  \
+--vcenter_host=vcenter.example.com --vcenter_password=password \
+--rhsm_user=rhnuser --rhsm_password=password  \
+--vm_dns=10.19.114.5 --vm_gw=10.19.114.1 --vm_interface_name=eth0 \
+--public_hosted_zone=example.com --local
 ```
 
 ### Existing VM Environment and Deployment (Brownfield)
-If you are installing OpenShift into an existing VMware environment with your own VMs, this is how to accomplish that. The playbooks look for VMware annotations. App nodes will be labeled "app", infra nodes labeled "infra" and master nodes labeled as "master."
+The `ose-on-vmware.py` script allows for deployments into an existing environment
+in which VMs already exists and are subscribed to the proper `RHEL` https://docs.openshift.com/enterprise/3.3/install_config/install/prerequisites.html#software-prerequisites[channels]
+The prerequisite packages will be installed. The script expects the proper VM annotations are
+created on your VMs. App nodes will be labeled "app", infra nodes labeled
+"infra" and master nodes labeled as "master."
 
-The ose-install tag will install OpenShift on your pre-existing environment. The dynamic inventory script sorts your VMs by their annotations and that is how the proper OpenShift labels are applied.
+Lastly, the prepared VMs must also have 2 additional hard disks as the OpenShift setup needs those
+for both docker storage and OpenShift volumes.
+
+
+The ose-install tag will install OpenShift on your pre-existing environment. The dynamic inventory script sorts your
+VMs by their annotations and that is how the proper OpenShift labels are applied.
 
 The ose-configure will configured your persistent registry and scale your nodes.
 
-Lastly, the ose-demo tag will deploy a sample application and test cluster health.
-
 Notice in the instance below we are supplying our own external NFS server and load balancer.
+
 ```
-./ose-on-vmware.py --vcenter_host=my_vcenter_host --vcenter_username="administrator@vsphere.local" --vcenter_password="***" --vcenter_template_name=ose3-server-template-2.0.2 --rhsm-user=rh-user --rhsm-password=password --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --public-hosted-zone=vcenter.e2e.bos.redhat.com --vm_dns=4.4.4.4 --vm_gw=10.0.0.1 --vm_interface_name=eth0 --byo_lb=yes --lb_fqdn=loadbalancer.yourorg.com --byo_nfs=yes --nfs_registry_host=your_nfsserver.yourorg.com --nfs_registry_mountpoint=/registry --tag ose-install,ose-configure,ose-demo
+~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ose-on-vmware.py  \
+--vcenter_host=vcenter.example.com --vcenter_password=password \
+--rhsm_activation_key=my_sat6_key --rhsm_org_id=Default_Organization  \
+--vm_dns=10.19.114.5 --vm_gw=10.19.114.1 --vm_interface_name=eth0 \
+--byo_lb=yes --lb_fqdn=loadbalancer.example.com \
+--byo_nfs=yes --nfs_registry_host=nfs.example.com --nfs_registry_mountpoint=/nfs-registry \
+--public_hosted_zone=vcenter.e2e.bos.redhat.com \
+--tag ose-install,ose-configure --local
 ```

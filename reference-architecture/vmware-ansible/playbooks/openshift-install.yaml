@@ -12,6 +12,8 @@
   vars_files:
       - ../vars/main.yaml
   roles:
+      - rhn-subscription
+      - rhn-repos 
       - prerequisites
 
 - hosts: schedulable_nodes
