@@ -55,6 +55,10 @@ export AWS_SECRET_ACCESS_KEY=bar
 ### Region
 The default region is us-east-1 but can be changed when running the ose-on-aws script by specifying --region=us-west-2 for example. The region must contain at least 3 Availability Zones. 
 
+### Environment
+The default environment descriptor file is `playbooks/vars/main.yaml`. To use a different environment file, add `--vars-file=/PATH/TO/VARS/FILE.yaml`
+You must set a new stack name if you define a custom environment, use `--stack-name=STACK_NAME`
+
 ### AMI ID
 The AMI ID may need to change if the AWS IAM account does not have access to the Red Hat Cloud Access gold image or if deploying outside of the us-east-1 region.
 
