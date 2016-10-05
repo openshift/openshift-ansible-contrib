@@ -17,11 +17,13 @@ subscription-manager repos --enable rhel-7-server-optional-rpms
 subscription-manager repos --enable rhel-7-server-ose-3.2-rpms
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm*
 yum -y install atomic-openshift-utils \
-                 git \
-                 pyOpenSSL \
-                 python-netaddr \
-                 python-httplib2
-
+                  git \
+                  pyOpenSSL \
+                  python-simplejson \
+                  python-ldap \
+                  python-iptools \
+                  python-netaddr \
+                  python-httplib2
 git clone https://github.com/dannvix/pySphere && cd pySphere/ && python setup.py install
 git clone https://github.com/vmware/pyvmomi && cd pyvmomi/ && python setup.py install
 
@@ -48,7 +50,7 @@ RUN yum -y --disablerepo=\* --enablerepo=rhel-7-server-rpms install yum-utils &&
 
 
 # install all that is required to use http://docs.ansible.com/ansible/vsphere_guest_module.html
-RUN yum install -y --setopt=tsflags=nodocs atomic-openshift-utils git python-netaddr python-pip pyOpenSSL && \
+RUN yum install -y --setopt=tsflags=nodocs atomic-openshift-utils git python-iptools python-ldap python-simplejson python-netaddr python-pip pyOpenSSL &&  \
     yum clean all
 
 RUN rm /etc/ansible/hosts
