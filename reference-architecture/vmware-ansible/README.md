@@ -7,7 +7,7 @@ The repository contains Ansible playbooks which deploy 3 Masters, 2 infrastructu
 ![Architecture](images/OSE-on-VMware-Architecture.jpg)
 
 ## Prerequisites
-Internal DNS should be set up to reflect the number of nodes in the environment. The default VM network should have a DHCP server set up for initial provisioning. Lastly, in the var/infrastructure.yaml ip information should also be provided for the nodes in question. Here, VM guest names and other items can be customized.
+Internal DNS should be set up to reflect the number of nodes in the environment. The default VM network should have a DHCP server set up for initial provisioning. 
 
 ### OpenShift Playbooks
 The code in this repository handles all of the VMware specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-vmware.py.
@@ -80,6 +80,7 @@ ssh-keygen
 cp ~/.ssh/id_rsa ose-on-vmware/vmware-ansible/ssh_key/ose3-installer
 
 ```
+Additionally, you will need to use ose-on-vmware.py to configure your LDAP authentication credentials for the OpenShift install and to create your inventory to define the number of nodes for reach role: app, infra, master. Also, the create inventory will help you with your DNS configuration and will allow you to assign a starting static IP address point for your configuration. 
 
 ### VMware Template Name
 This is your VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.2. The deployment assumes that initially DHCP will be configured. Once the new VM is started with vmtoolsd running, we extract out the DHCP address then use our infrastructure vars for the static ip addresses to use.

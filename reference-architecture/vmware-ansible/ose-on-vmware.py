@@ -22,11 +22,7 @@ import click, os, sys, fileinput, json, iptools, ldap
               show_default=True)
 @click.option('--vcenter_folder', default='ose3', help='Folder in vCenter to store VMs',
               show_default=True)
-@click.option('--vcenter_datacenter', default='Boston', help='vCenter datacenter to utilize',
-              show_default=True)
 @click.option('--vcenter_cluster', default='devel', help='vCenter cluster to utilize',
-              show_default=True)
-@click.option('--vcenter_datastore', default='ose3-vmware', help='Storage in vCenter to store VMs',
               show_default=True)
 @click.option('--vcenter_resource_pool', default='/Resources/OSE3', help='Resource Pools to use in vCenter',
               show_default=True)
@@ -91,9 +87,7 @@ def launch_refarch_env(console_port=8443,
                     vcenter_password=None,
                     vcenter_template_name=None,
 		    vcenter_folder=None,
-                    vcenter_datacenter=None,
                     vcenter_cluster=None,
-                    vcenter_datastore=None,
                     vcenter_resource_pool=None,
                     public_hosted_zone=None,
                     app_dns_prefix=None,
@@ -125,7 +119,7 @@ def launch_refarch_env(console_port=8443,
 		    ldap_user_password=None,
 		    ldap_fqdn=None):
 
-  # Need to prompt for the R53 zone:
+  # Need to prompt for the DNS zone:
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
 
@@ -161,7 +155,6 @@ def launch_refarch_env(console_port=8443,
   tags.append('prod')
 
   if byo_lb == "no":
-      # the lb will always get the address of the wildcard if it exists
       lb_host = lb_fqdn
       lb_fqdn = lb_host + '.' + public_hosted_zone
       tags.append('haproxy')
@@ -339,7 +332,7 @@ def launch_refarch_env(console_port=8443,
 	        del ip4addr[0]
 	print "# Here is what should go into your DNS records"
 	print("\n".join(bind_entry))
-	print "Please note, if you have chosen to bring your own loadbalancer and NFS Server you will need to ensure that these records are added to DNS and properly resolve. "
+	print "# Please note, if you have chosen to bring your own loadbalancer and NFS Server you will need to ensure that these records are added to DNS and properly resolve. "
 
 	with open('infrastructure.json', 'w') as outfile:
 	    json.dump(d, outfile)
@@ -353,9 +346,7 @@ def launch_refarch_env(console_port=8443,
   click.echo('\tvcenter_password: *******')
   click.echo('\tvcenter_template_name: %s' % vcenter_template_name)
   click.echo('\tvcenter_folder: %s' % vcenter_folder)
-  click.echo('\tvcenter_datacenter: %s' % vcenter_datacenter)
   click.echo('\tvcenter_cluster: %s' % vcenter_cluster)
-  click.echo('\tvcenter_datastore: %s' % vcenter_datastore)
   click.echo('\tvcenter_resource_pool: %s' % vcenter_resource_pool)
 
   click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
@@ -417,7 +408,6 @@ def launch_refarch_env(console_port=8443,
       devnull=''
 
     # make sure the ssh keys have the proper permissions
-    # interferring with re-running
     command='chmod 600 ssh_key/ose3-installer'
     os.system(command)
 
@@ -438,9 +428,7 @@ def launch_refarch_env(console_port=8443,
     vcenter_password=%s \
     vcenter_template_name=%s \
     vcenter_folder=%s \
-    vcenter_datacenter=%s \
     vcenter_cluster=%s \
-    vcenter_datastore=%s \
     vcenter_resource_pool=%s \
     public_hosted_zone=%s \
     app_dns_prefix=%s \
@@ -464,9 +452,7 @@ def launch_refarch_env(console_port=8443,
                     vcenter_password,
                     vcenter_template_name,
                     vcenter_folder,
-                    vcenter_datacenter,
                     vcenter_cluster,
-                    vcenter_datastore,
                     vcenter_resource_pool,
                     public_hosted_zone,
                     app_dns_prefix,
