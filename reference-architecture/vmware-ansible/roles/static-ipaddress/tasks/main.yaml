@@ -1,6 +1,11 @@
 ---
+- name: Check for ssh public key
+  stat: path='~/.ssh/id_rsa.pub'
+  register: pub_key
+
 - name: Copying over your ssh public key VM
   authorized_key: user=root key= "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+  when: pub_key.stat.exists == True
   ignore_errors: yes
 
 - name: Setting hostname of VM

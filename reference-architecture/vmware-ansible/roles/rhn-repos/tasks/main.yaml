@@ -8,5 +8,10 @@
   with_items:
       - rhel-7-server-rpms
       - rhel-7-server-extras-rpms
-      - rhel-7-server-ose-3.2-rpms
+      - rhel-7-server-ose-3.3-rpms
+
+- name: ensure proper repos are assigned for satellite agent
+  command: subscription-manager repos --enable={{ item }}
+  with_items:
       - rhel-7-server-satellite-tools-6.2-rpms
+  when: rhsm_activation_key is defined and rhsm_activation_key != 'None'

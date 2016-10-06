@@ -2,7 +2,6 @@
 - hosts: localhost
   vars_files:
     - ../vars/main.yaml
-#    - ../vars/infrastructure.yaml
   roles:
     - create-vm-haproxy
 
@@ -10,7 +9,6 @@
   hosts: haproxy_group
   vars_files:
     - ../vars/main.yaml
- #   - ../vars/infrastructure.yaml
   roles:
     - static-ipaddress
     - rhn-subscription
@@ -18,9 +16,15 @@
     - vmware-guest-setup
 
 - name: Configure ha proxy server
+  hosts: haproxy_group
+  vars_files:
+    - ../vars/main.yaml
+  roles:
+    - haproxy-server
+
+- name: Configure ha proxy server files
   hosts: haproxy_group, master, infra
   vars_files:
     - ../vars/main.yaml
-#    - ../vars/infrastructure.yaml
   roles:
-    - haproxy-server
+    - haproxy-server-config

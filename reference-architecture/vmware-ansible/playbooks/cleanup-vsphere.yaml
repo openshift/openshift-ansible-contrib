@@ -4,7 +4,6 @@
   become: false
   vars_files:
     - ../vars/main.yaml
-   # - ../vars/infrastructure.yaml
   tasks:
     - name: Delete production VMs
       vsphere_guest:
@@ -14,9 +13,6 @@
         guest: "{{ item.value.guestname }}"
         state: absent
         force: true
-        esxi:
-          datacenter: "{{vcenter_datacenter}}"
-          hostname: "10.19.0.83"
       with_dict: "{{production_hosts}}"
 
     - name: Delete infrastructure VMs on vCenter
@@ -27,7 +23,4 @@
         guest: "{{ item.value.guestname }}"
         state: absent
         force: true
-        esxi:
-          datacenter: "{{vcenter_datacenter}}"
-          hostname: "10.19.0.83"
       with_dict: "{{infrastructure_hosts}}"

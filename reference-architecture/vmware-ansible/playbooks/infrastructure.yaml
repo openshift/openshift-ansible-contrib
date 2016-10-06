@@ -2,19 +2,19 @@
   tags: ['nfs', 'all']
 
 - include: prod-ose.yaml
-  tags: ['prod', 'allprod', 'all']
+  tags: ['prod', 'all']
 
 - include: setup-haproxy.yaml
   tags: ['haproxy', 'all']
 
 - include: openshift-install.yaml
-  tags: ['ose-install', 'allprod', 'alltest', 'all']
+  tags: ['ose-install', 'all']
 
 - include: openshift-configure.yaml
-  tags: ['ose-configure', 'allprod', 'alltest', 'all']
+  tags: ['ose-configure', 'all']
 
 - include: openshift-validate.yaml
-  tags: ['ose-demo', 'allprod', 'alltest', 'all']
+  tags: ['ose-demo', 'all']
 
 - include: cleanup-vsphere.yaml
   tags: ['clean']

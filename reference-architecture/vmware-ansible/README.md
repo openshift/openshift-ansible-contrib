@@ -97,7 +97,7 @@ When installing all components into your VMware environment perform the followin
 
 ### Existing VM Environment and Deployment (Brownfield)
 The `ose-on-vmware.py` script allows for deployments into an existing environment
-in which VMs already exists and are subscribed to the proper `RHEL` https://docs.openshift.com/enterprise/3.3/install_config/install/prerequisites.html#software-prerequisites[channels]
+in which VMs already exists and are subscribed to the proper `RHEL` [channels].(https://docs.openshift.com/enterprise/3.3/install_config/install/prerequisites.html#software-prerequisites)
 The prerequisite packages will be installed. The script expects the proper VM annotations are
 created on your VMs. App nodes will be labeled "app", infra nodes labeled
 "infra" and master nodes labeled as "master."

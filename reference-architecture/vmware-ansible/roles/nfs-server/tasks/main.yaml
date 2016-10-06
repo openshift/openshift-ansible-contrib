@@ -19,8 +19,13 @@
     service: name=firewalld state=stopped enabled=no
 
   - name: Stop iptables 
-    service: name=iptables state=stopped enabled=no
+    command: "iptables -F"
+    ignore_errors: true
   
+  - name: Stop iptables 
+    command: "iptables-save"
+    ignore_errors: true
+
   - name: Create openshift volume group
     lvg: vg=openshift pvs=/dev/sdb
 

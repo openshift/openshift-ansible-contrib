@@ -44,7 +44,7 @@ import click, os, sys, fileinput, json, iptools, ldap
                 hide_input=True,)
 @click.option('--rhsm_activation_key',  help='Red Hat Subscription Management User')
 @click.option('--rhsm_org_id',  help='Red Hat Subscription Management Password')
-@click.option('--rhsm_pool', help='Red Hat Subscription Management Pool ID or Subscription Name', default="Red Hat OpenShift Container Platform, Standard, 2-Core")
+@click.option('--rhsm_pool', help='Red Hat Subscription Management Pool ID or Subscription Name', default="OpenShift Enterprise, Premium*", show_default=True)
 
 ### Miscellaneous options
 @click.option('--byo_lb', default='no', help='skip haproxy install when one exists within the environment',
@@ -400,7 +400,7 @@ def launch_refarch_env(console_port=8443,
         else:
                 print line,
 
-  playbooks = ['playbooks/infrastructure.yaml']
+  playbooks = ['infrastructure.yaml']
   tags.append('ose-install')
   tags.append('ose-configure')
 
@@ -425,7 +425,7 @@ def launch_refarch_env(console_port=8443,
     if local:
 	command='ansible-playbook'
     else:
-	command='docker run -t --rm --volume `pwd`:/opt/ansible:rw --net=host ansible:2.2-latest'
+	command='docker run -t --rm --volume /root:/root:rw --volume `pwd`:/opt/ansible:rw --net=host ansible:2.2-latest'
 
     command=command + ' --extra-vars "@./infrastructure.json" --tags %s -e \'vcenter_host=%s \
     vcenter_username=%s \

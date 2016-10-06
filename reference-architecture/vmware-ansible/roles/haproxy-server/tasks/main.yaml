@@ -1,14 +1,12 @@
 ---
 - name: Ensure HAProxy is installed.
   yum: name=haproxy state=installed
-  when: inventory_hostname == 'haproxy-0'
 
 - name: Get HAProxy version.
   command: haproxy -v
   register: haproxy_version_result
   changed_when: false
   always_run: yes
-  when: inventory_hostname == 'haproxy-0'
 
 - name: open firewall for Openshift services
   command: iptables -I INPUT -p tcp --dport {{item}} -j ACCEPT
@@ -16,24 +14,12 @@
     - 8443
     - 443
     - 80
-  when: inventory_hostname == 'haproxy-0'
 
 - name: Save the iptables rules
   command: iptables-save
-  when: inventory_hostname == 'haproxy-0'
-
-- name: Copy HAProxy configuration in place.
-  template:
-    src: haproxy.cfg.j2
-    dest: /etc/haproxy/haproxy.cfg
-    mode: 0644
-    validate: haproxy -f %s -c -q
-  when: inventory_hostname == 'haproxy-0'
-  notify: restart haproxy
 
 - name: Ensure Firewalld is disabled
   service: name=firewalld state=stopped enabled=no
 
 - name: Ensure HAProxy is started and enabled on boot.
   service: name=haproxy state=started enabled=yes
-  when: inventory_hostname == 'haproxy-0'
