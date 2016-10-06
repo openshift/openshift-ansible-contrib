@@ -1,0 +1,66 @@
+global
+    log         127.0.0.1 local2
+
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    maxconn     4000
+    user        haproxy
+    group       haproxy
+    daemon
+
+    # turn on stats unix socket
+    stats socket /var/lib/haproxy/stats
+
+defaults
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+#     option forwardfor       except 127.0.0.0/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 3000
+listen  stats :9000
+        stats enable
+        stats realm Haproxy\ Statistics
+        stats uri /haproxy_stats
+        stats auth admin:password
+        stats refresh 30
+        mode http
+
+frontend  main *:80
+    default_backend             router80
+
+backend router80
+    balance source
+    mode tcp
+    {% for host in groups['infra'] %}
+    server {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_fqdn'] }}:80 check
+    {% endfor %}
+
+frontend  main *:443
+    default_backend             router443
+
+backend router443
+    balance source
+    mode tcp
+    {% for host in groups['infra'] %}
+    server {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_fqdn'] }}:443 check
+    {% endfor %}
+
+frontend  main *:8443
+    default_backend             mgmt8443
+
+backend mgmt8443
+    balance source
+    mode tcp
+    {% for host in groups['master'] %}
+    server {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_fqdn'] }}:8443 check
+    {% endfor %}
