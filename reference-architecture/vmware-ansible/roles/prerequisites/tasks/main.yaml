@@ -19,3 +19,4 @@
       - bash-completion
       - docker
       - python-httplib2
+      - atomic-openshift-utils
