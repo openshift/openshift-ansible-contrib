@@ -1,0 +1,26 @@
+---
+- hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+  tasks:
+    - name: Delete production VMs
+      vsphere_guest:
+        vcenter_hostname: "{{ vcenter_host }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        guest: "{{ item.value.guestname }}"
+        state: absent
+        force: true
+      with_dict: "{{production_hosts}}"
+
+    - name: Delete infrastructure VMs on vCenter
+      vsphere_guest:
+        vcenter_hostname: "{{ vcenter_host }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        guest: "{{ item.value.guestname }}"
+        state: absent
+        force: true
+      with_dict: "{{infrastructure_hosts}}"

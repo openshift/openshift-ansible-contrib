@@ -1,0 +1,20 @@
+- include: setup-nfs.yaml
+  tags: ['nfs', 'all']
+
+- include: prod-ose.yaml
+  tags: ['prod', 'all']
+
+- include: setup-haproxy.yaml
+  tags: ['haproxy', 'all']
+
+- include: openshift-install.yaml
+  tags: ['ose-install', 'all']
+
+- include: openshift-configure.yaml
+  tags: ['ose-configure', 'all']
+
+- include: openshift-validate.yaml
+  tags: ['ose-demo', 'all']
+
+- include: cleanup-vsphere.yaml
+  tags: ['clean']
