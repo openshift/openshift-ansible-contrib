@@ -4,7 +4,6 @@
     - vars/main.yaml
   roles:
     - create-vm-prod-ose
-  tags: ['create_vms']
 
 - name: fulfill OSE3 prerequisites on production hosts roles
   hosts: production_group

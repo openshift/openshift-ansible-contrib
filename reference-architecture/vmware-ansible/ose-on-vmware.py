@@ -204,7 +204,7 @@ def launch_refarch_env(console_port=8443,
 	        url_base = bindDN.replace(("CN=" + ldap_user + ","), "")
 	        url = "ldap://" + ldap_fqdn + ":389/" + url_base + "?sAMAccountName"
 	
-	install_file = "playbooks/openshift-install.yaml"
+	install_file = "openshift-install.yaml"
 
 	for line in fileinput.input(install_file, inplace=True):
 	# Parse our ldap url
@@ -265,10 +265,10 @@ def launch_refarch_env(console_port=8443,
 		d['host_inventory'][nfs_host] = {}
         	d['host_inventory'][nfs_host]['guestname'] = nfs_host
 		d['host_inventory'][nfs_host]['ip4addr'] = ip4addr[0]
-	        d['host_inventory'][nfs_host]['tag'] = "nfs"
+	        d['host_inventory'][nfs_host]['tag'] = "infra-nfs"
         	d['infrastructure_hosts']["nfs_server"] = {}
 	        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_host
-        	d['infrastructure_hosts']["nfs_server"]['tag'] = "nfs"
+        	d['infrastructure_hosts']["nfs_server"]['tag'] = "infra-nfs"
 	        support_list.append(nfs_host)
         	bind_entry.append(nfs_host + "		A       " + ip4addr[0])
 	        del ip4addr[0]

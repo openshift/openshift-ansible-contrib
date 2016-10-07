@@ -1,5 +1,13 @@
 ---
-  # Parts borrowed from github.com/openshift/openshift-ansible/playbooks/common/openshift-nfs/roles/openshift_storage_nfs_lvm/tasks/main.yml
+  - name: Adding updated VM to inventory with hostname
+    add_host: hostname="{{host_inventory[inventory_hostname].guestname}}" ansible_ssh_host="{{host_inventory[inventory_hostname].guestname}}.{{public_hosted_zone}}"
+    when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
+
+  - name: Restart networking to clear temp DHCP address
+    service: name=network state=restarted
+    ignore_errors: true
+    when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
+  
   - name: Install NFS server
     package: name=nfs-utils use=yum state=present
 
@@ -47,7 +55,6 @@
   - name: Make mounts owned by nfsnobody
     file: path=/registry owner=nfsnobody group=nfsnobody mode=0700
 
-  # Making the registry an NFS share
   - name: Export the directories
     lineinfile:
       dest: "/etc/exports"

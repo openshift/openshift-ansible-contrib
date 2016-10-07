@@ -6,6 +6,7 @@
   roles:
       # Group systems
       - instance-groups
+      - openshift-vm-facts
 
 - hosts: cluster_hosts
   gather_facts: yes
