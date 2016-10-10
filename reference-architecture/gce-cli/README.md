@@ -7,7 +7,7 @@ Described usage is for RHEL 7 based operating system.
 
 ### Setup gcloud utility
 
-Installation of gcloud utility is interactive, usually you will want to answer positively to the asked questions.
+Installation of gcloud utility is interactive, usually you will want to answer positively to asked questions.
 ```
 yum install curl python which
 curl https://sdk.cloud.google.com | bash
@@ -18,7 +18,7 @@ gcloud init
 
 ### Setting variables
 
-Variables can be set to customize the OpenShift infrastructure. All available variables can be found in the `config.sh` file. In the first part of that file you can find essential variables which need to be modified (like credentials for Red Hat account). In the second part of the file all default values are available, which can be optionally tweaked.
+Variables can be set to customize the OpenShift infrastructure. All available variables can be found in the `config.sh.example` file. In the first part of that file you can find essential variables which need to be modified (like credentials for Red Hat account). In the second part of the file all default values are available, which can be optionally tweaked. Copy and update the `config.sh.example` file to `config.sh` before executing the `gcloud.sh` script.
 
 ### Launching the Bash script
 
