@@ -9,4 +9,3 @@ app_tag: app
 master_group_tag: "tag_openshift-role_{{ master_tag }}"
 app_group_tag: "tag_openshift-role_{{ app_tag }}"
 infra_group_tag: "tag_openshift-role_{{ infra_tag }}"
-

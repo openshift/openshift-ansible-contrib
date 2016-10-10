@@ -123,18 +123,20 @@ def launch_refarch_env(console_port=8443,
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
 
+  # If tag exists skip the auth portion
+  if not tag:
   # If the user already provided values, don't bother asking again
-  if rhsm_user is None and rhsm_activation_key is None:
-    rhsm_user = click.prompt("RHSM username?")
-  if rhsm_password is None and rhsm_user:
-    rhsm_password = click.prompt("RHSM password?", hide_input=True, confirmation_prompt=True)
+  	if rhsm_user is None and rhsm_activation_key is None:
+    		rhsm_user = click.prompt("RHSM username?")
+  	if rhsm_password is None and rhsm_user:
+    		rhsm_password = click.prompt("RHSM password?", hide_input=True, confirmation_prompt=True)
 
-  if rhsm_activation_key is None and rhsm_user is None:
-    rhsm_activation_key = click.prompt("Satellite Server Activation Key?")
-  if rhsm_org_id is None and rhsm_activation_key:
-    rhsm_org_id = click.prompt("Organization ID for Satellite Server?")
-  if rhsm_pool is None:
-    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
+	if rhsm_activation_key is None and rhsm_user is None:
+    		rhsm_activation_key = click.prompt("Satellite Server Activation Key?")
+  	if rhsm_org_id is None and rhsm_activation_key:
+    		rhsm_org_id = click.prompt("Organization ID for Satellite Server?")
+  	if rhsm_pool is None:
+    		rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
@@ -359,18 +361,15 @@ def launch_refarch_env(console_port=8443,
   click.echo('\tvm_gw: %s' % vm_gw)
   click.echo('\tvm_interface_name: %s' % vm_interface_name)
 
-  if rhsm_user is not None:
-	  auth_method = 'user'
+  if rhsm_user is not None and tag is not None:
 	  click.echo('\trhsm_user: %s' % rhsm_user)
 	  click.echo('\trhsm_password: *******')
 
 
-  if rhsm_activation_key is not None:
-	  auth_method = 'key'
+  if rhsm_activation_key is not None and tag is not None:
 	  click.echo('\trhsm_activation_key: %s' % rhsm_activation_key)
 	  click.echo('\trhsm_org_id: rhsm_org_id')
 
-  click.echo('\tRHN Authentication method: %s' % auth_method)
   click.echo('\tbyo_lb: %s' % byo_lb)
   click.echo('\tlb_fqdn: %s' % lb_fqdn)
   click.echo('\tbyo_nfs: %s' % byo_nfs)
@@ -448,7 +447,6 @@ def launch_refarch_env(console_port=8443,
     rhsm_org_id=%s \
     rhsm_pool=%s \
     lb_fqdn=%s \
-    auth_method=%s \
     nfs_registry_host=%s \
     nfs_registry_mountpoint=%s \' %s' % ( tags,
 		    vcenter_host,
@@ -472,7 +470,6 @@ def launch_refarch_env(console_port=8443,
                     rhsm_org_id,
 		    rhsm_pool,
                     lb_fqdn,
-		    auth_method,
                     nfs_registry_host,
                     nfs_registry_mountpoint,
                     playbook)

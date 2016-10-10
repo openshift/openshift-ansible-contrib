@@ -61,6 +61,14 @@
       line: "/registry *(rw,sync,all_squash)"
     notify: restart nfs
 
+  - name: Creates pv1 directory
+    file: path="/pv1" state=directory
+
+  - name: Export the directories
+    lineinfile:
+      dest: "/etc/exports"
+      line: "/pv1 *(rw,sync,all_squash)"
+    notify: restart nfs
 
   - name: Reload NFS exports
     command: exportfs -ra
