@@ -37,10 +37,7 @@ ansible-playbook -e 'openshift_master_cluster_public_hostname=\
 openshift-master.ocp.example.com \
     openshift_master_cluster_hostname=\
 internal-openshift-master.ocp.example.com \
-    wildcard_zone=apps.ocp.example.com' \
+    wildcard_zone=apps.ocp.example.com \
+    console_port=443' \
     playbooks/validation.yaml
-```
-```
-ansible-playbook -e 'wildcard_zone=apps.ocp.example.com' \
-    playbooks/demo.yaml
 ```
