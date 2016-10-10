@@ -1,0 +1,9 @@
+- hosts: localhost
+  gather_facts: yes
+  roles:
+    - instance-groups
+
+- hosts: primary_master
+  gather_facts: no
+  roles:
+    - openshift-demo

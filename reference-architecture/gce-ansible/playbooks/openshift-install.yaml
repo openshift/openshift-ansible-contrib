@@ -1,0 +1,54 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  roles:
+    - instance-groups
+
+- hosts: cluster_hosts
+  gather_facts: no
+  roles:
+    - docker-storage-setup
+
+- hosts: schedulable_nodes
+  gather_facts: no
+  roles:
+    - openshift-volume-quota
+
+- hosts: cluster_hosts
+  gather_facts: no
+  roles:
+    - gce-cloudconfig
+
+- include: openshift-setup.yaml
+
+- hosts: masters
+  gather_facts: no
+  roles:
+    - role: master-http-proxy
+    - role: /usr/share/ansible/openshift-ansible/roles/os_firewall
+      os_firewall_allow:
+        - service: master http proxy
+          port: 8080/tcp
+
+- hosts: infra_nodes
+  gather_facts: no
+  roles:
+    - role: /usr/share/ansible/openshift-ansible/roles/os_firewall
+      os_firewall_allow:
+        - service: router liveness probe
+          port: 1936/tcp
+
+- hosts: app_nodes
+  gather_facts: no
+  roles:
+    - restrict-gce-metadata
+
+- hosts: schedulable_nodes
+  gather_facts: no
+  roles:
+    - openshift-emptydir-quota
+
+- hosts: primary_master
+  gather_facts: no
+  roles:
+    - openshift-registry

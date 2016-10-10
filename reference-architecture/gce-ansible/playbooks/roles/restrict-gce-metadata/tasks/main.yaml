@@ -1,0 +1,50 @@
+---
+- name: block access to the GCE metadata server
+  iptables:
+    state: present
+    action: insert
+    chain: OUTPUT
+    destination: 169.254.169.254
+    reject_with: icmp-host-prohibited
+    comment: Prevent all users from reaching GCE API server
+
+- name: enable root user access to the GCE metadata server
+  iptables:
+    state: present
+    action: insert
+    chain: OUTPUT
+    destination: 169.254.169.254
+    uid_owner: 0
+    jump: ACCEPT
+    comment: Enable root user to reach GCE API server
+
+- name: enable udp access to the GCE DNS
+  iptables:
+    state: present
+    action: insert
+    chain: OUTPUT
+    protocol: udp
+    destination: 169.254.169.254
+    destination_port: 53
+    jump: ACCEPT
+    comment: Enable udp access to the GCE DNS
+
+- name: enable tcp access to the GCE DNS
+  iptables:
+    state: present
+    action: insert
+    chain: OUTPUT
+    protocol: tcp
+    destination: 169.254.169.254
+    destination_port: 53
+    jump: ACCEPT
+    comment: Enable tcp access to the GCE DNS
+
+- name: block containers from access to the GCE metadata server
+  iptables:
+    state: present
+    action: insert
+    chain: FORWARD
+    destination: 169.254.169.254
+    reject_with: icmp-host-prohibited
+    comment: Prevent containers from reaching GCE API server

@@ -1,0 +1,20 @@
+---
+- name: create OSE master http proxy for GCE health check
+  copy:
+    dest: /etc/systemd/system/kube-http-proxy.service
+    content: |
+      [Unit]
+      Description=Openshift kube http proxy daemon
+      After=network.target
+
+      [Service]
+      Type=simple
+      ExecStart=/usr/bin/kubectl proxy -p 8080 --address=0.0.0.0 --accept-hosts=^*$ --config=/etc/origin/master/admin.kubeconfig
+
+      [Install]
+      WantedBy=multi-user.target
+  notify:
+    - reload systemd
+
+- name: start OSE master http proxy
+  service: name=kube-http-proxy state=started enabled=yes
