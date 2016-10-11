@@ -116,8 +116,8 @@ GCLOUD_REGION=${GCLOUD_ZONE%-*}
 
 function revert {
     # Bucket for registry
-    if gsutil ls -p "$GCLOUD_PROJECT" "$REGISTRY_BUCKET" &>/dev/null; then
-        gsutil -m rm -r "$REGISTRY_BUCKET"
+    if gsutil ls -p "$GCLOUD_PROJECT" "gs://${REGISTRY_BUCKET}" &>/dev/null; then
+        gsutil -m rm -r "gs://${REGISTRY_BUCKET}"
     fi
 
     # DNS
@@ -489,7 +489,7 @@ fi
 
 # Master backend service
 if ! gcloud --project "$GCLOUD_PROJECT" compute backend-services describe "$MASTER_HTTPS_LB_BACKEND" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute backend-services create "$MASTER_HTTPS_LB_BACKEND" --https-health-checks "$MASTER_HTTPS_LB_HEALTH_CHECK" --port-name "$MASTER_NAMED_PORT_NAME" --protocol "HTTPS"
+    gcloud --project "$GCLOUD_PROJECT" compute backend-services create "$MASTER_HTTPS_LB_BACKEND" --https-health-checks "$MASTER_HTTPS_LB_HEALTH_CHECK" --port-name "$MASTER_NAMED_PORT_NAME" --protocol "HTTPS" --session-affinity "CLIENT_IP"
     gcloud --project "$GCLOUD_PROJECT" beta compute backend-services add-backend "$MASTER_HTTPS_LB_BACKEND" --instance-group "$MASTER_INSTANCE_GROUP" --instance-group-zone "$GCLOUD_ZONE"
 else
     echo "Backend service '${MASTER_HTTPS_LB_BACKEND}' already exists"
@@ -634,8 +634,8 @@ else
 fi
 
 # Create bucket for registry
-if ! gsutil ls -p "$GCLOUD_PROJECT" "$REGISTRY_BUCKET" &>/dev/null; then
-    gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "$REGISTRY_BUCKET"
+if ! gsutil ls -p "$GCLOUD_PROJECT" "gs://${REGISTRY_BUCKET}" &>/dev/null; then
+    gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "gs://${REGISTRY_BUCKET}"
 else
     echo "Bucket '${REGISTRY_BUCKET}' already exists"
 fi
@@ -648,7 +648,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
         echo \"export GCE_PROJECT=${GCLOUD_PROJECT}\" >> /etc/profile.d/ocp.sh;
     fi
 '";
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --command "bash -c '
+gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -xc '
     if [ ! -d ~/google-cloud-sdk ]; then
         curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar -xz;
         ~/google-cloud-sdk/bin/gcloud -q components update;
@@ -661,4 +661,27 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
 
     # This command will upload our public SSH key to the GCE project metadata
     ~/google-cloud-sdk/bin/gcloud compute ssh cloud-user@${BASTION_INSTANCE} --zone ${GCLOUD_ZONE} --command echo;
+
+    if [ ! -d ~/openshift-ansible-contrib ]; then
+        git clone https://github.com/openshift/openshift-ansible-contrib.git ~/openshift-ansible-contrib;
+    fi
+    pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
+    ansible-playbook -e \"public_hosted_zone=${DNS_DOMAIN} \
+        wildcard_zone=${OCP_APPS_DNS_NAME} \
+        openshift_master_cluster_public_hostname=${MASTER_DNS_NAME} \
+        openshift_master_cluster_hostname=${INTERNAL_MASTER_DNS_NAME} \
+        console_port=${CONSOLE_PORT} \
+        openshift_hosted_router_replicas=${INFRA_NODE_INSTANCE_GROUP_SIZE} \
+        openshift_hosted_registry_replicas=${INFRA_NODE_INSTANCE_GROUP_SIZE} \
+        openshift_deployment_type=openshift-enterprise \
+        ansible_pkg_mgr=yum \
+        gcs_registry_bucket=${REGISTRY_BUCKET} \
+        gce_project_id=${GCLOUD_PROJECT} \
+        gce_network_name=${OCP_NETWORK}\" \
+        -e \"openshift_master_identity_providers: ${OCP_IDENTITY_PROVIDERS}\" \
+        playbooks/openshift-install.yaml;
 '";
+
+echo
+echo "Deployment is complete. OpenShift Console can be found at https://${MASTER_DNS_NAME}"
+echo

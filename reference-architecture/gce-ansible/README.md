@@ -27,17 +27,3 @@ ansible-playbook -e 'public_hosted_zone=ocp.example.com \
     gce_network_name=ocp-network' \
     playbooks/openshift-install.yaml
 ```
-
-## Verification and demo application
-
-To verify the deployment works properly, run the `validation.yaml` playbook. To deploy simple demo application, use the `demo.yaml` playbook.
-
-```
-ansible-playbook -e 'openshift_master_cluster_public_hostname=\
-openshift-master.ocp.example.com \
-    openshift_master_cluster_hostname=\
-internal-openshift-master.ocp.example.com \
-    wildcard_zone=apps.ocp.example.com \
-    console_port=443' \
-    playbooks/validation.yaml
-```

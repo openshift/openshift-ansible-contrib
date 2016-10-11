@@ -29,6 +29,9 @@ OCP_APPS_DNS_NAME='apps.ocp.example.com'
 MASTER_HTTPS_CERT_FILE="${HOME}/Downloads/master.ose.example.com.pem"
 MASTER_HTTPS_KEY_FILE="${HOME}/Downloads/master.ose.example.com.key"
 
+# OpenShift Identity providers. This is Google oauth example (hosted_domain is optional and restricts login to users only from the specified domain)
+OCP_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "login": "true", "challenge": "false", "mapping_method": "claim", "client_id": "xxx-yyy.apps.googleusercontent.com", "client_secret": "zzz", "hosted_domain": "example.com"} ]'
+
 ## DEFAULT VALUES ##
 
 OCP_VERSION='3.3'
@@ -80,7 +83,7 @@ ROUTER_NETWORK_LB_POOL='router-network-lb-pool'
 ROUTER_NETWORK_LB_IP='router-network-lb-ip'
 ROUTER_NETWORK_LB_RULE='router-network-lb-rule'
 
-REGISTRY_BUCKET="gs://${GCLOUD_PROJECT}-openshift-docker-registry"
+REGISTRY_BUCKET="${GCLOUD_PROJECT}-openshift-docker-registry"
 
 TEMP_INSTANCE='ocp-rhel-temp'
 

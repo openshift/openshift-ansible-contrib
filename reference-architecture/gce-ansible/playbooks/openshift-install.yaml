@@ -52,3 +52,5 @@
   gather_facts: no
   roles:
     - openshift-registry
+
+- include: validation.yaml

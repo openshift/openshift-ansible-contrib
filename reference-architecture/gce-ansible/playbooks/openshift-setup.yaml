@@ -37,14 +37,13 @@
     osm_default_node_selector: "role=app"
     openshift_deployment_type: openshift-enterprise
     openshift_master_identity_providers:
-    - name: github
-      kind: GitHubIdentityProvider
+    - name: google
+      kind: GoogleIdentityProvider
       login: true
       challenge: false
       mapping_method: claim
-      clientID: e76865557b0417387b35
-      clientSecret: a2439464495d6b579d25f46dd51eb05a170e7e59
-      organizations:
-      - openshift
+      clientID: xxx-yyy.apps.googleusercontent.com
+      clientSecret: zzz
+      hostedDomain: example.com
     osm_use_cockpit: false
     containerized: false
