@@ -105,8 +105,12 @@ RHEL_IMAGE=${RHEL_IMAGE%.qcow2}
 RHEL_IMAGE_GCE=${RHEL_IMAGE//[._]/-}
 REGISTERED_IMAGE="${RHEL_IMAGE_GCE}-registered"
 
-# The same for the DNS managed zone name
-DNS_MANAGED_ZONE=${DNS_DOMAIN//./-}
+# If user doesn't provide DNS_DOMAIN_NAME, create it
+if [ -z "$DNS_DOMAIN_NAME" ]; then
+    DNS_MANAGED_ZONE=${DNS_DOMAIN//./-}
+else
+    DNS_MANAGED_ZONE="$DNS_DOMAIN_NAME"
+fi
 
 GCLOUD_REGION=${GCLOUD_ZONE%-*}
 
@@ -123,8 +127,6 @@ function revert {
         touch "$EMPTY_FILE"
         gcloud --project "$GCLOUD_PROJECT" dns record-sets import "$EMPTY_FILE" -z "$DNS_MANAGED_ZONE" --delete-all-existing &>/dev/null
         rm -f "$EMPTY_FILE"
-
-        gcloud -q --project "$GCLOUD_PROJECT" dns managed-zones delete "$DNS_MANAGED_ZONE"
     fi
 
     # Router forwarding rule
@@ -300,6 +302,14 @@ if [ "${1:-}" = '--revert' ]; then
 fi
 
 ### PROVISION THE INFRASTRUCTURE ###
+
+# Check the DNS managed zone in Google Cloud DNS, create it if it doesn't exist and exit after printing NS servers
+if ! gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" &>/dev/null; then
+    echo "DNS zone '${DNS_MANAGED_ZONE}' doesn't exist. It will be created and installation will stop. Please configure the following NS servers for your domain in your domain provider before proceeding with the installation:"
+    gcloud --project "$GCLOUD_PROJECT" dns managed-zones create "$DNS_MANAGED_ZONE" --dns-name "$DNS_DOMAIN" --description "${DNS_DOMAIN} domain"
+    gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" --format='value(nameServers)' | tr ';' '\n'
+    exit 0
+fi
 
 # Upload image
 if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
@@ -590,13 +600,6 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUT
     gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$ROUTER_NETWORK_LB_RULE" --address "$IP" --region "$GCLOUD_REGION" --target-pool "$ROUTER_NETWORK_LB_POOL"
 else
     echo "Forwarding rule '${ROUTER_NETWORK_LB_RULE}' already exists"
-fi
-
-# DNS zone
-if ! gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" dns managed-zones create "$DNS_MANAGED_ZONE" --dns-name "$DNS_DOMAIN" --description "${DNS_DOMAIN} domain"
-else
-    echo "DNS zone '${DNS_MANAGED_ZONE}' already exists"
 fi
 
 # DNS record for master lb

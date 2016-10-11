@@ -16,6 +16,8 @@ GCLOUD_ZONE='us-central1-a'
 
 # DNS domain which will be configured in Google Cloud DNS
 DNS_DOMAIN='ocp.example.com'
+# Name of the DNS zone in the Google Cloud DNS. If empty, it will be created
+DNS_DOMAIN_NAME='ocp-example-com'
 # DNS name for the Master service
 MASTER_DNS_NAME='master.ocp.example.com'
 # Internal DNS name for the Master service
