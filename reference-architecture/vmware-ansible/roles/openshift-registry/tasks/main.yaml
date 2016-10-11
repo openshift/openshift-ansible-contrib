@@ -55,6 +55,7 @@
 - name: Deploy latest configuration of registry DC
   command: oc deploy docker-registry --latest
   register: deploy_latest
+  when: registry_volume_attached | success
 
 - name: Re-enable config trigger on docker-registry
   command: oc patch dc/docker-registry -p '{"spec":{"triggers":[{"type":"ConfigChange"}]}}'
