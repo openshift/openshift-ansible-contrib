@@ -1,7 +1,7 @@
 ---
 - name: disable unneeded repos
   command: subscription-manager repos --disable='*'
-  when: register_result | changed
+  when: register_result | changed and ansible_distribution == "RedHat"
 
 - name: ensure proper repos are assigned
   command: subscription-manager repos --enable={{ item }}
@@ -9,3 +9,4 @@
       - rhel-7-server-rpms
       - rhel-7-server-extras-rpms
       - rhel-7-server-ose-3.3-rpms
+  when: ansible_distribution == "RedHat"

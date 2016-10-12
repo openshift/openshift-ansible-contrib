@@ -58,6 +58,9 @@ The default region is us-east-1 but can be changed when running the ose-on-aws s
 ### AMI ID
 The AMI ID may need to change if the AWS IAM account does not have access to the Red Hat Cloud Access gold image or if deploying outside of the us-east-1 region.
 
+### Containerized Installation
+The option to install OpenShift is possible by providing the trigger --containerized=true. Using the --containerized=true also allows for the use of Atomic Host.
+
 ### New AWS Environment (Greenfield)
 When installing into an new AWS environment perform the following.   This will create the SSH key, bastion host, and VPC for the new environment.
 ```

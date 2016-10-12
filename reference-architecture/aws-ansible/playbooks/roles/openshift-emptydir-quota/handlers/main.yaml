@@ -3,3 +3,10 @@
   service:
     name: atomic-openshift-node
     state: restarted
+  when: deployment_type == "openshift-enterprise"
+
+- name: restart atomic-openshift-node
+  service:
+    name: origin-node
+    state: restarted
+  when: deployment_type == "origin"

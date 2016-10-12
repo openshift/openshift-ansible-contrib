@@ -12,6 +12,8 @@ import sys
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
               show_default=True)
+@click.option('--containerized', default='False', help='Containerized deployment',
+              show_default=True)
 
 ### AWS/EC2 options
 @click.option('--region', default='us-east-1', help='ec2 region',
@@ -87,6 +89,7 @@ def launch_refarch_env(region=None,
                     public_hosted_zone=None,
                     app_dns_prefix=None,
                     deployment_type=None,
+                    containerized=None,
                     console_port=443,
                     rhsm_user=None,
                     rhsm_password=None,
@@ -129,12 +132,11 @@ def launch_refarch_env(region=None,
     bastion_sg = click.prompt('Specify the the Bastion Security group(example: sg-4afdd24)')
   
 
-  # If the user already provided values, don't bother asking again
-  if rhsm_user is None:
+  if deployment_type in 'openshift-enterprise' and rhsm_user is None:
     rhsm_user = click.prompt("RHSM username?")
-  if rhsm_password is None:
+  if deployment_type in 'openshift-enterprise' and rhsm_password is None:
     rhsm_password = click.prompt("RHSM password?")
-  if rhsm_pool is None:
+  if deployment_type in 'openshift-enterprise' and rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
 
   # Calculate various DNS values
@@ -161,6 +163,7 @@ def launch_refarch_env(region=None,
   click.echo('\tbastion_sg: %s' % bastion_sg)
   click.echo('\tconsole port: %s' % console_port)
   click.echo('\tdeployment_type: %s' % deployment_type)
+  click.echo('\tcontainerized: %s' % containerized)
   click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
   click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
   click.echo('\tapps_dns: %s' % wildcard_zone)
@@ -212,6 +215,7 @@ def launch_refarch_env(region=None,
     wildcard_zone=%s \
     console_port=%s \
     deployment_type=%s \
+    containerized=%s \
     rhsm_user=%s \
     rhsm_password=%s \
     rhsm_pool=%s \' %s' % (region,
@@ -235,6 +239,7 @@ def launch_refarch_env(region=None,
                     wildcard_zone,
                     console_port,
                     deployment_type,
+                    containerized,
                     rhsm_user,
                     rhsm_password,
                     rhsm_pool,
