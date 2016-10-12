@@ -1,5 +1,5 @@
 # The Reference Architecture OpenShift on VMware
-This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.2 on VMware
+This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.3 on VMware
 
 ## Overview
 The repository contains Ansible playbooks which deploy 3 Masters, 2 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes.
@@ -14,7 +14,7 @@ The code in this repository handles all of the VMware specific components except
 
 ```
 subscription-manager repos --enable rhel-7-server-optional-rpms
-subscription-manager repos --enable rhel-7-server-ose-3.2-rpms
+subscription-manager repos --enable rhel-7-server-ose-3.3-rpms
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm*
 yum -y install atomic-openshift-utils \
                   git \
@@ -43,7 +43,7 @@ RUN yum -y --disablerepo=\* --enablerepo=rhel-7-server-rpms install yum-utils &&
   yum-config-manager --disable \* && \
   yum-config-manager --enable rhel-7-server-rpms && \
   yum-config-manager --enable rhel-7-server-extras-rpms  && \
-  yum-config-manager --enable rhel-7-server-ose-3.2-rpms && \
+  yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
   yum-config-manager --enable rhel-7-server-satellite-tools-6.2-rpms && \
   yum-config-manager --enable rhel-7-server-optional-rpms && \
   yum clean all
