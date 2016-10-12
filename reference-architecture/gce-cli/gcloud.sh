@@ -640,6 +640,20 @@ else
     echo "Bucket '${REGISTRY_BUCKET}' already exists"
 fi
 
+# Prepare config file for ansible based on the configuration from this script
+export DNS_DOMAIN \
+    OCP_APPS_DNS_NAME \
+    MASTER_DNS_NAME \
+    INTERNAL_MASTER_DNS_NAME \
+    CONSOLE_PORT \
+    INFRA_NODE_INSTANCE_GROUP_SIZE \
+    REGISTRY_BUCKET \
+    GCLOUD_PROJECT \
+    OCP_NETWORK \
+    OCP_IDENTITY_PROVIDERS
+envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/ansible-config.yml"
+gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml" "cloud-user@${BASTION_INSTANCE}:" --zone "$GCLOUD_ZONE"
+
 # Prepare bastion instance for openshift installation
 gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo sh -c '
     yum install -y python-libcloud atomic-openshift-utils;
@@ -666,20 +680,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
         git clone https://github.com/openshift/openshift-ansible-contrib.git ~/openshift-ansible-contrib;
     fi
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
-    ansible-playbook -e \"public_hosted_zone=${DNS_DOMAIN} \
-        wildcard_zone=${OCP_APPS_DNS_NAME} \
-        openshift_master_cluster_public_hostname=${MASTER_DNS_NAME} \
-        openshift_master_cluster_hostname=${INTERNAL_MASTER_DNS_NAME} \
-        console_port=${CONSOLE_PORT} \
-        openshift_hosted_router_replicas=${INFRA_NODE_INSTANCE_GROUP_SIZE} \
-        openshift_hosted_registry_replicas=${INFRA_NODE_INSTANCE_GROUP_SIZE} \
-        openshift_deployment_type=openshift-enterprise \
-        ansible_pkg_mgr=yum \
-        gcs_registry_bucket=${REGISTRY_BUCKET} \
-        gce_project_id=${GCLOUD_PROJECT} \
-        gce_network_name=${OCP_NETWORK}\" \
-        -e \"openshift_master_identity_providers: ${OCP_IDENTITY_PROVIDERS}\" \
-        playbooks/openshift-install.yaml;
+    ansible-playbook -e @~/ansible-config.yml playbooks/openshift-install.yaml;
 '";
 
 echo
