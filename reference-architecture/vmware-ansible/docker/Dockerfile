@@ -12,8 +12,8 @@ RUN yum -y --disablerepo=\* --enablerepo=rhel-7-server-rpms install yum-utils &&
   yum-config-manager --enable rhel-7-server-optional-rpms && \
   yum clean all
 
-
-RUN yum install -y  atomic-openshift-utils git python-netaddr python-pip pyOpenSSL openshift-ansible-playbooks net-tools && \
+RUN rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    yum install -y  atomic-openshift-utils git python-iptools python-ldap python-simplejson python-netaddr pyOpenSSL openshift-ansible-playbooks net-tools tar && \
     yum clean all
 
 

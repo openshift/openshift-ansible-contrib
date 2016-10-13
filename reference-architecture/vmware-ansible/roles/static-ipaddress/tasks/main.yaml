@@ -12,6 +12,12 @@
   hostname: name="{{host_inventory[inventory_hostname].guestname}}.{{public_hosted_zone}}"
   ignore_errors: yes
 
+- name: Adding hostname to hosts file
+  lineinfile: 
+    dest: "/etc/hosts/" 
+    line: "{{host_inventory[inventory_hostname].ip4addr}} {{host_inventory[inventory_hostname].guestname}} {{host_inventory[inventory_hostname].guestname}}.{{public_hosted_zone}}"
+  ignore_errors: yes
+
 - name: Adding subinterface on network connection to use static addresses
   template: src=ifcfg-public.j2 dest="/etc/sysconfig/network-scripts/ifcfg-{{ vm_interface_name }}:1" owner=root group=root mode=0644
   with_items:

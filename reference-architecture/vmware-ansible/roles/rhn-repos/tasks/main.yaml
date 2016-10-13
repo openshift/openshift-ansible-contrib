@@ -9,7 +9,6 @@
       - rhel-7-server-rpms
       - rhel-7-server-extras-rpms
       - rhel-7-server-ose-3.3-rpms
-  when: register_key_result | changed or register_user_result | changed
 
 - name: ensure proper repos are assigned for satellite agent
   command: subscription-manager repos --enable={{ item }}

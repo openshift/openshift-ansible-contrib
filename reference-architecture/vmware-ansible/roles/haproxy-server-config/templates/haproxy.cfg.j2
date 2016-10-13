@@ -55,12 +55,12 @@ backend router443
     server {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_fqdn'] }}:443 check
     {% endfor %}
 
-frontend  main *:8443
-    default_backend             mgmt8443
+frontend  main *:{{ console_port }}
+    default_backend             mgmt{{ console_port }}
 
-backend mgmt8443
+backend mgmt{{ console_port }}
     balance source
     mode tcp
     {% for host in groups['master'] %}
-    server {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_fqdn'] }}:8443 check
+    server {{ hostvars[host]['ansible_fqdn'] }} {{ hostvars[host]['ansible_fqdn'] }}:{{ console_port }} check
     {% endfor %}

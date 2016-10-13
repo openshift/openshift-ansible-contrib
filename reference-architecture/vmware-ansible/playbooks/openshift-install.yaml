@@ -57,10 +57,10 @@
     openshift_router_selector: "role=infra"
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: vmware
-    wildcard_zone: apps.vcenter.e2e.bos.redhat.com
+    wildcard_zone: 
     osm_default_subdomain: "{{ wildcard_zone }}"
     deployment_type: openshift-enterprise
-    load_balancer_hostname: haproxy-0.vcenter.e2e.bos.redhat.com
+    load_balancer_hostname: 
     openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"
     #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"
@@ -79,6 +79,6 @@
         preferredUsername:
         - uid
       insecure: true
-      url: ldap://e2e.bos.redhat.com:389/CN=Users,DC=e2e,DC=bos,DC=redhat,DC=com?sAMAccountName
-      bindDN: CN=openshift,CN=Users,DC=e2e,DC=bos,DC=redhat,DC=com
-      bindPassword: password
+      url: 
+      bindDN: 
+      bindPassword: 
