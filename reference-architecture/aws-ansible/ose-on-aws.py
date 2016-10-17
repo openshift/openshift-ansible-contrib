@@ -61,6 +61,8 @@ import sys
               show_default=True)
 @click.option('--bastion-sg', default='/dev/null', help='Specify Bastion Security group used with byo-bastion',
               show_default=True)
+@click.option('--containerized', default='False', help='Containerized installation of OpenShift',
+              show_default=True)
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
@@ -91,6 +93,7 @@ def launch_refarch_env(region=None,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_pool=None,
+                    containerized=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
@@ -167,6 +170,7 @@ def launch_refarch_env(region=None,
   click.echo('\trhsm_user: %s' % rhsm_user)
   click.echo('\trhsm_password: *******')
   click.echo('\trhsm_pool: %s' % rhsm_pool)
+  click.echo('\tcontainerized: %s' % containerized)
   click.echo("")
 
   if not no_confirm:
@@ -214,7 +218,8 @@ def launch_refarch_env(region=None,
     deployment_type=%s \
     rhsm_user=%s \
     rhsm_password=%s \
-    rhsm_pool=%s \' %s' % (region,
+    rhsm_pool=%s \
+    containerized=%s \' %s' % (region,
                     ami,
                     keypair,
                     create_key,
@@ -238,6 +243,7 @@ def launch_refarch_env(region=None,
                     rhsm_user,
                     rhsm_password,
                     rhsm_pool,
+                    containerized,
                     playbook)
 
     if verbose > 0:

@@ -37,6 +37,8 @@ import sys
 @click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
 
 ### Miscellaneous options
+@click.option('--containerized', default='False', help='Containerized installation of OpenShift',
+              show_default=True)
 @click.option('--iam-role', help='Specify the name of the existing IAM Instance profile',
               show_default=True)
 @click.option('--shortname', help='Specify the hostname of the sytem',
@@ -70,6 +72,7 @@ def launch_refarch_env(region=None,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_pool=None,
+                    containerized=None,
                     node_type=None,
                     iam_role=None,
                     infra_elb_name=None,
@@ -141,6 +144,7 @@ def launch_refarch_env(region=None,
   click.echo('\trhsm_user: %s' % rhsm_user)
   click.echo('\trhsm_password: *******')
   click.echo('\trhsm_pool: %s' % rhsm_pool)
+  click.echo('\tcontainerized: %s' % containerized)
   click.echo('\tnode_type: %s' % node_type)
   click.echo('\tiam_role: %s' % iam_role)
   click.echo('\tinfra_elb_name: %s' % infra_elb_name)
@@ -187,6 +191,7 @@ def launch_refarch_env(region=None,
     rhsm_user=%s \
     rhsm_password=%s \
     rhsm_pool=%s \
+    containerized=%s \
     node_type=%s \
     iam_role=%s \
     infra_elb_name=%s \' %s' % (region,
@@ -205,6 +210,7 @@ def launch_refarch_env(region=None,
                     rhsm_user,
                     rhsm_password,
                     rhsm_pool,
+                    containerized,
                     node_type,
                     iam_role,
                     infra_elb_name,
