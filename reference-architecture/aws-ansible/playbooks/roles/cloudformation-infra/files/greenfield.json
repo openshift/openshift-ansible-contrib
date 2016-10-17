@@ -75,10 +75,18 @@
       "Type": "String",
       "Default": "25"
     },
+    "MasterEmptyVolSize": {
+      "Type": "String",
+      "Default": "5"
+    },
     "MasterUserData": {
       "Type": "String"
     },
     "MasterEtcdVolType": {
+      "Type": "String",
+      "Default": "gp2"
+    },
+    "MasterEmptyVolType": {
       "Type": "String",
       "Default": "gp2"
     },
