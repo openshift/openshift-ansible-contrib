@@ -1,0 +1,27 @@
+---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
+- name: Determine available Docker
+  shell: "rpm -q --queryformat '%{VERSION}\n' docker"
+  register: g_atomic_docker_version_result
+  when: openshift.common.is_atomic | bool
+
+- name: Patch atomic host 
+  command: atomic host upgrade
+  when: openshift.common.is_atomic and g_atomic_docker_version_result.stdout | version_compare('1.10', '<') 
+  register: output
+
+- name: reboot
+  command: shutdown -r now "Atomic Host update"
+  async: 0
+  poll: 0
+  when: openshift.common.is_atomic | bool and output.changed
+  ignore_errors: true
+
+- name: waiting for server to come back
+  local_action: wait_for host={{ inventory_hostname }}
+                state=started
+  sudo: false
+  when: openshift.common.is_atomic | bool and output.changed

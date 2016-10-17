@@ -35,6 +35,7 @@
       - vars/main.yaml
   roles:
       - rhsm-repos
+      - atomic-update
       
 - include: openshift-setup.yaml
 
@@ -47,14 +48,6 @@
   roles:
       - s3-registry-user
       - s3-registry-bucket
-      
-- hosts: schedulable_nodes
-  gather_facts: no
-  become: yes
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - openshift-emptydir-quota
       
 - hosts: primary_master
   gather_facts: no 

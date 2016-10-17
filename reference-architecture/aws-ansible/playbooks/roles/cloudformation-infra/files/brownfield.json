@@ -801,6 +801,14 @@
               "VolumeSize": {"Ref": "MasterEtcdVolSize"},
               "VolumeType": {"Ref": "MasterEtcdVolType"}
             }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
+            }
           }
          ]
      }
@@ -847,6 +855,14 @@
               "VolumeSize": {"Ref": "MasterEtcdVolSize"},
               "VolumeType": {"Ref": "MasterEtcdVolType"}
             }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
+            }
           }
          ]
      }
@@ -892,6 +908,14 @@
               "DeleteOnTermination": "false",
               "VolumeSize": {"Ref": "MasterEtcdVolSize"},
               "VolumeType": {"Ref": "MasterEtcdVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
           }
          ]

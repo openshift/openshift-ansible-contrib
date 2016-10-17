@@ -23,6 +23,7 @@
     openshift_router_selector: "role=infra"
     openshift_hosted_router_replicas: 2
     openshift_hosted_registry_replicas: 2
+    openshift_node_local_quota_per_fsgroup: 512Mi
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: aws
     openshift_master_cluster_hostname: "internal-openshift-master.{{ public_hosted_zone }}"
