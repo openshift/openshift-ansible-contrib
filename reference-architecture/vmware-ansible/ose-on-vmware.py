@@ -64,7 +64,6 @@ import click, os, sys, fileinput, json, iptools, ldap
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
 @click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook')
-@click.option('-l', '--local', is_flag=True,help='Local installation of ansible instead of our container')
 # Create inventory options
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
 @click.option('--master_nodes', default='3', help='Number of master nodes to create', show_default=True)
@@ -107,7 +106,6 @@ def launch_refarch_env(console_port=8443,
                     no_confirm=False,
 		    tag=None,
                     verbose=0,
-		    local=None,
 		    create_inventory=None,
 		    master_nodes=None,
 		    infra_nodes=None,
@@ -421,11 +419,11 @@ def launch_refarch_env(console_port=8443,
     if tag:
 	tags = tag
     
-    if local:
-	command='ansible-playbook'
-    else:
-	command='docker run -t --rm --volume `pwd`:/opt/ansible:z -v ~/.ssh:/root/.ssh:z -v /tmp:/tmp:z --net=host ansible:2.2-latest'
-
+    #if local:
+	#command='ansible-playbook'
+    #else:
+    #	command='docker run -t --rm --volume `pwd`:/opt/ansible:z -v ~/.ssh:/root/.ssh:z -v /tmp:/tmp:z --net=host ansible:2.2-latest'
+    command='ansible-playbook'
     command=command + ' --extra-vars "@./infrastructure.json" --tags %s -e \'vcenter_host=%s \
     vcenter_username=%s \
     vcenter_password=%s \

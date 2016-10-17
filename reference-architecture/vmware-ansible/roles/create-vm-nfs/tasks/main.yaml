@@ -7,6 +7,7 @@
     guest: "{{ item.value.guestname }}"
     cluster: "{{ vcenter_cluster}}"
     resource_pool: "{{ vcenter_resource_pool }}"
+    validate_certs: False
     from_template: yes
     template_src: "{{vcenter_template_name}}"
     vm_extra_config:
