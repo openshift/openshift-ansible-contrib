@@ -1,0 +1,215 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: OpenShift VPC and Subnets Template
+Outputs:
+  VpcId:
+    Description: Vpc Id
+    Value:
+      Ref: Vpc
+  VpcSubnets:
+    Description: VPC Subnets
+    Value:
+      'Fn::Join':
+      - ','
+      - - Ref: Subnet1
+        - 'Fn::If':
+          - CreateSubnet2
+          - Ref: Subnet2
+          - Ref: 'AWS::NoValue'
+        - 'Fn::If':
+          - CreateSubnet3
+          - Ref: Subnet3
+          - Ref: 'AWS::NoValue'
+        - 'Fn::If':
+          - CreateSubnet4
+          - Ref: Subnet4
+          - Ref: 'AWS::NoValue'
+  VpcSubnet1:
+    Description: VPC Subnet01
+    Value:
+      Ref: Subnet1
+  VpcSubnet2:
+    Value:
+      'Fn::If':
+      - CreateSubnet2
+      - Ref: Subnet2
+      - Ref: Subnet1
+  VpcSubnet3:
+    Value:
+      'Fn::If':
+      - CreateSubnet3
+      - Ref: Subnet3
+      - Ref: Subnet1
+  VpcSubnet4:
+    Value:
+      'Fn::If':
+      - CreateSubnet4
+      - Ref: Subnet4
+      - 'Fn::If':
+        - CreateSubnet2
+        - Ref: Subnet2
+        - Ref: Subnet1
+Parameters:
+  VpcName:
+    Type: String
+  VpcCidrBlock:
+    Type: String
+  NumSubnets:
+    Type: Number
+    MinValue: 1
+    MaxValue: 4
+    Default: 1
+  SubnetAvailabilityZones:
+    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
+  SubnetCidrBlocks:
+    Type: CommaDelimitedList
+Conditions:
+  CreateSubnet2:
+    'Fn::Not':
+    - 'Fn::Equals':
+      - Ref: NumSubnets
+      - 1
+  CreateSubnet3:
+    'Fn::Or':
+    - 'Fn::Equals':
+      - Ref: NumSubnets
+      - 3
+    - 'Fn::Equals':
+      - Ref: NumSubnets
+      - 4
+  CreateSubnet4:
+    'Fn::Equals':
+    - Ref: NumSubnets
+    - 4
+Resources:
+  Vpc:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock:
+        Ref: VpcCidrBlock
+      EnableDnsHostnames: True
+      EnableDnsSupport: True
+      Tags:
+      - Key: Name
+        Value:
+          Ref: VpcName
+  VpcInternetGateway:
+    Type: 'AWS::EC2::InternetGateway'
+    Properties: {}
+  VpcGA:
+    Type: 'AWS::EC2::VPCGatewayAttachment'
+    Properties:
+      InternetGatewayId:
+        Ref: VpcInternetGateway
+      VpcId:
+        Ref: Vpc
+  VpcRouteTable:
+    Properties:
+      VpcId:
+        Ref: Vpc
+    Type: 'AWS::EC2::RouteTable'
+  VPCRouteInternetGateway:
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: VpcInternetGateway
+      RouteTableId:
+        Ref: VpcRouteTable
+    Type: 'AWS::EC2::Route'
+  Subnet1:
+    Type: 'AWS::EC2::Subnet'
+    DependsOn:
+    - Vpc
+    Properties:
+      AvailabilityZone:
+        'Fn::Select':
+        - 0
+        - Ref: SubnetAvailabilityZones
+      CidrBlock:
+        'Fn::Select':
+        - 0
+        - Ref: SubnetCidrBlocks
+      MapPublicIpOnLaunch: True
+      VpcId:
+        Ref: Vpc
+  Subnet1RTA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      RouteTableId:
+        Ref: VpcRouteTable
+      SubnetId:
+        Ref: Subnet1
+  Subnet2:
+    Type: 'AWS::EC2::Subnet'
+    Condition: CreateSubnet2
+    DependsOn:
+    - Vpc
+    Properties:
+      AvailabilityZone:
+        'Fn::Select':
+        - 1
+        - Ref: SubnetAvailabilityZones
+      CidrBlock:
+        'Fn::Select':
+        - 1
+        - Ref: SubnetCidrBlocks
+      MapPublicIpOnLaunch: True
+      VpcId:
+        Ref: Vpc
+  Subnet2RTA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: CreateSubnet2
+    Properties:
+      RouteTableId:
+        Ref: VpcRouteTable
+      SubnetId:
+        Ref: Subnet2
+  Subnet3:
+    Type: 'AWS::EC2::Subnet'
+    Condition: CreateSubnet3
+    DependsOn:
+    - Vpc
+    Properties:
+      AvailabilityZone:
+        'Fn::Select':
+        - 2
+        - Ref: SubnetAvailabilityZones
+      CidrBlock:
+        'Fn::Select':
+        - 2
+        - Ref: SubnetCidrBlocks
+      MapPublicIpOnLaunch: True
+      VpcId:
+        Ref: Vpc
+  Subnet3RTA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: CreateSubnet3
+    Properties:
+      RouteTableId:
+        Ref: VpcRouteTable
+      SubnetId:
+        Ref: Subnet3
+  Subnet4:
+    Type: 'AWS::EC2::Subnet'
+    Condition: CreateSubnet4
+    DependsOn:
+    - Vpc
+    Properties:
+      AvailabilityZone:
+        'Fn::Select':
+        - 3
+        - Ref: SubnetAvailabilityZones
+      CidrBlock:
+        'Fn::Select':
+        - 3
+        - Ref: SubnetCidrBlocks
+      MapPublicIpOnLaunch: True
+      VpcId:
+        Ref: Vpc
+  Subnet4RTA:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Condition: CreateSubnet4
+    Properties:
+      RouteTableId:
+        Ref: VpcRouteTable
+      SubnetId:
+        Ref: Subnet4

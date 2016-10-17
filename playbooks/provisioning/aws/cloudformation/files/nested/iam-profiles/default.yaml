@@ -1,0 +1,65 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: OpenShift IAM Profiles
+Outputs:
+  MasterInstanceProfile:
+    Description: Master Instance Profile
+    Value:
+      Ref: MasterInstanceProfile
+  NodeInstanceProfile:
+    Description: Node Instance Profile
+    Value:
+      Ref: NodeInstanceProfile
+Resources:
+  MasterPolicy:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - 'sts:AssumeRole'
+      Policies:
+      - PolicyName: openshift-master
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: 'ec2:*'
+            Resource: '*'
+          - Effect: Allow
+            Action: 'elasticloadbalancing:*'
+            Resource: '*'
+  NodePolicy:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - 'sts:AssumeRole'
+      Policies:
+      - PolicyName: openshift-node
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: 'ec2:Describe*'
+            Resource: '*'
+  MasterInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Roles:
+      - Ref: MasterPolicy
+  NodeInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Roles:
+      - Ref: NodePolicy

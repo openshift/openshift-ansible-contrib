@@ -1,0 +1,285 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: OpenShift Cluster Template
+Parameters:
+  VpcId:
+    Type: "AWS::EC2::VPC::Id"
+  MasterApiPort:
+    Type: Number
+    Default: 443
+Outputs:
+  MasterSecurityGroups:
+    Description: Master Security Groups
+    Value:
+      'Fn::Join':
+      - ','
+      - - Ref: SshSG
+        - Ref: EtcdSG
+        - Ref: MasterSG
+        - Ref: NodeSG
+  NodeSecurityGroups:
+    Description: Node Security Groups
+    Value:
+      'Fn::Join':
+      - ','
+      - - Ref: SshSG
+        - Ref: NodeSG
+  EtcdSecurityGroups:
+    Description: etcd Security Groups
+    Value:
+      'Fn::Join':
+      - ','
+      - - Ref: SshSG
+        - Ref: EtcdSG
+  RouterSecurityGroups:
+    Description: Router Security Groups
+    Value:
+      'Fn::Join':
+      - ','
+      - - Ref: SshSG
+        - Ref: NodeSG
+        - Ref: RouterSG
+  RouterElbSecurityGroups:
+    Description: Router ELB Security Groups
+    Value:
+      Ref: RouterElbSG
+  MasterExtElbSecurityGroups:
+    Description: Master External ELB Security Groups
+    Value:
+      Ref: MasterExtElbSG
+  MasterIntElbSecurityGroups:
+    Description: Master Internal ELB Security Groups
+    Value:
+      Ref: MasterIntElbSG
+Resources:
+  SshSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: SSH Access
+      VpcId:
+        Ref: VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 0.0.0.0/0
+  MasterSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: OpenShift Masters
+      VpcId:
+        Ref: VpcId
+  EtcdSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn:
+    - MasterSG
+    Properties:
+      GroupDescription: OpenShift etcd
+      VpcId:
+        Ref: VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 2379
+        ToPort: 2379
+        SourceSecurityGroupId:
+          Ref: MasterSG
+  NodeSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn:
+    - MasterSG
+    Properties:
+      GroupDescription: OpenShift Nodes
+      VpcId:
+        Ref: VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 10250
+        ToPort: 10250
+        SourceSecurityGroupId:
+          Ref: MasterSG
+  RouterSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: OpenShift Router
+      VpcId:
+        Ref: VpcId
+  MasterExtElbSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn:
+    - MasterSG
+    Properties:
+      GroupDescription: OpenShift Master External ELB
+      VpcId:
+        Ref: VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort:
+          Ref: MasterApiPort
+        ToPort:
+          Ref: MasterApiPort
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort:
+          Ref: MasterApiPort
+        ToPort:
+          Ref: MasterApiPort
+        DestinationSecurityGroupId:
+          Ref: MasterSG
+  MasterIntElbSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn:
+    - MasterSG
+    - NodeSG
+    Properties:
+      GroupDescription: OpenShift Master Internal ELB
+      VpcId:
+        Ref: VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort:
+          Ref: MasterApiPort
+        ToPort:
+          Ref: MasterApiPort
+        SourceSecurityGroupId:
+          Ref: MasterSG
+      - IpProtocol: tcp
+        FromPort:
+          Ref: MasterApiPort
+        ToPort:
+          Ref: MasterApiPort
+        SourceSecurityGroupId:
+          Ref: NodeSG
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort:
+          Ref: MasterApiPort
+        ToPort:
+          Ref: MasterApiPort
+        DestinationSecurityGroupId:
+          Ref: MasterSG
+  RouterElbSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    DependsOn:
+    - RouterSG
+    Properties:
+      GroupDescription: OpenShift Router ELB
+      VpcId:
+        Ref: VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        DestinationSecurityGroupId:
+          Ref: RouterSG
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        DestinationSecurityGroupId:
+          Ref: RouterSG
+  RouterIngressHTTP:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: RouterSG
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      SourceSecurityGroupId:
+        Ref: RouterElbSG
+  RouterIngressHTTPS:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: RouterSG
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId:
+        Ref: RouterElbSG
+  NodeIngressNodeKubelet:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: NodeSG
+      IpProtocol: tcp
+      FromPort: 10250
+      ToPort: 10250
+      SourceSecurityGroupId:
+        Ref: NodeSG
+  NodeIngressNodeVXLAN:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: NodeSG
+      IpProtocol: udp
+      FromPort: 4789
+      ToPort: 4789
+      SourceSecurityGroupId:
+        Ref: NodeSG
+  MasterIngressIntLB:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: MasterSG
+      IpProtocol: tcp
+      FromPort:
+        Ref: MasterApiPort
+      ToPort:
+        Ref: MasterApiPort
+      SourceSecurityGroupId:
+        Ref: MasterIntElbSG
+  MasterIngressExtLB:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: MasterSG
+      IpProtocol: tcp
+      FromPort:
+        Ref: MasterApiPort
+      ToPort:
+        Ref: MasterApiPort
+      SourceSecurityGroupId:
+        Ref: MasterExtElbSG
+  MasterIngressNodesApi:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: MasterSG
+      IpProtocol: tcp
+      FromPort:
+        Ref: MasterApiPort
+      ToPort:
+        Ref: MasterApiPort
+      SourceSecurityGroupId:
+        Ref: NodeSG
+  MasterIngressMasterApi:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: MasterSG
+      IpProtocol: tcp
+      FromPort:
+        Ref: MasterApiPort
+      ToPort:
+        Ref: MasterApiPort
+      SourceSecurityGroupId:
+        Ref: MasterSG
+  EtcdIngressEtcd:
+    Type: 'AWS::EC2::SecurityGroupIngress'
+    Properties:
+      GroupId:
+        Ref: EtcdSG
+      IpProtocol: tcp
+      FromPort: 2379
+      ToPort: 2380
+      SourceSecurityGroupId:
+        Ref: EtcdSG
