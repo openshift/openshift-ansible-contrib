@@ -20,3 +20,5 @@ multi_inventory.yaml
 .tags*
 ose3-installer
 infrastructure.json
+*.log
+reference-architecture/aws-ansible/playbooks/roles/cloudformation-infra/files/*.json

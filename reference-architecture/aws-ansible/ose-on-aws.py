@@ -2,8 +2,12 @@
 # vim: sw=2 ts=2
 
 import click
+from jinja2 import Environment, FileSystemLoader
 import os
 import sys
+import json
+import types
+from copy import deepcopy
 
 @click.command()
 
@@ -14,13 +18,23 @@ import sys
               show_default=True)
 
 ### AWS/EC2 options
+@click.option('--stack-name', default='OpenShift-Infra', help='CloudFormation stack name',
+              show_default=True)
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
 @click.option('--ami', default='ami-10251c7a', help='ec2 ami',
               show_default=True)
 @click.option('--master-instance-type', default='m4.large', help='ec2 instance type',
               show_default=True)
+@click.option('--master-instance-count', default='3', type=click.IntRange(3,9), help='Number of master nodes to provision',
+              show_default=True)
+@click.option('--infra-instance-type', default='t2.small', help='ec2 instance type',
+              show_default=True)
+@click.option('--infra-instance-count', default='2', type=click.IntRange(2,9), help='Number of application nodes to provision',
+              show_default=True)
 @click.option('--node-instance-type', default='t2.medium', help='ec2 instance type',
+              show_default=True)
+@click.option('--node-instance-count', default='2', type=click.IntRange(2,9), help='Number of application nodes to provision',
               show_default=True)
 @click.option('--keypair', help='ec2 keypair name',
               show_default=True)
@@ -65,37 +79,53 @@ import sys
               help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
+@click.option('--vars-file', default='vars/main.yaml',
+            help="Location of environment specific variables, either fully qualified or relative to the playbooks directory",
+            show_default=True)
+@click.option('--custom-template', help="Define the location of a custom json file. Use it to define additional AWS resources during stack creation. Has to be a valid cfn template")
 
-def launch_refarch_env(region=None,
-                    ami=None,
-                    no_confirm=False,
-                    master_instance_type=None,
-                    node_instance_type=None,
-                    keypair=None,
-                    create_key=None,
-                    key_path=None,
-                    create_vpc=None,
-                    vpc_id=None,
-                    private_subnet_id1=None,
-                    private_subnet_id2=None,
-                    private_subnet_id3=None,
-                    public_subnet_id1=None,
-                    public_subnet_id2=None,
-                    public_subnet_id3=None,
-                    byo_bastion=None,
-                    bastion_sg=None,
-                    public_hosted_zone=None,
-                    app_dns_prefix=None,
-                    deployment_type=None,
-                    console_port=443,
-                    rhsm_user=None,
-                    rhsm_password=None,
-                    rhsm_pool=None,
-                    verbose=0):
+
+def launch_refarch_env(stack_name=None,
+                       region=None,
+                       ami=None,
+                       no_confirm=False,
+                       master_instance_type=None,
+                       master_instance_count=3,
+                       infra_instance_type=None,
+                       infra_instance_count=2,
+                       node_instance_type=None,
+                       node_instance_count=2,
+                       keypair=None,
+                       create_key=None,
+                       key_path=None,
+                       create_vpc=None,
+                       vpc_id=None,
+                       private_subnet_id1=None,
+                       private_subnet_id2=None,
+                       private_subnet_id3=None,
+                       public_subnet_id1=None,
+                       public_subnet_id2=None,
+                       public_subnet_id3=None,
+                       byo_bastion=None,
+                       bastion_sg=None,
+                       public_hosted_zone=None,
+                       app_dns_prefix=None,
+                       deployment_type=None,
+                       console_port=443,
+                       rhsm_user=None,
+                       rhsm_password=None,
+                       rhsm_pool=None,
+                       vars_file=None,
+                       custom_template=None,
+                       verbose=0):
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
+
+  # If user specified a custom vars_file and not a custom stack_name
+  if vars_file !='vars/main.yaml' and stack_name == 'OpenShift-Infra':
+    stack_name = click.prompt('Specify a name for the CloudFormation stack')
 
   # Create ssh key pair in AWS if none is specified
   if create_key in 'yes' and key_path in 'no':
@@ -143,9 +173,14 @@ def launch_refarch_env(region=None,
   # Display information to the user about their choices
   click.echo('Configured values:')
   click.echo('\tami: %s' % ami)
+  click.echo('\tstack_name: %s' % stack_name)
   click.echo('\tregion: %s' % region)
   click.echo('\tmaster_instance_type: %s' % master_instance_type)
+  click.echo('\tmaster_instance_count: %s' % master_instance_count)
+  click.echo('\tinfra_instance_type: %s' % infra_instance_type)
+  click.echo('\tinfra_instance_count: %s' % infra_instance_count)
   click.echo('\tnode_instance_type: %s' % node_instance_type)
+  click.echo('\tnode_instance_count: %s' % node_instance_count)
   click.echo('\tkeypair: %s' % keypair)
   click.echo('\tcreate_key: %s' % create_key)
   click.echo('\tkey_path: %s' % key_path)
@@ -167,6 +202,8 @@ def launch_refarch_env(region=None,
   click.echo('\trhsm_user: %s' % rhsm_user)
   click.echo('\trhsm_password: *******')
   click.echo('\trhsm_pool: %s' % rhsm_pool)
+  click.echo('\tvars_file: %s' % vars_file)
+  click.echo('\tcustom_template: %s' % custom_template)
   click.echo("")
 
   if not no_confirm:
@@ -175,6 +212,23 @@ def launch_refarch_env(region=None,
   playbooks = ['playbooks/infrastructure.yaml', 'playbooks/openshift-install.yaml']
 
   for playbook in playbooks:
+
+    if create_vpc == 'yes':
+      install_type='greenfield'
+    elif create_vpc == 'no' and bastion_byo == 'no':
+      install_type = 'brownfield'
+    elif create_vpc == 'no' and bastion_byo == 'yes':
+      install_type = 'brownfield-byo-bastion'
+
+    if custom_template != None:
+      custom_fragment = custom_template 
+    else:
+      custom_fragment = None
+
+    render_template(install_type=install_type,
+                    master_count=master_instance_count,
+                    infra_count=infra_instance_count,
+                    node_count=node_instance_count, custom_template=custom_fragment)
 
     # hide cache output unless in verbose mode
     devnull='> /dev/null'
@@ -193,6 +247,7 @@ def launch_refarch_env(region=None,
 
     command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
     ami=%s \
+    stack_name=%s \
     keypair=%s \
     create_key=%s \
     key_path=%s \
@@ -207,6 +262,7 @@ def launch_refarch_env(region=None,
     byo_bastion=%s \
     bastion_sg=%s \
     master_instance_type=%s \
+    infra_instance_type=%s \
     node_instance_type=%s \
     public_hosted_zone=%s \
     wildcard_zone=%s \
@@ -214,8 +270,11 @@ def launch_refarch_env(region=None,
     deployment_type=%s \
     rhsm_user=%s \
     rhsm_password=%s \
-    rhsm_pool=%s \' %s' % (region,
+    rhsm_pool=%s \
+    vars_file=%s \
+    custom_template=%s \' %s' % (region,
                     ami,
+                    stack_name,
                     keypair,
                     create_key,
                     key_path,
@@ -230,6 +289,7 @@ def launch_refarch_env(region=None,
                     byo_bastion,
                     bastion_sg,
                     master_instance_type,
+                    infra_instance_type,
                     node_instance_type,
                     public_hosted_zone,
                     wildcard_zone,
@@ -238,6 +298,8 @@ def launch_refarch_env(region=None,
                     rhsm_user,
                     rhsm_password,
                     rhsm_pool,
+                    vars_file,
+                    custom_template,
                     playbook)
 
     if verbose > 0:
@@ -247,6 +309,52 @@ def launch_refarch_env(region=None,
     status = os.system(command)
     if os.WIFEXITED(status) and os.WEXITSTATUS(status) != 0:
       return os.WEXITSTATUS(status)
+
+def render_template(install_type="greenfield", master_count=3, infra_count=4, node_count=2, custom_template=None):
+  tmpl = Environment(loader=FileSystemLoader('./'), trim_blocks=True)
+  t_in = ("playbooks/roles/cloudformation-infra/files/%s.json.j2") % (install_type)
+  t_out = ("playbooks/roles/cloudformation-infra/files/%s.json") % (install_type)
+
+  if custom_template:
+    r1 = tmpl.get_template(t_in).render(
+          master_count=(master_count + 1),
+          infra_count=(infra_count + 1),
+          node_count=(node_count + 1))
+    r2 = tmpl.get_template(custom_template).render(
+          master_count=(master_count + 1),
+          infra_count=(infra_count + 1),
+          node_count=(node_count + 1))
+    rendered = merge(json.loads(r1), json.loads(r2))
+    rendered = json.dumps(rendered) 
+  else:
+    rendered = tmpl.get_template(t_in).render(
+          master_count=(master_count + 1),
+          infra_count=(infra_count + 1),
+          node_count=(node_count + 1))
+
+  with open(t_out, "wb") as fh:
+    fh.write(rendered)
+
+
+def merge(a, b):
+   c = deepcopy(a)
+   if type(a) != type(b):
+     c = b
+   elif type(b) is types.DictType:
+     for k,v in b.items():
+       if k in a:
+         c[k] = merge(a[k], v)
+       else:
+         c[k] = b[k]
+   elif type(b) is types.ListType:
+     for v in b:
+       if v not in c:
+         c.append(v)
+   else:
+     c = b
+
+   return c
+
 
 if __name__ == '__main__':
   # check for AWS access info

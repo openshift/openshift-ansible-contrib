@@ -1,0 +1,14 @@
+# Extensions
+A collection of AWS CloudFormation snippets that can be merged into the main template at runtime.
+My use case is to deploy rds instances. Anything you can create with cfn is valid.
+Any snippet needs to be a valid cfn json template. Because its merged before being applied to AWS, it has has access to the same AWS Parameters and jinja variables.
+
+**WARNING**
+With great power comes great responsibility.
+Your snippet will be deep merged at the root level with the default cfn template.
+This means its entirely possible for you to overwrite some defaults. This is a bad idea and will lkely end in and incomplete or broken deployment.
+The intent is that you use this feature to deploy *additional* aws resources.
+
+If you declare a resource that is already declared in the default template, it will be merged. This means that both values could be present once merging is complete.
+
+To use a snippet add `--custom-template=/PATH/TO/YOUR/SNIPPET.json`

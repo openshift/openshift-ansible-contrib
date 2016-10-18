@@ -3,7 +3,7 @@
   gather_facts: no
   become: no
   vars_files:
-      - vars/main.yaml
+      - "{{ vars_file }}"
   roles:
       # Group systems
       - instance-groups
@@ -13,7 +13,7 @@
   gather_facts: no
   become: no
   vars_files:
-      - vars/main.yaml
+      - "{{ vars_file }}"
   roles:
       - host-up
       
@@ -23,7 +23,7 @@
   serial: 1
   user: ec2-user
   vars_files:
-      - vars/main.yaml
+      - "{{ vars_file }}"
   roles:
       - rhsm-subscription
       
@@ -32,7 +32,7 @@
   become: yes
   user: ec2-user
   vars_files:
-      - vars/main.yaml
+      - "{{ vars_file }}"
   roles:
       - rhsm-repos
       - prerequisites
@@ -44,7 +44,7 @@
   gather_facts: yes
   become: no
   vars_files:
-      - vars/main.yaml
+      - "{{ vars_file }}"
   roles:
       - s3-registry-user
       - s3-registry-bucket
@@ -53,7 +53,7 @@
   gather_facts: no
   become: yes
   vars_files:
-      - vars/main.yaml
+      - "{{ vars_file }}"
   roles:
       - openshift-emptydir-quota
       
@@ -61,6 +61,6 @@
   gather_facts: no 
   become: yes
   vars_files:
-      - vars/main.yaml
+      - "{{ vars_file }}"
   roles:
       - openshift-registry

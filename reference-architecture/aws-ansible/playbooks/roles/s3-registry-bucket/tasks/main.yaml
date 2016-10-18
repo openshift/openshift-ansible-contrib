@@ -1,6 +1,6 @@
 ---
 - name: set the name of the bucket
-  set_fact: s3_bucket="{{ ansible_date_time.epoch }}-openshift-docker-registry"
+  set_fact: s3_bucket="openshift-docker-registry-{{ stack_name }}"
 - name: Create S3 bucket
   s3:
     bucket: "{{ s3_bucket }}"

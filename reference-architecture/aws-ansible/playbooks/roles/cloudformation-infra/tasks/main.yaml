@@ -1,7 +1,7 @@
 ---
 - name: Create Greenfield Infrastructure
   cloudformation:
-    stack_name: "OpenShift-Infra"
+    stack_name: "{{ stack_name  }}"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/greenfield.json"
@@ -48,7 +48,7 @@
 
 - name: Create Brownfield Infrastructure
   cloudformation:
-    stack_name: "OpenShift-Infra-Brownfield"
+    stack_name: "{{ stack_name }}-Brownfield"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/brownfield.json"
@@ -97,7 +97,7 @@
 
 - name: Create Brownfield Infrastructure with existing bastion
   cloudformation:
-    stack_name: "OpenShift-Infra-Brownfield-wo-bastion"
+    stack_name: "{{ stack_name }}-Brownfield-wo-bastion"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/brownfield-byo-bastion.json"

@@ -30,6 +30,16 @@
     osm_default_subdomain: "{{ wildcard_zone }}"
     osm_default_node_selector: "role=app"
     deployment_type: openshift-enterprise
+    ##openshift_master_identity_providers:
+    ##  - name: basic_auth
+    ##    login: true
+    ##    challenge: true
+    ##    kind: HTPasswdPasswordIdentityProvider
+    ##    filename: /etc/origin/master/htpasswd
+    ##openshift_master_htpasswd_users:
+    ##  admin: "$apr1$L5rUd2yB$SlWgOZhtrz1XjkjB/Zhnf/"
+    #osm_use_cockpit: true
+    #containerized: false
     openshift_master_identity_providers:
     - name: github
       kind: GitHubIdentityProvider

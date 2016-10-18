@@ -3,7 +3,12 @@
   add_host:
     name: "bastion.{{ public_hosted_zone }}"
     groups: bastion
-  when: byo_bastion == "no"
+    openshift_node_labels:
+      role: bastion
+  when:
+    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+    - byo_bastion == "no"
+  with_items: "{{ groups['tag_openshift_role_bastion'] }}"
 
 - name: Add masters to requisite groups
   add_host:
@@ -12,6 +17,8 @@
     openshift_node_labels:
       role: master
   with_items: "{{ groups['tag_openshift_role_master'] }}"
+  when:
+    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
 
 - name: Add a master to the primary masters group
   add_host:
@@ -20,6 +27,8 @@
     openshift_node_labels:
       role: master
   with_items: "{{ groups['tag_openshift_role_master'].0 }}"
+  when:
+    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
 
 - name: Add infra instances to host group
   add_host:
@@ -28,6 +37,8 @@
     openshift_node_labels:
       role: infra
   with_items: "{{ groups['tag_openshift_role_infra'] }}"
+  when:
+    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
 
 - name: Add app instances to host group
   add_host:
@@ -36,12 +47,5 @@
     openshift_node_labels:
       role: app
   with_items: "{{ groups['tag_openshift_role_app'] }}"
-
-- name: Add app instances to host group
-  add_host:
-    name: "{{ hostvars[item].ec2_tag_Name }}" 
-    groups: new_nodes
-    openshift_node_labels:
-      role: "{{ node_type }}" 
-  with_items: "{{ groups['tag_provision_node'] }}"
-  when: add_node is defined
+  when:
+    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
