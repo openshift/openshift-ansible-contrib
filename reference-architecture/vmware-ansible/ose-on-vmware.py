@@ -220,7 +220,7 @@ def launch_refarch_env(console_port=8443,
         	        print "    load_balancer_hostname: " + lb_host + "." + public_hosted_zone
         	else:
                 	print line,
-	 
+	exit(0)	 
   if create_inventory is True:
   	click.echo('Configured inventory values:')
 	click.echo('\tmaster_nodes: %s' % master_nodes)
@@ -262,26 +262,34 @@ def launch_refarch_env(console_port=8443,
 
 	support_list = []
 	if byo_nfs == "no":
-		d['host_inventory'][nfs_host] = {}
-        	d['host_inventory'][nfs_host]['guestname'] = nfs_host
-		d['host_inventory'][nfs_host]['ip4addr'] = ip4addr[0]
-	        d['host_inventory'][nfs_host]['tag'] = "infra-nfs"
+		if ose_hostname_prefix is not None:
+                        nfs_name=ose_hostname_prefix+"nfs-0"
+                else:
+                        nfs_name="nfs-0"
+		d['host_inventory'][nfs_name] = {}
+        	d['host_inventory'][nfs_name]['guestname'] = nfs_name
+		d['host_inventory'][nfs_name]['ip4addr'] = ip4addr[0]
+	        d['host_inventory'][nfs_name]['tag'] = "infra-nfs"
         	d['infrastructure_hosts']["nfs_server"] = {}
-	        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_host
+	        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_name
         	d['infrastructure_hosts']["nfs_server"]['tag'] = "infra-nfs"
-	        support_list.append(nfs_host)
-        	bind_entry.append(nfs_host + "		A       " + ip4addr[0])
+	        support_list.append(nfs_name)
+        	bind_entry.append(nfs_name + "		A       " + ip4addr[0])
 	        del ip4addr[0]
-	if byo_lb == "no":
-	        d['host_inventory'][lb_host] = {}
-        	d['host_inventory'][lb_host]['guestname'] = lb_host
-	        d['host_inventory'][lb_host]['ip4addr'] = wild_ip
-       		d['host_inventory'][lb_host]['tag'] = "loadbalancer"
+	if byo_lb == "no"
+		if ose_hostname_prefix is not None:
+                        lb_name=ose_hostname_prefix+"haproxy-0"
+                else:
+                        lb_name="haproxy-0":
+	        d['host_inventory'][lb_name] = {}
+        	d['host_inventory'][lb_name]['guestname'] = lb_name
+	        d['host_inventory'][lb_name]['ip4addr'] = wild_ip
+       		d['host_inventory'][lb_name]['tag'] = "loadbalancer"
 	        d['infrastructure_hosts']["haproxy"] = {}
-        	d['infrastructure_hosts']["haproxy"]['guestname'] = lb_host
+        	d['infrastructure_hosts']["haproxy"]['guestname'] = lb_name
 	        d['infrastructure_hosts']["haproxy"]['tag'] = "loadbalancer"
-        	support_list.append(lb_host)
-	        bind_entry.append(lb_host + "		A       " + wild_ip)
+        	support_list.append(lb_name)
+	        bind_entry.append(lb_name + "		A       " + wild_ip)
 
 	master_list = []
 	d['production_hosts'] = {}

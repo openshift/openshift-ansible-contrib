@@ -13,7 +13,7 @@
       notes: "{{ item.value.tag }}"
       folder: "{{ vcenter_folder }}"
   with_dict: "{{infrastructure_hosts}}"
-  when: item.value.guestname == 'haproxy-0'
+  when: item.value == 'haproxy'
 
 - name: Get facts of haproxy VM
   vsphere_guest:
