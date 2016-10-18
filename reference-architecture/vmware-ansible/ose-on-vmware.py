@@ -276,11 +276,12 @@ def launch_refarch_env(console_port=8443,
 	        support_list.append(nfs_name)
         	bind_entry.append(nfs_name + "		A       " + ip4addr[0])
 	        del ip4addr[0]
-	if byo_lb == "no"
+
+	if byo_lb == "no":
 		if ose_hostname_prefix is not None:
                         lb_name=ose_hostname_prefix+"haproxy-0"
                 else:
-                        lb_name="haproxy-0":
+                        lb_name="haproxy-0"
 	        d['host_inventory'][lb_name] = {}
         	d['host_inventory'][lb_name]['guestname'] = lb_name
 	        d['host_inventory'][lb_name]['ip4addr'] = wild_ip
