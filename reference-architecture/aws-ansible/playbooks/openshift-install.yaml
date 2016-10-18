@@ -35,7 +35,6 @@
       - vars/main.yaml
   roles:
       - rhsm-repos
-      - atomic-update
       
 - include: openshift-setup.yaml
 
