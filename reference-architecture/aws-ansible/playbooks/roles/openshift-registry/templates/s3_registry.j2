@@ -15,9 +15,17 @@ storage:
     secure: true
     v4auth: true
     rootdirectory: /registry
+    chunksize: "26214400"
 auth:
   openshift:
     realm: openshift
 middleware:
+  registry:
+  - name: openshift
   repository:
-    - name: openshift
+  - name: openshift
+    options:
+      pullthrough: True
+  storage:
+  - name: openshift
+
