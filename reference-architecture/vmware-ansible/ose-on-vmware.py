@@ -49,7 +49,7 @@ import click, os, sys, fileinput, json, iptools, ldap
 ### Miscellaneous options
 @click.option('--byo_lb', default='no', help='skip haproxy install when one exists within the environment',
               show_default=True)
-@click.option('--lb_fqdn', default='haproxy-0', help='Used for OpenShift cluster hostname and public hostname',
+@click.option('--lb_host', default='haproxy-0', help='Used for OpenShift cluster hostname and public hostname',
               show_default=True)
 
 @click.option('--byo_nfs', default='no', help='skip nfs install when one exists within the environment',
@@ -99,7 +99,7 @@ def launch_refarch_env(console_port=8443,
                     rhsm_org_id=None,
                     rhsm_pool=None,
                     byo_lb=None,
-                    lb_fqdn=None,
+                    lb_host=None,
                     byo_nfs=None,
                     nfs_registry_host=None,
                     nfs_registry_mountpoint=None,
@@ -157,12 +157,12 @@ def launch_refarch_env(console_port=8443,
   tags.append('prod')
 
   if byo_lb == "no":
-      lb_host = lb_fqdn
-      lb_fqdn = lb_host + '.' + public_hosted_zone
+      lb_host = lb_host + '.' + public_hosted_zone
       tags.append('haproxy')
   else:
-  	if lb_fqdn is None:
-  		lb_fqdn = click.prompt("Please enter the load balancer fqdn for installation:")
+  	if lb_host is None:
+  		lb_host = click.prompt("Please enter the load balancer hostname for installation:")
+		lb_host = lb_host + '.' + public_hosted_zone
 
   if create_ose_vars is True:
   	click.echo('Configured OSE variables:')
@@ -217,7 +217,7 @@ def launch_refarch_env(console_port=8443,
 	        elif line.startswith("    wildcard_zone:"):
         	        print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
 	        elif line.startswith("    load_balancer_hostname:"):
-        	        print "    load_balancer_hostname: " + lb_host + "." + public_hosted_zone
+        	        print "    load_balancer_hostname: " + lb_host
         	else:
                 	print line,
 	exit(0)	 
@@ -232,10 +232,10 @@ def launch_refarch_env(console_port=8443,
   	click.echo('\tbyo_nfs: %s' % byo_nfs)
 	if byo_nfs == "no":
   		click.echo('\tnfs_host: %s' % nfs_host)
-	  	click.echo('\tbyo_lb: %s' % byo_lb)
+	click.echo('\tbyo_lb: %s' % byo_lb)
 	if byo_lb == "no":
   		click.echo('\tlb_host: %s' % lb_host)
-	  	click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
+	click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
 	click.echo("")
 	if not no_confirm:
     		click.confirm('Continue using these values?', abort=True)	
@@ -378,7 +378,7 @@ def launch_refarch_env(console_port=8443,
 	  click.echo('\trhsm_org_id: rhsm_org_id')
 
   click.echo('\tbyo_lb: %s' % byo_lb)
-  click.echo('\tlb_fqdn: %s' % lb_fqdn)
+  click.echo('\tlb_host: %s' % lb_host)
   click.echo('\tbyo_nfs: %s' % byo_nfs)
   click.echo('\tnfs_registry_host: %s' % nfs_registry_host)
   click.echo('\tnfs_registry_mountpoint: %s' % nfs_registry_mountpoint)
@@ -453,7 +453,7 @@ def launch_refarch_env(console_port=8443,
     rhsm_activation_key=%s \
     rhsm_org_id=%s \
     rhsm_pool=%s \
-    lb_fqdn=%s \
+    lb_host=%s \
     nfs_registry_host=%s \
     nfs_registry_mountpoint=%s \' %s' % ( tags,
 		    vcenter_host,
@@ -476,7 +476,7 @@ def launch_refarch_env(console_port=8443,
                     rhsm_activation_key,
                     rhsm_org_id,
 		    rhsm_pool,
-                    lb_fqdn,
+                    lb_host,
                     nfs_registry_host,
                     nfs_registry_mountpoint,
                     playbook)

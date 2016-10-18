@@ -14,7 +14,7 @@
       notes: "{{ item.value.tag }}"
       folder: "{{ vcenter_folder }}"
   with_dict: "{{infrastructure_hosts}}"
-  when: item.value == 'nfs_server'
+  when: "'nfs' in item.value.guestname"
 
 - name: Get facts of NFS VM
   vsphere_guest:

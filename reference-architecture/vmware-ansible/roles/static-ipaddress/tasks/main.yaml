@@ -14,7 +14,7 @@
 
 - name: Adding hostname to hosts file
   lineinfile: 
-    dest: "/etc/hosts/" 
+    dest: "/etc/hosts" 
     line: "{{host_inventory[inventory_hostname].ip4addr}} {{host_inventory[inventory_hostname].guestname}} {{host_inventory[inventory_hostname].guestname}}.{{public_hosted_zone}}"
   ignore_errors: yes
 
