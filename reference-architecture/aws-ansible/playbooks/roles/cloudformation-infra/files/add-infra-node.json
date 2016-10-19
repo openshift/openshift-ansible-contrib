@@ -1,0 +1,131 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Parameters": {
+    "KeyName": {
+      "Type": "AWS::EC2::KeyPair::KeyName"
+    },
+    "Route53HostedZone": {
+      "Type": "String"
+    },
+    "AmiId": {
+      "Type": "AWS::EC2::Image::Id"
+    },
+    "InstanceType": {
+      "Type": "String",
+      "Default": "t2.medium"
+    },
+    "NodeRootVolSize": {
+      "Type": "String",
+      "Default": "30"
+    },
+    "NodeDockerVolSize": {
+      "Type": "String",
+      "Default": "25"
+    },
+    "NodeDockerVolType": {
+      "Type": "String",
+      "Default": "gp2"
+    },
+    "NodeUserData": {
+      "Type": "String"
+    },
+    "NodeEmptyVolSize": {
+      "Type": "String",
+      "Default": "25"
+    },
+    "NodeEmptyVolType": {
+      "Type": "String",
+      "Default": "gp2"
+    },
+    "NodeRootVolType": {
+      "Type": "String",
+      "Default": "gp2"
+    },
+    "Subnet": {
+      "Type": "String"
+    },
+    "NodeName": {
+      "Type": "String"
+    },
+    "NodeInstanceProfile": {
+      "Type": "String"
+    },
+    "NodeType": {
+      "Type": "String"
+    },
+    "InfraSg": {
+      "Type": "String"
+    },
+    "NodeSg": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "Route53Records": {
+      "Type": "AWS::Route53::RecordSetGroup",
+      "DependsOn": [
+        "NewNode"
+      ],
+      "Properties": {
+        "HostedZoneName": { "Ref": "Route53HostedZone" },
+        "RecordSets": [
+          {
+            "Name":  { "Ref": "NodeName" },
+            "Type": "A",
+	            "TTL": "300",
+		    "ResourceRecords": [{ "Fn::GetAtt" : ["NewNode", "PrivateIp"] }]
+          }
+        ]
+      }
+    },
+    "NewNode" : {
+       "Type" : "AWS::EC2::Instance",
+       "Properties" : {
+          "ImageId" : {"Ref": "AmiId"},
+          "UserData": {"Ref": "NodeUserData"},
+          "KeyName" : {"Ref": "KeyName"},
+	  "InstanceType": {"Ref": "InstanceType"},
+	  "SecurityGroupIds": [{"Ref": "NodeSg"}, {"Ref": "InfraSg"}],
+          "SubnetId" : {"Ref": "Subnet"},
+          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
+          "Tags": [
+            { "Key": "Name",
+              "Value": {"Ref": "NodeName"}
+            },
+            { "Key": "provision",
+              "Value": "node"
+            },
+            { "Key": "openshift-role",
+              "Value": {"Ref": "NodeType"}
+            }
+          ],
+          "BlockDeviceMappings" : [
+          {
+            "DeviceName": "/dev/sda1",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "NodeRootVolSize"},
+              "VolumeType": {"Ref": "NodeRootVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdb",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "NodeDockerVolSize"},
+              "VolumeType": {"Ref": "NodeDockerVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdc",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "NodeEmptyVolSize"},
+              "VolumeType": {"Ref": "NodeEmptyVolType"}
+            }
+          }
+         ]
+     }
+   }
+ }
+}

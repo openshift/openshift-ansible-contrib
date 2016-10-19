@@ -1,0 +1,24 @@
+- hosts: localhost
+  gather_facts: yes
+  roles:
+    - instance-groups
+
+- hosts: localhost
+  gather_facts: no
+  roles:
+    - validate-public
+
+- hosts: masters
+  gather_facts: no
+  roles:
+    - validate-masters
+
+- hosts: masters
+  gather_facts: yes
+  roles:
+    - validate-etcd
+
+- hosts: primary_master
+  gather_facts: no
+  roles:
+    - validate-app

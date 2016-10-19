@@ -44,11 +44,22 @@
       "Type": "String",
       "Default": "25"
     },
+    "MasterUserData": {
+      "Type": "String"
+    },
     "MasterEtcdVolSize": {
       "Type": "String",
       "Default": "25"
     },
+    "MasterEmptyVolSize": {
+      "Type": "String",
+      "Default": "5"
+    },
     "MasterEtcdVolType": {
+      "Type": "String",
+      "Default": "gp2"
+    },
+    "MasterEmptyVolType": {
       "Type": "String",
       "Default": "gp2"
     },
@@ -95,6 +106,9 @@
     "NodeDockerVolType": {
       "Type": "String",
       "Default": "gp2"
+    },
+    "NodeUserData": {
+      "Type": "String"
     },
     "NodeEmptyVolSize": {
       "Type": "String",
@@ -721,6 +735,15 @@
               "VolumeType": {"Ref": "MasterEtcdVolType"}
             }
           }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
+            }
+          }
          ]
      }
   },
@@ -765,6 +788,14 @@
               "DeleteOnTermination": "false",
               "VolumeSize": {"Ref": "MasterEtcdVolSize"},
               "VolumeType": {"Ref": "MasterEtcdVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
           }
          ]
@@ -811,6 +842,14 @@
               "DeleteOnTermination": "false",
               "VolumeSize": {"Ref": "MasterEtcdVolSize"},
               "VolumeType": {"Ref": "MasterEtcdVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
           }
          ]

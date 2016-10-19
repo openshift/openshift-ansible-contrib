@@ -11,7 +11,7 @@
     groups: masters, etcd, nodes, cluster_hosts
     openshift_node_labels:
       role: master
-  with_items: "{{ groups['tag_openshift-role_master'] }}"
+  with_items: "{{ groups['tag_openshift_role_master'] }}"
 
 - name: Add a master to the primary masters group
   add_host:
@@ -19,7 +19,7 @@
     groups: primary_master
     openshift_node_labels:
       role: master
-  with_items: "{{ groups['tag_openshift-role_master'].0 }}"
+  with_items: "{{ groups['tag_openshift_role_master'].0 }}"
 
 - name: Add infra instances to host group
   add_host:
@@ -27,7 +27,7 @@
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: infra
-  with_items: "{{ groups['tag_openshift-role_infra'] }}"
+  with_items: "{{ groups['tag_openshift_role_infra'] }}"
 
 - name: Add app instances to host group
   add_host:
@@ -35,4 +35,13 @@
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: app
-  with_items: "{{ groups['tag_openshift-role_app'] }}"
+  with_items: "{{ groups['tag_openshift_role_app'] }}"
+
+- name: Add app instances to host group
+  add_host:
+    name: "{{ hostvars[item].ec2_tag_Name }}" 
+    groups: new_nodes
+    openshift_node_labels:
+      role: "{{ node_type }}" 
+  with_items: "{{ groups['tag_provision_node'] }}"
+  when: add_node is defined

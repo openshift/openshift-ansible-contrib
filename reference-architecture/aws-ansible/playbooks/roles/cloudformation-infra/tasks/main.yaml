@@ -22,6 +22,7 @@
       MasterInstanceType: "{{ master_instance_type }}"
       AmiId: "{{ ami }}"
       BastionInstanceType: "{{ node_instance_type }}"
+      BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}" 
       MasterRootVolSize: 10
       BastionRootVolType: gp2
       MasterRootVolType: gp2
@@ -29,17 +30,19 @@
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      MasterEmptyVolSize: 5
+      MasterEmptyVolType: gp2
+      MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}" 
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: 25
+      InfraRootVolSize: 15
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
-      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ node_instance_type }}"
-      NodeRootVolSize: 25
+      NodeRootVolSize: 15
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -70,6 +73,7 @@
       MasterInstanceType: "{{ master_instance_type }}"
       AmiId: "{{ ami }}"
       BastionInstanceType: "{{ node_instance_type }}"
+      BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}" 
       MasterRootVolSize: 10
       BastionRootVolType: gp2
       MasterRootVolType: gp2
@@ -77,17 +81,19 @@
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      MasterEmptyVolSize: 5
+      MasterEmptyVolType: gp2
+      MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}" 
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: 25
+      InfraRootVolSize: 15
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
-      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ node_instance_type }}"
-      NodeRootVolSize: 25
+      NodeRootVolSize: 15
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -124,18 +130,71 @@
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterUserData: "{{ lookup('template', 'files/user_data_master.yml') | b64encode }}" 
+      MasterEmptyVolSize: 5
+      MasterEmptyVolType: gp2
+      MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}" 
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: 25
+      InfraRootVolSize: 15
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
-      NodeUserData: "{{ lookup('template', 'files/user_data_node.yml') | b64encode }}"
+      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ node_instance_type }}"
-      NodeRootVolSize: 25
+      NodeRootVolSize: 15
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
   when: create_vpc == "no" and byo_bastion == "yes"
+
+- name: Add App Node 
+  cloudformation:
+    stack_name: "{{ shortname }}"
+    state: "present"
+    region: "{{ region }}"
+    template: "roles/cloudformation-infra/files/add-node.json"
+    template_parameters:
+      NodeName: "{{ fqdn }}"
+      NodeSg: "{{ node_sg }}"
+      Subnet: "{{ subnet_id }}"
+      Route53HostedZone: "{{ public_hosted_zone }}."
+      KeyName: "{{ keypair }}"
+      AmiId: "{{ ami }}"
+      InstanceType: "{{ node_instance_type }}"
+      NodeEmptyVolSize: "{{ emptydir_storage }}"
+      NodeEmptyVolType: gp2
+      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
+      NodeRootVolSize: 15
+      NodeRootVolType: gp2
+      NodeDockerVolSize: "{{ docker_storage }}"
+      NodeDockerVolType: gp2
+      NodeInstanceProfile: "{{ iam_role }}"
+      NodeType: "{{ node_type }}"
+  when: create_vpc == "no" and add_node == "yes" and node_type == "app"
+
+- name: Add Infra Node 
+  cloudformation:
+    stack_name: "{{ shortname }}"
+    state: "present"
+    region: "{{ region }}"
+    template: "roles/cloudformation-infra/files/add-infra-node.json"
+    template_parameters:
+      NodeName: "{{ fqdn }}"
+      NodeSg: "{{ node_sg }}"
+      InfraSg: "{{ infra_sg }}"
+      Subnet: "{{ subnet_id }}"
+      Route53HostedZone: "{{ public_hosted_zone }}."
+      KeyName: "{{ keypair }}"
+      AmiId: "{{ ami }}"
+      InstanceType: "{{ node_instance_type }}"
+      NodeEmptyVolSize: "{{ emptydir_storage }}"
+      NodeEmptyVolType: gp2
+      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
+      NodeRootVolSize: 15
+      NodeRootVolType: gp2
+      NodeDockerVolSize: "{{ docker_storage }}"
+      NodeDockerVolType: gp2
+      NodeInstanceProfile: "{{ iam_role }}"
+      NodeType: "{{ node_type }}"
+  when: create_vpc == "no" and add_node == "yes" and node_type == "infra"

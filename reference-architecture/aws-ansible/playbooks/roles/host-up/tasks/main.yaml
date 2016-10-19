@@ -2,6 +2,7 @@
 - name: check to see if host is available
   wait_for:
     port: 22
+    host: "bastion.{{ public_hosted_zone }}"
     state: started
     delay: 20
-  when: "'bastion' in inventory_hostname"
+  when: byo_bastion == "no"

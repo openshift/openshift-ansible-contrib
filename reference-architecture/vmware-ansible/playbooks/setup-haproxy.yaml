@@ -1,0 +1,30 @@
+---
+- hosts: localhost
+  vars_files:
+    - ../vars/main.yaml
+  roles:
+    - create-vm-haproxy
+
+- name: Deploy ha proxy server
+  hosts: haproxy_group
+  vars_files:
+    - ../vars/main.yaml
+  roles:
+    - static-ipaddress
+    - rhn-subscription
+    - rhn-repos
+    - vmware-guest-setup
+
+- name: Configure ha proxy server
+  hosts: haproxy_group
+  vars_files:
+    - ../vars/main.yaml
+  roles:
+    - haproxy-server
+
+- name: Configure ha proxy server files
+  hosts: haproxy_group, master, infra
+  vars_files:
+    - ../vars/main.yaml
+  roles:
+    - haproxy-server-config

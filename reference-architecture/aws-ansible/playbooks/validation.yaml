@@ -6,6 +6,7 @@
   roles:
       # Group systems
       - instance-groups
+
 - hosts: localhost
   gather_facts: no
   become: no
@@ -13,20 +14,23 @@
       - vars/main.yaml
   roles:
       - validate-public
+
 - hosts: masters
   gather_facts: no
   vars_files:
       - vars/main.yaml
   roles:
       - validate-masters
+
 - hosts: masters
   gather_facts: yes
   vars_files:
       - vars/main.yaml
   roles:
       - validate-etcd
+
 - hosts: primary_master
-  gather_facts: no
+  gather_facts: yes 
   become: yes
   vars_files:
       - vars/main.yaml

@@ -8,12 +8,19 @@ fs_setup:
   filesystem: xfs
   device: /dev/xvdc
   partition: auto
+- label: emptydir
+  filesystem: xfs
+  device: /dev/xvdd
+  partition: auto
 
 runcmd:
 - mkdir -p /var/lib/etcd
+- mkdir -p /var/lib/origin/openshift.local.volumes
 
 mounts:
 - [ /dev/xvdc, /var/lib/etcd, xfs, "defaults" ]
+- [ /dev/xvdd, /var/lib/origin/openshift.local.volumes, xfs, "defaults,gquota" ]
+
 
 write_files:
 - content: |
@@ -23,3 +30,10 @@ write_files:
     EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
   path: /etc/sysconfig/docker-storage-setup
   owner: root:root
+
+users:
+- default
+
+system_info:
+  default_user:
+    name: ec2-user

@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  vars_files:
+    - ../vars/main.yaml
+#    - ../vars/infrastructure.yaml
+  roles:
+    - create-vm-nfs
+
+- name: Deploy NFS server
+  hosts: nfs_group
+  vars_files:
+    - ../vars/main.yaml
+ #   - ../vars/infrastructure.yaml
+
+  roles:
+    - static-ipaddress
+    - rhn-subscription
+    - rhn-repos
+    - vmware-guest-setup
+    - nfs-server

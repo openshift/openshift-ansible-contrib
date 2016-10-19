@@ -1,0 +1,64 @@
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  vars_files:
+      - vars/main.yaml
+  roles:
+      # Group systems
+      - instance-groups
+
+- hosts: new_nodes 
+  gather_facts: yes 
+  become: yes
+  serial: 1
+  user: ec2-user
+  vars_files:
+      - vars/main.yaml
+  roles:
+      - rhsm-subscription
+      
+- hosts: new_nodes
+  gather_facts: no
+  become: yes
+  user: ec2-user
+  vars_files:
+      - vars/main.yaml
+  roles:
+      - rhsm-repos
+      
+- include: node-setup.yaml
+
+- hosts: primary_master
+  gather_facts: yes 
+  become: yes
+  vars_files:
+      - vars/main.yaml
+  roles:
+      - infra-node-scaleup
+
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  become: no
+  vars_files:
+      - vars/main.yaml
+  post_tasks:
+    - name: add instance to ELB if node is infra
+      ec2_elb:
+        instance_id: "{{ hostvars[item].ec2_id }}" 
+        ec2_elbs: "{{ infra_elb_name }}"
+        region: "{{ region }}"
+        wait: no 
+        state: present
+      with_items: "{{ groups['tag_provision_node'] }}"
+      when: node_type == "infra"
+
+    - name: tag a resource
+      ec2_tag:
+        region: "{{ region }}"
+        resource: "{{ hostvars[item].ec2_id }}" 
+        state: absent 
+        tags:
+          provision: node
+      with_items: "{{ groups['tag_provision_node'] }}"

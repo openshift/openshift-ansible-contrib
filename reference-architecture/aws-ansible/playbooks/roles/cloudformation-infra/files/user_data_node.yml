@@ -23,3 +23,11 @@ write_files:
     EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
   path: /etc/sysconfig/docker-storage-setup
   owner: root:root
+
+users:
+- default
+
+system_info:
+  default_user:
+    name: ec2-user
+

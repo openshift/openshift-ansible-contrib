@@ -8,17 +8,17 @@
       # Group systems
       - instance-groups
       
-- hosts: bastion 
+- hosts: localhost
+  connection: local
   gather_facts: no
-  become: yes
-  user: ec2-user
+  become: no
   vars_files:
       - vars/main.yaml
   roles:
       - host-up
       
 - hosts: cluster_hosts
-  gather_facts: no
+  gather_facts: yes 
   become: yes
   serial: 1
   user: ec2-user
@@ -35,7 +35,6 @@
       - vars/main.yaml
   roles:
       - rhsm-repos
-      - prerequisites
       
 - include: openshift-setup.yaml
 
@@ -49,15 +48,6 @@
       - s3-registry-user
       - s3-registry-bucket
       
-- hosts: schedulable_nodes
-  gather_facts: no
-  become: yes
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - openshift-images
-      - openshift-emptydir-quota
-      
 - hosts: primary_master
   gather_facts: no 
   become: yes
@@ -65,20 +55,3 @@
       - vars/main.yaml
   roles:
       - openshift-registry
-      
-- hosts: masters
-  gather_facts: no
-  become: yes
-  serial: 1
-  user: ec2-user
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - openshift-default-selector
-- hosts: primary_master
-  gather_facts: no
-  become: yes
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - openshift-infra-pod-scale

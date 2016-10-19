@@ -48,6 +48,9 @@
       "Type": "String",
       "Default": "gp2"
     },
+    "BastionUserData": {
+      "Type": "String"
+    },
     "MasterRootVolSize": {
       "Type": "String",
       "Default": "10"
@@ -60,9 +63,20 @@
       "Type": "String",
       "Default": "25"
     },
+    "MasterEmptyVolSize": {
+      "Type": "String",
+      "Default": "5"
+    },
     "MasterEtcdVolType": {
       "Type": "String",
       "Default": "gp2"
+    },
+    "MasterEmptyVolType": {
+      "Type": "String",
+      "Default": "gp2"
+    },
+    "MasterUserData": {
+      "Type": "String"
     },
     "MasterDockerVolType": {
       "Type": "String",
@@ -99,6 +113,9 @@
     "NodeRootVolSize": {
       "Type": "String",
       "Default": "30"
+    },
+    "NodeUserData": {
+      "Type": "String"
     },
     "NodeDockerVolSize": {
       "Type": "String",
@@ -714,6 +731,7 @@
        "Type" : "AWS::EC2::Instance",
        "Properties" : {
           "ImageId" : {"Ref": "AmiId"},
+          "UserData": {"Ref": "BastionUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	      "InstanceType": {"Ref": "BastionInstanceType"},
 		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["BastionSg", "GroupId"] }],
@@ -791,6 +809,14 @@
               "VolumeSize": {"Ref": "MasterEtcdVolSize"},
               "VolumeType": {"Ref": "MasterEtcdVolType"}
             }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
+            }
           }
          ]
      }
@@ -837,6 +863,14 @@
               "VolumeSize": {"Ref": "MasterEtcdVolSize"},
               "VolumeType": {"Ref": "MasterEtcdVolType"}
             }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
+            }
           }
          ]
      }
@@ -882,6 +916,14 @@
               "DeleteOnTermination": "false",
               "VolumeSize": {"Ref": "MasterEtcdVolSize"},
               "VolumeType": {"Ref": "MasterEtcdVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "false",
+              "VolumeSize": {"Ref": "MasterEmptyVolSize"},
+              "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
           }
          ]

@@ -20,10 +20,3 @@ osm_default_subdomain: "{{ wildcard_zone }}"
 
 # Registry variables
 s3_username: "openshift-s3-docker-registry"
-
-# Base images to pull
-preload_images:
-    - openshift3/ose-pod
-    - openshift3/ose-sti-builder
-    - openshift3/ose-docker-builder
-    - openshift3/ose-deployer
