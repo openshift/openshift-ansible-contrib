@@ -29,43 +29,6 @@ git clone https://github.com/vmware/pyvmomi && cd pyvmomi/ && python setup.py in
 
 # Grabbed the patched vsphere_guest until the PR is merged
 cp vsphere_guest.py /usr/lib/python2.7/site-packages/ansible/modules/core/cloud/vmware/
-```
-Alternatively, I've provided a Dockerfile should you want to use a container for deployment. This
-is the method that the reference implementation uses.
-
-```
-FROM registry.access.redhat.com/rhel7
-
-MAINTAINER Davis Phillips <dphillip@redhat.com>
-
-
-RUN yum -y --disablerepo=\* --enablerepo=rhel-7-server-rpms install yum-utils && \
-  yum-config-manager --disable \* && \
-  yum-config-manager --enable rhel-7-server-rpms && \
-  yum-config-manager --enable rhel-7-server-extras-rpms  && \
-  yum-config-manager --enable rhel-7-server-ose-3.3-rpms && \
-  yum-config-manager --enable rhel-7-server-satellite-tools-6.2-rpms && \
-  yum-config-manager --enable rhel-7-server-optional-rpms && \
-  yum clean all
-
-
-# install all that is required to use http://docs.ansible.com/ansible/vsphere_guest_module.html
-RUN yum install -y --setopt=tsflags=nodocs atomic-openshift-utils git python-iptools python-ldap python-simplejson python-netaddr python-pip pyOpenSSL &&  \
-    yum clean all
-
-RUN rm /etc/ansible/hosts
-RUN git clone https://github.com/dannvix/pySphere && cd pySphere/ && python setup.py install
-RUN git clone https://github.com/vmware/pyvmomi && cd pyvmomi/ && python setup.py install
-
-VOLUME [ "/etc/ansible/hosts", "/opt/ansible" ]
-
-# Add in patched version of vsphere_guest.py
-# Awaiting PR merge
-COPY vsphere_guest.py /usr/lib/python2.7/site-packages/ansible/modules/core/cloud/vmware/
-#COPY vi_virtual_machine.py /usr/lib/python2.7/site-packages/pysphere/
-WORKDIR "/opt/ansible"
-
-ENTRYPOINT [ "ansible-playbook" ]
 
 ```
 
