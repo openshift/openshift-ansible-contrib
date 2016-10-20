@@ -35,7 +35,7 @@ class LookupModule(LookupBase):
             zones = [z.name for z in conn.get_all_zones()]
             vpc_conn = boto.vpc.connect_to_region(region)
             vpcs = vpc_conn.get_all_vpcs()
-            default_vpcs = [ v for v in vpcs if v.isDefault ]
+            default_vpcs = [ v for v in vpcs if v.is_default ]
 
             # If there are vpc subnets available, then gather list of zones
             # from zones with subnets. This prevents returning regions that
