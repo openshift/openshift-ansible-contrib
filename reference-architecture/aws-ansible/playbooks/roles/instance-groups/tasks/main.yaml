@@ -43,5 +43,5 @@
     groups: new_nodes
     openshift_node_labels:
       role: "{{ node_type }}" 
-  with_items: "{{ groups['tag_provision_node'] }}"
+  with_items: "{{ groups.tag_provision_node | default([]) }}"
   when: add_node is defined

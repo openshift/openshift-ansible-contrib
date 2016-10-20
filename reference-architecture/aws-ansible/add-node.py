@@ -108,11 +108,11 @@ def launch_refarch_env(region=None,
     subnet_id = click.prompt('Specify a Private subnet within the existing VPC')
 
   # If the user already provided values, don't bother asking again
-  if rhsm_user is None:
+  if deployment_type in ['openshift_enterprise'] and rhsm_user is None:
     rhsm_user = click.prompt("RHSM username?")
-  if rhsm_password is None:
+  if deployment_type in ['openshift_enterprise'] and rhsm_password is None:
     rhsm_password = click.prompt("RHSM password?")
-  if rhsm_pool is None:
+  if deployment_type in ['openshift_enterprise'] and rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
 
   # Calculate various DNS values

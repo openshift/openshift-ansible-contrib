@@ -1,0 +1,15 @@
+---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
+- name: Install the required rpms
+  package: name=NetworkManager state=latest
+  when: not openshift.common.is_atomic | bool
+
+- name: Start NetworkManager
+  service:
+    name: NetworkManager
+    state: started
+    enabled: true
+  when: not openshift.common.is_atomic | bool

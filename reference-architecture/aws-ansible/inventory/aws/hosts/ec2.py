@@ -271,7 +271,7 @@ class Ec2Inventory(object):
                 config.get('ec2', 'route53_excluded_zones', '').split(','))
 
         # Include RDS instances?
-        self.rds_enabled = True
+        self.rds_enabled = False
         if config.has_option('ec2', 'rds'):
             self.rds_enabled = config.getboolean('ec2', 'rds')
 
@@ -282,7 +282,7 @@ class Ec2Inventory(object):
             self.include_rds_clusters = False
 
         # Include ElastiCache instances?
-        self.elasticache_enabled = True
+        self.elasticache_enabled = False
         if config.has_option('ec2', 'elasticache'):
             self.elasticache_enabled = config.getboolean('ec2', 'elasticache')
 

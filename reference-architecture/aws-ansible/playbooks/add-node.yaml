@@ -26,6 +26,7 @@
       - vars/main.yaml
   roles:
       - rhsm-repos
+      - prerequisite 
       
 - include: node-setup.yaml
 

@@ -1,5 +1,6 @@
 from ansible import utils, errors
 import boto.ec2
+import boto.vpc
 
 # pylint: disable=no-name-in-module,import-error,unused-argument,unused-variable,super-init-not-called,too-few-public-methods,missing-docstring
 try:
@@ -32,7 +33,20 @@ class LookupModule(LookupBase):
             if conn is None:
                 raise errors.AnsibleError("Could not connet to region %s" % region)
             zones = [z.name for z in conn.get_all_zones()]
-	    if "us-east-1b" in zones: zones.remove("us-east-1b");
+            vpc_conn = boto.vpc.connect_to_region(region)
+            vpcs = vpc_conn.get_all_vpcs()
+            default_vpcs = [ v for v in vpcs if v.is_default ]
+
+            # If there are vpc subnets available, then gather list of zones
+            # from zones with subnets. This prevents returning regions that
+            # are not vpc enabled. If the account is an ec2 Classic account
+            # without any VPC subnets, this could result in returning zones
+            # that are not vpc-enabled.
+            subnets = vpc_conn.get_all_subnets()
+            if len(subnets) > 0:
+                subnet_zones = list(set([s.availability_zone for s in subnets]))
+                return subnet_zones
+
             return zones
         except Exception as e:
             raise errors.AnsibleError("Could not lookup zones for region: %s\nexception: %s" % (region, e))

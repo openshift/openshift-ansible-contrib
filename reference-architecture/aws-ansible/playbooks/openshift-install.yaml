@@ -35,6 +35,7 @@
       - vars/main.yaml
   roles:
       - rhsm-repos
+      - prerequisite 
       
 - include: openshift-setup.yaml
 

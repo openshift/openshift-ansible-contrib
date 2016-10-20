@@ -190,8 +190,8 @@ function revert {
     fi
 
     # Master backend service
-    if gcloud --project "$GCLOUD_PROJECT" beta compute backend-services describe "$MASTER_SSL_LB_BACKEND" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" beta compute backend-services delete "$MASTER_SSL_LB_BACKEND"
+    if gcloud --project "$GCLOUD_PROJECT" beta compute backend-services describe "$MASTER_SSL_LB_BACKEND" --global &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" beta compute backend-services delete "$MASTER_SSL_LB_BACKEND" --global
     fi
 
     # Master health check
@@ -360,7 +360,11 @@ fi
 # Create pre-registered image based on the uploaded image
 if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
     gcloud --project "$GCLOUD_PROJECT" compute instances create "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "$OCP_NETWORK" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "ssh-external"
-    until gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo sh -c '
+    until gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --command "echo" &>/dev/null; do
+        echo "Waiting for '${TEMP_INSTANCE}' to come up..."
+        sleep 5
+    done
+    if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
         subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD};
         subscription-manager attach --pool=${RH_POOL_ID};
         subscription-manager repos --disable=\"*\";
@@ -368,6 +372,8 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMA
             --enable=\"rhel-7-server-rpms\" \
             --enable=\"rhel-7-server-extras-rpms\" \
             --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
+
+        yum -q list atomic-openshift-utils;
 
         cat << EOF > /etc/yum.repos.d/google-cloud.repo
 [google-cloud-compute]
@@ -383,10 +389,12 @@ EOF
         yum install -y google-compute-engine google-compute-engine-init google-config wget git net-tools bind-utils iptables-services bridge-utils bash-completion python-httplib2 docker;
         yum update -y;
         yum clean all;
-    '"; do
-        echo "Waiting for '${TEMP_INSTANCE}' to come up..."
-        sleep 5
-    done
+'"; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
+        gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
+        echoerr "Deployment failed, please check provided Red Hat Username, Password and Pool ID and rerun the script"
+        exit 1
+    fi
     gcloud --project "$GCLOUD_PROJECT" compute instances stop "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
     gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
     gcloud --project "$GCLOUD_PROJECT" compute images create "$REGISTERED_IMAGE" --source-disk "$TEMP_INSTANCE" --source-disk-zone "$GCLOUD_ZONE"
@@ -666,7 +674,7 @@ envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/ansible-config.yml"
 gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml" "cloud-user@${BASTION_INSTANCE}:" --zone "$GCLOUD_ZONE"
 
 # Prepare bastion instance for openshift installation
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo sh -c '
+gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
     yum install -y python-libcloud atomic-openshift-utils;
 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
@@ -676,7 +684,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
         echo \"export INVENTORY_IP_TYPE=internal\" >> /etc/profile.d/ocp.sh;
     fi
 '";
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -c '
+gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
     if [ ! -d ~/google-cloud-sdk ]; then
         curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar -xz;
         ~/google-cloud-sdk/bin/gcloud -q components update;

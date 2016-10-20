@@ -5,4 +5,4 @@
     password: "{{ rhsm_password }}"
     state: present
     pool: "^{{ rhsm_pool }}"
-  when: ansible_os_family == "RedHat"
+  when: ansible_distribution == "RedHat"

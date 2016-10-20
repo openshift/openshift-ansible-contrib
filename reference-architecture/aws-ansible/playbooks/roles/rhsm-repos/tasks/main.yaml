@@ -1,6 +1,7 @@
 ---
 - name: disable unneeded repos
   command: subscription-manager repos --disable='*'
+  when: ansible_distribution == "RedHat"
 
 - name: ensure proper repos are assigned
   command: subscription-manager repos --enable={{ item }}
@@ -8,27 +9,30 @@
       - rhel-7-server-rpms
       - rhel-7-server-extras-rpms
       - rhel-7-server-ose-3.3-rpms
+  when: ansible_distribution == "RedHat"
 
 - name: check to see if rhui exists
   stat:
     path: /etc/yum.repos.d/redhat-rhui.repo
   register: rhui
+  when: ansible_distribution == "RedHat"
 
 - name: check to see if rhui client exists
   stat:
     path: /etc/yum.repos.d/redhat-rhui-client-config.repo
   register: client
+  when: ansible_distribution == "RedHat"
 
 - name: disable rhui repo
   replace:
     dest: /etc/yum.repos.d/redhat-rhui.repo
     regexp: 'enabled=1'
     replace: 'enabled=0'
-  when: rhui.stat.exists
+  when: ansible_distribution == "RedHat" and rhui.stat.exists
 
 - name: disable rhui client repos
   replace:
     dest: /etc/yum.repos.d/redhat-rhui-client-config.repo 
     regexp: 'enabled=1'
     replace: 'enabled=0'
-  when: client.stat.exists
+  when: ansible_distribution == "RedHat" and client.stat.exists
