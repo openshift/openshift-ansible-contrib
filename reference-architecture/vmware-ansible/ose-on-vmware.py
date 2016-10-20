@@ -220,7 +220,7 @@ def launch_refarch_env(console_port=8443,
         	        print "    load_balancer_hostname: " + lb_host
         	else:
                 	print line,
-	 
+	exit(0) 
   if create_inventory is True:
   	click.echo('Configured inventory values:')
 	click.echo('\tmaster_nodes: %s' % master_nodes)
