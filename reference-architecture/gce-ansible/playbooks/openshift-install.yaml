@@ -19,8 +19,6 @@
   roles:
     - gce-cloudconfig
 
-- include: openshift-setup.yaml
-
 - hosts: masters
   gather_facts: no
   roles:
@@ -29,6 +27,8 @@
       os_firewall_allow:
         - service: master http proxy
           port: 8080/tcp
+
+- include: openshift-setup.yaml
 
 - hosts: infra_nodes
   gather_facts: no

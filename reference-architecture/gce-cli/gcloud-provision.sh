@@ -319,8 +319,21 @@ if [[ -n "${STARTUP_SCRIPT_FILE:-}" ]]; then
         echo "Startup script file missing at ${STARTUP_SCRIPT_FILE} - create an empty file, run ./gcloud-startup.sh, or unset STARTUP_SCRIPT_FILE"
         exit 1
     fi
-    metadata+="--metadata-file=startup-script=${STARTUP_SCRIPT_FILE} "
+    metadata+="--metadata-from-file=startup-script=${STARTUP_SCRIPT_FILE}"
 fi
+if [[ -n "${USER_DATA_FILE:-}" ]]; then
+    if [[ ! -f "${USER_DATA_FILE}" ]]; then
+        echo "User data file missing at ${USER_DATA_FILE} - create an empty file, run ./gcloud-startup.sh, or unset USER_DATA_FILE"
+        exit 1
+    fi
+    if [[ -n "${metadata}" ]]; then
+        metadata+=","
+    else
+        metadata="--metadata-from-file="
+    fi
+    metadata+="user-data=${USER_DATA_FILE}"
+fi
+
 
 if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
     "${DIR}/gcloud-image.sh"

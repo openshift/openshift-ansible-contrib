@@ -1,0 +1,8 @@
+#cloud-config
+
+write_files:
+- path: /etc/sudoers.d/99-openshift-cloud-init-requiretty
+  owner: 'root:root'
+  permissions: '0440'
+  content: |
+    Defaults:cloud-user !requiretty

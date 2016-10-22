@@ -2,3 +2,4 @@ config.sh
 instance-data/**
 data/**
 working/**
+*.pem

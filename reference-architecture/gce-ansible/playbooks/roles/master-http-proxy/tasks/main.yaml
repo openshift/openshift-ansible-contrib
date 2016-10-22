@@ -10,6 +10,8 @@
       [Service]
       Type=simple
       ExecStart=/usr/bin/kubectl proxy -p 8080 --address=0.0.0.0 --accept-hosts=^*$ --config=/etc/origin/master/admin.kubeconfig
+      Restart=always
+      RestartSec=5s
 
       [Install]
       WantedBy=multi-user.target
