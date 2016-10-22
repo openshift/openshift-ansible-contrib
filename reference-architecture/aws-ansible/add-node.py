@@ -41,7 +41,7 @@ import sys
               show_default=True)
 @click.option('--iam-role', help='Specify the name of the existing IAM Instance profile',
               show_default=True)
-@click.option('--shortname', help='Specify the hostname of the sytem',
+@click.option('--shortname', help='Specify the hostname of the system',
               show_default=True)
 @click.option('--node-sg', help='Specify the already existing node security group id',
               show_default=True)
