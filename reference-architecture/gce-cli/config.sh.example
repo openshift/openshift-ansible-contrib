@@ -13,6 +13,8 @@ RH_POOL_ID='xxx'
 # Project ID and zone settings for Google Cloud
 GCLOUD_PROJECT='project-1'
 GCLOUD_ZONE='us-central1-a'
+GCLOUD_SERVICE_ACCOUNT="user@${GCLOUD_PROJECT}.iam.gserviceaccount.com"
+GCLOUD_SSH_PRIVATE_KEY="/home/cloud-user/.ssh/google_compute_engine"
 
 # DNS domain which will be configured in Google Cloud DNS
 DNS_DOMAIN='ocp.example.com'

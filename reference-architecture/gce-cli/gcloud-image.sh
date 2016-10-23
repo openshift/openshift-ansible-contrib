@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/bash
 
 # MIT License
 #
@@ -29,8 +29,7 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-source "${DIR}/config.sh"
+source "${CONFIG_SCRIPT:-${DIR}/config.sh}"
 
 function echoerr {
     cat <<< "$@" 1>&2;
@@ -39,10 +38,6 @@ function echoerr {
 # Check $RHEL_IMAGE_PATH
 if [ -z "$RHEL_IMAGE_PATH" ]; then
     echoerr '$RHEL_IMAGE_PATH variable is required'
-    exit 1
-fi
-if [ ! -f "$RHEL_IMAGE_PATH" ]; then
-    echoerr '$RHEL_IMAGE_PATH must exist'
     exit 1
 fi
 if [ "${RHEL_IMAGE_PATH:(-6)}" != '.qcow2' ]; then
@@ -90,10 +85,34 @@ if [ "${1:-}" = '--revert' ]; then
     exit 0
 fi
 
+# Create SSH key for GCE
+if [ ! -f "${GCLOUD_SSH_PRIVATE_KEY}" ]; then
+    ssh-keygen -t rsa -f "${GCLOUD_SSH_PRIVATE_KEY}" -C gce-provision-cloud-user -N ''
+    ssh-add "${GCLOUD_SSH_PRIVATE_KEY}" || true
+fi
+
+# Check if the ~/.ssh/google_compute_engine.pub key is in the project metadata, and if not, add it there
+pub_key=$(cut -d ' ' -f 2 < "${GCLOUD_SSH_PRIVATE_KEY}.pub")
+key_tmp_file='/tmp/ocp-gce-keys'
+if ! gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q "$pub_key"; then
+    if gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q ssh-rsa; then
+        gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep ssh-rsa | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/value: //' > "$key_tmp_file"
+    fi
+    echo -n 'cloud-user:' >> "$key_tmp_file"
+    cat "${GCLOUD_SSH_PRIVATE_KEY}.pub" >> "$key_tmp_file"
+    gcloud --project "$GCLOUD_PROJECT" compute project-info add-metadata --metadata-from-file "sshKeys=${key_tmp_file}"
+    rm -f "$key_tmp_file"
+fi
+
 ### GENERATE THE IMAGE ###
 
 # Upload image
 if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
+    if [ ! -f "$RHEL_IMAGE_PATH" ]; then
+        echoerr '$RHEL_IMAGE_PATH must exist'
+        exit 1
+    fi
+
     echo 'Converting gcow2 image to raw image:'
     qemu-img convert -p -S 4096 -f qcow2 -O raw "$RHEL_IMAGE_PATH" disk.raw
     echo 'Creating archive of raw image:'
@@ -108,35 +127,28 @@ else
     echo "Image '${RHEL_IMAGE_GCE}' already exists"
 fi
 
-# Create SSH key for GCE
-if [ ! -f ~/.ssh/google_compute_engine ]; then
-    ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N ''
-    ssh-add ~/.ssh/google_compute_engine
-fi
-
-# Check if the ~/.ssh/google_compute_engine.pub key is in the project metadata, and if not, add it there
-pub_key=$(cut -d ' ' -f 2 < ~/.ssh/google_compute_engine.pub)
-key_tmp_file='/tmp/ocp-gce-keys'
-if ! gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q "$pub_key"; then
-    if gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q ssh-rsa; then
-        gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep ssh-rsa | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/value: //' > "$key_tmp_file"
-    fi
-    echo -n 'cloud-user:' >> "$key_tmp_file"
-    cat ~/.ssh/google_compute_engine.pub >> "$key_tmp_file"
-    gcloud --project "$GCLOUD_PROJECT" compute project-info add-metadata --metadata-from-file "sshKeys=${key_tmp_file}"
-    rm -f "$key_tmp_file"
-fi
-
 # Create pre-registered image based on the uploaded image
 if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instances create "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "$OCP_NETWORK" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "ssh-external"
+    # Create the instance or fail
+    if ! gcloud --project "$GCLOUD_PROJECT" compute instances create "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "$OCP_NETWORK" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "ssh-external"; then
+        echo "Instance exists - to remove it run:"
+        echo gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
+        echo gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
+        exit 1
+    fi
 
-    gcloud --project "$GCLOUD_PROJECT" compute instances create "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "$OCP_NETWORK" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "ssh-external"
+    # Loop until the instance is up - permission errors here will wait forever
     until gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --command "echo" &>/dev/null; do
         echo "Waiting for '${TEMP_INSTANCE}' to come up..."
         sleep 5
     done
+
+    # Set the initial state of the image
     if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
+        # enables pipelining
+        sed -i \"s/Defaults\\s\\+requiretty/Defaults    !requiretty/g\" /etc/sudoers
+
+        # register to subscription manager
         subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD};
         subscription-manager attach --pool=${RH_POOL_ID};
         subscription-manager repos --disable=\"*\";
@@ -158,6 +170,7 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
 
+        # install and clean
         yum install -y google-compute-engine google-compute-engine-init google-config wget git net-tools bind-utils iptables-services bridge-utils bash-completion python-httplib2 docker;
         yum update -y;
         yum clean all;
@@ -167,6 +180,8 @@ EOF
         echoerr "Deployment failed, please check provided Red Hat Username, Password and Pool ID and rerun the script"
         exit 1
     fi
+
+    # Commit the image
     gcloud --project "$GCLOUD_PROJECT" compute instances stop "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
     gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
     gcloud --project "$GCLOUD_PROJECT" compute images create "$REGISTERED_IMAGE" --source-disk "$TEMP_INSTANCE" --source-disk-zone "$GCLOUD_ZONE"

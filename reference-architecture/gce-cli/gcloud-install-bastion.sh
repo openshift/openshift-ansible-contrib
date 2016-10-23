@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/bash
 
 # MIT License
 #
@@ -29,8 +29,7 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-source "${DIR}/config.sh"
+source "${CONFIG_SCRIPT:-${DIR}/config.sh}"
 
 function echoerr {
     cat <<< "$@" 1>&2;

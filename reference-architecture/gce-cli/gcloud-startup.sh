@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/bash
 
 # MIT License
 #
@@ -29,15 +29,17 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "${DIR}/config.sh"
+source "${CONFIG_SCRIPT:-${DIR}/config.sh}"
 
-if [[ -z "${STARTUP_BUCKET:-}" || -z "${STARTUP_SCRIPT_FILE}" ]]; then
-  echo "Both STARTUP_BUCKET and STARTUP_SCRIPT_FILE must be specified to create instance data"
+if [[ -z "${STARTUP_BUCKET:-}" || -z "${STARTUP_SCRIPT_FILE:-}" || -z "${STARTUP_INSTANCE_DATA_PATH:-}" ]]; then
+  echo "STARTUP_BUCKET and either STARTUP_SCRIPT_FILE or STARTUP_INSTANCE_DATA_PATH must be specified to create instance data"
   exit 0
 fi
-if [[ ! -d instance-data ]]; then
-  echo "No instance-data directory, nothing to do."
-  exit 0
+if [[ -n "${STARTUP_INSTANCE_DATA_PATH:-}" ]]; then
+  if [[ ! -d "${STARTUP_INSTANCE_DATA_PATH}" ]]; then
+    echo "No instance-data directory"
+    exit 1
+  fi
 fi
 
 GCLOUD_REGION=${GCLOUD_ZONE%-*}
@@ -61,8 +63,10 @@ else
     echo "Bucket '${STARTUP_BUCKET}' already exists"
 fi
 
-if [[ ! -f "${STARTUP_SCRIPT_FILE}" ]]; then
-  cat << EOF > "${STARTUP_SCRIPT_FILE}"
+if [[ -n "${STARTUP_INSTANCE_DATA_PATH}" ]]; then
+  if [[ ! -f "${STARTUP_SCRIPT_FILE}" ]]; then
+    mkdir -p $( dirname "${STARTUP_SCRIPT_FILE}" )
+    cat << EOF > "${STARTUP_SCRIPT_FILE}"
 #!/bin/bash
 set -euo pipefail
 
@@ -71,10 +75,10 @@ if [[ -f run.sh ]]; then
   run.sh
 fi
 EOF
-fi
+  fi
 
-if ! gsutil ls -p "$GCLOUD_PROJECT" "gs://${STARTUP_BUCKET}/instance-data.tar.gz" &>/dev/null; then
-  tar cvzf working/instance-data.tar.gz -C instance-data .
-  gsutil cp "working/instance-data.tar.gz" "gs://${STARTUP_BUCKET}"
+  if ! gsutil ls -p "$GCLOUD_PROJECT" "gs://${STARTUP_BUCKET}/instance-data.tar.gz" &>/dev/null; then
+    tar cvzf "${DIR}/working/instance-data.tar.gz" -C "${STARTUP_INSTANCE_DATA_PATH}" .
+    gsutil cp "${DIR}/working/instance-data.tar.gz" "gs://${STARTUP_BUCKET}"
+  fi
 fi
-
