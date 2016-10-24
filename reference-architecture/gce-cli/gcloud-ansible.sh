@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 # MIT License
@@ -23,24 +24,31 @@
 # SOFTWARE.
 
 #
-# Script to install a cluster.
+# Script to run the ansible playbook
 #
 
 set -euo pipefail
 
+source "${CONFIG_SCRIPT:-${DIR}/config.sh}"
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-function revert {
-    "${DIR}/gcloud-provision.sh" --revert
-    "${DIR}/gcloud-startup.sh" --revert
-}
+# Prepare config file for ansible based on the configuration from this script
+export DNS_DOMAIN \
+    OCP_APPS_DNS_NAME \
+    MASTER_DNS_NAME \
+    INTERNAL_MASTER_DNS_NAME \
+    CONSOLE_PORT \
+    INFRA_NODE_INSTANCE_GROUP_SIZE \
+    REGISTRY_BUCKET \
+    GCLOUD_PROJECT \
+    OCP_NETWORK \
+    OCP_IDENTITY_PROVIDERS
+envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/working/ansible-config.yml"
 
-# Support the revert option
-if [ "${1:-}" = '--revert' ]; then
-    revert
-    exit 0
-fi
+export GCE_PROJECT=${GCLOUD_PROJECT}
+export GCE_ZONE=${GCLOUD_ZONE}
+export GCE_EMAIL=${GCLOUD_SERVICE_ACCOUNT}
+export INVENTORY_IP_TYPE=${INVENTORY_IP_TYPE:-external}
 
-"${DIR}/gcloud-startup.sh"
-"${DIR}/gcloud-provision.sh"
-"${DIR}/gcloud-ansible.sh" "$@"
+pushd "${DIR}/../gce-ansible/"
+ansible-playbook -e "@${DIR}/working/ansible-config.yml" "$@" "playbooks/openshift-install.yaml"

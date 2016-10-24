@@ -1,2 +1,4 @@
 config.sh
-ansible-config.yml
+instance-data/**
+data/**
+working/**

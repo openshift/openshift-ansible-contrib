@@ -287,7 +287,7 @@ class GceInventory(object):
             'gce_metadata': md,
             'gce_network': net,
             # Hosts don't have a public name, so we add an IP
-            'ansible_ssh_host': ssh_host
+            'ansible_host': ssh_host
         }
 
     def get_instance(self, instance_name):

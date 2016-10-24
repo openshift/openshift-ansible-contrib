@@ -18,7 +18,8 @@
   roles:
     - validate-etcd
 
-- hosts: primary_master
-  gather_facts: no
-  roles:
-    - validate-app
+# Temporarily disabled
+# - hosts: primary_master
+#   gather_facts: no
+#   roles:
+#    - validate-app
