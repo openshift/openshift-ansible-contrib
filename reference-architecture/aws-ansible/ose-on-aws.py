@@ -8,6 +8,8 @@ import sys
 @click.command()
 
 ### Cluster options
+@click.option('--stack-name', default='OpenShift-Infra', help='The name of the cloud-formation for the stack.',
+              show_default=True)
 @click.option('--console-port', default='443', type=click.IntRange(1,65535), help='OpenShift web console port',
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
@@ -71,6 +73,7 @@ import sys
 @click.option('-v', '--verbose', count=True)
 
 def launch_refarch_env(region=None,
+                    stack_name=None,
                     ami=None,
                     no_confirm=False,
                     master_instance_type=None,
@@ -148,6 +151,7 @@ def launch_refarch_env(region=None,
 
   # Display information to the user about their choices
   click.echo('Configured values:')
+  click.echo('\tose_stack_name: %s' % stack_name)
   click.echo('\tami: %s' % ami)
   click.echo('\tregion: %s' % region)
   click.echo('\tmaster_instance_type: %s' % master_instance_type)
@@ -200,6 +204,7 @@ def launch_refarch_env(region=None,
     os.system(command)
 
     command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
+    ose_stack_name=%s \
     ami=%s \
     keypair=%s \
     create_key=%s \
@@ -225,6 +230,7 @@ def launch_refarch_env(region=None,
     rhsm_password=%s \
     rhsm_pool=%s \
     containerized=%s \' %s' % (region,
+                    stack_name,
                     ami,
                     keypair,
                     create_key,
