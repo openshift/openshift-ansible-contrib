@@ -53,7 +53,7 @@
       state: mounted
 
   - name: Make mounts owned by nfsnobody
-    file: path=/registry owner=nfsnobody group=nfsnobody mode=0700
+    file: path=/registry owner=nfsnobody group=nfsnobody mode=0777
 
   - name: Export the directories
     lineinfile:
@@ -62,7 +62,7 @@
     notify: restart nfs
 
   - name: Creates pv1 directory
-    file: path="/pv1" state=directory
+    file: path="/pv1" state=directory owner=nfsnobody group=nfsnobody mode=0777
 
   - name: Export the directories
     lineinfile:
