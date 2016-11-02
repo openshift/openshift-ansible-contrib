@@ -18,13 +18,13 @@ import click, os, sys, fileinput, json, iptools, ldap
               show_default=True)
 @click.option('--vcenter_password', default='P@ssw0rd', help='vCenter Password',
               show_default=True, hide_input=True)
-@click.option('--vcenter_template_name', default='ose3-server-template-2.0.2', help='Pre-created VMware Template with RHEL 7.2',
+@click.option('--vcenter_template_name', default='ocp-server-template-2.0.2', help='Pre-created VMware Template with RHEL 7.2',
               show_default=True)
-@click.option('--vcenter_folder', default='ose3', help='Folder in vCenter to store VMs',
+@click.option('--vcenter_folder', default='ocp', help='Folder in vCenter to store VMs',
               show_default=True)
 @click.option('--vcenter_cluster', default='devel', help='vCenter cluster to utilize',
               show_default=True)
-@click.option('--vcenter_resource_pool', default='/Resources/OSE3', help='Resource Pools to use in vCenter',
+@click.option('--vcenter_resource_pool', default='/Resources/OCP3', help='Resource Pools to use in vCenter',
               show_default=True)
 
 ### DNS options
@@ -70,10 +70,10 @@ import click, os, sys, fileinput, json, iptools, ldap
 @click.option('--infra_nodes', default='2', help='Number of infra nodes to create', show_default=True)
 @click.option('--app_nodes', default='3', help='Number of app nodes to create', show_default=True)
 @click.option('--vm_ipaddr_start', default='10.19.114.224', help='Starting IP address to use')
-@click.option('--ose_hostname_prefix', default=None, help='A prefix for your VM guestnames and DNS names: e.g. ose3-', show_default=True)
+@click.option('--ocp_hostname_prefix', default=None, help='A prefix for your VM guestnames and DNS names: e.g. ocp-', show_default=True)
 
 #Create OpenShift Ansible variables
-@click.option('--create_ose_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
+@click.option('--create_ocp_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
 @click.option('--ldap_user', default='openshift', help='User to bind LDAP to')
 @click.option('--ldap_user_password', default='password', help='LDAP User password')
 @click.option('--ldap_fqdn', default='e2e.bos.redhat.com', help='LDAP FQDN to build bindURL')
@@ -104,15 +104,15 @@ def launch_refarch_env(console_port=8443,
                     nfs_registry_host=None,
                     nfs_registry_mountpoint=None,
                     no_confirm=False,
-		    tag=None,
+		            tag=None,
                     verbose=0,
 		    create_inventory=None,
 		    master_nodes=None,
 		    infra_nodes=None,
 		    app_nodes=None,
 		    vm_ipaddr_start=None,
-		    ose_hostname_prefix=None,
-	  	    create_ose_vars=None,
+		    ocp_hostname_prefix=None,
+	  	    create_ocp_vars=None,
 		    ldap_user=None,
 		    ldap_user_password=None,
 		    ldap_fqdn=None):
@@ -139,7 +139,7 @@ def launch_refarch_env(console_port=8443,
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
   tags = []
-  
+
   # Our initial support node is the wildcard_ip
   support_nodes=1
   if byo_nfs == "no":
@@ -164,8 +164,8 @@ def launch_refarch_env(console_port=8443,
   		lb_host = click.prompt("Please enter the load balancer hostname for installation:")
 		lb_host = lb_host + '.' + public_hosted_zone
 
-  if create_ose_vars is True:
-  	click.echo('Configured OSE variables:')
+  if create_ocp_vars is True:
+  	click.echo('Configured OCP variables:')
 	click.echo('\tldap_fqdn: %s' % ldap_fqdn)
 	click.echo('\tldap_user: %s' % ldap_user)
   	click.echo('\tldap_user_password: %s' % ldap_user_password)
@@ -173,7 +173,7 @@ def launch_refarch_env(console_port=8443,
         click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
   	click.echo('\tbyo_lb: %s' % byo_lb)
   	click.echo('\tlb_host: %s' % lb_host)
-	
+
 	if not no_confirm:
     		click.confirm('Continue using these values?', abort=True)
 
@@ -203,7 +203,7 @@ def launch_refarch_env(console_port=8443,
         	bindDN = str(result['distinguishedName']).strip("'[]")
 	        url_base = bindDN.replace(("CN=" + ldap_user + ","), "")
 	        url = "ldap://" + ldap_fqdn + ":389/" + url_base + "?sAMAccountName"
-	
+
 	install_file = "openshift-install.yaml"
 
 	for line in fileinput.input(install_file, inplace=True):
@@ -220,7 +220,7 @@ def launch_refarch_env(console_port=8443,
         	        print "    load_balancer_hostname: " + lb_host
         	else:
                 	print line,
-	exit(0) 
+	exit(0)
   if create_inventory is True:
   	click.echo('Configured inventory values:')
 	click.echo('\tmaster_nodes: %s' % master_nodes)
@@ -228,7 +228,7 @@ def launch_refarch_env(console_port=8443,
   	click.echo('\tapp_nodes: %s' % app_nodes)
   	click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
   	click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
-	click.echo('\tose_hostname_prefix: %s' % ose_hostname_prefix)
+	click.echo('\tocp_hostname_prefix: %s' % ocp_hostname_prefix)
   	click.echo('\tbyo_nfs: %s' % byo_nfs)
 	if byo_nfs == "no":
   		click.echo('\tnfs_host: %s' % nfs_host)
@@ -238,13 +238,13 @@ def launch_refarch_env(console_port=8443,
 	click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
 	click.echo("")
 	if not no_confirm:
-    		click.confirm('Continue using these values?', abort=True)	
-	# Create the inventory file and exit 
+    		click.confirm('Continue using these values?', abort=True)
+	# Create the inventory file and exit
 	total_nodes=int(master_nodes)+int(app_nodes)+int(infra_nodes)+int(support_nodes)
 
 	if vm_ipaddr_start is None:
     		vm_ipaddr_start = click.prompt("Starting IP address to use?")
-	
+
 	ip4addr = []
 	for i in range(total_nodes):
 	        p = iptools.ipv4.ip2long(vm_ipaddr_start) + i
@@ -258,12 +258,12 @@ def launch_refarch_env(console_port=8443,
 
 	d = {}
 	d['host_inventory'] = {}
-	d['infrastructure_hosts'] = {}	
+	d['infrastructure_hosts'] = {}
 
 	support_list = []
 	if byo_nfs == "no":
-		if ose_hostname_prefix is not None:
-                        nfs_name=ose_hostname_prefix+"nfs-0"
+		if ocp_hostname_prefix is not None:
+                        nfs_name=ocp_hostname_prefix+"nfs-0"
                 else:
                         nfs_name="nfs-0"
 		d['host_inventory'][nfs_name] = {}
@@ -278,8 +278,8 @@ def launch_refarch_env(console_port=8443,
 	        del ip4addr[0]
 
 	if byo_lb == "no":
-		if ose_hostname_prefix is not None:
-                        lb_name=ose_hostname_prefix+"haproxy-0"
+		if ocp_hostname_prefix is not None:
+                        lb_name=ocp_hostname_prefix+"haproxy-0"
                 else:
                         lb_name="haproxy-0"
 	        d['host_inventory'][lb_name] = {}
@@ -295,8 +295,8 @@ def launch_refarch_env(console_port=8443,
 	master_list = []
 	d['production_hosts'] = {}
 	for i in range(0, int(master_nodes)):
-		if ose_hostname_prefix is not None:
-			master_name=ose_hostname_prefix+"master-"+str(i)
+		if ocp_hostname_prefix is not None:
+			master_name=ocp_hostname_prefix+"master-"+str(i)
 		else:
                 	master_name="master-"+str(i)
         	d['host_inventory'][master_name] = {}
@@ -311,8 +311,8 @@ def launch_refarch_env(console_port=8443,
 	        del ip4addr[0]
 	app_list = []
 	for i in range(0, int(app_nodes)):
-        	if ose_hostname_prefix is not None:
-                	app_name=ose_hostname_prefix+"app-"+str(i)
+        	if ocp_hostname_prefix is not None:
+                	app_name=ocp_hostname_prefix+"app-"+str(i)
 
 	        else:
         	        app_name="app-"+str(i)
@@ -329,8 +329,8 @@ def launch_refarch_env(console_port=8443,
 	        del ip4addr[0]
 	infra_list = []
 	for i in range(0, int(infra_nodes)):
-        	if ose_hostname_prefix is not None:
-                	infra_name=ose_hostname_prefix+"infra-"+str(i)
+        	if ocp_hostname_prefix is not None:
+                	infra_name=ocp_hostname_prefix+"infra-"+str(i)
 		else:
                 	infra_name="infra-"+str(i)
 		d['host_inventory'][infra_name] = {}
@@ -407,8 +407,8 @@ def launch_refarch_env(console_port=8443,
                 print line,
 
   playbooks = ['infrastructure.yaml']
-  tags.append('ose-install')
-  tags.append('ose-configure')
+  tags.append('ocp-install')
+  tags.append('ocp-configure')
 
   for playbook in playbooks:
     # hide cache output unless in verbose mode
@@ -418,7 +418,7 @@ def launch_refarch_env(console_port=8443,
       devnull=''
 
     # make sure the ssh keys have the proper permissions
-    command='chmod 600 ssh_key/ose3-installer'
+    command='chmod 600 ssh_key/ocp-installer'
     os.system(command)
 
     # remove any cached facts to prevent stale data during a re-run
@@ -427,7 +427,7 @@ def launch_refarch_env(console_port=8443,
     tags = ",".join(tags)
     if tag:
 	tags = tag
-    
+
     #if local:
 	#command='ansible-playbook'
     #else:
@@ -490,4 +490,4 @@ def launch_refarch_env(console_port=8443,
 
 if __name__ == '__main__':
 
-  launch_refarch_env(auto_envvar_prefix='OSE_REFArch')
+  launch_refarch_env(auto_envvar_prefix='OCP_REFArch')

@@ -8,13 +8,13 @@
   tags: ['haproxy', 'all']
 
 - include: openshift-install.yaml
-  tags: ['ose-install', 'all']
+  tags: ['ocp-install', 'all']
 
 - include: openshift-configure.yaml
-  tags: ['ose-configure', 'all']
+  tags: ['ocp-configure', 'all']
 
 - include: openshift-validate.yaml
-  tags: ['ose-demo', 'all']
+  tags: ['ocp-demo', 'all']
 
 - include: cleanup-vsphere.yaml
   tags: ['clean']
