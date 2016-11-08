@@ -85,5 +85,5 @@ Notice in the instance below we are supplying our own external NFS server and lo
 --byo_lb=yes --lb_fqdn=loadbalancer.example.com \
 --byo_nfs=yes --nfs_registry_host=nfs.example.com --nfs_registry_mountpoint=/nfs-registry \
 --public_hosted_zone=vcenter.e2e.bos.redhat.com \
---tag ocp-install,ocp-configure --local
+--tag ocp-install,ocp-configure 
 ```
