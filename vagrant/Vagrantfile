@@ -32,6 +32,15 @@ unless errors.empty?
   fail Vagrant::Errors::VagrantError.new, msg
 end
 
+if sync_type == ''
+  if Vagrant.has_plugin?('vagrant-sshfs')
+    sync_type = 'sshfs'
+  else
+    sync_type = 'rsync'
+  end
+end
+
+override_box_url = ''
 if deployment_type == 'openshift-enterprise'
   box_name = 'rhel/7.2'
 elsif origin_os == 'centos'
@@ -89,8 +98,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
-  config.vm.synced_folder ".", "/vagrant", type: "rsync"
-  config.vm.synced_folder ".vagrant", "/vagrant_hidden", type: "rsync"
 
   config.vm.define "master1" do |master1|
     master1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT}"
@@ -116,6 +123,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     else
       config_playbook = "/home/vagrant/openshift-ansible/playbooks/byo/config.yml"
     end
+
+    admin1.vm.synced_folder "..", "/home/vagrant/sync", type: sync_type
+    admin1.vm.synced_folder ".vagrant", "/home/vagrant/.hidden", type: sync_type
 
     ansible_groups = {
       OSEv3: ["master1", "node1", "node2"],
@@ -178,7 +188,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.verbose        = true
       ansible.install        = true
       ansible.limit          = 'OSEv3:localhost'
-      ansible.playbook       = 'install.yaml'
+      ansible.provisioning_path = '/home/vagrant/sync'
+      ansible.playbook       = '/home/vagrant/sync/vagrant/install.yaml'
       ansible.groups = ansible_groups
       ansible.host_vars = ansible_host_vars
     end
@@ -187,6 +198,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.verbose        = true
       ansible.install        = false
       ansible.limit          = "OSEv3:localhost"
+      ansible.provisioning_path = '/home/vagrant/sync'
       ansible.playbook = config_playbook
       ansible.groups = ansible_groups
       ansible.host_vars = ansible_host_vars

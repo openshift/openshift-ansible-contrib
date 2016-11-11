@@ -2,7 +2,7 @@
 - name: Configure ssh keys
   hosts: localhost
   tasks:
-  - command: find /vagrant_hidden/machines -name private_key
+  - command: find /home/vagrant/sync/vagrant/.vagrant/machines -name private_key
     register: private_keys
 
   - file:
