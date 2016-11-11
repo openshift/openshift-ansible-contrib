@@ -175,6 +175,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       nodes: ["master1", "node1", "node2"],
     }
 
+    if deployment_type == 'origin'
+      ansible_groups[:'OSEv3:vars'][:openshift_release] ='latest'
+    end
+    print("deployment_type = %s" % (deployment_type))
+
     ansible_host_vars = {
       master1:  {
         ansible_ssh_common_args: '"-o StrictHostKeyChecking=no"',
