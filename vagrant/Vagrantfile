@@ -13,11 +13,16 @@ VAGRANTFILE_API_VERSION = '2'
 deployment_type = ENV['DEPLOYMENT_TYPE'] || 'origin'
 origin_os = ENV['ORIGIN_OS'] || 'centos'
 rhsm_pool = ENV['RHSM_POOL'] || 'Employee SKU'
+atomic = ENV['ATOMIC'] || 'no'
+landrush = ENV['LANDRUSH'] || 'yes'
+sync_type = ENV['SYNC_TYPE'] || ''
 
+REQUIRED_PLUGINS = %w(vagrant-hostmanager)
 if deployment_type == 'openshift-enterprise'
-  REQUIRED_PLUGINS = %w(vagrant-registration vagrant-hostmanager landrush)
-else
-  REQUIRED_PLUGINS = %w(vagrant-hostmanager landrush)
+  REQUIRED_PLUGINS.push('vagrant-registration')
+end
+if landrush != 'no'
+  REQUIRED_PLUGINS.push('landrush')
 end
 
 errors = []
@@ -44,9 +49,18 @@ override_box_url = ''
 if deployment_type == 'openshift-enterprise'
   box_name = 'rhel/7.2'
 elsif origin_os == 'centos'
-  box_name = 'centos/7'
+  if atomic == 'no'
+    box_name = 'centos/7'
+  else
+    box_name = 'centosah/7alpha'
+    override_box_url = 'https://ci.centos.org/artifacts/sig-atomic/centos-continuous/images-alpha/cloud/latest/images/centos-atomic-host-7-vagrant-libvirt.box'
+  end 
 else
-  box_name = 'fedora/24-cloud-base'
+  if atomic == 'no'
+    box_name = 'fedora/24-cloud-base'
+  else
+    box_name = 'fedora/24-atomic-host'
+  end
 end
 
 NETWORK_BASE = '192.168.50'
@@ -63,9 +77,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.hostmanager.ignore_private_ip = false
 #  config.hostmanager.include_offline = true
 
-  config.landrush.enabled = true
-  config.landrush.tld = 'example.com'
-  config.landrush.guest_redirect_dns = false
+  if landrush != 'no'
+    config.landrush.enabled = true
+    config.landrush.tld = 'example.com'
+    config.landrush.guest_redirect_dns = false
+  end
 
   if deployment_type == 'openshift-enterprise'
     # vagrant-registration
@@ -94,6 +110,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     libvirt.memory = 1024
     libvirt.driver = 'kvm'
     override.vm.box = box_name
+    if override_box_url
+      override.vm.box_url = override_box_url
+    end
     provider_name = 'libvirt'
   end
 
