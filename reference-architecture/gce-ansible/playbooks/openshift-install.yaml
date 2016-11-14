@@ -4,6 +4,11 @@
   roles:
     - instance-groups
 
+- hosts: nodes
+  gather_facts: no
+  roles:
+    - prerequisite
+
 - hosts: schedulable_nodes
   gather_facts: no
   roles:

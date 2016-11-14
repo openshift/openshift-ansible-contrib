@@ -5,18 +5,20 @@
 
 - name: Clear yum cache
   command: "yum clean all"
-  ignore_errors: true 
+  ignore_errors: true
 
 - name: Install the required rpms
-  yum: name={{ item }} state=latest
+  package: name="{{ item }}" state=latest
   with_items:
-      - wget
-      - git
-      - net-tools
-      - bind-utils
-      - iptables-services
-      - bridge-utils
-      - bash-completion
-      - docker
-      - python-httplib2
-      - atomic-openshift-utils
+  - NetworkManager
+  - iptables-services
+
+
+- name: Start NetworkManager
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  with_items:
+  - NetworkManager
+  - iptables
