@@ -34,7 +34,7 @@ The iso image that the vagrant image is created from should be the 'RHEL 7.2 Bin
 When installing Openshift Container Platform the Vagrantfile assumes a Red Hat Employee subscription 'Employee SKU'. If you aren't a Red Hat Employee then simply override with your pool id of the subscription that gives you access to the Openshift Container Platform rpms (this could be a 30 day trial subscription).
 
     export RHSM_POOL=<pool id>
-    
+
 The OS for the origin install defaults to centos but can be overridden by the following environment variable
 
     export ORIGIN_OS=<desired OS>
@@ -43,7 +43,7 @@ Installation
 ------------
 
     git clone https://github.com/openshift/openshift-ansible-contrib.git
-    cd vagrant-openshift-cluster/vagrant
+    cd openshift-ansible-contrib/vagrant
 
 then for an Origin install
 
@@ -83,7 +83,7 @@ then update the dns entries thus
 In the web console create a PHP app and wait for it to complete the deployment. Navigate to the overview page for the test app and click on the link for the service i.e.
 
     cakephp-example-test.apps.example.com
-    
+
 What has just been demonstrated? The new app is deployed into a project with a node selector which requires the region label to be 'primary', this means the app gets deployed to either node1 or node2. The landrush DNS wild card entry for apps.example.com points to master1 which is where the router is running, therefore being able to render the home page of the app means that the SDN of Openshift is working properly with Vagrant.
 
 Notes
