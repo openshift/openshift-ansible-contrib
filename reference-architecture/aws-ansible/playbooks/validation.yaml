@@ -6,10 +6,10 @@
   pre_tasks:
       - name: set fact
         set_fact:
-           openshift_master_cluster_public_hostname: "{{ openshift_master_cluster_public_hostname }}"
+           openshift_master_cluster_public_hostname: "openshift-master.{{ public_hosted_zone }}"
       - name: set fact
         set_fact:
-           openshift_master_cluster_hostname: "{{ openshift_master_cluster_hostname }}"
+           openshift_master_cluster_hostname: "internal-openshift-master.{{ public_hosted_zone }}"
   roles:
       # Group systems
       - instance-groups

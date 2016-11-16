@@ -22,7 +22,7 @@
     groups: primary_master
     openshift_node_labels:
       role: master
-  with_items: "{{ groups['masters'].0 }}"
+  with_items: "{{ groups.masters.0 }}"
 
 - name: Add infra instances to host group
   add_host:
