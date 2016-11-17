@@ -39,11 +39,3 @@
       - prerequisite
 
 - include: openshift-setup.yaml
-
-- hosts: primary_master
-  gather_facts: no
-  become: yes
-  vars_files:
-      - vars/main.yaml
-  roles:
-      - openshift-registry

@@ -16,20 +16,3 @@
   with_items:
   - NetworkManager
   when: not openshift.common.is_atomic | bool
-
-- name: Make directory due to using AWS intance roles
-  file:
-    dest: "/etc/origin/cloudprovider"
-    state: directory
-    recurse: yes
-    mode: 0660
-    owner: root
-    group: root
-
-- name: touch file due to using AWS instance roles
-  file:
-    dest: "/etc/origin/cloudprovider/aws.conf"
-    state: touch
-    mode: 0660
-    owner: root
-    group: root

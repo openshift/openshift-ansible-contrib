@@ -125,7 +125,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ansible_ssh_user: 'vagrant',
         deployment_type: deployment_type,
         openshift_master_identity_providers: "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]",
-        openshift_master_htpasswd_users: "{'admin': '$2y$11$jJioXC3WgyRq.FVy1vqtfuywDwEZp18d9Kkqb4MgFVzlgCGQNwy36'}",
+        openshift_master_htpasswd_users: "{'admin': '$apr1$nWG7vwhy$jCMCBmBrW3MEYmCFCckYk1'}",
         openshift_master_default_subdomain: 'apps.example.com',
         osm_default_node_selector: 'region=primary',
         openshift_hosted_registry_selector: 'region=infra',
