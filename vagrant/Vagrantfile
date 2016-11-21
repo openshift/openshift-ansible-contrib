@@ -45,13 +45,27 @@ if sync_type == ''
   end
 end
 
+# Here, we parse the ORIGIN_OS environment variable.
+# First, if we're using OSE, that's only supported on RHEL.
+# Otherwise, we mostly handle a subset of Atlas identifiers,
+# except for centos/7/atomic/alpha which isn't on Atlas right now.
 override_box_url = ''
 if deployment_type == 'openshift-enterprise'
   box_name = 'rhel/7.2'
-elsif origin_os == 'centos'
+elsif ['centos', 'centos/7'].include? origin_os
   box_name = 'centos/7'
+elsif ['centos/7/atomic', 'centos/atomic-host'].include? origin_os
+  box_name = 'centos/atomic-host'
+elsif ['centos/7/atomic/alpha'].include? origin_os
+  box_name = 'centos/7/atomic/alpha'
+  # This one gets templated by the provider manually
+  override_box_url = 'https://ci.centos.org/artifacts/sig-atomic/centos-continuous/images-alpha/cloud/latest/images/centos-atomic-host-7-vagrant-%s.box'
+elsif ['fedora', 'fedora/25/cloud', 'fedora/25-cloud-base'].include? origin_os
+  box_name = 'fedora/25-cloud-base'
+elsif ['fedora/25-atomic-host', 'fedora/25/atomic'].include? origin_os
+  box_name = 'fedora/25-atomic-host'
 else
-  box_name = 'fedora/24-cloud-base'
+  fail Vagrant::Errors::VagrantError.new, "Unknown origin_os: " + origin_os
 end
 
 NETWORK_BASE = '192.168.50'
@@ -94,6 +108,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     v.cpus = 1
     override.vm.box = box_name
     provider_name = 'virtualbox'
+    if override_box_url
+      override.vm.box_url = override_box_url % provider_name
+    end
   end
 
   config.vm.provider "libvirt" do |libvirt, override|
@@ -102,6 +119,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     libvirt.driver = 'kvm'
     override.vm.box = box_name
     provider_name = 'libvirt'
+    if override_box_url
+      override.vm.box_url = override_box_url % provider_name
+    end
   end
 
   # Suppress the default sync in both CentOS base and CentOS Atomic Host
