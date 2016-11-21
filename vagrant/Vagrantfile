@@ -137,8 +137,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       config_playbook = "/home/vagrant/openshift-ansible/playbooks/byo/config.yml"
     end
 
-    admin1.vm.synced_folder "..", "/home/vagrant/sync", type: sync_type
-    admin1.vm.synced_folder ".vagrant", "/home/vagrant/.hidden", type: sync_type
+    admin1.vm.synced_folder "..", "/var/home/vagrant/sync", type: sync_type
+    admin1.vm.synced_folder ".vagrant", "/var/home/vagrant/.hidden", type: sync_type
 
     ansible_groups = {
       OSEv3: ["master1", "node1", "node2"],
