@@ -1,7 +1,25 @@
 ---
+- name: Detect EPEL
+  stat:
+    path: /etc/yum.repos.d/epel.repo
+  register: epel
+- name: Detecting Operating System
+  stat:
+    path: /run/ostree-booted
+  register: ostree_booted
 - package:
-    name: git
+    name: https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm
     state: present
+  when: not epel.stat.exists
+- package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+   - git
+   - ansible
+   - pyOpenSSL
+  # For now, since ansible's `pkg` module doesn't know about rpm-ostree
+  when: not ostree_booted.stat.exists
 - git:
     repo: https://github.com/openshift/openshift-ansible
     dest: ~/openshift-ansible
@@ -9,26 +27,3 @@
     update: yes
   become: yes
   become_user: vagrant
-- package:
-    name: https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm
-    state: present
-- replace:
-    dest: /etc/yum.repos.d/epel.repo
-    regexp: '^enabled=1'
-    replace: 'enabled=0'
-- yum:
-    name: "{{ item }}"
-    enablerepo: epel
-    state: present
-  when: "{{ ansible_distribution != 'Fedora' }}"
-  with_items:
-  - ansible
-  - pyOpenSSL
-- dnf:
-    name: "{{ item }}"
-    enablerepo: epel
-    state: present
-  when: "{{ ansible_distribution == 'Fedora' }}"
-  with_items:
-  - ansible
-  - pyOpenSSL

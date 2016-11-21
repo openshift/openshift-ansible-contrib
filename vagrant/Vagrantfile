@@ -13,11 +13,16 @@ VAGRANTFILE_API_VERSION = '2'
 deployment_type = ENV['DEPLOYMENT_TYPE'] || 'origin'
 origin_os = ENV['ORIGIN_OS'] || 'centos'
 rhsm_pool = ENV['RHSM_POOL'] || 'Employee SKU'
+atomic = ENV['ATOMIC'] || 'no'
+landrush = ENV['LANDRUSH'] || 'yes'
+sync_type = ENV['SYNC_TYPE'] || ''
 
+REQUIRED_PLUGINS = %w(vagrant-hostmanager)
 if deployment_type == 'openshift-enterprise'
-  REQUIRED_PLUGINS = %w(vagrant-registration vagrant-hostmanager landrush)
-else
-  REQUIRED_PLUGINS = %w(vagrant-hostmanager landrush)
+  REQUIRED_PLUGINS.push('vagrant-registration')
+end
+if landrush != 'no'
+  REQUIRED_PLUGINS.push('landrush')
 end
 
 errors = []
@@ -32,12 +37,30 @@ unless errors.empty?
   fail Vagrant::Errors::VagrantError.new, msg
 end
 
+if sync_type == ''
+  if Vagrant.has_plugin?('vagrant-sshfs')
+    sync_type = 'sshfs'
+  else
+    sync_type = 'rsync'
+  end
+end
+
+override_box_url = ''
 if deployment_type == 'openshift-enterprise'
   box_name = 'rhel/7.2'
 elsif origin_os == 'centos'
-  box_name = 'centos/7'
+  if atomic == 'no'
+    box_name = 'centos/7'
+  else
+    box_name = 'centosah/7alpha'
+    override_box_url = 'https://ci.centos.org/artifacts/sig-atomic/centos-continuous/images-alpha/cloud/latest/images/centos-atomic-host-7-vagrant-libvirt.box'
+  end 
 else
-  box_name = 'fedora/24-cloud-base'
+  if atomic == 'no'
+    box_name = 'fedora/24-cloud-base'
+  else
+    box_name = 'fedora/24-atomic-host'
+  end
 end
 
 NETWORK_BASE = '192.168.50'
@@ -54,9 +77,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.hostmanager.ignore_private_ip = false
 #  config.hostmanager.include_offline = true
 
-  config.landrush.enabled = true
-  config.landrush.tld = 'example.com'
-  config.landrush.guest_redirect_dns = false
+  if landrush != 'no'
+    config.landrush.enabled = true
+    config.landrush.tld = 'example.com'
+    config.landrush.guest_redirect_dns = false
+  end
 
   if deployment_type == 'openshift-enterprise'
     # vagrant-registration
@@ -85,12 +110,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     libvirt.memory = 1024
     libvirt.driver = 'kvm'
     override.vm.box = box_name
+    if override_box_url
+      override.vm.box_url = override_box_url
+    end
     provider_name = 'libvirt'
   end
 
   config.vm.synced_folder '.', '/home/vagrant/sync', disabled: true
-  config.vm.synced_folder ".", "/vagrant", type: "rsync"
-  config.vm.synced_folder ".vagrant", "/vagrant_hidden", type: "rsync"
 
   config.vm.define "master1" do |master1|
     master1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT}"
@@ -121,6 +147,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       config_playbook = "/home/vagrant/openshift-ansible/playbooks/byo/config.yml"
     end
 
+    admin1.vm.synced_folder "..", "/home/vagrant/sync", type: sync_type
+    admin1.vm.synced_folder ".vagrant", "/home/vagrant/.hidden", type: sync_type
+
     ansible_groups = {
       OSEv3: ["master1", "node1", "node2"],
       'OSEv3:children': ["masters", "nodes", "etcd", "nfs"],
@@ -150,8 +179,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       nodes: ["master1", "node1", "node2"],
     }
 
+    if deployment_type == 'origin'
+      ansible_groups[:'OSEv3:vars'][:openshift_release] ='latest'
+    end
+    print("deployment_type = %s" % (deployment_type))
+
     ansible_host_vars = {
       master1:  {
+        ansible_ssh_common_args: '"-o StrictHostKeyChecking=no"',
         openshift_ip: '192.168.50.20',
         openshift_node_labels: "\"{'region': 'infra', 'zone': 'default'}\"",
         openshift_schedulable: true,
@@ -159,6 +194,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ansible_ssh_private_key_file: "/home/vagrant/.ssh/master1.key"
       },
       node1: {
+        ansible_ssh_common_args: '"-o StrictHostKeyChecking=no"',
         openshift_ip: '192.168.50.21',
         openshift_node_labels: "\"{'region': 'primary', 'zone': 'east'}\"",
         openshift_schedulable: true,
@@ -166,6 +202,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ansible_ssh_private_key_file: "/home/vagrant/.ssh/node1.key"
       },
       node2: {
+        ansible_ssh_common_args: '"-o StrictHostKeyChecking=no"',
         openshift_ip: '192.168.50.22',
         openshift_node_labels: "\"{'region': 'primary', 'zone': 'west'}\"",
         openshift_schedulable: true,
@@ -173,6 +210,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         ansible_ssh_private_key_file: "/home/vagrant/.ssh/node2.key"
       },
       admin1: {
+        ansible_ssh_common_args: '"-o StrictHostKeyChecking=no"',
         ansible_connection: 'local',
         deployment_type: deployment_type
       }
@@ -182,7 +220,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.verbose        = true
       ansible.install        = true
       ansible.limit          = 'OSEv3:localhost'
-      ansible.playbook       = 'install.yaml'
+      ansible.provisioning_path = '/home/vagrant/sync'
+      ansible.playbook       = '/home/vagrant/sync/vagrant/install.yaml'
       ansible.groups = ansible_groups
       ansible.host_vars = ansible_host_vars
     end
@@ -191,6 +230,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.verbose        = true
       ansible.install        = false
       ansible.limit          = "OSEv3:localhost"
+      ansible.provisioning_path = '/home/vagrant/sync'
       ansible.playbook = config_playbook
       ansible.groups = ansible_groups
       ansible.host_vars = ansible_host_vars
