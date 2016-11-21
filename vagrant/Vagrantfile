@@ -13,6 +13,7 @@ VAGRANTFILE_API_VERSION = '2'
 deployment_type = ENV['DEPLOYMENT_TYPE'] || 'origin'
 origin_os = ENV['ORIGIN_OS'] || 'centos'
 rhsm_pool = ENV['RHSM_POOL'] || 'Employee SKU'
+sync_type = ENV['SYNC_TYPE'] || ''
 
 if deployment_type == 'openshift-enterprise'
   REQUIRED_PLUGINS = %w(vagrant-registration vagrant-hostmanager landrush)
