@@ -1,7 +1,0 @@
----
-- name: Validate the public address
-  uri:
-     url: "https://{{ openshift_master_cluster_public_hostname }}:{{ console_port }}/healthz/ready"
-     validate_certs: False
-     status_code: 200
-     method: GET
