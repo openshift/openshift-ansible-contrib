@@ -67,7 +67,7 @@ export AWS_SECRET_ACCESS_KEY=bar
 ```
 
 ### GitHub authentication
-If using GitHub authentication(default) the file openshift-ansible-contrib/reference-architecture/aws-ansible/playbooks/openshift-setup.yaml must be modified.
+If using GitHub authentication (default) the file openshift-setup.yaml must be modified.
 Provide the OAuth clientID and clientSecret provided by GitHub. The clientID and clientSecret *MUST* be set or authentication will not be possible. Also,
 it is encouraged to provide an organization if not all of GitHub users will be able to login to the environment. For more information on GitHub authentication
 red through the reference architecture pdf.
