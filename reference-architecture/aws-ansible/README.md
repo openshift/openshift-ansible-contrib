@@ -65,8 +65,25 @@ scripts:
 export AWS_ACCESS_KEY_ID=foo
 export AWS_SECRET_ACCESS_KEY=bar
 ```
+
+### GitHub authentication
+If using GitHub authentication(default) the file openshift-ansible-contrib/reference-architecture/aws-ansible/playbooks/openshift-setup.yaml must be modified.
+Provide the OAuth clientID and clientSecret provided by GitHub. The clientID and clientSecret *MUST* be set or authentication will not be possible. Also,
+it is encouraged to provide an organization if not all of GitHub users will be able to login to the environment. For more information on GitHub authentication
+red through the reference architecture pdf.
+```
+vi openshift-ansible-contrib/reference-architecture/aws-ansible/playbooks/openshift-setup.yaml
+... omitted
+      clientID: e76865557b0417387b35
+      clientSecret: 72b36e28221c1b93089ecf72f1a19963a8532b06
+      organizations:
+      - openshift
+
+... omitted
+```
+
 ### Region
-The default region is us-east-1 but can be changed when running the ose-on-aws script by specifying --region=us-west-2 for example. The region must contain at least 3 Availability Zones. 
+The default region is us-east-1 but can be changed when running the ose-on-aws script by specifying --region=us-west-2 for example. The region must contain at least 3 Availability Zones.
 
 ### AMI ID
 The AMI ID may need to change if the AWS IAM account does not have access to the Red Hat Cloud Access gold image, another OS such as CentOs is deployed, or if deploying outside of the us-east-1 region.
@@ -83,7 +100,7 @@ When installing into an new AWS environment perform the following.   This will c
 ```
 **OpenShift Origin**
 ```
-./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007 
+./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007
 ```
 
 If the SSH key that you plan on using in AWS already exists then perform the following.
@@ -131,5 +148,5 @@ A playbook is included to remove the s3 bucket and cloudformation. The parameter
 
 ```
 ansible-playook -i inventory/aws/hosts -e 'region=us-east-1 stack_name=openshift-infra ci=false' playbooks/teardown.yaml
-``` 
+```
 A registered domain must be added to Route53 as a Hosted Zone before installation.  This registered domain can be purchased through AWS.
