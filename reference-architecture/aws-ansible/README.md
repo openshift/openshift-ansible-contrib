@@ -66,7 +66,7 @@ export AWS_ACCESS_KEY_ID=foo
 export AWS_SECRET_ACCESS_KEY=bar
 ```
 
-### GitHub authentication
+### GitHub Authentication
 If using GitHub authentication (default) the file openshift-setup.yaml must be modified.
 Provide the OAuth clientID and clientSecret provided by GitHub. The clientID and clientSecret *MUST* be set or authentication will not be possible. Also,
 it is encouraged to provide an organization if not all of GitHub users will be able to login to the environment. For more information on GitHub authentication
