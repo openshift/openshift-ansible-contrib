@@ -135,6 +135,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     master1.vm.network :private_network, ip: "#{NETWORK_BASE}.#{INTEGRATION_START_SEGMENT}"
     master1.vm.hostname = "master1.example.com"
     master1.hostmanager.aliases = %w(master1)
+    master1.vm.provider "libvirt" do |libvirt, override|
+      libvirt.cpus = 2
+      libvirt.memory = 2048
+    end
   end
 
   config.vm.define "node1" do |node1|
