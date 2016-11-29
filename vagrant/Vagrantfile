@@ -77,6 +77,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 #    config.cache.scope = :machine
 #  end
 
+  # Work around interaction bug with vagrant-hostmanager
+  config.ssh.keep_alive = false
+
   config.hostmanager.enabled = true
   config.hostmanager.manage_host = true
   config.hostmanager.ignore_private_ip = false
