@@ -12,7 +12,7 @@ import sys
               show_default=True)
 @click.option('--console-port', default='443', type=click.IntRange(1,65535), help='OpenShift web console port',
               show_default=True)
-@click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
+@click.option('--deployment-type', default='openshift-enterprise', type=click.Choice(['origin', 'openshift-enterprise']),  help='OpenShift deployment type',
               show_default=True)
 
 ### AWS/EC2 options
@@ -70,6 +70,8 @@ import sys
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',
               show_default=True)
 @click.option('--s3-bucket-name', help='Bucket name for S3 for registry')
+@click.option('--github-client-id', help='GitHub OAuth ClientID')
+@click.option('--github-client-secret', help='GitHub OAuth Client Secret')
 @click.option('--s3-username', help='S3 user for registry access')
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
@@ -107,6 +109,8 @@ def launch_refarch_env(region=None,
                     containerized=None,
                     s3_bucket_name=None,
                     s3_username=None,
+                    github_client_id=None,
+                    github_client_secret=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
@@ -150,7 +154,6 @@ def launch_refarch_env(region=None,
  # Prompt for Bastion SG if byo-bastion specified
   if byo_bastion in 'yes' and bastion_sg in '/dev/null':
     bastion_sg = click.prompt('Specify the the Bastion Security group(example: sg-4afdd24)')
-  
 
   # If the user already provided values, don't bother asking again
   if deployment_type in ['openshift-enterprise'] and rhsm_user is None:
@@ -162,6 +165,12 @@ def launch_refarch_env(region=None,
 
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
+
+  # GitHub Authentication
+  if github_client_id is None:
+    github_client_id = click.prompt('Specify the ClientID for GitHub OAuth')
+  if github_client_secret is None:
+    github_client_secret = click.prompt('Specify the Client Secret for GitHub OAuth')
 
   # Display information to the user about their choices
   click.echo('Configured values:')
@@ -196,6 +205,8 @@ def launch_refarch_env(region=None,
   click.echo('\tcontainerized: %s' % containerized)
   click.echo('\ts3_bucket_name: %s' % s3_bucket_name)
   click.echo('\ts3_username: %s' % s3_username)
+  click.echo('\tgithub_client_id: %s' % github_client_id)
+  click.echo('\tgithub_client_secret: %s' % github_client_secret)
   click.echo("")
 
   if not no_confirm:
@@ -249,7 +260,9 @@ def launch_refarch_env(region=None,
     rhsm_pool="%s" \
     containerized=%s \
     s3_bucket_name=%s \
-    s3_username=%s \' %s' % (region,
+    s3_username=%s \
+    github_client_id=%s \
+    github_client_secret=%s \' %s' % (region,
                     stack_name,
                     ami,
                     keypair,
@@ -279,6 +292,8 @@ def launch_refarch_env(region=None,
                     containerized,
                     s3_bucket_name,
                     s3_username,
+                    github_client_id,
+                    github_client_secret,
                     playbook)
 
     if verbose > 0:

@@ -37,10 +37,9 @@
       login: true
       challenge: false
       mapping_method: claim
-      clientID: e76865557b0417387b35 
-      clientSecret: 72b36e28221c1b93089ecf72f1a19963a8532b06 
-      organizations:
-      - openshift
+      clientID: "{{ github_client_id }}"
+      clientSecret: "{{ github_client_secret }}"
+      organizations: ['OpenShift']
     osm_use_cockpit: true
     containerized: false
     openshift_hosted_registry_storage_kind: object
