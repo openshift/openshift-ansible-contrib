@@ -72,7 +72,7 @@ import sys
 @click.option('--s3-bucket-name', help='Bucket name for S3 for registry')
 @click.option('--github-client-id', help='GitHub OAuth ClientID')
 @click.option('--github-client-secret', help='GitHub OAuth Client Secret')
-@click.option('--organization', help='GitHub Organization(Comma Seperated Values)')
+@click.option('--github-organization', prompt=True, multiple=True, help='GitHub Organization')
 @click.option('--s3-username',  help='S3 user for registry access')
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
@@ -112,7 +112,7 @@ def launch_refarch_env(region=None,
                     s3_username=None,
                     github_client_id=None,
                     github_client_secret=None,
-                    organization=None,
+                    github_organization=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
@@ -173,8 +173,6 @@ def launch_refarch_env(region=None,
     github_client_id = click.prompt('Specify the ClientID for GitHub OAuth')
   if github_client_secret is None:
     github_client_secret = click.prompt('Specify the Client Secret for GitHub OAuth')
-  if organization is None:
-    organization = click.prompt('Specify the GitHub Organization(s) must be seperate with commas if multiple organizations')
 
   # Display information to the user about their choices
   click.echo('Configured values:')
@@ -211,7 +209,7 @@ def launch_refarch_env(region=None,
   click.echo('\ts3_username: %s' % s3_username)
   click.echo('\tgithub_client_id: %s' % github_client_id)
   click.echo('\tgithub_client_secret: %s' % github_client_secret)
-  click.echo('\torganization: %s' % organization)
+#  click.echo('\tgithub_organization: %s' % github_organization)
   click.echo("")
 
   if not no_confirm:
@@ -268,7 +266,7 @@ def launch_refarch_env(region=None,
     s3_username=%s \
     github_client_id=%s \
     github_client_secret=%s \
-    organization=%s \' %s' % (region,
+    github_organization=%s \' %s' % (region,
                     stack_name,
                     ami,
                     keypair,
@@ -300,9 +298,9 @@ def launch_refarch_env(region=None,
                     s3_username,
                     github_client_id,
                     github_client_secret,
-                    organization,
+                    github_organization,
                     playbook)
-    print "Run this %s" % command
+
     if verbose > 0:
       command += " -" + "".join(['v']*verbose)
       click.echo('We are running: %s' % command)

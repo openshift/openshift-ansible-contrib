@@ -39,7 +39,7 @@
       mapping_method: claim
       clientID: "{{ github_client_id }}"
       clientSecret: "{{ github_client_secret }}"
-      organizations: ['OpenShift']
+      organizations: "{{ github_organization }}"
     osm_use_cockpit: true
     containerized: false
     openshift_hosted_registry_storage_kind: object
