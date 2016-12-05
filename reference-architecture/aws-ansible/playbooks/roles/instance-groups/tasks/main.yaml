@@ -12,6 +12,7 @@
     groups: masters, etcd, nodes, cluster_hosts
     openshift_node_labels:
       role: master
+      KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_master'] }}"
   when:
     - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
@@ -22,6 +23,7 @@
     groups: primary_master
     openshift_node_labels:
       role: master
+      KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['masters'].0 }}"
 
 - name: Add infra instances to host group
@@ -30,6 +32,7 @@
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: infra
+      KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_infra'] }}"
   when:
     - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
@@ -40,6 +43,7 @@
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: app
+      KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_app'] }}"
   when:
     - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
@@ -50,6 +54,7 @@
     groups: new_nodes
     openshift_node_labels:
       role: "{{ node_type }}" 
+      KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups.tag_provision_node | default([]) }}"
   when:
     - add_node is defined
