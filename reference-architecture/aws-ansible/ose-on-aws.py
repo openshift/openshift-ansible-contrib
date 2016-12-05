@@ -269,7 +269,7 @@ def launch_refarch_env(region=None,
     s3_username=%s \
     github_client_id=%s \
     github_client_secret=%s \
-    github_organization="%s" \' %s' % (region,
+    github_organization=%s \' %s' % (region,
                     stack_name,
                     ami,
                     keypair,
