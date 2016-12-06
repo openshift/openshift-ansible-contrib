@@ -169,6 +169,9 @@ def launch_refarch_env(region=None,
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
   # GitHub Authentication
+  if github_organization is None or not github_organization:
+    click.echo('A GitHub organization must be provided')
+    sys.exit(1)
   if github_client_id is None:
     github_client_id = click.prompt('Specify the ClientID for GitHub OAuth')
   if github_client_secret is None:
