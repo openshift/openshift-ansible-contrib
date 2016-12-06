@@ -69,7 +69,7 @@ export AWS_SECRET_ACCESS_KEY=bar
 ```
 
 ### GitHub Authentication
-GitHub authentication is the default authentication mechanism used for this reference architecture. GitHub authentication requires an OAuth application to be created. The values of Homepage URL should be https://openshift-master.sysdeseng.com and Authorization callback URL is https://openshift-master.sysdeseng.com:8443/oauth2callback/github. Replace the value of sysdeseng.com with the values defined in Route53.
+GitHub authentication is the default authentication mechanism used for this reference architecture. GitHub authentication requires an OAuth application to be created. The values should reflect the hosted zone defined in Route53 for example the Homepage URL would be https://openshift-master.sysdeseng.com and Authorization callback URL is https://openshift-master.sysdeseng.com:8443/oauth2callback/github.
 
 ### Region
 The default region is us-east-1 but can be changed when running the ose-on-aws script by specifying --region=us-west-2 for example. The region must contain at least 3 Availability Zones.
