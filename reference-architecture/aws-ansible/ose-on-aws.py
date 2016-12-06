@@ -215,7 +215,7 @@ def launch_refarch_env(region=None,
   click.echo('\ts3_username: %s' % s3_username)
   click.echo('\tgithub_client_id: %s' % github_client_id)
   click.echo('\tgithub_client_secret: %s' % github_client_secret)
-  click.echo('\tgithub_organization: %s' % ','.join([x.encode('ascii') for x in github_organization]).replace(' ', ''))
+  click.echo('\tgithub_organization: %s' % (','.join(github_organization)))
   click.echo("")
 
   if not no_confirm:
