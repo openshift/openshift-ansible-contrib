@@ -67,20 +67,7 @@ export AWS_SECRET_ACCESS_KEY=bar
 ```
 
 ### GitHub Authentication
-If using GitHub authentication (default) the file openshift-setup.yaml must be modified.
-Provide the OAuth clientID and clientSecret provided by GitHub. The clientID and clientSecret *MUST* be set or authentication will not be possible. Also,
-it is encouraged to provide an organization if not all of GitHub users will be able to login to the environment. For more information on GitHub authentication
-red through the reference architecture pdf.
-```
-vi openshift-ansible-contrib/reference-architecture/aws-ansible/playbooks/openshift-setup.yaml
-... omitted
-      clientID: e76865557b0417387b35
-      clientSecret: 72b36e28221c1b93089ecf72f1a19963a8532b06
-      organizations:
-      - openshift
-
-... omitted
-```
+GitHub authentication is the default authentication mechanism used for this reference architecture. GitHub authentication requires an OAuth application to be created. The values of Homepage URL should be https://openshift-master.sysdeseng.com and Authorization callback URL is https://openshift-master.sysdeseng.com:8443/oauth2callback/github. Replace the value of sysdeseng.com with the values defined in Route53.
 
 ### Region
 The default region is us-east-1 but can be changed when running the ose-on-aws script by specifying --region=us-west-2 for example. The region must contain at least 3 Availability Zones.
