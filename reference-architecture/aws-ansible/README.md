@@ -22,6 +22,7 @@ $ yum -y install atomic-openshift-utils \
                  ansible-2.2.0.0-3.el7.noarch \
                  python-netaddr \
                  python2-boto3 \
+                 python-click \
                  python-httplib2
 ```
 
@@ -32,7 +33,8 @@ The playbooks in the repository also have the ability to configure CentOS or RHE
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 $ yum -y install python-pip git python2-boto \
                  python-netaddr python-httplib2 python-devel \
-                 gcc libffi-devel openssl-devel python2-boto3
+                 gcc libffi-devel openssl-devel python2-boto3 \
+                 python-click
 $ pip install git+https://github.com/ansible/ansible.git@stable-2.2
 $ mkdir -p /usr/share/ansible/openshift-ansible
 $ git clone https://github.com/openshift/openshift-ansible.git /usr/share/ansible/openshift-ansible
