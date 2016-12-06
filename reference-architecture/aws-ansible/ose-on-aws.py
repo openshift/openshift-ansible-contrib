@@ -72,7 +72,7 @@ import sys
 @click.option('--s3-bucket-name', help='Bucket name for S3 for registry')
 @click.option('--github-client-id', help='GitHub OAuth ClientID')
 @click.option('--github-client-secret', help='GitHub OAuth Client Secret')
-@click.option('--github-organization', prompt=True, help='GitHub Organization')
+@click.option('--github-organization', multiple=True, help='GitHub Organization')
 @click.option('--s3-username',  help='S3 user for registry access')
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
@@ -174,7 +174,7 @@ def launch_refarch_env(region=None,
   if github_client_secret is None:
     github_client_secret = click.prompt('Specify the Client Secret for GitHub OAuth')
 
-  if not isinstance(github_organization, list):
+  if isinstance(github_organization, str) or isinstance(github_organization, unicode):
     github_organization = [github_organization]
 
   # Display information to the user about their choices
@@ -212,7 +212,7 @@ def launch_refarch_env(region=None,
   click.echo('\ts3_username: %s' % s3_username)
   click.echo('\tgithub_client_id: %s' % github_client_id)
   click.echo('\tgithub_client_secret: %s' % github_client_secret)
-  click.echo('\tgithub_organization: %s' % (','.join(github_organization)))
+  click.echo('\tgithub_organization: %s' % ','.join([x.encode('ascii') for x in github_organization]).replace(' ', ''))
   click.echo("")
 
   if not no_confirm:
@@ -269,7 +269,7 @@ def launch_refarch_env(region=None,
     s3_username=%s \
     github_client_id=%s \
     github_client_secret=%s \
-    github_organization=%s \' %s' % (region,
+    github_organization=%s\' %s' % (region,
                     stack_name,
                     ami,
                     keypair,
@@ -301,7 +301,7 @@ def launch_refarch_env(region=None,
                     s3_username,
                     github_client_id,
                     github_client_secret,
-                    str(",".join(github_organization)).split(","),
+                    str(map(lambda x: x.encode('ascii'), github_organization)).replace("'", '"').replace(' ', ''),
                     playbook)
 
     if verbose > 0:
