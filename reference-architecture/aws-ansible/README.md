@@ -85,11 +85,17 @@ When installing into an new AWS environment perform the following.   This will c
 
 **OpenShift Container Platform**
 ```
-./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --rhsm-user=rh-user --rhsm-password=password --public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core"
+./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --rhsm-user=rh-user --rhsm-password=password \
+--public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" \
+--github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
+--github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
+
 ```
 **OpenShift Origin**
 ```
-./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007
+./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --public-hosted-zone=sysdeseng.com \
+--deployment-type=origin --ami=ami-6d1c2007 --github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 \
+--github-organization=openshift --github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
 
 If the SSH key that you plan on using in AWS already exists then perform the following.
@@ -102,7 +108,9 @@ If the SSH key that you plan on using in AWS already exists then perform the fol
 
 **OpenShift Origin**
 ```
-./ose-on-aws.py --keypair=OSE-key --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007
+./ose-on-aws.py --keypair=OSE-key --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007 \
+--github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
+--github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
 
 ### Existing AWS Environment (Brownfield)
@@ -110,12 +118,18 @@ If installing OpenShift Container Platform or OpenShift Origin into an existing 
 
 **OpenShift Container Platform**
 ```
-./ose-on-aws.py --create-vpc=no --byo-bastion=yes --keypair=OSE-key --rhsm-user=rh-user --rhsm-password=password --public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --bastion-sg=sg-a32fa3
+./ose-on-aws.py --create-vpc=no --byo-bastion=yes --keypair=OSE-key --rhsm-user=rh-user --rhsm-password=password \
+--public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --bastion-sg=sg-a32fa3 \
+--github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
+--github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
 
 **OpenShift Origin**
 ```
-./ose-on-aws.py --create-vpc=no --byo-bastion=yes --keypair=OSE-key --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007 --bastion-sg=sg-a32fa3
+./ose-on-aws.py --create-vpc=no --byo-bastion=yes --keypair=OSE-key --public-hosted-zone=sysdeseng.com \
+--deployment-type=origin --ami=ami-6d1c2007 --bastion-sg=sg-a32fa3 \
+--github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
+--github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
 
 ## Multiple OpenShift deployments
@@ -123,12 +137,17 @@ The same greenfield and brownfield deployment steps can be used to launch anothe
 
 **OpenShift Container Platform**
 ```
-./ose-on-aws.py --rhsm-user=rh-user --public-hosted-zone=rcook-aws.sysdeseng.com --keypair=OSE-key --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --keypair=OSE-key --rhsm-password=password --stack-name=prod
+./ose-on-aws.py --rhsm-user=rh-user --public-hosted-zone=rcook-aws.sysdeseng.com --keypair=OSE-key \
+--rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --keypair=OSE-key --rhsm-password=password \
+--stack-name=prod --github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
+--github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
 
 **OpenShift Origin**
 ```
-./ose-on-aws.py --keypair=OSE-key --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007 --stack-name=prod
+./ose-on-aws.py --keypair=OSE-key --public-hosted-zone=sysdeseng.com --deployment-type=origin --ami=ami-6d1c2007 \
+--stack-name=prod --github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
+--github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
 
 ## Teardown
