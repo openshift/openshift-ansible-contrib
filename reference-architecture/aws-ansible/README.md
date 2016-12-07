@@ -9,6 +9,8 @@ The repository contains Ansible playbooks which deploy 3 Masters in different av
 ## Prerequisites
 A registered domain must be added to Route53 as a Hosted Zone before installation.  This registered domain can be purchased through AWS.
 
+**Do not run the ose-on-aws.py script from a container**
+
 ### Deploying OpenShift Container Platform
 The code in this repository handles all of the AWS specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-aws.py. Do not perform the following within a container as errors have been found when attempting to run subscription-manager. It is advised to use a VM or bare metal installation of RHEL.
 
