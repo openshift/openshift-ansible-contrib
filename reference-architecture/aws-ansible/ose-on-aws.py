@@ -304,7 +304,7 @@ def launch_refarch_env(region=None,
                     s3_username,
                     github_client_id,
                     github_client_secret,
-                    str(map(lambda x: x.encode('ascii'), github_organization)).replace("'", '"').replace(' ', ''),
+                    str(map(lambda x: x.encode('utf8'), github_organization)).replace("'", '"').replace(' ', ''),
                     playbook)
 
     if verbose > 0:
