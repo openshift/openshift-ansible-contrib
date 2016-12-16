@@ -12,7 +12,7 @@ APP_NODES="app-node-0 app-node-1 app-node-2"
 ALL_NODES="$INFRA_NODES $APP_NODES"
 ALL_HOSTS="$BASTION $MASTERS $ALL_NODES"
 
-OCP3_DNS_SERVER=${OCP_DNS_SERVER:-10.19.114.130} # ns1.ose3.e2e.bos.redhat.com
+OCP3_DNS_SERVER=${OCP3_DNS_SERVER:-10.19.114.130} # ns1.ose3.e2e.bos.redhat.com
 OCP3_DNS_UPDATE_KEY=${OCP3_DNS_UPDATE_KEY:-keys/ns1.ose3.key}
 
 function control_ip() {

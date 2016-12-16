@@ -1,5 +1,5 @@
 deployment_type: openshift-enterprise
-osm_default_subdomain: apps.ocp3.example.com
+openshift_master_default_subdomain: apps.ocp3.example.com
 
 openshift_override_hostname_check: true
 openshift_use_openshift_sdn: false

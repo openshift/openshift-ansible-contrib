@@ -19,7 +19,7 @@ sed -e "s/ocp3.example.com/${OCP3_BASE_DOMAIN}/g" \
 # Replace values in OSEv3.yml template
 cp ${OCP3_OSEV3_TEMPLATE} ${OCP3_OSEV3_YML_FILE}
 
-sed -i -e "/osm_default_subdomain:/s/:.*/: $APPS_DNS_SUFFIX/" ${OCP3_OSEV3_YML_FILE} 
+sed -i -e "/openshift_master_default_subdomain:/s/:.*/: $APPS_DNS_SUFFIX/" ${OCP3_OSEV3_YML_FILE} 
 
 sed -i -e "/openstack_auth_url:/s|:.*|: $OS_AUTH_URL|" ${OCP3_OSEV3_YML_FILE}
 sed -i -e "/openstack_username:/s/:.*/: $OS_USERNAME/" ${OCP3_OSEV3_YML_FILE}
