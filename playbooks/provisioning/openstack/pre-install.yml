@@ -1,0 +1,63 @@
+---
+# Configure host groups based on inventory results
+- include: plays/configure_host_groups.yml
+
+# Assign hostnames
+- hosts: cluster_hosts
+  pre_tasks:
+  - include: roles/common/pre_tasks/pre_tasks.yml
+  roles:
+  - role: hostnames
+
+# Subscribe Hosts
+- hosts: cluster_hosts
+  roles:
+    - { role: subscription-manager, when: hostvars.localhost.rhsm_register, tags: 'subscription-manager', ansible_sudo: true }
+
+# Build DNS Records
+- hosts: localhost
+  pre_tasks:
+  - include: roles/common/pre_tasks/pre_tasks.yml
+  - name: "Generate dns-server views"
+    include: dns_dual_view.yml
+  - name: "Generate dns records"
+    include: dns_records.yml
+
+# Configure DNS Server(s)
+- hosts: dns
+  pre_tasks:
+  - name: "Include the generated views"
+    include_vars: /tmp/named_views.yml
+    delegate_to: localhost
+  - name: "Include generated dns records"
+    include_vars: /tmp/records.yml
+    delegate_to: localhost
+  roles:
+    - role: dns-server
+    - role: dns
+
+# Use newly configured DNS server for this container ...
+- hosts: localhost
+  tasks:
+  - name: "Edit /etc/resolv.conf in container"
+    shell: "sed '0,/.*nameserver.*/s/.*nameserver.*/nameserver {%for host in groups['dns']%}{{ hostvars[host].openstack.public_v4 }}{% endfor %}\\n&/' /etc/resolv.conf > /tmp/resolv.conf && /bin/cp -f /tmp/resolv.conf /etc/resolv.conf"
+
+# OpenShift Pre-Requisites
+- hosts: OSEv3
+  tasks:
+  - name: "Edit /etc/resolv.conf on masters/nodes"
+    lineinfile:
+      state: present
+      dest: /etc/resolv.conf
+      regexp: "nameserver {%for host in groups['dns']%} {{ hostvars[host].openstack.private_v4 }} {% endfor %}"
+      line: "nameserver {%for host in groups['dns']%} {{ hostvars[host].openstack.private_v4 }} {% endfor %}"
+      insertafter: search*
+  - name: "Include DHCP/DNS workaround for OSE 3.2"
+    lineinfile:
+      state: present
+      dest: /etc/sysconfig/network
+      regexp: "IP4_NAMESERVERS={%for host in groups['dns']%}{{ hostvars[host].openstack.private_v4 }}{% endfor %}"
+      line: "IP4_NAMESERVERS={%for host in groups['dns']%}{{ hostvars[host].openstack.private_v4 }}{% endfor %}"
+  roles:
+    - { role: docker, tags: 'docker' }
+    - { role: openshift-prep, tags: 'openshift-prep' }
