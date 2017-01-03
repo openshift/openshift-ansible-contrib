@@ -1,5 +1,8 @@
 #!/bin/bash
 
+systemctl enable dnsmasq.service
+systemctl start dnsmasq.service
+
 #yum -y update
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion docker
 

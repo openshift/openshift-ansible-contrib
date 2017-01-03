@@ -15,6 +15,9 @@ SSHPUBLICDATA3=${12}
 
 ps -ef | grep master.sh > cmdline.out
 
+systemctl enable dnsmasq.service
+systemctl start dnsmasq.service
+
 mkdir -p /home/$USERNAME/.ssh
 echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3 >  /home/$USERNAME/.ssh/id_rsa.pub
 echo $SSHPRIVATEDATA | base64 --d > /home/$USERNAME/.ssh/id_rsa

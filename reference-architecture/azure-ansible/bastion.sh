@@ -16,6 +16,9 @@ export SSHPUBLICDATA3=${13}
 
 ps -ef | grep bastion.sh > cmdline.out
 
+systemctl enable dnsmasq.service
+systemctl start dnsmasq.service
+
 mkdir -p /home/$AUSERNAME/.ssh
 echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3 >  /home/$AUSERNAME/.ssh/id_rsa.pub
 echo $SSHPRIVATEDATA | base64 --d > /home/$AUSERNAME/.ssh/id_rsa

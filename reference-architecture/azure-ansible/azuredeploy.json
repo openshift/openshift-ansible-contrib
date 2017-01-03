@@ -510,6 +510,9 @@
           },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'i1')]"
           }
         }
       }
@@ -853,6 +856,9 @@
           },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'i2')]"
           }
         }
       }
@@ -895,6 +901,9 @@
           },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'i3')]"
           }
         }
       }

@@ -31,6 +31,9 @@
       "metadata" : {
         "description" : "imageReference object that should be used to create the virtual machine"
       }
+    },
+    "dnsName" : {
+      "type" : "string"
     }
   },
   "variables" : {
@@ -213,7 +216,10 @@
         "displayName" : "PublicIPAddress"
       },
       "properties" : {
-        "publicIPAllocationMethod" : "Static"
+        "publicIPAllocationMethod" : "Static",
+        "dnsSettings" : {
+          "domainNameLabel" : "[parameters('dnsName')]"
+        }
       }
     }
   ],
