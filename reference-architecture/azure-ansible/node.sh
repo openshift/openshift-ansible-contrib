@@ -1,5 +1,8 @@
 #!/bin/bash
 
+domain=$(grep search /etc/resolv.conf | awk '{print $2}')
+sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
+
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
