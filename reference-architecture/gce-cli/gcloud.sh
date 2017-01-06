@@ -367,7 +367,7 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMA
         sleep 5
     done
     if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-        subscription-manager register --username=${RH_USERNAME} --password=${RH_PASSWORD};
+        subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
         subscription-manager attach --pool=${RH_POOL_ID};
         subscription-manager repos --disable=\"*\";
         subscription-manager repos \
