@@ -18,6 +18,8 @@ ps -ef | grep bastion.sh > cmdline.out
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
+ifdown eth0
+ifup eth0
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
