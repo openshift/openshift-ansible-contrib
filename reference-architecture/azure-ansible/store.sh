@@ -13,11 +13,8 @@ ps -ef | grep store.sh > cmdline.out
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
-<<<<<<< HEAD
 ifdown eth0
 ifup eth0
-=======
->>>>>>> e4e85029d9dc0a20fba1b9bc57de715460933dac
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
