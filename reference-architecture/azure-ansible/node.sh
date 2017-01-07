@@ -4,10 +4,10 @@ domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
 ifdown eth0
 ifup eth0
+systemctl restart network
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
-systemctl restart network
 
 #yum -y update
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion docker

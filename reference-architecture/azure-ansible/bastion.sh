@@ -20,10 +20,10 @@ domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
 ifdown eth0
 ifup eth0
+systemctl restart network
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
-systemctl restart network
 
 mkdir -p /home/$AUSERNAME/.ssh
 echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3 >  /home/$AUSERNAME/.ssh/id_rsa.pub
