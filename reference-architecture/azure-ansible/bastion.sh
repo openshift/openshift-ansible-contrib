@@ -20,7 +20,6 @@ systemctl restart network
 
 ps -ef | grep bastion.sh > cmdline.out
 
-
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
