@@ -13,13 +13,12 @@ SSHPUBLICDATA=${10}
 SSHPUBLICDATA2=${11}
 SSHPUBLICDATA3=${12}
 
-ps -ef | grep master.sh > cmdline.out
-
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
-ifdown eth0
-ifup eth0
 systemctl restart network
+
+ps -ef | grep master.sh > cmdline.out
+
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service

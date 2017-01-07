@@ -14,13 +14,12 @@ export SSHPUBLICDATA=${11}
 export SSHPUBLICDATA2=${12}
 export SSHPUBLICDATA3=${13}
 
-ps -ef | grep bastion.sh > cmdline.out
-
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
-ifdown eth0
-ifup eth0
 systemctl restart network
+
+ps -ef | grep bastion.sh > cmdline.out
+
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
