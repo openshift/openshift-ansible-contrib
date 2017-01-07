@@ -19,6 +19,7 @@ domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
 ifdown eth0
 ifup eth0
+systemctl restart network
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service

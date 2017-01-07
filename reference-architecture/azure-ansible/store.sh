@@ -18,6 +18,7 @@ ifup eth0
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
+systemctl restart network
 
 mkdir -p /home/$USERNAME/.ssh
 echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3 >  /home/$USERNAME/.ssh/id_rsa.pub
