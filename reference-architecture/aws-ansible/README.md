@@ -19,7 +19,7 @@ $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rp
 $ yum -y install atomic-openshift-utils \
                  python2-boto \
                  git \
-                 ansible-2.2.0.0-3.el7.noarch \
+                 ansible \
                  python-netaddr \
                  python2-boto3 \
                  python-click \
