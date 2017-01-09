@@ -1,7 +1,7 @@
 ---
 # OpenShift variables
-openshift_master_cluster_hostname: "{{ lb_fqdn }}"
-openshift_master_cluster_public_hostname: "{{ lb_fqdn }}"
+openshift_master_cluster_hostname: "{{ lb_host }}"
+openshift_master_cluster_public_hostname: "{{ lb_host }}"
 console_port: 8443
 master_tag: master
 infra_tag: infra

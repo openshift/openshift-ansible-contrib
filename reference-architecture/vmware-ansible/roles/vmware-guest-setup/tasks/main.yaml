@@ -4,7 +4,7 @@
 
 - name: be sure katello-agent is installed
   yum: name=katello-agent state=installed
-  when: rhsm_activation_key is defined and rhsm_activation_key != 'None'  
+  when: rhsm_activation_key is defined and rhsm_activation_key 
 
 - name: be sure chrony is configured
   template: src=chrony.conf.j2 dest=/etc/chrony.conf
