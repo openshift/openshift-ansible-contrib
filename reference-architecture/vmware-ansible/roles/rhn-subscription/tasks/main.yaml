@@ -5,12 +5,12 @@
 
 - name: Remove satellite configuration if using RH CDN
   command: "mv -f /etc/rhsm/rhsm.conf.kat-backup /etc/rhsm/rhsm.conf"
-  when: rhsm_user is defined and rhsm_user != 'None' and sat_cfg.stat.exists == True
+  when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
   ignore_errors: yes
  
 - name: Remove satellite SSL if using RH CDN
   command: "rpm -e $(rpm -qa katello-ca-consumer*)"
-  when: rhsm_user is defined and rhsm_user != 'None' and sat_cfg.stat.exists == True
+  when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
   ignore_errors: yes
 
 - name: Is the host already registered?
@@ -24,7 +24,7 @@
     org_id: "{{ rhsm_org_id }}"
     state: present
     pool: "{{ rhsm_pool }}"
-  when: "'Subscribed' not in subscribed.stdout and rhsm_activation_key is defined and rhsm_activation_key != 'None'"
+  when: "'Subscribed' not in subscribed.stdout and rhsm_activation_key is defined and rhsm_activation_key"
   register: register_key_result
   ignore_errors: yes
 
@@ -34,6 +34,6 @@
     password: "{{ rhsm_password }}"
     state: present
     pool: "{{ rhsm_pool }}"
-  when: "'Subscribed' not in subscribed.stdout and rhsm_user is defined and rhsm_user != 'None'"
+  when: "'Subscribed' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
   register: register_user_result
   ignore_errors: yes

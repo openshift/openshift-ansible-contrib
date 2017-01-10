@@ -58,7 +58,7 @@
     openshift_override_hostname_check: true
     openshift_router_selector: "role=infra"
     openshift_master_cluster_method: native
-    openshift_cloudprovider_kind: vmware
+    openshift_cloudprovider_kind: vsphere
     wildcard_zone: 
     osm_default_subdomain: "{{ wildcard_zone }}"
     deployment_type: openshift-enterprise

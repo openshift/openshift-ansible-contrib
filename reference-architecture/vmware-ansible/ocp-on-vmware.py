@@ -1,83 +1,19 @@
 #!/usr/bin/env python
 # vim: sw=2 ts=2
 
-import click, os, sys, fileinput, json, iptools, ldap
+import click, os, sys, fileinput, json, iptools, ldap, six
+from six.moves import configparser
 
 @click.command()
 
 ### Cluster options
-@click.option('--console_port', default='8443', type=click.IntRange(1,65535), help='OpenShift web console port',
-              show_default=True)
-@click.option('--deployment_type', default='openshift-enterprise', help='OpenShift deployment type',
-              show_default=True)
-
-### VMware  options
-@click.option('--vcenter_host', default='10.19.114.221', help='vCenter IP Address',
-              show_default=True)
-@click.option('--vcenter_username', default='administrator@vsphere.local', help='vCenter Username',
-              show_default=True)
-@click.option('--vcenter_password', default='P@ssw0rd', help='vCenter Password',
-              show_default=True, hide_input=True)
-@click.option('--vcenter_template_name', default='ocp-server-template-2.0.2', help='Pre-created VMware Template with RHEL 7.2',
-              show_default=True)
-@click.option('--vcenter_folder', default='ocp', help='Folder in vCenter to store VMs',
-              show_default=True)
-@click.option('--vcenter_cluster', default='devel', help='vCenter cluster to utilize',
-              show_default=True)
-@click.option('--vcenter_resource_pool', default='/Resources/OCP3', help='Resource Pools to use in vCenter',
-              show_default=True)
-
-### DNS options
-@click.option('--public_hosted_zone', default='vcenter.e2e.bos.redhat.com', help='hosted zone for accessing the environment')
-@click.option('--app_dns_prefix', default='apps', help='application dns prefix',
-              show_default=True)
-@click.option('--vm_dns', default='10.19.114.5', help='DNS server for OpenShift nodes to utilize',
-              show_default=True)
-@click.option('--vm_gw', default='10.19.115.254', help='Gateway network address for VMs',
-              show_default=True)
-@click.option('--vm_interface_name', default='eno16780032', help='Network Interace card in template',
-              show_default=True)
-
-### Subscription and Software options
-@click.option('--rhsm_user', help='Red Hat Subscription Management User')
-@click.option('--rhsm_password', help='Red Hat Subscription Management Password',
-                hide_input=True,)
-@click.option('--rhsm_activation_key',  help='Red Hat Subscription Management User')
-@click.option('--rhsm_org_id',  help='Red Hat Subscription Management Password')
-@click.option('--rhsm_pool', help='Red Hat Subscription Management Pool ID or Subscription Name', default="OpenShift Enterprise, Premium*", show_default=True)
-
-### Miscellaneous options
-@click.option('--byo_lb', default='no', help='skip haproxy install when one exists within the environment',
-              show_default=True)
-@click.option('--lb_host', default='haproxy-0', help='Used for OpenShift cluster hostname and public hostname',
-              show_default=True)
-
-@click.option('--byo_nfs', default='no', help='skip nfs install when one exists within the environment',
-              show_default=True)
-@click.option('--nfs_registry_host', default='nfs-0', help='NFS server for persistent registry',
-              show_default=True)
-@click.option('--nfs_registry_mountpoint', default='/registry', help='NFS share for persistent registry',
-              show_default=True)
-
 @click.option('--no-confirm', is_flag=True,
               help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
-@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook')
-# Create inventory options
+@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-inbstall, ocp-configure, ocp-demo or clean')
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
-@click.option('--master_nodes', default='3', help='Number of master nodes to create', show_default=True)
-@click.option('--infra_nodes', default='2', help='Number of infra nodes to create', show_default=True)
-@click.option('--app_nodes', default='3', help='Number of app nodes to create', show_default=True)
-@click.option('--vm_ipaddr_start', default='10.19.114.224', help='Starting IP address to use')
-@click.option('--ocp_hostname_prefix', default=None, help='A prefix for your VM guestnames and DNS names: e.g. ocp-', show_default=True)
-
-#Create OpenShift Ansible variables
 @click.option('--create_ocp_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
-@click.option('--ldap_user', default='openshift', help='User to bind LDAP to')
-@click.option('--ldap_user_password', default='password', help='LDAP User password')
-@click.option('--ldap_fqdn', default='e2e.bos.redhat.com', help='LDAP FQDN to build bindURL')
-# Need load balancer FQDN here and to check for byo_lb
 
 def launch_refarch_env(console_port=8443,
                     deployment_type=None,
@@ -85,7 +21,7 @@ def launch_refarch_env(console_port=8443,
                     vcenter_username=None,
                     vcenter_password=None,
                     vcenter_template_name=None,
-		    vcenter_folder=None,
+                    vcenter_folder=None,
                     vcenter_cluster=None,
                     vcenter_resource_pool=None,
                     public_hosted_zone=None,
@@ -104,18 +40,106 @@ def launch_refarch_env(console_port=8443,
                     nfs_registry_host=None,
                     nfs_registry_mountpoint=None,
                     no_confirm=False,
-		            tag=None,
+                    tag=None,
                     verbose=0,
-		    create_inventory=None,
-		    master_nodes=None,
-		    infra_nodes=None,
-		    app_nodes=None,
-		    vm_ipaddr_start=None,
-		    ocp_hostname_prefix=None,
-	  	    create_ocp_vars=None,
-		    ldap_user=None,
-		    ldap_user_password=None,
-		    ldap_fqdn=None):
+                    create_inventory=None,
+                    master_nodes=None,
+                    infra_nodes=None,
+                    app_nodes=None,
+                    vm_ipaddr_start=None,
+                    ocp_hostname_prefix=None,
+                    create_ocp_vars=None,
+                    ldap_user=None,
+                    ldap_user_password=None,
+                    ldap_fqdn=None):
+
+  # Open config file INI for values first
+  print "Opening INI config file to import values"
+  scriptbasename = __file__
+  scriptbasename = os.path.basename(scriptbasename)
+  scriptbasename = scriptbasename.replace('.py', '')
+  defaults = {'vmware': {
+	'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
+	'console_port':'8443',
+	'deployment_type':'openshift-enterprise',
+	'vcenter_host':'',
+	'vcenter_username':'administrator@vsphere.local',
+	'vcenter_password':'',
+	'vcenter_template_name':'ocp-server-template-2.0.2',
+	'vcenter_folder':'ocp',
+	'vcenter_cluster':'devel',
+	'vcenter_resource_pool':'/Resources/OCP3',
+	'public_hosted_zone':'',
+	'app_dns_prefix':'apps',
+	'vm_dns':'',
+	'vm_gw':'',
+	'vm_interface_name':'eno16780032',
+	'rhsm_user':'',
+	'rhsm_password':'',
+	'rhsm_activation_key':'',
+	'rhsm_org_id':'',
+	'rhsm_pool':'OpenShift Enterprise, Premium',
+	'byo_lb':'no',
+	'lb_host':'haproxy-',
+	'byo_nfs':'no',
+	'nfs_registry_host':'nfs-0',
+	'nfs_registry_mountpoint':'/registry',
+	'master_nodes':'3',
+	'infra_nodes':'2',
+	'app_nodes':'3',
+	'vm_ipaddr_start':'',
+	'ocp_hostname_prefix':'',
+	'ldap_user':'openshift',
+	'ldap_user_password':'',
+	'ldap_fqdn':'' }
+	}
+  if six.PY3:
+    config = configparser.ConfigParser()
+  else:
+    config = configparser.SafeConfigParser()
+
+  # where is the config?
+  vmware_ini_path = os.environ.get('VMWARE_INI_PATH', defaults['vmware']['ini_path'])
+  vmware_ini_path = os.path.expanduser(os.path.expandvars(vmware_ini_path))
+  config.read(vmware_ini_path)
+
+  # apply defaults
+  for k,v in defaults['vmware'].iteritems():
+    if not config.has_option('vmware', k):
+        config.set('vmware', k, str(v))
+
+  console_port = config.get('vmware', 'console_port')
+  deployment_type = config.get('vmware','deployment_type')
+  vcenter_host = config.get('vmware', 'vcenter_host')
+  vcenter_username = config.get('vmware', 'vcenter_username')
+  vcenter_password = config.get('vmware', 'vcenter_password')
+  vcenter_template_name = config.get('vmware', 'vcenter_template_name')
+  vcenter_folder = config.get('vmware', 'vcenter_folder')
+  vcenter_cluster = config.get('vmware', 'vcenter_cluster')
+  vcenter_resource_pool = config.get('vmware', 'vcenter_resource_pool')
+  public_hosted_zone= config.get('vmware', 'public_hosted_zone')
+  app_dns_prefix = config.get('vmware', 'app_dns_prefix')
+  vm_dns = config.get('vmware', 'vm_dns')
+  vm_gw = config.get('vmware', 'vm_gw')
+  vm_interface_name = config.get('vmware', 'vm_interface_name')
+  rhsm_user = config.get('vmware', 'rhsm_user')
+  rhsm_password = config.get('vmware', 'rhsm_password')
+  rhsm_activation_key = config.get('vmware', 'rhsm_activation_key')
+  rhsm_org_id = config.get('vmware', 'rhsm_org_id')
+  rhsm_pool = config.get('vmware', 'rhsm_pool')
+  byo_lb = config.get('vmware', 'byo_lb')
+  lb_host = config.get('vmware', 'lb_host')
+  byo_nfs = config.get('vmware', 'byo_nfs')
+  nfs_registry_host = config.get('vmware', 'nfs_registry_host')
+  nfs_registry_mountpoint = config.get('vmware', 'nfs_registry_mountpoint')
+  master_nodes = config.get('vmware', 'master_nodes')
+  infra_nodes = config.get('vmware', 'infra_nodes')
+  app_nodes = config.get('vmware', 'app_nodes')
+  vm_ipaddr_start = config.get('vmware', 'vm_ipaddr_start')
+  ocp_hostname_prefix = config.get('vmware', 'ocp_hostname_prefix')
+  ldap_user = config.get('vmware', 'ldap_user')
+  ldap_user_password = config.get('vmware', 'ldap_user_password')
+  ldap_fqdn = config.get('vmware', 'ldap_fqdn')
 
   # Need to prompt for the DNS zone:
   if public_hosted_zone is None:
@@ -124,17 +148,17 @@ def launch_refarch_env(console_port=8443,
   # If tag exists skip the auth portion
   if not tag:
   # If the user already provided values, don't bother asking again
-  	if rhsm_user is None and rhsm_activation_key is None:
-    		rhsm_user = click.prompt("RHSM username?")
-  	if rhsm_password is None and rhsm_user:
-    		rhsm_password = click.prompt("RHSM password?", hide_input=True, confirmation_prompt=True)
+    if rhsm_user is None and rhsm_activation_key is None:
+        rhsm_user = click.prompt("RHSM username?")
+    if rhsm_password is None and rhsm_user:
+        rhsm_password = click.prompt("RHSM password?", hide_input=True, confirmation_prompt=True)
 
 	if rhsm_activation_key is None and rhsm_user is None:
-    		rhsm_activation_key = click.prompt("Satellite Server Activation Key?")
-  	if rhsm_org_id is None and rhsm_activation_key:
-    		rhsm_org_id = click.prompt("Organization ID for Satellite Server?")
-  	if rhsm_pool is None:
-    		rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
+        rhsm_activation_key = click.prompt("Satellite Server Activation Key?")
+    if rhsm_org_id is None and rhsm_activation_key:
+        rhsm_org_id = click.prompt("Organization ID for Satellite Server?")
+    if rhsm_pool is None:
+        rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
@@ -253,7 +277,7 @@ def launch_refarch_env(console_port=8443,
 
 	bind_entry = []
 	bind_entry.append("$ORIGIN " + app_dns_prefix + "." + public_hosted_zone + ".")
-	bind_entry.append("*    A       " + wild_ip)
+	bind_entry.append("*\tA\t" + wild_ip)
 	bind_entry.append("$ORIGIN " + public_hosted_zone + ".")
 
 	d = {}
@@ -274,7 +298,7 @@ def launch_refarch_env(console_port=8443,
 	        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_name
         	d['infrastructure_hosts']["nfs_server"]['tag'] = "infra-nfs"
 	        support_list.append(nfs_name)
-        	bind_entry.append(nfs_name + "		A       " + ip4addr[0])
+        	bind_entry.append(nfs_name + "\tA\t" + ip4addr[0])
 	        del ip4addr[0]
 
 	if byo_lb == "no":
@@ -290,7 +314,7 @@ def launch_refarch_env(console_port=8443,
         	d['infrastructure_hosts']["haproxy"]['guestname'] = lb_name
 	        d['infrastructure_hosts']["haproxy"]['tag'] = "loadbalancer"
         	support_list.append(lb_name)
-	        bind_entry.append(lb_name + "		A       " + wild_ip)
+	        bind_entry.append(lb_name + "\tA\t" + wild_ip)
 
 	master_list = []
 	d['production_hosts'] = {}
@@ -307,7 +331,7 @@ def launch_refarch_env(console_port=8443,
 	        d['production_hosts'][master_name]['guestname'] = master_name
 	        d['production_hosts'][master_name]['tag'] = "master"
 	        master_list.append(master_name)
-	        bind_entry.append(master_name + "	A       " + ip4addr[0])
+	        bind_entry.append(master_name + "\tA\t" + ip4addr[0])
 	        del ip4addr[0]
 	app_list = []
 	for i in range(0, int(app_nodes)):
@@ -325,7 +349,7 @@ def launch_refarch_env(console_port=8443,
 	        d['production_hosts'][app_name]['guestname'] = app_name
        		d['production_hosts'][app_name]['tag'] = "app"
 	        app_list.append(app_name)
-        	bind_entry.append(app_name + "		A       " + ip4addr[0])
+        	bind_entry.append(app_name + "\tA\t" + ip4addr[0])
 	        del ip4addr[0]
 	infra_list = []
 	for i in range(0, int(infra_nodes)):
@@ -350,6 +374,8 @@ def launch_refarch_env(console_port=8443,
 	with open('infrastructure.json', 'w') as outfile:
 	    json.dump(d, outfile)
 	exit(0)
+  # End create inventory 
+
   # Display information to the user about their choices
   click.echo('Configured values:')
   click.echo('\tconsole port: %s' % console_port)
@@ -456,7 +482,7 @@ def launch_refarch_env(console_port=8443,
     lb_host=%s \
     nfs_registry_host=%s \
     nfs_registry_mountpoint=%s \' %s' % ( tags,
-		    vcenter_host,
+                    vcenter_host,
                     vcenter_username,
                     vcenter_password,
                     vcenter_template_name,
@@ -475,7 +501,7 @@ def launch_refarch_env(console_port=8443,
                     rhsm_password,
                     rhsm_activation_key,
                     rhsm_org_id,
-		    rhsm_pool,
+                    rhsm_pool,
                     lb_host,
                     nfs_registry_host,
                     nfs_registry_mountpoint,

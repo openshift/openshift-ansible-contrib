@@ -14,4 +14,4 @@
   command: subscription-manager repos --enable={{ item }}
   with_items:
       - rhel-7-server-satellite-tools-6.2-rpms
-  when: rhsm_activation_key is defined and rhsm_activation_key != 'None' 
+  when: rhsm_activation_key is defined and rhsm_activation_key 
