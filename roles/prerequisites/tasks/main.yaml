@@ -4,6 +4,10 @@
     role: common
 
 - block:
+    - name: Network Restart to activate new interface
+      service: name=network state=restarted
+      ignore_errors: true
+
     - name: Clear yum cache
       command: "yum clean all"
       ignore_errors: true
