@@ -83,7 +83,7 @@ rm -f /etc/yum.repos.d/rh-cloud.repo
 # Found that wildcard disable not working all the time - make sure
 yum-config-manager --disable epel
 yum-config-manager --disable epel-testing
-subscription-manager register --username $RHNUSERNAME --password \"${RHNPASSWORD}\"
+subscription-manager register --username $RHNUSERNAME --password ${RHNPASSWORD}
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms"
@@ -177,7 +177,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     shell: subscription-manager unregister
     ignore_errors: yes
   - name: register hosts
-    shell: subscription-manager register --username ${RHNUSERNAME} --password \"${RHNPASSWORD}\"
+    shell: subscription-manager register --username ${RHNUSERNAME} --password ${RHNPASSWORD}
     register: task_result
     until: task_result.rc == 0
     retries: 10
