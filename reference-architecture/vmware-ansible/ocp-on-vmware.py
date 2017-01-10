@@ -1,10 +1,5 @@
 #!/usr/bin/env python
-<<<<<<< HEAD
-# vim: sw=2 ts=2
-
-=======
-# set tw=78 ts=4 sw=4 sta et sts=4 ai
->>>>>>> common-providers
+# set ts=4 sw=4 et
 import click, os, sys, fileinput, json, iptools, ldap, six
 from six.moves import configparser
 
@@ -15,15 +10,9 @@ from six.moves import configparser
               help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
-<<<<<<< HEAD
-@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-inbstall, ocp-configure, ocp-demo or clean')
-@click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
-@click.option('--create_ocp_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
-=======
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
 @click.option('--create_ocp_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
 @click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-inbstall, ocp-configure, ocp-demo or clean')
->>>>>>> common-providers
 
 def launch_refarch_env(console_port=8443,
                     deployment_type=None,
@@ -64,50 +53,10 @@ def launch_refarch_env(console_port=8443,
                     ldap_fqdn=None):
 
   # Open config file INI for values first
-<<<<<<< HEAD
-  print "Opening INI config file to import values"
-=======
->>>>>>> common-providers
   scriptbasename = __file__
   scriptbasename = os.path.basename(scriptbasename)
   scriptbasename = scriptbasename.replace('.py', '')
   defaults = {'vmware': {
-<<<<<<< HEAD
-	'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
-	'console_port':'8443',
-	'deployment_type':'openshift-enterprise',
-	'vcenter_host':'',
-	'vcenter_username':'administrator@vsphere.local',
-	'vcenter_password':'',
-	'vcenter_template_name':'ocp-server-template-2.0.2',
-	'vcenter_folder':'ocp',
-	'vcenter_cluster':'devel',
-	'vcenter_resource_pool':'/Resources/OCP3',
-	'public_hosted_zone':'',
-	'app_dns_prefix':'apps',
-	'vm_dns':'',
-	'vm_gw':'',
-	'vm_interface_name':'eno16780032',
-	'rhsm_user':'',
-	'rhsm_password':'',
-	'rhsm_activation_key':'',
-	'rhsm_org_id':'',
-	'rhsm_pool':'OpenShift Enterprise, Premium',
-	'byo_lb':'no',
-	'lb_host':'haproxy-',
-	'byo_nfs':'no',
-	'nfs_registry_host':'nfs-0',
-	'nfs_registry_mountpoint':'/registry',
-	'master_nodes':'3',
-	'infra_nodes':'2',
-	'app_nodes':'3',
-	'vm_ipaddr_start':'',
-	'ocp_hostname_prefix':'',
-	'ldap_user':'openshift',
-	'ldap_user_password':'',
-	'ldap_fqdn':'' }
-	}
-=======
     'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
     'console_port':'8443',
     'deployment_type':'openshift-enterprise',
@@ -142,7 +91,6 @@ def launch_refarch_env(console_port=8443,
     'ldap_user_password':'',
     'ldap_fqdn':'' }
     }
->>>>>>> common-providers
   if six.PY3:
     config = configparser.ConfigParser()
   else:
@@ -191,34 +139,12 @@ def launch_refarch_env(console_port=8443,
   ldap_user_password = config.get('vmware', 'ldap_user_password')
   ldap_fqdn = config.get('vmware', 'ldap_fqdn')
 
-<<<<<<< HEAD
-  # Need to prompt for the DNS zone:
-  if public_hosted_zone is None:
-    public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
-
-  # If tag exists skip the auth portion
-  if not tag:
-  # If the user already provided values, don't bother asking again
-    if rhsm_user is None and rhsm_activation_key is None:
-        rhsm_user = click.prompt("RHSM username?")
-    if rhsm_password is None and rhsm_user:
-        rhsm_password = click.prompt("RHSM password?", hide_input=True, confirmation_prompt=True)
-
-	if rhsm_activation_key is None and rhsm_user is None:
-        rhsm_activation_key = click.prompt("Satellite Server Activation Key?")
-    if rhsm_org_id is None and rhsm_activation_key:
-        rhsm_org_id = click.prompt("Organization ID for Satellite Server?")
-    if rhsm_pool is None:
-        rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
-  # Calculate various DNS values
-=======
   required_vars = {'public_hosted_zone':public_hosted_zone, 'vcenter_host':vcenter_host, 'vcenter_password':vcenter_password, 'vm_ipaddr_start':vm_ipaddr_start, 'ldap_fqdn':ldap_fqdn, 'ldap_user_password':ldap_user_password, 'vm_dns':vm_dns, 'vm_gw':vm_gw}
   for k, v in required_vars.items():
     if v == '':
       print "Please fill out the variables in %s " %  vmware_ini_path
       print "Missing %s " % k 
       exit (1) 
->>>>>>> common-providers
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
   tags = []
@@ -305,136 +231,6 @@ def launch_refarch_env(console_port=8443,
     #End create_ocp_vars
     exit(0)
   if create_inventory is True:
-<<<<<<< HEAD
-  	click.echo('Configured inventory values:')
-	click.echo('\tmaster_nodes: %s' % master_nodes)
-	click.echo('\tinfra_nodes: %s' % infra_nodes)
-  	click.echo('\tapp_nodes: %s' % app_nodes)
-  	click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
-  	click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
-	click.echo('\tocp_hostname_prefix: %s' % ocp_hostname_prefix)
-  	click.echo('\tbyo_nfs: %s' % byo_nfs)
-	if byo_nfs == "no":
-  		click.echo('\tnfs_host: %s' % nfs_host)
-	click.echo('\tbyo_lb: %s' % byo_lb)
-	if byo_lb == "no":
-  		click.echo('\tlb_host: %s' % lb_host)
-	click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
-	click.echo("")
-	if not no_confirm:
-    		click.confirm('Continue using these values?', abort=True)
-	# Create the inventory file and exit
-	total_nodes=int(master_nodes)+int(app_nodes)+int(infra_nodes)+int(support_nodes)
-
-	if vm_ipaddr_start is None:
-    		vm_ipaddr_start = click.prompt("Starting IP address to use?")
-
-	ip4addr = []
-	for i in range(total_nodes):
-	        p = iptools.ipv4.ip2long(vm_ipaddr_start) + i
-		ip4addr.append(iptools.ipv4.long2ip(p))
-	wild_ip =  ip4addr.pop()
-
-	bind_entry = []
-	bind_entry.append("$ORIGIN " + app_dns_prefix + "." + public_hosted_zone + ".")
-	bind_entry.append("*\tA\t" + wild_ip)
-	bind_entry.append("$ORIGIN " + public_hosted_zone + ".")
-
-	d = {}
-	d['host_inventory'] = {}
-	d['infrastructure_hosts'] = {}
-
-	support_list = []
-	if byo_nfs == "no":
-		if ocp_hostname_prefix is not None:
-                        nfs_name=ocp_hostname_prefix+"nfs-0"
-                else:
-                        nfs_name="nfs-0"
-		d['host_inventory'][nfs_name] = {}
-        	d['host_inventory'][nfs_name]['guestname'] = nfs_name
-		d['host_inventory'][nfs_name]['ip4addr'] = ip4addr[0]
-	        d['host_inventory'][nfs_name]['tag'] = "infra-nfs"
-        	d['infrastructure_hosts']["nfs_server"] = {}
-	        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_name
-        	d['infrastructure_hosts']["nfs_server"]['tag'] = "infra-nfs"
-	        support_list.append(nfs_name)
-        	bind_entry.append(nfs_name + "\tA\t" + ip4addr[0])
-	        del ip4addr[0]
-
-	if byo_lb == "no":
-		if ocp_hostname_prefix is not None:
-                        lb_name=ocp_hostname_prefix+"haproxy-0"
-                else:
-                        lb_name="haproxy-0"
-	        d['host_inventory'][lb_name] = {}
-        	d['host_inventory'][lb_name]['guestname'] = lb_name
-	        d['host_inventory'][lb_name]['ip4addr'] = wild_ip
-       		d['host_inventory'][lb_name]['tag'] = "loadbalancer"
-	        d['infrastructure_hosts']["haproxy"] = {}
-        	d['infrastructure_hosts']["haproxy"]['guestname'] = lb_name
-	        d['infrastructure_hosts']["haproxy"]['tag'] = "loadbalancer"
-        	support_list.append(lb_name)
-	        bind_entry.append(lb_name + "\tA\t" + wild_ip)
-
-	master_list = []
-	d['production_hosts'] = {}
-	for i in range(0, int(master_nodes)):
-		if ocp_hostname_prefix is not None:
-			master_name=ocp_hostname_prefix+"master-"+str(i)
-		else:
-                	master_name="master-"+str(i)
-        	d['host_inventory'][master_name] = {}
-	        d['host_inventory'][master_name]['guestname'] = master_name
-       		d['host_inventory'][master_name]['ip4addr'] = ip4addr[0]
-	        d['host_inventory'][master_name]['tag'] = "master"
-        	d['production_hosts'][master_name] = {}
-	        d['production_hosts'][master_name]['guestname'] = master_name
-	        d['production_hosts'][master_name]['tag'] = "master"
-	        master_list.append(master_name)
-	        bind_entry.append(master_name + "\tA\t" + ip4addr[0])
-	        del ip4addr[0]
-	app_list = []
-	for i in range(0, int(app_nodes)):
-        	if ocp_hostname_prefix is not None:
-                	app_name=ocp_hostname_prefix+"app-"+str(i)
-
-	        else:
-        	        app_name="app-"+str(i)
-
-		d['host_inventory'][app_name] = {}
-	        d['host_inventory'][app_name]['guestname'] = app_name
-       		d['host_inventory'][app_name]['ip4addr'] = ip4addr[0]
-	        d['host_inventory'][app_name]['tag'] = "app"
-       		d['production_hosts'][app_name] = {}
-	        d['production_hosts'][app_name]['guestname'] = app_name
-       		d['production_hosts'][app_name]['tag'] = "app"
-	        app_list.append(app_name)
-        	bind_entry.append(app_name + "\tA\t" + ip4addr[0])
-	        del ip4addr[0]
-	infra_list = []
-	for i in range(0, int(infra_nodes)):
-        	if ocp_hostname_prefix is not None:
-                	infra_name=ocp_hostname_prefix+"infra-"+str(i)
-		else:
-                	infra_name="infra-"+str(i)
-		d['host_inventory'][infra_name] = {}
-	        d['host_inventory'][infra_name]['guestname'] = infra_name
-        	d['host_inventory'][infra_name]['ip4addr'] = ip4addr[0]
-	        d['host_inventory'][infra_name]['tag'] = "infra"
-       		d['production_hosts'][infra_name] = {}
-	        d['production_hosts'][infra_name]['guestname'] = infra_name
-       		d['production_hosts'][infra_name]['tag'] = "infra"
-	        infra_list.append(infra_name)
-        	bind_entry.append(infra_name + "        A       " + ip4addr[0])
-	        del ip4addr[0]
-	print "# Here is what should go into your DNS records"
-	print("\n".join(bind_entry))
-	print "# Please note, if you have chosen to bring your own loadbalancer and NFS Server you will need to ensure that these records are added to DNS and properly resolve. "
-
-	with open('infrastructure.json', 'w') as outfile:
-	    json.dump(d, outfile)
-	exit(0)
-=======
     click.echo('Configured inventory values:')
     click.echo('\tmaster_nodes: %s' % master_nodes)
     click.echo('\tinfra_nodes: %s' % infra_nodes)
@@ -564,7 +360,6 @@ def launch_refarch_env(console_port=8443,
     with open('infrastructure.json', 'w') as outfile:
         json.dump(d, outfile)
     exit(0)
->>>>>>> common-providers
   # End create inventory 
 
   # Display information to the user about their choices
