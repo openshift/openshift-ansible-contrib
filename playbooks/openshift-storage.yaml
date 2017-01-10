@@ -1,0 +1,7 @@
+---
+- hosts: cluster_hosts
+  gather_facts: no
+  become: yes
+  roles:
+      - docker-storage-setup
+      - openshift-volume-quota

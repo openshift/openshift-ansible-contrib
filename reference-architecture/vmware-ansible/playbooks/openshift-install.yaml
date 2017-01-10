@@ -6,29 +6,11 @@
   roles:
       # Group systems
       - instance-groups
+      - openshift-vm-facts
 
-- hosts: cluster_hosts
-  gather_facts: yes
-  vars_files:
-      - ../vars/main.yaml
-  roles:
-      - rhn-subscription
-      - rhn-repos 
-      - prerequisites
+- include: ../../../playbooks/prerequisite.yaml
 
-- hosts: schedulable_nodes
-  gather_facts: no
-  vars_files:
-      - ../vars/main.yaml
-  roles:
-      - openshift-volume-quota
-
-- hosts: cluster_hosts
-  gather_facts: no
-  vars_files:
-      - ../vars/main.yaml
-  roles:
-      - docker-storage-setup
+- include: ../../../playbooks/openshift-storage.yaml
 
 - name: call openshift includes for installer
   include:  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
@@ -54,9 +36,10 @@
     osm_use_cockpit: false
     osm_default_node_selector: "role=app"
     openshift_registry_selector: "role=infra"
+    openshift_override_hostname_check: true
     openshift_router_selector: "role=infra"
     openshift_master_cluster_method: native
-    openshift_cloudprovider_kind: vmware
+    openshift_cloudprovider_kind: vsphere
     wildcard_zone: 
     osm_default_subdomain: "{{ wildcard_zone }}"
     deployment_type: openshift-enterprise

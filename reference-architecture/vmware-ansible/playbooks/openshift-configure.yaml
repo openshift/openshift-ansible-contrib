@@ -7,13 +7,7 @@
       # Group systems
       - instance-groups
 
-- hosts: schedulable_nodes
-  gather_facts: yes
-  become: yes
-  vars_files:
-    - ../vars/main.yaml
-  roles:
-      - openshift-emptydir-quota
+- include: ../../../playbooks/empty-dir-quota.yaml
 
 - hosts: primary_master
   gather_facts: yes

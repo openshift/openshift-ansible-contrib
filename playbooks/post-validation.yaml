@@ -15,7 +15,7 @@
       - validate-etcd
 
 - hosts: primary_master
-  gather_facts: yes 
+  gather_facts: yes
   become: yes
   roles:
       - validate-app

@@ -1,0 +1,5 @@
+- hosts: schedulable_nodes
+  gather_facts: yes
+  become: yes
+  roles:
+      - openshift-emptydir-quota

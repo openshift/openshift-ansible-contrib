@@ -1,9 +1,0 @@
----
-- name: Modify the node configuration
-  replace:
-      dest: /etc/origin/node/node-config.yaml
-      regexp: '^(.*)perFSGroup: (\s+.*)?$'
-      replace:  '\1 perFSGroup: 512Mi\2'
-      backup: yes
-  notify:
-  - restart atomic-openshift-node
