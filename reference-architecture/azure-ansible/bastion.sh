@@ -99,6 +99,7 @@ nodes
 misc
 
 [OSEv3:vars]
+openshift_release=v3.3
 azure_resource_group=${RESOURCEGROUP}
 rhn_pool_id=${RHNPOOLID}
 openshift_install_examples=true
