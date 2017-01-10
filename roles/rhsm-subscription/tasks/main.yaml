@@ -6,12 +6,12 @@
 
     - name: Remove satellite configuration if using RH CDN
       command: "mv -f /etc/rhsm/rhsm.conf.kat-backup /etc/rhsm/rhsm.conf"
-      when: rhsm_user is defined and rhsm_user != 'None' and sat_cfg.stat.exists == True
+      when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
       ignore_errors: yes
 
     - name: Remove satellite SSL if using RH CDN
       command: "rpm -e $(rpm -qa katello-ca-consumer*)"
-      when: rhsm_user is defined and rhsm_user != 'None' and sat_cfg.stat.exists == True
+      when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
       ignore_errors: yes
 
     - name: Is the host already registered?
@@ -34,6 +34,6 @@
         username: "{{ rhsm_user }}"
         password: "{{ rhsm_password }}"
         state: present
-        pool: "^{{ rhsm_pool }}"
+        pool: "{{ rhsm_pool }}"
       when: "'Subscribed' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
   when: ansible_distribution == "RedHat"
