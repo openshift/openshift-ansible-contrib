@@ -139,12 +139,15 @@ def launch_refarch_env(console_port=8443,
   ldap_user_password = config.get('vmware', 'ldap_user_password')
   ldap_fqdn = config.get('vmware', 'ldap_fqdn')
 
+  err_count = 0
   required_vars = {'public_hosted_zone':public_hosted_zone, 'vcenter_host':vcenter_host, 'vcenter_password':vcenter_password, 'vm_ipaddr_start':vm_ipaddr_start, 'ldap_fqdn':ldap_fqdn, 'ldap_user_password':ldap_user_password, 'vm_dns':vm_dns, 'vm_gw':vm_gw}
   for k, v in required_vars.items():
     if v == '':
-      print "Please fill out the variables in %s " %  vmware_ini_path
-      print "Missing %s " % k 
-      exit (1) 
+        err_count += 1
+        print "Missing %s " % k 
+  if err_count > 0:
+    print "Please fill out the missing variables in %s " %  vmware_ini_path
+    exit (1) 
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
   tags = []
