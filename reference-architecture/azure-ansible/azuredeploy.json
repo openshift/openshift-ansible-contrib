@@ -279,7 +279,7 @@
     "rhel" : {
       "publisher" : "Redhat",
       "offer" : "RHEL",
-      "sku" : "7.3",
+      "sku" : "7.2",
       "version" : "latest"
     },
     "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastion.json')]",
