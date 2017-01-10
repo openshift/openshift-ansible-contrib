@@ -6,6 +6,7 @@
     - PyYAML
     - perl
     - net-tools
+    - chrony
 
 - name: be sure katello-agent is installed
   yum: name=katello-agent state=installed
