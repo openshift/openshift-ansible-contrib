@@ -1,6 +1,11 @@
 ---
-- name: be sure chrony is installed
-  yum: name=chrony state=installed
+- name: be sure all pre-req packages are installed
+  yum: name={{item}} state=installed
+  with_items: 
+    - open-vm-tools 
+    - PyYAML
+    - perl
+    - net-tools
 
 - name: be sure katello-agent is installed
   yum: name=katello-agent state=installed
@@ -13,6 +18,9 @@
 
 - name: be sure chronyd is running and enabled
   service: name=chronyd state=running enabled=yes
+
+- name: be sure openvmtools is running and enabled
+  service: name=vmtoolsd state=running enabled=yes
 
 - name: set link to localtime
   command: timedatectl set-timezone {{timezone}}

@@ -25,7 +25,7 @@
         org_id: "{{ rhsm_org_id }}"
         state: present
         pool: "{{ rhsm_pool }}"
-      when: "'Subscribed' not in subscribed.stdout and rhsm_activation_key is defined and rhsm_activation_key != 'None'"
+      when: "'Subscribed' not in subscribed.stdout and rhsm_activation_key is defined and rhsm_activation_key"
       register: register_key_result
       ignore_errors: yes
 
@@ -35,5 +35,5 @@
         password: "{{ rhsm_password }}"
         state: present
         pool: "^{{ rhsm_pool }}"
-      when: "'Subscribed' not in subscribed.stdout and rhsm_user is defined and rhsm_user != 'None'"
+      when: "'Subscribed' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
   when: ansible_distribution == "RedHat"

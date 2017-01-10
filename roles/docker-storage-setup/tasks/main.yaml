@@ -6,8 +6,3 @@
      owner: root
      group: root
      mode: 0644
-- name: start docker
-  service:
-      name: docker
-      state: started
-      enabled: true

@@ -12,6 +12,6 @@
 
   roles:
     - static-ipaddress
-    - rhn-subscription
-    - rhn-repos
+    - rhsm-subscription
+    - rhsm-repos
     - vmware-guest-setup

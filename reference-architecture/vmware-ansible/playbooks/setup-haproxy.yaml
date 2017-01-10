@@ -11,8 +11,8 @@
     - ../vars/main.yaml
   roles:
     - static-ipaddress
-    - rhn-subscription
-    - rhn-repos
+    - rhsm-subscription
+    - rhsm-repos
     - vmware-guest-setup
 
 - name: Configure ha proxy server
