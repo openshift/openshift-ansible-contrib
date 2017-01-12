@@ -99,6 +99,19 @@ nodes
 misc
 
 [OSEv3:vars]
+debug_level=2
+console_port=8443
+openshift_node_debug_level="{{ node_debug_level | default(debug_level, true) }}"
+openshift_master_debug_level="{{ master_debug_level | default(debug_level, true) }}"
+openshift_master_access_token_max_seconds=2419200
+openshift_hosted_router_replicas=4
+openshift_hosted_registry_replicas=1
+openshift_hosted_router_selector='role=app'
+openshift_hosted_registry_selector='role=app'
+openshift_master_api_port="{{ console_port }}"
+openshift_master_console_port="{{ console_port }}"
+openshift_override_hostname_check=true
+osm_use_cockpit=false
 openshift_release=v3.3
 azure_resource_group=${RESOURCEGROUP}
 rhn_pool_id=${RHNPOOLID}
