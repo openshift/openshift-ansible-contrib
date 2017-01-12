@@ -914,9 +914,9 @@
       "name" : "AppLB",
       "location" : "global",
       "dependsOn" : [
-        "[resourceId('Microsoft.Resources/deployments', 'master1')]",
-        "[resourceId('Microsoft.Resources/deployments', 'master2')]",
-        "[resourceId('Microsoft.Resources/deployments', 'master3')]"
+        "[resourceId('Microsoft.Resources/deployments', 'infranode1')]",
+        "[resourceId('Microsoft.Resources/deployments', 'infranode2')]",
+        "[resourceId('Microsoft.Resources/deployments', 'infranode3')]"
       ],
       "properties" : {
         "profileStatus" : "Enabled",
