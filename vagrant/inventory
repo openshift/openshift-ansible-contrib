@@ -1,0 +1,60 @@
+[OSEv3:children]
+masters
+nodes
+etcd
+nfs
+
+[OSEv3:vars]
+ansible_become: true
+ansible_ssh_user: 'vagrant'
+deployment_type: deployment_type
+openshift_master_identity_providers: "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]"
+openshift_master_htpasswd_users: "{'admin': '$apr1$nWG7vwhy$jCMCBmBrW3MEYmCFCckYk1'}"
+openshift_master_default_subdomain: 'apps.example.com'
+osm_default_node_selector: 'region=primary'
+openshift_hosted_registry_selector: 'region=infra',
+openshift_hosted_registry_replicas: 1
+openshift_hosted_registry_storage_kind: 'nfs'
+openshift_hosted_registry_storage_access_modes: ['ReadWriteMany']
+openshift_hosted_registry_storage_host: 'admin1.example.com'
+openshift_hosted_registry_storage_nfs_directory: '/srv/nfs'
+openshift_hosted_registry_storage_volume_name: 'registry'
+openshift_hosted_registry_storage_volume_size: '2Gi'
+rhsm_user: "#{ENV.fetch('SUB_USERNAME', '')}"
+rhsm_password: "#{ENV.fetch('SUB_PASSWORD', '')}"
+rhsm_pool: rhsm_pool
+
+[masters]
+master1
+
+[etcd]
+master1
+
+[nfs]
+master1
+
+[master1:vars]
+openshift_ip: '192.168.50.20'
+openshift_node_labels: "{'region': 'infra', 'zone': 'default'}"
+openshift_schedulable=true
+ansible_host: '192.168.50.20'
+ansible_ssh_private_key_file: "/home/vagrant/.ssh/master1.key"
+
+[nodes]
+master1
+node1
+node2
+
+[node1:vars]
+openshift_ip: '192.168.50.21'
+openshift_node_labels: "{'region': 'primary', 'zone': 'east'}"
+openshift_schedulable: true
+ansible_host: '192.168.50.21'
+ansible_ssh_private_key_file: "/home/vagrant/.ssh/node1.key
+
+[node2:vars]
+openshift_ip: '192.168.50.22',
+openshift_node_labels: "\"{'region': 'primary', 'zone': 'west'}\"",
+openshift_schedulable: true,
+ansible_host: '192.168.50.22',
+ansible_ssh_private_key_file: "/home/vagrant/.ssh/node2.key"

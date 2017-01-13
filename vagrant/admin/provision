@@ -1,0 +1,13 @@
+#!/usr/bin/bash
+set -xeuo pipefail
+cd /home/vagrant/sync/vagrant/ansible-container
+if ! sudo docker inspect ansible 1>/dev/null 2>&1; then
+    sudo docker build -t ansible .
+fi
+if ! test -L /usr/local/bin/ansible-container; then
+    sudo ln -s /home/vagrant/sync/vagrant/ansible-container/ansible-container /usr/local/bin
+fi
+cd /home/vagrant
+if ! test -d openshift-ansible; then
+   env docker_args="-u $(id -u)" ansible-container git clone https://github.com/openshift/openshift-ansible /srv/openshift-ansible
+fi

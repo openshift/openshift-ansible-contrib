@@ -28,7 +28,7 @@
       regexp: '^(127\.0\.0\.1\s*)\S*\.example\.com (.*)'
       replace: '\1\2'
 
-- name: Configure ssh keys
+- name: Bootstrap host
   hosts: admin1
   tasks:
   - include: tasks/install_bootstrap_origin.yaml

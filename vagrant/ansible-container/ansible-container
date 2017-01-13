@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+set -euo pipefail
+exec docker run --privileged ${docker_args:-} --rm -ti -v $(pwd):/srv ansible $@
