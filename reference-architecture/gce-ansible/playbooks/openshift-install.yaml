@@ -47,6 +47,7 @@
   gather_facts: no
   roles:
     - openshift-emptydir-quota
+    - selinux-fix 
 
 - hosts: primary_master
   gather_facts: no

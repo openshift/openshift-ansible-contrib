@@ -1,0 +1,5 @@
+---
+- name: selinux fix
+  shell: chcon -t docker_exec_t /usr/bin/docker*
+- name: start docker
+  service: name=docker state=restarted
