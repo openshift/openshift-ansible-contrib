@@ -38,18 +38,17 @@
     - restrict-gce-metadata
 
 - include: ../../../playbooks/empty-dir-quota.yaml
-<<<<<<< HEAD
-=======
+
 
 - hosts: schedulable_nodes
   gather_facts: no
   roles:
     - selinux-fix 
->>>>>>> a30e0f47c3b256ee8a0072c96d23a32617078e53
 
 - hosts: primary_master
   gather_facts: no
   roles:
     - openshift-registry
+
 
 - include: validation.yaml
