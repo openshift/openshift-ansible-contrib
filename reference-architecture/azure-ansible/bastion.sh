@@ -83,7 +83,7 @@ rm -f /etc/yum.repos.d/rh-cloud.repo
 # Found that wildcard disable not working all the time - make sure
 yum-config-manager --disable epel
 yum-config-manager --disable epel-testing
-subscription-manager register --username $RHNUSERNAME --password \"${RHNPASSWORD}\"
+subscription-manager register --username $RHNUSERNAME --password ${RHNPASSWORD}
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms"
@@ -99,6 +99,20 @@ nodes
 misc
 
 [OSEv3:vars]
+debug_level=2
+console_port=8443
+openshift_node_debug_level="{{ node_debug_level | default(debug_level, true) }}"
+openshift_master_debug_level="{{ master_debug_level | default(debug_level, true) }}"
+openshift_master_access_token_max_seconds=2419200
+openshift_hosted_router_replicas=4
+openshift_hosted_registry_replicas=1
+openshift_hosted_router_selector='role=app'
+openshift_hosted_registry_selector='role=app'
+openshift_master_api_port="{{ console_port }}"
+openshift_master_console_port="{{ console_port }}"
+openshift_override_hostname_check=true
+osm_use_cockpit=false
+openshift_release=v3.3
 azure_resource_group=${RESOURCEGROUP}
 rhn_pool_id=${RHNPOOLID}
 openshift_install_examples=true
@@ -128,32 +142,32 @@ openshift_master_cluster_public_hostname=${RESOURCEGROUP}.trafficmanager.net
 osn_storage_plugin_deps=['iscsi']
 
 [masters]
-master1 openshift_node_labels="{'role': 'master'}"
-master2 openshift_node_labels="{'role': 'master'}"
-master3 openshift_node_labels="{'role': 'master'}"
+master1.${domain} openshift_node_labels="{'role': 'master'}"
+master2.${domain} openshift_node_labels="{'role': 'master'}"
+master3.${domain}  openshift_node_labels="{'role': 'master'}"
 
 [etcd]
-master1
-master2
-master3
+master1.${domain}
+master2.${domain}
+master3.${domain}
 
 [nodes]
-master1 openshift_node_labels="{'role':'master','zone':'default'}"
-master2 openshift_node_labels="{'role':'master','zone':'default'}"
-master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
-infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+master1.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+master2.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+master3.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+node[01:${NODECOUNT}].${domain} openshift_node_labels="{'role': 'app', 'zone': 'default'}"
+infranode1.${domain}  openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+infranode2.${domain}  openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+infranode3.${domain} openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 
 [quotanodes]
-master1 openshift_node_labels="{'role':'master','zone':'default'}"
-master2 openshift_node_labels="{'role':'master','zone':'default'}"
-master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
+master1.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+master2.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+master3.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+node[01:${NODECOUNT}].${domain} openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 
 [misc]
-store1
+store1.${domain}
 EOF
 
 
@@ -177,7 +191,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     shell: subscription-manager unregister
     ignore_errors: yes
   - name: register hosts
-    shell: subscription-manager register --username ${RHNUSERNAME} --password \"${RHNPASSWORD}\"
+    shell: subscription-manager register --username ${RHNUSERNAME} --password ${RHNPASSWORD}
     register: task_result
     until: task_result.rc == 0
     retries: 10

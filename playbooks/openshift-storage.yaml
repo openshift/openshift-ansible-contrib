@@ -1,5 +1,5 @@
 ---
-- hosts: cluster_hosts
+- hosts: schedulable_nodes 
   gather_facts: no
   become: yes
   roles:

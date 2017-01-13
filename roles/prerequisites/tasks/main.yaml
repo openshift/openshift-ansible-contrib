@@ -4,24 +4,21 @@
     role: common
 
 - block:
-    - name: Network Restart to activate new interface
-      service: name=network state=restarted
-      ignore_errors: true
-
     - name: Clear yum cache
       command: "yum clean all"
       ignore_errors: true
 
     - name: Install the required rpms
-      package: name="{{ item }}" state=latest
+      package: name= "{{ item }}" state=latest
       with_items:
       - NetworkManager
 
-    - name: Start NetworkManager
+    - name: Start NetworkManager and network
       service:
         name: "{{ item }}"
         state: restarted
         enabled: true
       with_items:
       - NetworkManager
+      - network 
   when: not openshift.common.is_atomic | bool
