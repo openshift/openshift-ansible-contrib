@@ -62,6 +62,6 @@
         preferredUsername:
         - uid
       insecure: true
-      url:
-      bindDN:
-      bindPassword:
+      url: 
+      bindDN: 
+      bindPassword: 
