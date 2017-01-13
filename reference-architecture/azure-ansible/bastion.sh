@@ -142,32 +142,32 @@ openshift_master_cluster_public_hostname=${RESOURCEGROUP}.trafficmanager.net
 osn_storage_plugin_deps=['iscsi']
 
 [masters]
-master1 openshift_node_labels="{'role': 'master'}"
-master2 openshift_node_labels="{'role': 'master'}"
-master3 openshift_node_labels="{'role': 'master'}"
+master1.${domain} openshift_node_labels="{'role': 'master'}"
+master2.${domain} openshift_node_labels="{'role': 'master'}"
+master3.${domain}  openshift_node_labels="{'role': 'master'}"
 
 [etcd]
-master1
-master2
-master3
+master1.${domain}
+master2.${domain}
+master3.${domain}
 
 [nodes]
-master1 openshift_node_labels="{'role':'master','zone':'default'}"
-master2 openshift_node_labels="{'role':'master','zone':'default'}"
-master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
-infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+master1.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+master2.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+master3.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+node[01:${NODECOUNT}].${domain} openshift_node_labels="{'role': 'app', 'zone': 'default'}"
+infranode1.${domain}  openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+infranode2.${domain}  openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+infranode3.${domain} openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 
 [quotanodes]
-master1 openshift_node_labels="{'role':'master','zone':'default'}"
-master2 openshift_node_labels="{'role':'master','zone':'default'}"
-master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
+master1.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+master2.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+master3.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
+node[01:${NODECOUNT}].${domain} openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 
 [misc]
-store1
+store1.${domain}
 EOF
 
 
