@@ -12,10 +12,6 @@ export OSEUSERNAME=$2
 ps -ef | grep store.sh > cmdline.out
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
-sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
-ifdown eth0
-ifup eth0
-systemctl restart network
 
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
@@ -37,7 +33,6 @@ chown root /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
 
-yum -y update
 yum -y install targetcli
 yum -y install lvm2
 systemctl start target
