@@ -15,8 +15,6 @@ export SSHPUBLICDATA2=${12}
 export SSHPUBLICDATA3=${13}
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
-sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
-systemctl restart network
 
 ps -ef | grep bastion.sh > cmdline.out
 
