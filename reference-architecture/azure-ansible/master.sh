@@ -14,8 +14,6 @@ SSHPUBLICDATA2=${11}
 SSHPUBLICDATA3=${12}
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
-sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
-systemctl restart network
 
 ps -ef | grep master.sh > cmdline.out
 

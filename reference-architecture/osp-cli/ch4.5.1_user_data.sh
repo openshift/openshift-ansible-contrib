@@ -17,7 +17,7 @@ function generate_host_info() {
 hostname: $1
 fqdn: $1.$2
 write_files: 
-  - path: /etc/sudoers.d/99-openshift.ssh_user-requiretty
+  - path: /etc/sudoers.d/99-openshift_ssh_user-requiretty
     permissions: 440
     content: |
       Defaults:cloud-user !requiretty
@@ -52,6 +52,9 @@ function generate_docker_storage_setup() {
       VG=docker-vg
 EOF
 }
+
+# Create the user-data directory if needed
+[ -d user-data ] || mkdir user-data
 
 for HOST in $ALL_HOSTS ; do
   generate_host_info ${HOST} ${DOMAIN} > user-data/${HOST}.yaml

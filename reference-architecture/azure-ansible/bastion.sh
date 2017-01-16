@@ -15,8 +15,6 @@ export SSHPUBLICDATA2=${12}
 export SSHPUBLICDATA3=${13}
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
-sudo hostnamectl set-hostname ${HOSTNAME}.${domain}
-systemctl restart network
 
 ps -ef | grep bastion.sh > cmdline.out
 
@@ -130,7 +128,7 @@ ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
 
 openshift_master_default_subdomain=${ROUTEREXTIP}.xip.io
-openshift_use_dnsmasq=True
+openshift_use_dnsmasq=false
 openshift_public_hostname=${RESOURCEGROUP}.trafficmanager.net
 
 openshift_master_cluster_method=native
