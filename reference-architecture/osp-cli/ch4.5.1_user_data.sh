@@ -53,6 +53,9 @@ function generate_docker_storage_setup() {
 EOF
 }
 
+# Create the user-data directory if needed
+[ -d user-data ] || mkdir user-data
+
 for HOST in $ALL_HOSTS ; do
   generate_host_info ${HOST} ${DOMAIN} > user-data/${HOST}.yaml
 done
