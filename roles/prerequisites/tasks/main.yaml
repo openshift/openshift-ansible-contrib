@@ -9,7 +9,7 @@
       ignore_errors: true
 
     - name: Install the required rpms
-      package: name= "{{ item }}" state=latest
+      package: name="{{ item }}" state=latest
       with_items:
       - NetworkManager
 
