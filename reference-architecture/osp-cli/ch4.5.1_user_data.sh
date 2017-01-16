@@ -17,7 +17,7 @@ function generate_host_info() {
 hostname: $1
 fqdn: $1.$2
 write_files: 
-  - path: /etc/sudoers.d/99-openshift.ssh_user-requiretty
+  - path: /etc/sudoers.d/99-openshift_ssh_user-requiretty
     permissions: 440
     content: |
       Defaults:cloud-user !requiretty
