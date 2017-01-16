@@ -32,7 +32,7 @@ chmod 600 /root/.ssh/id_rsa.pub
 chown root /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
-
+yum -y update
 yum -y install targetcli
 yum -y install lvm2
 systemctl start target
