@@ -128,7 +128,7 @@ ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
 
 openshift_master_default_subdomain=${ROUTEREXTIP}.xip.io
-openshift_use_dnsmasq=True
+openshift_use_dnsmasq=false
 openshift_public_hostname=${RESOURCEGROUP}.trafficmanager.net
 
 openshift_master_cluster_method=native
