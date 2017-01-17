@@ -1,0 +1,28 @@
+---
+- block:
+    - name: Is the host already registered?
+      command: "subscription-manager list"
+      register: subscribed
+      ignore_errors: yes
+
+    - name: Unregister host
+      redhat_subscription:
+        state: absent
+      when: "'Subscribed' in subscribed.stdout"
+      ignore_errors: yes
+
+    - name: Check for sat config file
+      stat: path=/etc/rhsm/rhsm.conf.kat-backup
+      register: sat_cfg
+
+    - name: Remove satellite configuration if using RH CDN
+      command: "mv -f /etc/rhsm/rhsm.conf.kat-backup /etc/rhsm/rhsm.conf"
+      when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
+      ignore_errors: yes
+
+    - name: Remove satellite SSL if using RH CDN
+      command: "rpm -e $(rpm -qa katello-ca-consumer*)"
+      when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
+      ignore_errors: yes
+
+  when: ansible_distribution == "RedHat"

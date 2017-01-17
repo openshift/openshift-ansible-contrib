@@ -6,7 +6,6 @@
   roles:
       # Group systems
       - instance-groups
-      - openshift-vm-facts
 
 - include: ../../../playbooks/prerequisite.yaml
 
@@ -63,5 +62,5 @@
         - uid
       insecure: true
       url: 
-      bindDN: 
+      bindDN:
       bindPassword: 

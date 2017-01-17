@@ -1,4 +1,0 @@
----
-dumpall_flat_mode: no
-dumpall_guest_destination: /tmp/ansible.all
-dumpall_host_destination: /opt/ansible/debug

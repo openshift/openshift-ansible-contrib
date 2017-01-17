@@ -1,19 +1,33 @@
 ---
 - name: Create NFS VM on vCenter
-  vsphere_guest:
-    vcenter_hostname: "{{ vcenter_host }}"
+  vmware_guest:
+    hostname: "{{ vcenter_host }}"
     username: "{{ vcenter_username }}"
     password: "{{ vcenter_password }}"
-    guest: "{{ item.value.guestname }}"
+    name: "{{ item.value.guestname }}"
     cluster: "{{ vcenter_cluster}}"
+    datacenter: "{{ vcenter_datacenter }}"
     resource_pool: "{{ vcenter_resource_pool }}"
-    validate_certs: False
-    from_template: yes
-    template_src: "{{vcenter_template_name}}"
-    vm_extra_config:
-      notes: "{{ item.value.tag }}"
-      folder: "{{ vcenter_folder }}"
-  with_dict: "{{infrastructure_hosts}}"
+    template: "{{vcenter_template_name}}"
+    folder: "/{{ vcenter_folder }}"
+    annotation: "{{ item.value.tag }}"
+    networks:
+    - name: 'VM Network'
+      ip: "{{ item.value.ip4addr }}"
+      netmask: "{{ vm_netmask }}"
+      gateway: "{{ vm_gw }}"
+    customization:
+      domain: "{{public_hosted_zone}}"
+      dns_servers:
+        - "{{ vm_dns }}"
+      dns_suffix: "{{public_hosted_zone}}"
+      hostname: "{{ item.value.guestname}}"
+  with_dict: "{{ host_inventory }}"
+  when: "'nfs' in item.value.guestname"
+
+- name: Add NFS server to inventory
+  add_host: hostname="{{ item.value.guestname}}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="nfs_group"
+  with_dict: "{{ host_inventory }}"
   when: "'nfs' in item.value.guestname"
 
 - name: Get facts of NFS VM
@@ -22,11 +36,10 @@
     username: "{{ vcenter_username }}"
     password: "{{ vcenter_password }}"
     vmware_guest_facts: yes
-    guest: "{{ infrastructure_hosts.nfs_server.guestname }}"
+    guest: "{{ item.value.guestname }}"
+  with_dict: "{{host_inventory}}"
+  when: "'nfs' in item.value.guestname"
   register: actual_nfs_host
   until: actual_nfs_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
   retries: 10
-  delay: 10
-
-- name: Add NFS server to inventory
-  add_host: hostname={{actual_nfs_host.ansible_facts.hw_name}} ansible_ssh_host={{actual_nfs_host.ansible_facts.hw_eth0.ipaddresses[0]}} groups="nfs_group"
+  delay: 10 
