@@ -65,4 +65,3 @@
 
 - name: Re-enable config trigger on docker-registry
   command: oc patch dc/docker-registry -p '{"spec":{"triggers":[{"type":"ConfigChange"}]}}'
-  when: deploy_latest | success
