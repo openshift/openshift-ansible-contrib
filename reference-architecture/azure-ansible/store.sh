@@ -160,6 +160,8 @@ firewall-cmd --permanent --add-port=3260/tcp
 firewall-cmd --reload
 chmod +x /root/ose_pvcreate_lun
 cd ~
+
+cat <<EOF > create_volumes.sh
 while true
 do
   STATUS=$(curl -k -s -o /dev/null -w '%{http_code}' https://master1:8443/api)
@@ -184,3 +186,7 @@ rm -f /tmp/kube-config
 ./ose_pvcreate_lun vg1 50 4
 ./ose_pvcreate_lun vg1 1 400
 systemctl restart target.service
+EOF
+chmod +x create_volumes.sh
+./create_volumes.sh &> create_volumes.out
+exit 0
