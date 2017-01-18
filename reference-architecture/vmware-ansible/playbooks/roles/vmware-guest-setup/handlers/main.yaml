@@ -1,0 +1,6 @@
+---
+- name: restart chronyd
+  service: name=chronyd state=restarted
+
+- name: restart networking
+  service: name=networking state=restarted

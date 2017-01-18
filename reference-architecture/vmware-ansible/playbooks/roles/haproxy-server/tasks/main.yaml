@@ -1,0 +1,34 @@
+---
+- name: Adding updated VM to inventory with hostname
+  add_host: hostname="{{host_inventory[inventory_hostname].guestname}}" ansible_ssh_host="{{host_inventory[inventory_hostname].guestname}}.{{public_hosted_zone}}"
+  when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
+
+- name: Restart networking to clear temp DHCP address
+  service: name=network state=restarted
+  ignore_errors: true
+  when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
+
+- name: Ensure HAProxy is installed.
+  yum: name=haproxy state=installed
+
+- name: Get HAProxy version.
+  command: haproxy -v
+  register: haproxy_version_result
+  changed_when: false
+  always_run: yes
+
+- name: open firewall for Openshift services
+  command: iptables -I INPUT -p tcp --dport {{item}} -j ACCEPT
+  with_items:
+    - "{{ console_port }}"
+    - 443
+    - 80
+
+- name: Save the iptables rules
+  command: iptables-save
+
+- name: Ensure Firewalld is disabled
+  service: name=firewalld state=stopped enabled=no
+
+- name: Ensure HAProxy is started and enabled on boot.
+  service: name=haproxy state=started enabled=yes

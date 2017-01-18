@@ -1,0 +1,74 @@
+---
+  - name: Adding updated VM to inventory with hostname
+    add_host: hostname="{{host_inventory[inventory_hostname].guestname}}" ansible_ssh_host="{{host_inventory[inventory_hostname].guestname}}.{{public_hosted_zone}}"
+    when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
+
+  - name: Restart networking to clear temp DHCP address
+    service: name=network state=restarted
+    ignore_errors: true
+    when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
+  
+  - name: Install NFS server
+    package: name=nfs-utils use=yum state=present
+
+  - name: configure NFS services
+    file: src=etc-sysconfig-nfs dest=/etc/sysconfig/nfs owner=root group=root mode=0644
+
+  # figure if we need to reconfigure firewall if we run in a vApp
+  # https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/7/html/Storage_Administration_Guide/nfs-serverconfig.html#s2-nfs-nfs-firewall-config
+
+  - name: Start rpcbind
+    service: name=rpcbind state=started enabled=yes
+
+  - name: Start nfs
+    service: name=nfs-server state=started enabled=yes
+
+  - name: Stop firewalld
+    service: name=firewalld state=stopped enabled=no
+
+  - name: Stop iptables 
+    command: "iptables -F"
+    ignore_errors: true
+  
+  - name: Stop iptables 
+    command: "iptables-save"
+    ignore_errors: true
+
+  - name: Create openshift volume group
+    lvg: vg=openshift pvs=/dev/sdb
+
+  - name: Create lvm volumes
+    lvol: vg=openshift lv=nfs size=95%FREE force=yes
+
+  - name: Create local partition on lvm lv
+    filesystem:
+      fstype: xfs
+      dev: /dev/openshift/nfs
+
+  - name: Mount the partition
+    mount:
+      name: /registry
+      src: /dev/openshift/nfs
+      fstype: xfs
+      state: mounted
+
+  - name: Make mounts owned by nfsnobody
+    file: path=/registry owner=nfsnobody group=nfsnobody mode=0777
+
+  - name: Export the directories
+    lineinfile:
+      dest: "/etc/exports"
+      line: "/registry *(rw,sync,all_squash)"
+    notify: restart nfs
+
+  - name: Creates pv1 directory
+    file: path="/pv1" state=directory owner=nfsnobody group=nfsnobody mode=0777
+
+  - name: Export the directories
+    lineinfile:
+      dest: "/etc/exports"
+      line: "/pv1 *(rw,sync,all_squash)"
+    notify: restart nfs
+
+  - name: Reload NFS exports
+    command: exportfs -ra
