@@ -9,7 +9,7 @@
       - instance-groups
 
 - name: call openshift includes for installer
-  include: ../openshift-ansible/playbooks/byo/adhoc/uninstall.yml
+  include: /usr/share/ansible/openshift-ansible/playbooks/byo/adhoc/uninstall.yml
   vars:
     debug_level: 2
     console_port: 8443

@@ -30,7 +30,7 @@ def launch_refarch_env(console_port=8443,
                     vm_dns=None,
                     vm_gw=None,
                     vm_netmask=None,
-                    vm_interface_name=None,
+                    vm_network=None,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_activation_key=None,
@@ -77,7 +77,7 @@ def launch_refarch_env(console_port=8443,
     'vm_dns':'',
     'vm_gw':'',
     'vm_netmask':'',
-    'vm_interface_name':'eno16780032',
+    'vm_network':'VM Network',
     'rhsm_user':'',
     'rhsm_password':'',
     'rhsm_activation_key':'',
@@ -127,7 +127,7 @@ def launch_refarch_env(console_port=8443,
   vm_dns = config.get('vmware', 'vm_dns')
   vm_gw = config.get('vmware', 'vm_gw')
   vm_netmask = config.get('vmware', 'vm_netmask')
-  vm_interface_name = config.get('vmware', 'vm_interface_name')
+  vm_network = config.get('vmware', 'vm_network')
   rhsm_user = config.get('vmware', 'rhsm_user')
   rhsm_password = config.get('vmware', 'rhsm_password')
   rhsm_activation_key = config.get('vmware', 'rhsm_activation_key')
@@ -390,7 +390,7 @@ def launch_refarch_env(console_port=8443,
   click.echo('\tvm_dns: %s' % vm_dns)
   click.echo('\tvm_gw: %s' % vm_gw)
   click.echo('\tvm_netmask: %s' % vm_netmask)
-  click.echo('\tvm_interface_name: %s' % vm_interface_name)
+  click.echo('\tvm_network: %s' % vm_network)
 
   if rhsm_user != '' and tag:
       click.echo('\trhsm_user: %s' % rhsm_user)
@@ -429,7 +429,7 @@ def launch_refarch_env(console_port=8443,
     else:
                 print line,
 
-  playbooks = ['infrastructure.yaml']
+  playbooks = ['playbooks/infrastructure.yaml']
   tags.append('ocp-install')
   tags.append('ocp-configure')
 
@@ -471,7 +471,7 @@ def launch_refarch_env(console_port=8443,
     vm_dns=%s \
     vm_gw=%s \
     vm_netmask=%s \
-    vm_interface_name=%s \
+    vm_network=%s \
     wildcard_zone=%s \
     console_port=%s \
     deployment_type=%s \
@@ -496,7 +496,7 @@ def launch_refarch_env(console_port=8443,
                     vm_dns,
                     vm_gw,
                     vm_netmask,
-                    vm_interface_name,
+                    vm_network,
                     wildcard_zone,
                     console_port,
                     deployment_type,

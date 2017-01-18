@@ -88,7 +88,6 @@ Configured values:
     vm_dns: 10.x.x.5
     vm_gw: 10.x.x.254
     vm_netmask: 255.255.255.0
-    vm_interface_name: eth0
     byo_lb: no
     lb_host: haproxy-0.vcenter.example.com
     byo_nfs: no
@@ -155,7 +154,6 @@ Configured values:
     vm_dns: 10.19.114.5
     vm_gw: 10.19.115.254
     vm_netmask: 255.255.254.0
-    vm_interface_name: eno16780032
     byo_lb: yes
     lb_host: my-load-balancer.lb.example.com
     byo_nfs: yes

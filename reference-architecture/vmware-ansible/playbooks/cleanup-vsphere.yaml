@@ -3,7 +3,7 @@
   user: root
   become: false
   vars_files:
-    - ../vars/main.yaml
+    - vars/main.yaml
   roles: 
     - instance-groups
 
@@ -11,7 +11,7 @@
   user: root
   become: false
   vars_files:
-    - ../vars/main.yaml
+    - vars/main.yaml
   roles: 
     - rhsm-unregister
 
@@ -19,7 +19,7 @@
   user: root
   become: false
   vars_files:
-    - ../vars/main.yaml
+    - vars/main.yaml
   roles: 
     - rhsm-unregister
 
@@ -27,7 +27,7 @@
   user: root
   become: false
   vars_files:
-    - ../vars/main.yaml
+    - vars/main.yaml
   tasks:
     - name: Delete production VMs
       vsphere_guest:
