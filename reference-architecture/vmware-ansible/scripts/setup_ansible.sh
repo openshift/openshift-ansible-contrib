@@ -2,7 +2,7 @@
 #
 
 subscription-manager repos --enable rhel-7-server-rpms
-subscription-manager repos --enable rhel-7-server-ose-3.4-rpms
+subscription-manager repos --enable rhel-7-server-ose-3.3-rpms
 subscription-manager repos --enable rhel-7-server-optional-rpms
 subscription-manager repos --enable rhel-7-server-extras-rpms
 subscription-manager repos --enable rhel-7-server-satellite-tools-6.2-rpms
