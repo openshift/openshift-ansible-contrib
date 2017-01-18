@@ -30,9 +30,6 @@ yum -y install atomic-openshift-utils \
 
 git clone https://github.com/vmware/pyvmomi && cd pyvmomi/ && python setup.py install
 
-# Grabbed the patched vsphere_guest until the PR is merged
-cp vmware_guest.py /usr/lib/python2.7/site-packages/ansible/modules/core/cloud/vmware/
-
 ```
 
 ## Usage
