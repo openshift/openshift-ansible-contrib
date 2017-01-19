@@ -189,5 +189,5 @@ rm -f /tmp/kube-config
 systemctl restart target.service
 EOF
 chmod +x create_volumes.sh
-./create_volumes.sh ${USERNAME} &> create_volumes.out &
+nohup ./create_volumes.sh ${USERNAME} &> create_volumes.out  &
 exit 0
