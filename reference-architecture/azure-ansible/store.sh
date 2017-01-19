@@ -161,7 +161,8 @@ firewall-cmd --reload
 chmod +x /root/ose_pvcreate_lun
 cd ~
 
-cat <<EOF > create_volumes.sh
+cat << 'EOF' > create_volumes.sh
+USERNAME=${1}
 while true
 do
   STATUS=$(curl -k -s -o /dev/null -w '%{http_code}' https://master1:8443/api)
@@ -188,5 +189,5 @@ rm -f /tmp/kube-config
 systemctl restart target.service
 EOF
 chmod +x create_volumes.sh
-./create_volumes.sh &> create_volumes.out
+./create_volumes.sh ${USERNAME} &> create_volumes.out &
 exit 0
