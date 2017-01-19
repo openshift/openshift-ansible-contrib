@@ -1,17 +1,16 @@
 ---
 - hosts: localhost
   vars_files:
-    - ../vars/main.yaml
+    - vars/main.yaml
   roles:
     - create-vm-prod-ose
 
 - name: fulfill OSE3 prerequisites on production hosts roles
   hosts: production_group
   vars_files:
-    - ../vars/main.yaml
+    - vars/main.yaml
 
   roles:
-    - static-ipaddress
     - rhsm-subscription
     - rhsm-repos
     - vmware-guest-setup

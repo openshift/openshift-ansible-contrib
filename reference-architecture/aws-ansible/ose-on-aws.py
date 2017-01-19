@@ -213,8 +213,8 @@ def launch_refarch_env(region=None,
   click.echo('\tcontainerized: %s' % containerized)
   click.echo('\ts3_bucket_name: %s' % s3_bucket_name)
   click.echo('\ts3_username: %s' % s3_username)
-  click.echo('\tgithub_client_id: %s' % github_client_id)
-  click.echo('\tgithub_client_secret: %s' % github_client_secret)
+  click.echo('\tgithub_client_id: *******')
+  click.echo('\tgithub_client_secret: *******')
   click.echo('\tgithub_organization: %s' % (','.join(github_organization)))
   click.echo("")
 
@@ -245,6 +245,7 @@ def launch_refarch_env(region=None,
     ami=%s \
     keypair=%s \
     create_key=%s \
+    add_node=no \
     key_path=%s \
     create_vpc=%s \
     vpc_id=%s \

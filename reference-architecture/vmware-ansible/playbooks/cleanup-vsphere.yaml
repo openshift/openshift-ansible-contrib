@@ -3,7 +3,31 @@
   user: root
   become: false
   vars_files:
-    - ../vars/main.yaml
+    - vars/main.yaml
+  roles: 
+    - instance-groups
+
+- hosts: cluster_hosts
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+  roles: 
+    - rhsm-unregister
+
+- hosts: loadbalancer, infra-nfs
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+  roles: 
+    - rhsm-unregister
+
+- hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
   tasks:
     - name: Delete production VMs
       vsphere_guest:

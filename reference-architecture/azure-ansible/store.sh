@@ -32,7 +32,7 @@ chmod 600 /root/.ssh/id_rsa.pub
 chown root /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
 
-yum -y update
+yum -y update --exclude=WALinuxAgent*
 yum -y install targetcli
 yum -y install lvm2
 systemctl start target
@@ -160,6 +160,9 @@ firewall-cmd --permanent --add-port=3260/tcp
 firewall-cmd --reload
 chmod +x /root/ose_pvcreate_lun
 cd ~
+
+cat << 'EOF' > create_volumes.sh
+USERNAME=${1}
 while true
 do
   STATUS=$(curl -k -s -o /dev/null -w '%{http_code}' https://master1:8443/api)
@@ -184,3 +187,7 @@ rm -f /tmp/kube-config
 ./ose_pvcreate_lun vg1 50 4
 ./ose_pvcreate_lun vg1 1 400
 systemctl restart target.service
+EOF
+chmod +x create_volumes.sh
+nohup ./create_volumes.sh ${USERNAME} &> create_volumes.out  &
+exit 0

@@ -13,6 +13,7 @@ from six.moves import configparser
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
 @click.option('--create_ocp_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
 @click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-inbstall, ocp-configure, ocp-demo or clean')
+@click.option('--clean', is_flag=True, help='Delete all nodes and unregister from RHN')
 
 def launch_refarch_env(console_port=8443,
                     deployment_type=None,
@@ -22,12 +23,14 @@ def launch_refarch_env(console_port=8443,
                     vcenter_template_name=None,
                     vcenter_folder=None,
                     vcenter_cluster=None,
+                    vcenter_datacenter=None,
                     vcenter_resource_pool=None,
                     public_hosted_zone=None,
                     app_dns_prefix=None,
                     vm_dns=None,
                     vm_gw=None,
-                    vm_interface_name=None,
+                    vm_netmask=None,
+                    vm_network=None,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_activation_key=None,
@@ -50,7 +53,8 @@ def launch_refarch_env(console_port=8443,
                     create_ocp_vars=None,
                     ldap_user=None,
                     ldap_user_password=None,
-                    ldap_fqdn=None):
+                    ldap_fqdn=None,
+                    clean=None):
 
   # Open config file INI for values first
   scriptbasename = __file__
@@ -66,12 +70,14 @@ def launch_refarch_env(console_port=8443,
     'vcenter_template_name':'ocp-server-template-2.0.2',
     'vcenter_folder':'ocp',
     'vcenter_cluster':'devel',
+    'vcenter_cluster':'',
     'vcenter_resource_pool':'/Resources/OCP3',
     'public_hosted_zone':'',
     'app_dns_prefix':'apps',
     'vm_dns':'',
     'vm_gw':'',
-    'vm_interface_name':'eno16780032',
+    'vm_netmask':'',
+    'vm_network':'VM Network',
     'rhsm_user':'',
     'rhsm_password':'',
     'rhsm_activation_key':'',
@@ -114,12 +120,14 @@ def launch_refarch_env(console_port=8443,
   vcenter_template_name = config.get('vmware', 'vcenter_template_name')
   vcenter_folder = config.get('vmware', 'vcenter_folder')
   vcenter_cluster = config.get('vmware', 'vcenter_cluster')
+  vcenter_datacenter = config.get('vmware', 'vcenter_datacenter')
   vcenter_resource_pool = config.get('vmware', 'vcenter_resource_pool')
   public_hosted_zone= config.get('vmware', 'public_hosted_zone')
   app_dns_prefix = config.get('vmware', 'app_dns_prefix')
   vm_dns = config.get('vmware', 'vm_dns')
   vm_gw = config.get('vmware', 'vm_gw')
-  vm_interface_name = config.get('vmware', 'vm_interface_name')
+  vm_netmask = config.get('vmware', 'vm_netmask')
+  vm_network = config.get('vmware', 'vm_network')
   rhsm_user = config.get('vmware', 'rhsm_user')
   rhsm_password = config.get('vmware', 'rhsm_password')
   rhsm_activation_key = config.get('vmware', 'rhsm_activation_key')
@@ -140,7 +148,7 @@ def launch_refarch_env(console_port=8443,
   ldap_fqdn = config.get('vmware', 'ldap_fqdn')
 
   err_count = 0
-  required_vars = {'public_hosted_zone':public_hosted_zone, 'vcenter_host':vcenter_host, 'vcenter_password':vcenter_password, 'vm_ipaddr_start':vm_ipaddr_start, 'ldap_fqdn':ldap_fqdn, 'ldap_user_password':ldap_user_password, 'vm_dns':vm_dns, 'vm_gw':vm_gw}
+  required_vars = {'public_hosted_zone':public_hosted_zone, 'vcenter_host':vcenter_host, 'vcenter_password':vcenter_password, 'vm_ipaddr_start':vm_ipaddr_start, 'ldap_fqdn':ldap_fqdn, 'ldap_user_password':ldap_user_password, 'vm_dns':vm_dns, 'vm_gw':vm_gw, 'vm_netmask':vm_netmask, 'vcenter_datacenter':vcenter_datacenter}
   for k, v in required_vars.items():
     if v == '':
         err_count += 1
@@ -375,12 +383,14 @@ def launch_refarch_env(console_port=8443,
   click.echo('\tvcenter_template_name: %s' % vcenter_template_name)
   click.echo('\tvcenter_folder: %s' % vcenter_folder)
   click.echo('\tvcenter_cluster: %s' % vcenter_cluster)
+  click.echo('\tvcenter_datacenter: %s' % vcenter_datacenter)
   click.echo('\tvcenter_resource_pool: %s' % vcenter_resource_pool)
   click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
   click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
   click.echo('\tvm_dns: %s' % vm_dns)
   click.echo('\tvm_gw: %s' % vm_gw)
-  click.echo('\tvm_interface_name: %s' % vm_interface_name)
+  click.echo('\tvm_netmask: %s' % vm_netmask)
+  click.echo('\tvm_network: %s' % vm_network)
 
   if rhsm_user != '' and tag:
       click.echo('\trhsm_user: %s' % rhsm_user)
@@ -419,7 +429,7 @@ def launch_refarch_env(console_port=8443,
     else:
                 print line,
 
-  playbooks = ['infrastructure.yaml']
+  playbooks = ['playbooks/infrastructure.yaml']
   tags.append('ocp-install')
   tags.append('ocp-configure')
 
@@ -438,6 +448,8 @@ def launch_refarch_env(console_port=8443,
     command='rm -rf .ansible/cached_facts'
     os.system(command)
     tags = ",".join(tags)
+    if clean is True:
+        tags = 'clean'
     if tag:
         tags = tag
 
@@ -452,12 +464,14 @@ def launch_refarch_env(console_port=8443,
     vcenter_template_name=%s \
     vcenter_folder=%s \
     vcenter_cluster=%s \
+    vcenter_datacenter=%s \
     vcenter_resource_pool=%s \
     public_hosted_zone=%s \
     app_dns_prefix=%s \
     vm_dns=%s \
     vm_gw=%s \
-    vm_interface_name=%s \
+    vm_netmask=%s \
+    vm_network=%s \
     wildcard_zone=%s \
     console_port=%s \
     deployment_type=%s \
@@ -475,12 +489,14 @@ def launch_refarch_env(console_port=8443,
                     vcenter_template_name,
                     vcenter_folder,
                     vcenter_cluster,
+                    vcenter_datacenter,
                     vcenter_resource_pool,
                     public_hosted_zone,
                     app_dns_prefix,
                     vm_dns,
                     vm_gw,
-                    vm_interface_name,
+                    vm_netmask,
+                    vm_network,
                     wildcard_zone,
                     console_port,
                     deployment_type,

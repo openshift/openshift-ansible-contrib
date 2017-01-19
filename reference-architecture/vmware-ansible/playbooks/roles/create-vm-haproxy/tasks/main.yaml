@@ -1,0 +1,45 @@
+---
+- name: Create haproxy VM on vCenter
+  vmware_guest:
+    hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    name: "{{ item.value.guestname }}"
+    cluster: "{{ vcenter_cluster}}"
+    datacenter: "{{ vcenter_datacenter }}"
+    resource_pool: "{{ vcenter_resource_pool }}"
+    template: "{{vcenter_template_name}}"
+    folder: "/{{ vcenter_folder }}"
+    annotation: "{{ item.value.tag }}"
+    networks:
+    - name: "{{ vm_network }}" 
+      ip: "{{ item.value.ip4addr }}"
+      netmask: "{{ vm_netmask }}"
+      gateway: "{{ vm_gw }}"
+    customization:
+      domain: "{{public_hosted_zone}}"
+      dns_servers:
+        - "{{ vm_dns }}"
+      dns_suffix: "{{public_hosted_zone}}"
+      hostname: "{{ item.value.guestname}}"
+  with_dict: "{{host_inventory}}"
+  when: "'haproxy' in item.value.guestname"
+
+- name: Add haproxy server to inventory
+  add_host: hostname="{{ item.value.guestname}}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="haproxy_group"
+  with_dict: "{{ host_inventory }}"
+  when: "'haproxy' in item.value.guestname"
+
+- name: Get facts of haproxy VM
+  vsphere_guest:
+    vcenter_hostname: "{{ vcenter_host }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    vmware_guest_facts: yes
+    guest: "{{ item.value.guestname }}" 
+  with_dict: "{{host_inventory}}"
+  when: "'haproxy' in item.value.guestname"
+  register: actual_haproxy_host
+  until: actual_haproxy_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
+  retries: 10
+  delay: 10

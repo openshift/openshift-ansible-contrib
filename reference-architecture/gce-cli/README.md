@@ -18,7 +18,7 @@ gcloud components install beta
 gcloud init
 ```
 
-Note: you need to have GNU tar, BSD version won't work.
+Note: You need to have GNU tar because the BSD version will not work. Also, it may be necessary to update qemu-img if the package is already installed. If the package is not updated errors may occur when uploading the RHEL image to GCE.
 
 ### Clone this repository
 

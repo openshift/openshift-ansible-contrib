@@ -85,7 +85,7 @@ subscription-manager register --username $RHNUSERNAME --password ${RHNPASSWORD}
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms"
-subscription-manager repos     --enable="rhel-7-server-ose-3.3-rpms"
+subscription-manager repos     --enable="rhel-7-server-ose-3.4-rpms"
 yum -y install atomic-openshift-utils
 yum -y install git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools
 touch /root/.updateok
@@ -110,7 +110,7 @@ openshift_master_api_port="{{ console_port }}"
 openshift_master_console_port="{{ console_port }}"
 openshift_override_hostname_check=true
 osm_use_cockpit=false
-openshift_release=v3.3
+openshift_release=v3.4
 azure_resource_group=${RESOURCEGROUP}
 rhn_pool_id=${RHNPOOLID}
 openshift_install_examples=true
@@ -209,7 +209,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
   - name: enable extras repos
     shell: subscription-manager repos --enable="rhel-7-server-extras-rpms"
   - name: enable OCP repos
-    shell: subscription-manager repos --enable="rhel-7-server-ose-3.3-rpms"
+    shell: subscription-manager repos --enable="rhel-7-server-ose-3.4-rpms"
   - name: install the latest version of PyYAML
     yum: name=PyYAML state=latest
   - name: Install the OCP client

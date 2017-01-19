@@ -51,7 +51,7 @@ if deployment_type == 'openshift-enterprise'
 elsif origin_os == 'centos'
   box_name = 'centos/7'
 else
-  box_name = 'fedora/24-cloud-base'
+  box_name = 'fedora/25-cloud-base'
 end
 
 NETWORK_BASE = '192.168.50'

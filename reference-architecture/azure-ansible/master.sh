@@ -41,7 +41,7 @@ subscription-manager register --username $RHNUSERNAME --password ${RHNPASSWORD}
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms"
-subscription-manager repos     --enable="rhel-7-server-ose-3.3-rpms"
+subscription-manager repos     --enable="rhel-7-server-ose-3.4-rpms"
 yum -y install atomic-openshift-utils
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools
 yum -y install docker

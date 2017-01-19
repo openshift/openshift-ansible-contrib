@@ -63,21 +63,5 @@
   retries: 30
   delay: 30
 
-- name: Deploy latest configuration of registry DC
-  command: oc deploy docker-registry --latest
-  register: deploy_latest
-
 - name: Re-enable config trigger on docker-registry
   command: oc patch dc/docker-registry -p '{"spec":{"triggers":[{"type":"ConfigChange"}]}}'
-  when: deploy_latest | success
-
-- name: Determine registry deployment version
-  shell: "oc get --no-headers dc/docker-registry | awk '{print $2}'"
-  register: registry_version2_out
-
-- name: Wait for new registry to be running
-  shell: oc get pod | grep -v deploy | awk '/docker-registry-{{ registry_version2_out.stdout }}/{ print $3 }' | head -1
-  register: deployer_output
-  until: deployer_output.stdout | search("Running")
-  retries: 30
-  delay: 30

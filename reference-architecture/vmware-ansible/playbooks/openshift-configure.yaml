@@ -2,7 +2,7 @@
 - hosts: localhost
   gather_facts: yes
   vars_files:
-      - ../vars/main.yaml
+      - vars/main.yaml
   roles:
       # Group systems
       - instance-groups
@@ -13,7 +13,7 @@
   gather_facts: yes
   become: yes
   vars_files:
-      - ../vars/main.yaml
+      - vars/main.yaml
 
   roles:
       - openshift-registry
