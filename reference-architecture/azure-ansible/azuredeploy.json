@@ -583,6 +583,9 @@
           },
           "sshPrivateData" : {
             "value" : "[parameters('sshPrivateData')]"
+          },
+          "wildcardZone" : {
+            "value" : "[parameters('WildcardZone')]"
           }
         }
       }
@@ -922,7 +925,7 @@
         "profileStatus" : "Enabled",
         "trafficRoutingMethod" : "Weighted",
         "dnsConfig" : {
-          "relativeName" : "[parameters('WildcardZone')]",
+          "relativeName" : "[concat('**.',parameters('WildcardZone'))]",
           "ttl" : 30
         },
         "monitorConfig" : {

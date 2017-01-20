@@ -58,6 +58,9 @@
       "metadata" : {
         "description" : "SSH RSA private key file as a string."
       }
+    },
+    "wildcardZone" : {
+      "type" : "string"
     }
   },
   "variables" : {
@@ -179,7 +182,7 @@
           "fileUris" : [
             "[concat(parameters('baseTemplateUrl'), 'bastion.sh')]"
           ],
-          "commandToExecute" : "[ concat('sh bastion.sh ', resourceGroup().name, ' ', parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote')  ) ]"
+          "commandToExecute" : "[ concat('sh bastion.sh ', resourceGroup().name, ' ', parameter('wildcardZone'), ' ',  parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote')  ) ]"
         }
       }
     },

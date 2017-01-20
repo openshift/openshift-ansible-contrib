@@ -1,18 +1,19 @@
 #!/bin/bash
 
 export RESOURCEGROUP=$1
-export AUSERNAME=$2
-export PASSWORD=$3
-export HOSTNAME=$4
-export NODECOUNT=$5
-export ROUTEREXTIP=$6
-export RHNUSERNAME=$7
-export RHNPASSWORD=$8
-export RHNPOOLID=$9
-export SSHPRIVATEDATA=${10}
-export SSHPUBLICDATA=${11}
-export SSHPUBLICDATA2=${12}
-export SSHPUBLICDATA3=${13}
+export WILDCARDZONE=$2
+export AUSERNAME=$3
+export PASSWORD=$4
+export HOSTNAME=$5
+export NODECOUNT=$6
+export ROUTEREXTIP=$7
+export RHNUSERNAME=$8
+export RHNPASSWORD=$9
+export RHNPOOLID=${10}
+export SSHPRIVATEDATA=${11}
+export SSHPUBLICDATA=${12}
+export SSHPUBLICDATA2=${13}
+export SSHPUBLICDATA3=${14}
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 
@@ -127,7 +128,7 @@ ansible_become=yes
 ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
 
-openshift_master_default_subdomain=${ROUTEREXTIP}.xip.io
+openshift_master_default_subdomain=${WILDCARDZONE}.trafficmanager.net
 openshift_use_dnsmasq=false
 openshift_public_hostname=${RESOURCEGROUP}.trafficmanager.net
 
