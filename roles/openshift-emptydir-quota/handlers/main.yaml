@@ -1,5 +1,5 @@
 ---
     - name: restart atomic-openshift-node
       service:
-        name: atomic-openshift-node
+        name: "{{ openshift.common.service_type }}-node"
         state: restarted
