@@ -6,6 +6,7 @@ RHEL_IMAGE_PATH="${HOME}/Downloads/rhel-guest-image-7.3-35.x86_64.qcow2"
 DELETE_IMAGE=true
 
 # Username and password for Red Hat Customer Portal
+# These must exist but dummy values are okay for origin deployments
 RH_USERNAME='user@example.com'
 RH_PASSWORD='xxx'
 # Pool ID which shall be used to register the pre-registered image
@@ -35,7 +36,9 @@ OS_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "l
 
 ## DEFAULT VALUES ##
 
+OS_DEPLOYMENT_TYPE='openshift-enterprise'
 OS_VERSION='3.4'
+OS_CONTAINERIZED='false'
 
 CONSOLE_PORT='443'
 
@@ -106,3 +109,9 @@ declare -A FW_RULES=(
     ['infra-node-external']='--allow tcp:80,tcp:443 --target-tags os-infra-node'
 )
 BASTION_SSH_FW_RULE='bastion-ssh-to-external-ip'
+
+#Override Bastion Deployment Behavior
+#GCLOUD_INSTALL_COMMAND=
+#OS_ANSIBLE_CHECKOUT_COMMAND=
+#OS_ANSIBLE_CONTRIB_CHECKOUT_COMMAND=
+#OS_DEPLOY_COMMAND=
