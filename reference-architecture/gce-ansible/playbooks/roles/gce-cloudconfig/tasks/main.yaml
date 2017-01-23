@@ -7,6 +7,6 @@
   with_items:
     - { key: 'project-id', value: '{{ gce_project_id }}' }
     - { key: 'network-name', value: '{{ gce_network_name }}' }
-    - { key: 'node-tags', value: 'ocp' }
-    - { key: 'node-instance-prefix', value: 'ocp-' }
+    - { key: 'node-tags', value: 'os' }
+    - { key: 'node-instance-prefix', value: 'os-' }
     - { key: 'multizone', value: 'false' }

@@ -19,11 +19,11 @@ The code in this directory handles the installation of OpenShift. It utilizes th
 Once the infrastructure is prepared with the `gcloud.sh` utility, copy all playbooks from this directory to the `bastion` host and execute the `openshift-install.yaml` playbook from the `gce-ansible` directory:
 
 ```
-ansible-playbook -e 'public_hosted_zone=ocp.example.com \
-    wildcard_zone=apps.ocp.example.com \
+ansible-playbook -e 'public_hosted_zone=os.example.com \
+    wildcard_zone=apps.os.example.com \
     openshift_deployment_type=openshift-enterprise \
     gcs_registry_bucket=example-openshift-docker-registry \
     gce_project_id=example \
-    gce_network_name=ocp-network' \
+    gce_network_name=os-network' \
     playbooks/openshift-install.yaml
 ```

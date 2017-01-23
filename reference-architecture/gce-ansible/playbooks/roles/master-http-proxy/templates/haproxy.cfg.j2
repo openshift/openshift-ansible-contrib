@@ -62,7 +62,7 @@ defaults
 #---------------------------------------------------------------------
 frontend  http-proxy *:8080
     acl          url_healthz  path_beg  -i /healthz
-    use_backend  ocp          if url_healthz
+    use_backend  console          if url_healthz
 
-backend ocp
-    server       ocp localhost:{{ console_port }} ssl verify none
+backend console
+    server       console localhost:{{ console_port }} ssl verify none
