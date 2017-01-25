@@ -27,7 +27,7 @@
       tags:
         environment: "{{ env_id }}"
         clusterid: "{{ cluster_id }}"
-      template: files/cloudformation.json
+      template: "{{ cloudformation_template | default('files/cloudformation.json') }}"
       template_parameters:
         Route53HostedZone: "{{ r53_zone }}."
         MasterApiPort: "{{ api_port }}"
@@ -35,18 +35,18 @@
         MasterClusterHostname: openshift.internal.{{ r53_subdomain }}
         MasterClusterPublicHostname: openshift.{{ r53_subdomain }}
         AppWildcardDomain: "*.apps.{{ r53_subdomain }}"
-        SshSgId: "sg-5875023f"
-        EtcdSgId: "sg-5875023f"
-        MasterExtElbSgId: "sg-5875023f"
-        MasterIntElbSgId: "sg-5875023f"
-        InfraElbSgId: "sg-5875023f"
-        InfraSgId: "sg-5875023f"
-        NodeSgId: "sg-5875023f"
-        MasterSgId: "sg-5875023f"
-        Subnets: "subnet-cf57c596"
-        SubnetAvailabilityZones: "us-east-1d"
+        SshSgId: "{{ sg_ssh | default('sg-5875023f') }}"
+        EtcdSgId: "{{ sg_etcd | default('sg-5875023f') }}"
+        MasterExtElbSgId: "{{ sg_masterextelb | default('sg-5875023f') }}"
+        MasterIntElbSgId: "{{ sg_masterintelb | default('sg-5875023f') }}"
+        InfraElbSgId: "{{ sg_infraelb | default('sg-5875023f') }}"
+        InfraSgId: "{{ sg_infra | default('sg-5875023f') }}"
+        NodeSgId: "{{ sg_node | default('sg-5875023f') }}"
+        MasterSgId: "{{ sg_master | default('sg-5875023f') }}"
+        Subnets: "{{ subnets | default('subnet-cf57c596') }}"
+        SubnetAvailabilityZones: "{{ subnetavailabilityzones | default('us-east-1d') }}"
         #SubnetAvailabilityZones: "{{ vpc_subnet_azs }}"
-        KeyName: libra
+        KeyName: "{{ keyname | default('libra') }}"
         NumMasters: "{{ masters.count }}"
         MasterInstanceType: "{{ masters.instance_type }}"
         MasterImageId: "{{ ec2_image }}"
