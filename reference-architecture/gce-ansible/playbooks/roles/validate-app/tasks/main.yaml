@@ -3,6 +3,16 @@
   openshift_facts:
     role: common
 
+#TODO: If any of the rest of these steps fail subsequent runs will fail because
+#validate project will already exist
+#
+#Not sure of the best safe way to handle this because if we allow errors
+#On project validation the delete will delete a project ansible potentially
+#Didn't create.  It seems like the best option is to randomize the name
+#Perhaps we will end up with an unused project but we can alert if we don't
+#get to the Delete task but we could add a task that shows the projects
+#that are likely orphaned validation projects and the necessary steps
+#to remove them
 - name: Create the validation project
   command: "{{ openshift.common.client_binary }} new-project validate"
 
