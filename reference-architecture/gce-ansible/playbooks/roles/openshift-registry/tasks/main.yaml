@@ -1,86 +1,105 @@
 ---
 - name: Switch to default project
-  command: oc project default
+  command: >
+    {{ openshift.common.client_binary }} project default
 
 - name: set the selector for the default namespace
-  command: oc annotate --overwrite namespace default openshift.io/node-selector=role=infra
+  command: >
+    {{ openshift.common.client_binary }} annotate --overwrite namespace default openshift.io/node-selector=role=infra
   ignore_errors: true
 
 - name: Check whether a registry exists or not
-  command: oadm registry --dry-run
+  command: >
+    {{ openshift.common.admin_binary }} registry --dry-run
   register: registry_out
   ignore_errors: true
 
 - name: Install registry
-  command: "oadm registry --selector='role=infra' --replicas=2 --config=/etc/origin/master/admin.kubeconfig --service-account=registry"
+  command: >
+    {{ openshift.common.admin_binary }} registry --selector='role=infra' --replicas=2 --config=/etc/origin/master/admin.kubeconfig --service-account=registry
   when: registry_out | failed
   ignore_errors: true
 
 - name: Make sure registry deployment version is non-zero
-  shell: "oc get --no-headers dc/docker-registry | awk '{print $3}'"
+  shell: >
+    {{ openshift.common.client_binary }} get --no-headers dc/docker-registry | awk '{print $3}'
   register: deployer_waiter_out
   until: '"0" not in deployer_waiter_out.stdout'
   retries: 15
   delay: 10
 
 - name: Determine registry deployment version
-  shell: "oc get --no-headers dc/docker-registry | awk '{print $2}'"
+  shell: >
+    {{ openshift.common.client_binary }} get --no-headers dc/docker-registry | awk '{print $2}'
   register: registry_version_out
 
 - name: Wait for registry to be running
-  shell: oc get pod | grep -v deploy | awk '/docker-registry-{{ registry_version_out.stdout }}/{ print $3 }' | head -1
+  shell: >
+    {{ openshift.common.client_binary }} get pod | grep -v deploy | awk '/docker-registry-{{ registry_version_out.stdout }}/{ print $3 }' | head -1
   register: deployer_output
   until: deployer_output.stdout | search("Running")
   retries: 30
   delay: 30
 
 - name: Disable config change trigger on registry DC
-  command: oc patch dc/docker-registry -p '{"spec":{"triggers":[]}}'
+  command: >
+    {{ openshift.common.client_binary }} patch dc/docker-registry -p '{"spec":{"triggers":[]}}'
 
 - name: Set up registry environment variable
-  command: oc env dc/docker-registry REGISTRY_CONFIGURATION_PATH=/etc/registryconfig/config.yml
+  command: >
+    {{ openshift.common.client_binary }} env dc/docker-registry REGISTRY_CONFIGURATION_PATH=/etc/registryconfig/config.yml
 
 - name: Generate docker registry config
   template: src="registry.j2" dest="/root/config.yml" owner=root mode=0600
 
 - name: Determine if new secrets are needed
-  command: oc get secrets
+  command: >
+    {{ openshift.common.client_binary }} get secrets
   register: secrets
 
 - name: Create registry secrets
-  command: oc secrets new dockerregistry /root/config.yml
+  command: >
+    {{ openshift.common.client_binary }} secrets new dockerregistry /root/config.yml
   when: "'dockerregistry' not in secrets.stdout"
 
 - name: Determine if service account contains secrets
-  command: oc describe serviceaccount/registry
+  command: >
+    {{ openshift.common.client_binary }} describe serviceaccount/registry
   register: serviceaccount
 
 - name: Add secrets to registry service account
-  command: oc secrets add serviceaccount/registry secrets/dockerregistry
+  command: >
+    {{ openshift.common.client_binary }} secrets add serviceaccount/registry secrets/dockerregistry
   when: "'dockerregistry' not in serviceaccount.stdout"
 
 - name: Determine if deployment config contains secrets
-  command: oc volume dc/docker-registry --list
+  command: >
+    {{ openshift.common.client_binary }} volume dc/docker-registry --list
   register: dc
 
 - name: Add volume to registry deployment config
-  command: oc volume dc/docker-registry --add --name=dockersecrets -m /etc/registryconfig --type=secret --secret-name=dockerregistry
+  command: >
+    {{ openshift.common.client_binary }} volume dc/docker-registry --add --name=dockersecrets -m /etc/registryconfig --type=secret --secret-name=dockerregistry
   when: "'dockersecrets' not in dc.stdout"
 
 - name: Deploy latest configuration of registry DC
-  command: oc deploy docker-registry --latest
+  command: >
+    {{ openshift.common.client_binary }} deploy docker-registry --latest
   register: deploy_latest
 
 - name: Re-enable config trigger on docker-registry
-  command: oc patch dc/docker-registry -p '{"spec":{"triggers":[{"type":"ConfigChange"}]}}'
+  command: >
+    {{ openshift.common.client_binary }} patch dc/docker-registry -p '{"spec":{"triggers":[{"type":"ConfigChange"}]}}'
   when: deploy_latest | success
 
 - name: Determine registry deployment version
-  shell: "oc get --no-headers dc/docker-registry | awk '{print $2}'"
+  shell: >
+    {{ openshift.common.client_binary }} get --no-headers dc/docker-registry | awk '{print $2}'
   register: registry_version2_out
 
 - name: Wait for registry to be running
-  shell: oc get pod | grep -v deploy | awk '/docker-registry-{{ registry_version2_out.stdout }}/{ print $3 }' | head -1
+  shell: >
+    {{ openshift.common.client_binary }} get pod | grep -v deploy | awk '/docker-registry-{{ registry_version2_out.stdout }}/{ print $3 }' | head -1
   register: deployer_output
   until: deployer_output.stdout | search("Running")
   retries: 30
