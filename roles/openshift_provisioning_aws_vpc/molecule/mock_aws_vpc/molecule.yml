@@ -1,0 +1,33 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: ansible-lint
+platforms:
+- name: openshift-provisioning-aws-vpc-test-1
+  groups:
+  - test_group
+  - default_group
+- name: openshift-provisioning-aws-vpc-test-2
+  groups:
+  - test_group
+  - override_group
+provisioner:
+  name: ansible
+  group_vars:
+    test_group:
+      openshift_cluster_id: test
+      openshift_env_id: test
+      openshift_provisioning_aws_region: us-east-1
+    override_group:
+      openshift_provisioning_aws_vpc_name: my_vpc
+      openshift_provisioning_aws_vpc_cidr: 10.10.0.0/16
+      openshift_provisioning_aws_vpc_tenancy: dedicated
+scenario:
+  name: mock_aws_vpc
+  setup: ../../../../molecule_common/create.yml
+  teardown: ../../../../molecule_common/destroy.yml
+verifier:
+  name: testinfra

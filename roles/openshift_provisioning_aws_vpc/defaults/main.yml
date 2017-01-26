@@ -1,0 +1,4 @@
+---
+openshift_provisioning_aws_vpc_name: "openshift_{{ openshift_cluster_id ~ '_' ~ openshift_env_id }}"
+openshift_provisioning_aws_vpc_cidr: 172.18.0.0/16
+openshift_provisioning_aws_vpc_tenancy: default

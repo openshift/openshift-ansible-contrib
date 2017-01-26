@@ -1,0 +1,2 @@
+---
+opav_create_or_verify_playbook: "{{ 'verify_vpc_exists.yml' if openshift_provisioning_aws_vpc_id is defined else 'create_vpc.yml' }}"

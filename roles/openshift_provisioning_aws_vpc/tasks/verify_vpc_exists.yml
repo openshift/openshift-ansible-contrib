@@ -1,0 +1,19 @@
+---
+# TODO: handle case where user cannot query VPCs
+# TODO: add some VPC validations for existing VPCs
+
+- name: gather vpc facts
+  ec2_vpc_net_facts:
+    region: "{{ openshift_provisioning_aws_region }}"
+    filters:
+      vpc-id: "{{ openshift_provisioning_aws_vpc_id }}"
+  register: ec2_vpc_results
+
+- debug: var=ec2_vpc_results
+
+- fail:
+    msg: >
+      VPC {{ openshift_provisioning_aws_vpc_id }} not found in region
+      {{ openshift_provisioning_aws_region }}. When specifying the VPC id, the
+      VPC must already exist.
+  when: ec2_vpc_results.vpcs | count < 1

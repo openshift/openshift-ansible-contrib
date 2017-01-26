@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  become: no
+  gather_facts: no
+  pre_tasks:
+  - debug: var=openshift_cluster_id
+  - debug: var=openshift_env_id
+
+  # TODO: properly handle these defaults, currently role defaults are overriding
+  - fail:
+      msg: "Missing required variable: openshift_cluster_id"
+    when: openshift_cluster_id is not defined
+  - fail:
+      msg: "Missing required variable: openshift_env_id"
+    when: openshift_env_id is not defined
+  roles:
+  - openshift_provisioning_aws

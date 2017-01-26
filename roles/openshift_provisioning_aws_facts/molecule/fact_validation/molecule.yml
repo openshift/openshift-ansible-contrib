@@ -1,0 +1,29 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: ansible-lint
+platforms:
+- name: openshift-provisioning-aws-facts-test-1
+  groups:
+  - default_group
+  - test_group
+- name: openshift-provisioning-aws-facts-test-2
+  groups:
+  - override_group
+  - test_group
+provisioner:
+  name: ansible
+  group_vars:
+    override_group:
+      openshift_cluster_id: test_cluster
+      openshift_env_id: test_env
+      openshift_provisioning_aws_region: us-west-2
+scenario:
+  name: fact_validation
+  setup: ../../../../molecule_common/create.yml
+  teardown: ../../../../molecule_common/destroy.yml
+verifier:
+  name: testinfra

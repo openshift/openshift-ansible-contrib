@@ -1,0 +1,4 @@
+---
+openshift_cluster_id: default
+openshift_env_id: default
+openshift_provisioning_aws_region: us-east-1
