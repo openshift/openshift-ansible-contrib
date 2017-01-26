@@ -7,6 +7,7 @@ console_port: ${CONSOLE_PORT}
 openshift_hosted_router_replicas: ${INFRA_NODE_INSTANCE_GROUP_SIZE}
 openshift_hosted_registry_replicas: ${INFRA_NODE_INSTANCE_GROUP_SIZE}
 openshift_deployment_type: openshift-enterprise
+containerized: ${OS_CONTAINERIZED}
 ansible_pkg_mgr: yum
 gcs_registry_bucket: ${REGISTRY_BUCKET}
 gce_project_id: ${GCLOUD_PROJECT}
