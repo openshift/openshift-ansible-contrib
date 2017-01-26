@@ -1,0 +1,229 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: OpenShift Integrated Control Plane
+Parameters:
+  MasterSGs:
+    Type: 'List<AWS::EC2::SecurityGroup::Id>'
+  MasterExtElbSGs:
+    Type: 'List<AWS::EC2::SecurityGroup::Id>'
+  MasterIntElbSGs:
+    Type: 'List<AWS::EC2::SecurityGroup::Id>'
+  MasterInstanceType:
+    Type: String
+    Default: t2.medium
+  MasterImageId:
+    Type: 'AWS::EC2::Image::Id'
+    Default: ami-10251c7a
+  MasterInstanceProfile:
+    Type: String
+  KeyName:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+  Master01Subnet:
+    Type: 'AWS::EC2::Subnet::Id'
+  Master02Subnet:
+    Type: 'AWS::EC2::Subnet::Id'
+  Master03Subnet:
+    Type: 'AWS::EC2::Subnet::Id'
+  MasterApiPort:
+    Type: Number
+    Default: 443
+  MasterRootVolSize:
+    Type: String
+    Default: 10
+  MasterDockerVolSize:
+    Type: String
+    Default: 25
+  MasterEtcdVolSize:
+    Type: String
+    Default: 25
+  MasterUserData:
+    Type: String
+
+Conditions:
+  SetMasterInstanceProfile:
+    'Fn::Not':
+    - 'Fn::Equals':
+      - ''
+      - Ref: MasterInstanceProfile
+
+Resources:
+  Master01:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId:
+        Ref: MasterImageId
+      KeyName:
+        Ref: KeyName
+      InstanceType:
+        Ref: MasterInstanceType
+      SecurityGroupIds:
+        Ref: MasterSGs
+      SubnetId:
+        Ref: Master01Subnet
+      IamInstanceProfile:
+        Ref: MasterInstanceProfile
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterRootVolSize
+          VolumeType: gp2
+      - DeviceName: /dev/xvdb
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterDockerVolSize
+          VolumeType: gp2
+      - DeviceName: /dev/xvdc
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterEtcdVolSize
+          VolumeType: gp2
+      UserData:
+        Ref: MasterUserData
+  Master02:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId:
+        Ref: MasterImageId
+      KeyName:
+        Ref: KeyName
+      InstanceType:
+        Ref: MasterInstanceType
+      SecurityGroupIds:
+        Ref: MasterSGs
+      SubnetId:
+        Ref: Master02Subnet
+      IamInstanceProfile:
+        Ref: MasterInstanceProfile
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterRootVolSize
+          VolumeType: gp2
+      - DeviceName: /dev/xvdb
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterDockerVolSize
+          VolumeType: gp2
+      - DeviceName: /dev/xvdc
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterEtcdVolSize
+          VolumeType: gp2
+      UserData:
+        Ref: MasterUserData
+  Master03:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId:
+        Ref: MasterImageId
+      KeyName:
+        Ref: KeyName
+      InstanceType:
+        Ref: MasterInstanceType
+      SecurityGroupIds:
+        Ref: MasterSGs
+      SubnetId:
+        Ref: Master03Subnet
+      IamInstanceProfile:
+        Ref: MasterInstanceProfile
+      BlockDeviceMappings:
+      - DeviceName: /dev/sda1
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterRootVolSize
+          VolumeType: gp2
+      - DeviceName: /dev/xvdb
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterDockerVolSize
+          VolumeType: gp2
+      - DeviceName: /dev/xvdc
+        Ebs:
+          DeleteOnTermination: True
+          VolumeSize:
+            Ref: MasterEtcdVolSize
+          VolumeType: gp2
+      UserData:
+        Ref: MasterUserData
+  MasterIntElb:
+    Type: 'AWS::ElasticLoadBalancing::LoadBalancer'
+    Properties:
+      CrossZone: True
+      ConnectionSettings:
+        IdleTimeout: 3600
+      Listeners:
+      - InstancePort:
+          Ref: MasterApiPort
+        InstanceProtocol: TCP
+        LoadBalancerPort:
+          Ref: MasterApiPort
+        Protocol: TCP
+      Scheme: internal
+      SecurityGroups:
+        Ref: MasterIntElbSGs
+      Subnets:
+      - Ref: Master01Subnet
+      - Ref: Master02Subnet
+      - Ref: Master03Subnet
+      Instances:
+      - Ref: Master01
+      - Ref: Master02
+      - Ref: Master03
+      HealthCheck:
+        HealthyThreshold: 2
+        Interval: 5
+        Timeout: 2
+        UnhealthyThreshold: 2
+        Target:
+          'Fn::Join':
+          - ''
+          - - 'Fn::Join':
+              - ':'
+              - - 'HTTPS'
+                - Ref: MasterApiPort
+            - /healthz/ready
+  MasterExtElb:
+    Type: 'AWS::ElasticLoadBalancing::LoadBalancer'
+    Properties:
+      CrossZone: True
+      ConnectionSettings:
+        IdleTimeout: 3600
+      Listeners:
+      - InstancePort:
+          Ref: MasterApiPort
+        InstanceProtocol: TCP
+        LoadBalancerPort:
+          Ref: MasterApiPort
+        Protocol: TCP
+      SecurityGroups:
+        Ref: MasterExtElbSGs
+      Subnets:
+      - Ref: Master01Subnet
+      - Ref: Master02Subnet
+      - Ref: Master03Subnet
+      Instances:
+      - Ref: Master01
+      - Ref: Master02
+      - Ref: Master03
+      HealthCheck:
+        HealthyThreshold: 2
+        Interval: 5
+        Timeout: 2
+        UnhealthyThreshold: 2
+        Target:
+          'Fn::Join':
+          - ''
+          - - 'Fn::Join':
+              - ':'
+              - - 'HTTPS'
+                - Ref: MasterApiPort
+            - /healthz/ready

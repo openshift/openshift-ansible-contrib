@@ -1,0 +1,237 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: OpenShift Cluster Template
+Parameters:
+  NamePrefix:
+    Type: String
+    Default: openshift_
+  MasterApiPort:
+    Type: Number
+    Default: 443
+  KeyName:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+
+
+  VpcId:
+    Type: String
+  VpcTemplateUrl:
+    Type: String
+    Default: 'https://s3.amazonaws.com/openshift-cloudformation-templates/vpc/default.yaml'
+  NumSubnets:
+    Type: Number
+    MinValue: 1
+    MaxValue: 4
+    Default: 1
+  SubnetAvailabilityZones:
+    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
+  SubnetCidrBlocks:
+    Type: CommaDelimitedList
+    Default: '172.18.0.0/24,172.18.1.0/24,172.18.2.0/24,172.18.3.0/24'
+  VpcCidrBlock:
+    Type: String
+    Default: 172.18.0.0/16
+
+
+  MasterExtElbSecurityGroups:
+    Type: CommaDelimitedList
+  MasterIntElbSecurityGroups:
+    Type: CommaDelimitedList
+  RouterElbSecurityGroups:
+    Type: CommaDelimitedList
+  MasterSecurityGroups:
+    Type: CommaDelimitedList
+  EtcdSecurityGroups:
+    Type: CommaDelimitedList
+  NodeSecurityGroups:
+    Type: CommaDelimitedList
+  RouterSecurityGroups:
+    Type: CommaDelimitedList
+  SecurityGroupTemplateUrl:
+    Type: String
+    Default: 'https://s3.amazonaws.com/openshift-cloudformation-templates/security-groups/default.yaml'
+
+
+  MasterInstanceProfile:
+    Type: String
+  NodeInstanceProfile:
+    Type: String
+  IamInstanceProfileTemplateUrl:
+    Type: String
+    Default: 'https://s3.amazonaws.com/openshift-cloudformation-templates/iam-profiles/default.yaml'
+
+  MasterUserData:
+    Type: String
+  MasterInstanceSubnets:
+    Type: CommaDelimitedList
+  ControlPlaneTemplateUrl:
+    Type: String
+    Default: 'https://s3.amazonaws.com/openshift-cloudformation-templates/control-plane/default.yaml'
+
+Conditions:
+  CreateVpc:
+    'Fn::Equals':
+    - ''
+    - Ref: VpcId
+  CreateSecurityGroups:
+    'Fn::Or':
+    - 'Fn::Equals':
+      - ''
+      - 'Fn::Join':
+        - ','
+        - Ref: MasterSecurityGroups
+    - 'Fn::Equals':
+      - ''
+      - 'Fn::Join':
+        - ','
+        - Ref: NodeSecurityGroups
+    - 'Fn::Equals':
+      - ''
+      - 'Fn::Join':
+        - ','
+        - Ref: RouterSecurityGroups
+    - 'Fn::Equals':
+      - ''
+      - 'Fn::Join':
+        - ','
+        - Ref: EtcdSecurityGroups
+    - 'Fn::Equals':
+      - ''
+      - 'Fn::Join':
+        - ','
+        - Ref: RouterElbSecurityGroups
+    - 'Fn::Equals':
+      - ''
+      - 'Fn::Join':
+        - ','
+        - Ref: MasterExtElbSecurityGroups
+    - 'Fn::Equals':
+      - ''
+      - 'Fn::Join':
+        - ','
+        - Ref: MasterIntElbSecurityGroups
+
+  CreateIAMProfiles:
+    'Fn::Or':
+    - 'Fn::Equals':
+      - ''
+      - Ref: MasterInstanceProfile
+    - 'Fn::Equals':
+      - ''
+      - Ref: NodeInstanceProfile
+
+Resources:
+  VpcStack:
+    Type: 'AWS::CloudFormation::Stack'
+    Condition: CreateVpc
+    Properties:
+      TemplateURL:
+        Ref: VpcTemplateUrl
+      Parameters:
+        VpcName:
+          'Fn::Join':
+          - ''
+          - - Ref: NamePrefix
+            - _vpc
+        NumSubnets:
+          Ref: NumSubnets
+        SubnetAvailabilityZones:
+          'Fn::Join':
+          - ','
+          - Ref: SubnetAvailabilityZones
+        SubnetCidrBlocks:
+          'Fn::Join':
+          - ','
+          - Ref: SubnetCidrBlocks
+        VpcCidrBlock:
+          Ref: VpcCidrBlock
+  SGStack:
+    Type: 'AWS::CloudFormation::Stack'
+    Condition: CreateSecurityGroups
+    Properties:
+      TemplateURL:
+        Ref: SecurityGroupTemplateUrl
+      Parameters:
+        VpcId:
+          'Fn::If':
+          - CreateVpc
+          - 'Fn::GetAtt':
+            - VpcStack
+            - Outputs.VpcId
+          - Ref: VpcId
+        MasterApiPort:
+          Ref: MasterApiPort
+
+  IAMStack:
+    Type: 'AWS::CloudFormation::Stack'
+    Condition: CreateIAMProfiles
+    Properties:
+      TemplateURL:
+        Ref: IamInstanceProfileTemplateUrl
+
+  ControlPlaneStack:
+    Type: 'AWS::CloudFormation::Stack'
+    Condition: CreateIAMProfiles
+    Properties:
+      TemplateURL:
+        Ref: ControlPlaneTemplateUrl
+      Parameters:
+        MasterSGs:
+          'Fn::If':
+          - CreateSecurityGroups
+          - 'Fn::GetAtt':
+            - SGStack
+            - Outputs.MasterSecurityGroups
+          - Ref: MasterSecurityGroups
+        MasterExtElbSGs:
+          'Fn::If':
+          - CreateSecurityGroups
+          - 'Fn::GetAtt':
+            - SGStack
+            - Outputs.MasterExtElbSecurityGroups
+          - Ref: MasterExtElbSecurityGroups
+        MasterIntElbSGs:
+          'Fn::If':
+          - CreateSecurityGroups
+          - 'Fn::GetAtt':
+            - SGStack
+            - Outputs.MasterIntElbSecurityGroups
+          - Ref: MasterIntElbSecurityGroups
+        MasterInstanceProfile:
+          'Fn::If':
+          - CreateIAMProfiles
+          - 'Fn::GetAtt':
+            - IAMStack
+            - Outputs.MasterInstanceProfile
+          - Ref: MasterInstanceProfile
+        MasterApiPort:
+          Ref: MasterApiPort
+        KeyName:
+          Ref: KeyName
+        MasterUserData:
+          Ref: MasterUserData
+        Master01Subnet:
+          'Fn::If':
+          - CreateVpc
+          - 'Fn::GetAtt':
+            - VpcStack
+            - Outputs.VpcSubnet1
+          - 'Fn::Select':
+            - 0
+            - Ref: MasterInstanceSubnets
+        Master02Subnet:
+          'Fn::If':
+          - CreateVpc
+          - 'Fn::GetAtt':
+            - VpcStack
+            - Outputs.VpcSubnet2
+          - 'Fn::Select':
+            - 1
+            - Ref: MasterInstanceSubnets
+        Master03Subnet:
+          'Fn::If':
+          - CreateVpc
+          - 'Fn::GetAtt':
+            - VpcStack
+            - Outputs.VpcSubnet3
+          - 'Fn::Select':
+            - 2
+            - Ref: MasterInstanceSubnets

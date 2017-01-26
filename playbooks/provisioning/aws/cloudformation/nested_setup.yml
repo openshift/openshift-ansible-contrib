@@ -1,0 +1,45 @@
+# vim: set ft=ansible:
+---
+- name: 'Bootstrapping or Refreshing Environment'
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: no
+  vars:
+    openshift_provisioning_cluster_id: test
+    openshift_provisioning_env_id: test
+    openshift_provisioning_aws_keyname: default
+    openshift_provisioning_aws_region: us-east-1
+    openshift_provisioning_aws_subnet_azs: "{{ lookup('ec2_zones_by_region', openshift_provisioning_aws_region) }}"
+    openshift_provisioning_aws_stack_name: openshift-{{ openshift_provisioning_cluster_id }}-{{ openshift_provisioning_env_id }}
+    openshift_provisioning_aws_num_subnets: "{{ openshift_provisioning_aws_subnet_azs.split(',') | length }}"
+  tasks:
+  - name: Launch the CloudFormation Template
+    cloudformation:
+      region: "{{ openshift_provisioning_aws_region }}"
+      stack_name: "{{ openshift_provisioning_aws_stack_name }}"
+      state: present
+      tags:
+        environment: "{{ openshift_provisioning_env_id }}"
+        clusterid: "{{ openshift_provisioning_cluster_id }}"
+      template: files/nested/three_master_infra_asg_node_asg_no_bastion.yaml
+      template_parameters:
+        NamePrefix: "{{ openshift_provisioning_aws_stack_name }}"
+        NumSubnets: "{{ openshift_provisioning_aws_num_subnets }}"
+        SubnetAvailabilityZones: "{{ openshift_provisioning_aws_subnet_azs }}"
+        MasterSecurityGroups: "{{ openshift_provisioning_aws_master_security_groups | default('') }}"
+        NodeSecurityGroups: "{{ openshift_provisioning_aws_node_security_groups | default('') }}"
+        EtcdSecurityGroups: "{{ openshift_provisioning_aws_etcd_security_groups | default('') }}"
+        RouterSecurityGroups: "{{ openshift_provisioning_aws_router_security_groups | default('') }}"
+        RouterElbSecurityGroups: "{{ openshift_provisioning_aws_router_elb_security_groups | default('') }}"
+        MasterExtElbSecurityGroups: "{{ openshift_provisioning_aws_master_ext_elb_security_groups | default('') }}"
+        MasterIntElbSecurityGroups: "{{ openshift_provisioning_aws_master_int_elb_security_groups | default('') }}"
+        MasterInstanceProfile: "{{ openshift_provisioning_aws_master_instance_profile | default('') }}"
+        NodeInstanceProfile: "{{ openshift_provisioning_aws_node_instance_profile | default('') }}"
+        MasterInstanceSubnets: "{{ openshift_provisioning_aws_master_instance_subnets | default('') }}"
+        VpcId: "{{ openshift_provisioning_aws_vpc_id | default('') }}"
+        KeyName: "{{ openshift_provisioning_aws_keyname }}"
+        MasterUserData: "{{ lookup('file', 'nested/master-user-data.yaml') | b64encode }}"
+    register: cf_output
+
+  - debug: var=cf_output

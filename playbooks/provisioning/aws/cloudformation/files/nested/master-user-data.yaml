@@ -1,0 +1,25 @@
+#cloud-config
+cloud_config_modules:
+- disk_setup
+- mounts
+
+fs_setup:
+- label: etcd_storage
+  filesystem: xfs
+  device: /dev/xdc
+  partition: auto
+
+runcmd:
+- mkdir -p /var/lib/etcd
+
+mounts:
+- [ /dev/xvdc, /var/lib/etcd, xfs, 'defaults' ]
+
+write_files:
+- content: |
+    DEVS='/dev/xvdb'
+    VG=docker_vol
+    DATA_SIZE=95%VG
+    EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
+  path: /etc/sysconfig/docker-storage-setup
+  owner: root:root
