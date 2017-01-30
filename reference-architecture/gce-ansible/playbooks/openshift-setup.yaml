@@ -35,6 +35,7 @@
     openshift_master_cluster_hostname: "internal-openshift-master.{{ public_hosted_zone }}"
     openshift_master_cluster_public_hostname: "openshift-master.{{ public_hosted_zone }}"
     osm_default_subdomain: "{{ wildcard_zone }}"
+    openshift_master_default_subdomain: "{{osm_default_subdomain}}"
     osm_default_node_selector: "role=app"
     openshift_deployment_type: openshift-enterprise
     deployment_type: "{{ openshift_deployment_type }}"
