@@ -396,7 +396,12 @@ elif [ -n "$REGISTERED_IMAGE" ]; then
         sleep 5
     done
     if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-        if which subscription-manager; then
+        if [[ "${OCP_DEPLOYMENT_TYPE}" == "origin" ]]; then
+            yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
+            yum install -y centos-release-openshift-origin;
+            yum --enablerepo=centos-openshift-origin-testing clean all;
+            #yum --enablerepo=centos-openshift-origin-testing install -y atomic-openshift-utils;
+        else
             subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
             subscription-manager attach --pool=${RH_POOL_ID};
             subscription-manager repos --disable=\"*\";
@@ -404,11 +409,6 @@ elif [ -n "$REGISTERED_IMAGE" ]; then
                 --enable=\"rhel-7-server-rpms\" \
                 --enable=\"rhel-7-server-extras-rpms\" \
                 --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
-        else
-            yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
-            yum install -y centos-release-openshift-origin;
-            yum --enablerepo=centos-openshift-origin-testing clean all;
-            #yum --enablerepo=centos-openshift-origin-testing install -y atomic-openshift-utils;
         fi
 
         yum -q list atomic-openshift-utils;
