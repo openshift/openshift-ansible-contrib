@@ -1,0 +1,48 @@
+---
+- name: create a new file
+  file:
+    path: ../static-inventory
+    state: absent
+
+- name: Create base file
+  copy:
+    src: inventory
+    dest: ../static-inventory
+    remote_src: false
+
+- name: command for masters
+  shell: sed -i  '/\[masters\]/a {{ hostvars[item].gce_name }}' ../static-inventory
+  with_items:
+  - "{{ groups['tag_ocp-master'] }}"
+
+- name: command for masters
+  shell: sed -i  '/\[etcd\]/a {{ hostvars[item].gce_name }}' ../static-inventory
+  with_items:
+  - "{{ groups['tag_ocp-master'] }}"
+
+- name: define nodes
+  lineinfile:
+    line: "{{ hostvars[item].gce_name }} openshift_node_labels=\"{'role': 'master'}\""
+    insertafter: "[nodes]"
+    state: present
+    dest: ../static-inventory
+  with_items:
+  - "{{ groups['tag_ocp-master'] }}"
+
+- name: define nodes
+  lineinfile:
+    line: "{{ hostvars[item].gce_name }} openshift_node_labels=\"{'role': 'app'}\""
+    insertafter: [nodes]
+    state: present
+    dest: ../static-inventory
+  with_items:
+  - "{{ groups['tag_ocp-node'] }}"
+
+- name: define nodes
+  lineinfile:
+    line: "{{ hostvars[item].gce_name }} openshift_node_labels=\"{'role': 'infra'}\""
+    insertafter: [nodes]
+    state: present
+    dest: ../static-inventory
+  with_items:
+  - "{{ groups['tag_ocp-infra-node'] }}"

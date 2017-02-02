@@ -163,6 +163,7 @@ cd ~
 
 cat << 'EOF' > create_volumes.sh
 USERNAME=${1}
+./ose_pvcreate_lun vg1 1 1 &> initial_create.out &
 while true
 do
   STATUS=$(curl -k -s -o /dev/null -w '%{http_code}' https://master1:8443/api)
