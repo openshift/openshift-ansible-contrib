@@ -1,6 +1,8 @@
 ---
 # TODO: handle case where user cannot query VPCs
 # TODO: add some VPC validations for existing VPCs
+# TODO: move the vpc querying to facts
+# TODO: move validation to a separate role
 
 - name: gather vpc facts
   ec2_vpc_net_facts:

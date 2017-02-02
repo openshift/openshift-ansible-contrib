@@ -1,0 +1,20 @@
+---
+- hosts: test_group
+  roles:
+  - role: openshift_provisioning_aws_defaults
+  tasks:
+  - name: Validate default vars
+    assert:
+      that:
+      - openshift_provisioning_vpc_name: "openshift_{{ openshift_cluster_id ~ '_' ~ openshift_env_id }}"
+      - openshift_provisioning_vpc_cidr: 172.18.0.0/16
+      - openshift_provisioning_vpc_tenancy: default
+    when: "{{ 'inventory_hostname' in groups.default_group }}"
+
+  - name: Validate override vars
+    assert:
+      that:
+      - openshift_provisioning_vpc_name: my_vpc
+      - openshift_provisioning_vpc_cidr: 10.0.0.0/16
+      - openshift_provisioning_vpc_tenancy: dedicated
+    when: "{{ 'inventory_hostname' in groups.override_group }}"

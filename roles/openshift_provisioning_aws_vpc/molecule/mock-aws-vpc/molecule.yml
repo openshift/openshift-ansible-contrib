@@ -13,7 +13,7 @@ platforms:
 - name: openshift-provisioning-aws-vpc-test-2
   groups:
   - test_group
-  - override_group
+  - dedicated_group
 provisioner:
   name: ansible
   group_vars:
@@ -21,9 +21,11 @@ provisioner:
       openshift_cluster_id: test
       openshift_env_id: test
       openshift_provisioning_aws_region: us-east-1
-    override_group:
       openshift_provisioning_aws_vpc_name: my_vpc
       openshift_provisioning_aws_vpc_cidr: 10.10.0.0/16
+    default_group:
+      openshift_provisioning_aws_vpc_tenancy: default
+    dedicated_group:
       openshift_provisioning_aws_vpc_tenancy: dedicated
 scenario:
   name: mock-aws-vpc

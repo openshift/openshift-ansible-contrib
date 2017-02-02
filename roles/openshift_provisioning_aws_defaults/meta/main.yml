@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Jason DeTiberus
-  description: AWS provisioning for OpenShift
+  description: AWS provisioning for OpenShift common defaults
   company: Red Hat, Inc.
   license: Apache License, Version 2.0
   min_ansible_version: 2.2

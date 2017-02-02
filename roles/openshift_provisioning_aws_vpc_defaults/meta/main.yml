@@ -1,7 +1,7 @@
 ---
 galaxy_info:
   author: Jason DeTiberus
-  description: AWS provisioning for OpenShift
+  description: AWS VPC Facts for OpenShift
   company: Red Hat, Inc.
   license: Apache License, Version 2.0
   min_ansible_version: 2.2
@@ -14,6 +14,4 @@ galaxy_info:
     versions:
     - 7
   galaxy_tags: []
-dependencies:
-- openshift_provisioning_aws_defaults
-- openshift_provisioning_aws_vpc
+dependencies: []

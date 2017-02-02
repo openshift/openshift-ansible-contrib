@@ -6,11 +6,11 @@ driver:
 lint:
   name: ansible-lint
 platforms:
-- name: openshift-provisioning-aws-facts-test-1
+- name: openshift-provisioning-aws-defaults-test-1
   groups:
   - default_group
   - test_group
-- name: openshift-provisioning-aws-facts-test-2
+- name: openshift-provisioning-aws-defaults-test-2
   groups:
   - override_group
   - test_group
@@ -22,7 +22,7 @@ provisioner:
       openshift_env_id: test_env
       openshift_provisioning_aws_region: us-west-2
 scenario:
-  name: fact-validation
+  name: default-validation
   setup: ../../../../molecule_common/create.yml
   teardown: ../../../../molecule_common/destroy.yml
 verifier:
