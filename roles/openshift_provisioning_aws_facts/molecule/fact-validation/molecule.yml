@@ -22,7 +22,7 @@ provisioner:
       openshift_env_id: test_env
       openshift_provisioning_aws_region: us-west-2
 scenario:
-  name: fact_validation
+  name: fact-validation
   setup: ../../../../molecule_common/create.yml
   teardown: ../../../../molecule_common/destroy.yml
 verifier:

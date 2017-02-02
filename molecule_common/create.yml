@@ -5,7 +5,7 @@
   gather_facts: no
   vars:
     molecule_scenario_basename: "{{ molecule_scenario_directory | basename }}"
-    molecule_docker_config_subdir: "{{ 'mock_aws' if molecule_scenario_basename.startswith('mock_aws') else 'base' }}"
+    molecule_docker_config_subdir: "{{ 'mock_aws' if molecule_scenario_basename.startswith('mock-aws') else 'base' }}"
     molecule_docker_image: "openshift-ansible-contrib-tests-{{ molecule_docker_config_subdir }}:latest"
   tasks:
     - name: Build an Ansible compatible image

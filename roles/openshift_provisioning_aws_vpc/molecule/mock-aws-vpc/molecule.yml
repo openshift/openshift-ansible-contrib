@@ -26,7 +26,7 @@ provisioner:
       openshift_provisioning_aws_vpc_cidr: 10.10.0.0/16
       openshift_provisioning_aws_vpc_tenancy: dedicated
 scenario:
-  name: mock_aws_vpc
+  name: mock-aws-vpc
   setup: ../../../../molecule_common/create.yml
   teardown: ../../../../molecule_common/destroy.yml
 verifier:
