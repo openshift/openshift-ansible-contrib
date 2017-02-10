@@ -33,4 +33,3 @@
       clientSecret: zzz
       hostedDomain: example.com
     osm_use_cockpit: false
-    containerized: false
