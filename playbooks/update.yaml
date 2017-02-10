@@ -1,0 +1,6 @@
+---
+- hosts: cluster_hosts
+  gather_facts: yes
+  become: yes
+  roles:
+  - update-instances

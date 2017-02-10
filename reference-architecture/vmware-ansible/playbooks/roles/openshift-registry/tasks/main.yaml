@@ -16,7 +16,7 @@
   ignore_errors: true
 
 - name: Install registry
-  command: "oadm registry --selector='role=infra' --replicas=2 --config=/etc/origin/master/admin.kubeconfig --service-account=registry"
+  command: "oadm registry --selector='role=infra' --replicas=1 --config=/etc/origin/master/admin.kubeconfig --service-account=registry"
   when: registry_out | failed
   ignore_errors: true
 

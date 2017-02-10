@@ -5,24 +5,8 @@
     console_port: 443
     openshift_debug_level: "{{ debug_level }}"
     openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
-    osm_controller_args:
-      cloud-provider:
-      - "gce"
-      cloud-config:
-      - "/etc/origin/gce.ini"
-    osm_api_server_args:
-      cloud-provider:
-      - "gce"
-      cloud-config:
-      - "/etc/origin/gce.ini"
-    openshift_node_kubelet_args:
-      cloud-provider:
-      - "gce"
-      cloud-config:
-      - "/etc/origin/gce.ini"
-      node-labels:
-      - "role={{ openshift_node_labels.role }}"
     openshift_master_debug_level: "{{ master_debug_level | default(debug_level, true) }}"
+    openshift_cloudprovider_kind: gce
     openshift_master_access_token_max_seconds: 2419200
     openshift_master_api_port: "{{ console_port }}"
     openshift_master_console_port: "{{ console_port }}"
@@ -35,6 +19,7 @@
     openshift_master_cluster_hostname: "internal-openshift-master.{{ public_hosted_zone }}"
     openshift_master_cluster_public_hostname: "openshift-master.{{ public_hosted_zone }}"
     osm_default_subdomain: "{{ wildcard_zone }}"
+    openshift_master_default_subdomain: "{{osm_default_subdomain}}"
     osm_default_node_selector: "role=app"
     openshift_deployment_type: openshift-enterprise
     deployment_type: "{{ openshift_deployment_type }}"

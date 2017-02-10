@@ -136,6 +136,13 @@ fi
 GCLOUD_REGION=${GCLOUD_ZONE%-*}
 
 function revert {
+    # Unregister systems
+	# TODO: Skip for origin?
+    gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
+    pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
+    ansible-playbook playbooks/unregister.yaml;
+    '";
+    
     # Bucket for registry
     if gsutil ls -p "$GCLOUD_PROJECT" "gs://${REGISTRY_BUCKET}" &>/dev/null; then
         gsutil -m rm -r "gs://${REGISTRY_BUCKET}"
@@ -396,7 +403,7 @@ elif [ -n "$REGISTERED_IMAGE" ]; then
         sleep 5
     done
     if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-        if [[ "${OCP_DEPLOYMENT_TYPE}" == "origin" ]]; then
+        if [[ \"${OCP_DEPLOYMENT_TYPE}\" == \"origin\" ]]; then
             yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
             yum install -y centos-release-openshift-origin;
             yum --enablerepo=centos-openshift-origin-testing clean all;
@@ -429,6 +436,9 @@ EOF
         yum install -y google-compute-engine google-compute-engine-init google-config wget git net-tools bind-utils iptables-services bridge-utils bash-completion python-httplib2 docker PyYAML;
         yum update -y;
         yum clean all;
+        if [[ \"${OCP_DEPLOYMENT_TYPE}\" != \"origin\" ]]; then
+            subscription-manager unregister;
+        fi
 '"; then
         gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
         gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
@@ -716,6 +726,15 @@ gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml
 
 # Prepare bastion instance for openshift installation
 gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
+    if [[ \"${OCP_DEPLOYMENT_TYPE}\" != \"origin\" ]]; then
+        subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
+        subscription-manager attach --pool=${RH_POOL_ID};
+        subscription-manager repos --disable=\"*\";
+        subscription-manager repos \
+            --enable=\"rhel-7-server-rpms\" \
+            --enable=\"rhel-7-server-extras-rpms\" \
+            --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
+    fi
     yum install -y python-libcloud atomic-openshift-utils;
 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
@@ -754,7 +773,7 @@ OCP_ANSIBLE_CONTRIB_CHECKOUT_COMMAND=${OCP_ANSIBLE_CONTRIB_CHECKOUT_COMMAND:-
 
 OCP_DEPLOY_COMMAND=${OCP_DEPLOY_COMMAND:-
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
-    ansible-playbook -e @~/ansible-config.yml playbooks/openshift-install.yaml;
+    ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} -e @~/ansible-config.yml playbooks/openshift-install.yaml;
 }
 
 gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
@@ -763,6 +782,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
     bash -euc \"${OCP_ANSIBLE_CHECKOUT_COMMAND}\"
     bash -euc \"${OCP_ANSIBLE_CONTRIB_CHECKOUT_COMMAND}\"
     bash -euc \"${OCP_DEPLOY_COMMAND}\"
+    
 '";
 
 echo

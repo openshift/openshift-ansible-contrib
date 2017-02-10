@@ -1,0 +1,16 @@
+---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
+- block:
+  - name: Clear yum cache
+    command: "yum clean all"
+    ignore_errors: true
+
+  - name: Update rpms
+    package:
+      name: "*"
+      state: latest
+
+  when: not openshift.common.is_atomic | bool

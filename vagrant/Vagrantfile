@@ -88,6 +88,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.registration.auto_attach = true
   end
 
+  # Configure eth0 via script, will disable NetworkManager and enable legacy network daemon:
+  config.vm.provision "shell", path: "provision/setup.sh", args: [NETWORK_BASE]
+
   config.vm.provider "virtualbox" do |v, override|
     #v.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate//vagrant","1"]
     v.memory = 1024

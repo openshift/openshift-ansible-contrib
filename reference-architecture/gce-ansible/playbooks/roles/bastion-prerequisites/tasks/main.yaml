@@ -1,0 +1,18 @@
+---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
+- block:
+  - name: Clear yum cache
+    command: "yum clean all"
+    ignore_errors: true
+
+  - name: Install the required rpms
+    package:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+    - python-libcloud
+    - atomic-openshift-utils
+  when: not openshift.common.is_atomic | bool
