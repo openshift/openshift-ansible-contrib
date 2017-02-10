@@ -117,6 +117,12 @@ fi
 GCLOUD_REGION=${GCLOUD_ZONE%-*}
 
 function revert {
+    # Unregister systems
+    gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
+    pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
+    ansible-playbook playbooks/unregister.yaml;
+    '";
+    
     # Bucket for registry
     if gsutil ls -p "$GCLOUD_PROJECT" "gs://${REGISTRY_BUCKET}" &>/dev/null; then
         gsutil -m rm -r "gs://${REGISTRY_BUCKET}"
@@ -391,6 +397,7 @@ EOF
         yum install -y google-compute-engine google-compute-engine-init google-config wget git net-tools bind-utils iptables-services bridge-utils bash-completion python-httplib2 docker;
         yum update -y;
         yum clean all;
+        subscription-manager unregister;
 '"; then
         gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
         gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
@@ -673,6 +680,13 @@ gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml
 
 # Prepare bastion instance for openshift installation
 gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
+    subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
+    subscription-manager attach --pool=${RH_POOL_ID};
+    subscription-manager repos --disable=\"*\";
+    subscription-manager repos \
+        --enable=\"rhel-7-server-rpms\" \
+        --enable=\"rhel-7-server-extras-rpms\" \
+        --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
     yum install -y python-libcloud atomic-openshift-utils;
 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
@@ -700,7 +714,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
         git clone https://github.com/openshift/openshift-ansible-contrib.git ~/openshift-ansible-contrib;
     fi
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
-    ansible-playbook -e @~/ansible-config.yml playbooks/openshift-install.yaml;
+    ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} -e @~/ansible-config.yml playbooks/openshift-install.yaml;
 '";
 
 echo

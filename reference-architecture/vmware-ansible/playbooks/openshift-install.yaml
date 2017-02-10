@@ -26,7 +26,7 @@
     openshift_master_debug_level: "{{ master_debug_level | default(debug_level, true) }}"
     openshift_master_access_token_max_seconds: 2419200
     openshift_hosted_router_replicas: 2
-    openshift_hosted_registry_replicas: 2
+    openshift_hosted_registry_replicas: 1
     openshift_master_api_port: "{{ console_port }}"
     openshift_master_console_port: "{{ console_port }}"
     openshift_master_logging_public_url: "https://kibana.{{ osm_default_subdomain }}"
