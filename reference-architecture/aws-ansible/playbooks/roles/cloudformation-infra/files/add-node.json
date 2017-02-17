@@ -10,6 +10,9 @@
     "AmiId": {
       "Type": "AWS::EC2::Image::Id"
     },
+    "ExistingStack,": {
+      "Type": "String"
+    },
     "InstanceType": {
       "Type": "String",
       "Default": "t2.medium"
@@ -88,6 +91,9 @@
           "Tags": [
             { "Key": "Name",
               "Value": {"Ref": "NodeName"}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": {"Ref": "ExistingStack"}
             },
             { "Key": "provision",
               "Value": "node"
