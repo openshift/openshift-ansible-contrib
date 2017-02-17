@@ -177,7 +177,7 @@
       NodeDockerVolType: gp2
       NodeInstanceProfile: "{{ iam_role }}"
       NodeType: "{{ node_type }}"
-      ExistingStack: "{{ existing_stack }}"
+      ExistingStack: "{{ stack_name }}"
   when: create_vpc == "no" and add_node == "yes" and node_type == "app"
 
 - name: Add Infra Node
@@ -204,5 +204,5 @@
       NodeDockerVolType: gp2
       NodeInstanceProfile: "{{ iam_role }}"
       NodeType: "{{ node_type }}"
-      ExistingStack: "{{ existing_stack }}"
+      ExistingStack: "{{ stack_name }}"
   when: create_vpc == "no" and add_node == "yes" and node_type == "infra"

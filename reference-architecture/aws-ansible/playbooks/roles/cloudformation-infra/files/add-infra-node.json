@@ -10,7 +10,7 @@
     "AmiId": {
       "Type": "AWS::EC2::Image::Id"
     },
-    "ExistingStack,": {
+    "ExistingStack": {
       "Type": "String"
     },
     "InstanceType": {
