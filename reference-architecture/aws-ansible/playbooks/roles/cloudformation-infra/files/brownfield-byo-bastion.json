@@ -755,9 +755,6 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master01",{"Ref": "PublicHostedZone"}]]}
             },
-            { "Key": "KubernetesCluster",
-              "Value": {"Ref": "AWS::StackName"}
-            },
             { "Key": "openshift-role",
               "Value": "master"
             }
@@ -811,9 +808,6 @@
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master02",{"Ref": "PublicHostedZone"}]]}
-            },
-            { "Key": "KubernetesCluster",
-              "Value": {"Ref": "AWS::StackName"}
             },
             { "Key": "openshift-role",
               "Value": "master"
@@ -869,9 +863,6 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master03",{"Ref": "PublicHostedZone"}]]}
             },
-            { "Key": "KubernetesCluster",
-              "Value": {"Ref": "AWS::StackName"}
-            },
             { "Key": "openshift-role",
               "Value": "master"
             }
@@ -926,9 +917,6 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node01",{"Ref": "PublicHostedZone"}]]}
             },
-            { "Key": "KubernetesCluster",
-              "Value": {"Ref": "AWS::StackName"}
-            },
             { "Key": "openshift-role",
               "Value": "infra"
             }
@@ -974,9 +962,6 @@
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node02",{"Ref": "PublicHostedZone"}]]}
-            },
-            { "Key": "KubernetesCluster",
-              "Value": {"Ref": "AWS::StackName"}
             },
             { "Key": "openshift-role",
               "Value": "infra"
@@ -1024,9 +1009,6 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node03",{"Ref": "PublicHostedZone"}]]}
             },
-            { "Key": "KubernetesCluster",
-              "Value": {"Ref": "AWS::StackName"}
-            },
             { "Key": "openshift-role",
               "Value": "infra"
             }
@@ -1073,9 +1055,6 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-app-node01",{"Ref": "PublicHostedZone"}]]}
             },
-            { "Key": "KubernetesCluster",
-              "Value": {"Ref": "AWS::StackName"}
-            },
             { "Key": "openshift-role",
               "Value": "app"
             }
@@ -1121,9 +1100,6 @@
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-app-node02",{"Ref": "PublicHostedZone"}]]}
-            },
-            { "Key": "KubernetesCluster",
-              "Value": {"Ref": "AWS::StackName"}
             },
             { "Key": "openshift-role",
               "Value": "app"

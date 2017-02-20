@@ -48,6 +48,8 @@
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
+    tags:
+      KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "yes"
 
 - name: Create Brownfield Infrastructure
@@ -101,6 +103,8 @@
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
+    tags:
+      KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and byo_bastion == "no"
 
 - name: Create Brownfield Infrastructure with existing bastion
@@ -152,6 +156,8 @@
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
+    tags:
+      KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and byo_bastion == "yes"
 
 - name: Add App Node
@@ -177,7 +183,8 @@
       NodeDockerVolType: gp2
       NodeInstanceProfile: "{{ iam_role }}"
       NodeType: "{{ node_type }}"
-      ExistingStack: "{{ stack_name }}"
+    tags:
+      KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and add_node == "yes" and node_type == "app"
 
 - name: Add Infra Node
@@ -204,5 +211,6 @@
       NodeDockerVolType: gp2
       NodeInstanceProfile: "{{ iam_role }}"
       NodeType: "{{ node_type }}"
-      ExistingStack: "{{ stack_name }}"
+    tags:
+      KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and add_node == "yes" and node_type == "infra"
