@@ -667,6 +667,7 @@ echo -e '# End of OpenShift on GCE Section\n' >> "$ssh_config_file"
 # Prepare config file for ansible based on the configuration from this script
 export DNS_DOMAIN \
     OCP_APPS_DNS_NAME \
+    OPENSHIFT_SDN \
     MASTER_DNS_NAME \
     INTERNAL_MASTER_DNS_NAME \
     CONSOLE_PORT \

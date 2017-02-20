@@ -33,6 +33,7 @@
     openshift_master_default_subdomain: "{{osm_default_subdomain}}"
     osm_default_node_selector: "role=app"
     deployment_type: openshift-enterprise
+    os_sdn_network_plugin_name: "redhat/{{ openshift_sdn }}"
     openshift_master_identity_providers:
     - name: github
       kind: GitHubIdentityProvider

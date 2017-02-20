@@ -23,6 +23,7 @@
     osm_default_node_selector: "role=app"
     openshift_deployment_type: openshift-enterprise
     deployment_type: "{{ openshift_deployment_type }}"
+    os_sdn_network_plugin_name: "redhat/{{ openshift_sdn }}"
     openshift_master_identity_providers:
     - name: google
       kind: GoogleIdentityProvider
