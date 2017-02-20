@@ -33,6 +33,9 @@ MASTER_HTTPS_KEY_FILE="${HOME}/master.${DNS_DOMAIN}.key"
 # OpenShift Identity providers. This is Google oauth example (hosted_domain is optional and restricts login to users only from the specified domain)
 OCP_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "login": "true", "challenge": "false", "mapping_method": "claim", "client_id": "xxx-yyy.apps.googleusercontent.com", "client_secret": "zzz", "hosted_domain": "example.com"} ]'
 
+# OpenShift SDN selection (default is 'redhat/openshift-ovs-subnet')
+OPENSHIFT_SDN='redhat/openshift-ovs-subnet'
+
 ## DEFAULT VALUES ##
 
 OCP_VERSION='3.4'

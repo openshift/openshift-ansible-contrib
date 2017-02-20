@@ -12,3 +12,4 @@ gcs_registry_bucket: ${REGISTRY_BUCKET}
 gce_project_id: ${GCLOUD_PROJECT}
 gce_network_name: ${OCP_NETWORK}
 openshift_master_identity_providers: ${OCP_IDENTITY_PROVIDERS}
+openshift_sdn: ${OPENSHIFT_SDN}
