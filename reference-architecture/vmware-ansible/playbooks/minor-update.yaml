@@ -10,7 +10,7 @@
     openshift_master_api_port: "{{ console_port }}"
     openshift_master_console_port: "{{ console_port }}"
     osm_cluster_network_cidr: 172.16.0.0/16
-    openshift_cloudprovider_kind: aws
+    openshift_cloudprovider_kind: vsphere 
     openshift_master_cluster_hostname: "internal-openshift-master.{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "openshift-master.{{ load_balancer_hostname }}"
     osm_default_node_selector: "role=app"
