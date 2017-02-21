@@ -39,8 +39,6 @@
     openshift_router_selector: "role=infra"
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: vsphere
-    openshift_release: 3.4.1.2 
-    openshift_pkg_version: -3.4.1.2-1.git.0.d760092.el7.x86_64
     wildcard_zone:
     osm_default_subdomain: "{{ wildcard_zone }}"
     openshift_master_default_subdomain: "{{osm_default_subdomain}}"

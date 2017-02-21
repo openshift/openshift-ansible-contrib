@@ -4,9 +4,9 @@
     role: common
 
 - block:
-   - name: Exclude atomic-openshift packages
-     command: atomic-openshift-excluder exclude
+    - name: Exclude atomic-openshift packages
+      command: atomic-openshift-excluder exclude
 
-   - name: Exclude docker package
-     command: atomic-openshift-docker-excluder exclude
+    - name: Exclude docker package
+      command: atomic-openshift-docker-excluder exclude
   when: not openshift.common.is_atomic | bool
