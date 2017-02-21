@@ -7,6 +7,8 @@
 
 - include: ../../../playbooks/prerequisite.yaml
 
+- include: ../../../playbooks/unexclude-atomic-docker.yaml
+
 - include: ../../../playbooks/openshift-storage.yaml
 
 - hosts: cluster_hosts

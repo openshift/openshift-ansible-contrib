@@ -9,6 +9,8 @@
 
 - include: ../../../playbooks/prerequisite.yaml
 
+- include: ../../../playbooks/unexclude-atomic-docker.yaml
+
 - include: ../../../playbooks/openshift-storage.yaml
 
 - name: call openshift includes for installer
