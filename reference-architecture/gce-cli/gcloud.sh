@@ -38,17 +38,33 @@ function echoerr {
     cat <<< "$@" 1>&2;
 }
 
-# Check $RHEL_IMAGE_PATH
-if [ -z "$RHEL_IMAGE_PATH" ]; then
-    echoerr '$RHEL_IMAGE_PATH variable is required'
-    exit 1
+#Check Image related variables
+PARENT_IMAGE_SELECTOR=${PARENT_IMAGE_SELECTOR:-}
+BASE_IMAGE_SELECTOR=${BASE_IAMGE_SELECTOR:-}
+REGISTERED_IMAGE=${REGISTERED_IMAGE:-}
+if [ -z "$PARENT_IMAGE_SELECTOR" -a -z "$BASE_IMAGE_SELECTOR" ]; then
+    if [ -z "$RHEL_IMAGE_PATH" ]; then
+        echoerr 'One of $RHEL_IMAGE_PATH, $PARENT_IMAGE_SELECTOR or $BASE_IMAGE_SELECTOR variable is required'
+        exit 1
+    fi
+    if [ ! -f "$RHEL_IMAGE_PATH" ]; then
+        echoerr '$RHEL_IMAGE_PATH must exist'
+        exit 1
+    fi
+    if [ "${RHEL_IMAGE_PATH:(-6)}" != '.qcow2' ]; then
+        echoerr '$RHEL_IMAGE_PATH image must be in qcow2 format'
+        exit 1
+    fi
 fi
-if [ ! -f "$RHEL_IMAGE_PATH" ]; then
-    echoerr '$RHEL_IMAGE_PATH must exist'
+
+if [ -n "$BASE_IMAGE_SELECTOR" -a -n "$PARENT_IMAGE_SELECTOR" ]; then
+    echoerr '$PARENT_IMAGE_SELECTOR and $BASE_IMAGE_SELECTOR are mutually exclusive'
     exit 1
-fi
-if [ "${RHEL_IMAGE_PATH:(-6)}" != '.qcow2' ]; then
-    echoerr '$RHEL_IMAGE_PATH image must be in qcow2 format'
+elif [ -n "$BASE_IMAGE_SELECTOR" -a -n "$REGISTERED_IMAGE" ]; then
+    echoerr '$PARENT_IMAGE_SELECTOR and $REGISTERED_IMAGE are mutually exclusive'
+    exit 1
+elif [ -n "$PARENT_IMAGE_SELECTOR" -a -z "$REGISTERED_IMAGE" ]; then
+    echoerr '$PARENT_IMAGE_SELECTOR requires $REGISTERED_IMAGE'
     exit 1
 fi
 
@@ -100,12 +116,15 @@ if [ -z "${MASTER_HTTPS_CERT_FILE:-}" ] || [ -z "${MASTER_HTTPS_KEY_FILE:-}" ]; 
 fi
 
 # Get basename of $RHEL_IMAGE_PATH without suffix
-RHEL_IMAGE=$(basename "$RHEL_IMAGE_PATH")
-RHEL_IMAGE=${RHEL_IMAGE%.qcow2}
+RHEL_IMAGE_GCE=${RHEL_IMAGE_GCE:-}
+if [ -z "$PARENT_IMAGE_SELECTOR" -a -z "$BASE_IMAGE_SELECTOR" ]; then
+    RHEL_IMAGE=$(basename "$RHEL_IMAGE_PATH")
+    RHEL_IMAGE=${RHEL_IMAGE%.qcow2}
 
-# Image name in GCE can't contain '.' or '_', so replace them with '-'
-RHEL_IMAGE_GCE=${RHEL_IMAGE//[._]/-}
-REGISTERED_IMAGE="${RHEL_IMAGE_GCE}-registered"
+    # Image name in GCE can't contain '.' or '_', so replace them with '-'
+    RHEL_IMAGE_GCE=${RHEL_IMAGE//[._]/-}
+    REGISTERED_IMAGE="${RHEL_IMAGE_GCE}-registered"
+fi
 
 # If user doesn't provide DNS_DOMAIN_NAME, create it
 if [ -z "$DNS_DOMAIN_NAME" ]; then
@@ -118,6 +137,7 @@ GCLOUD_REGION=${GCLOUD_ZONE%-*}
 
 function revert {
     # Unregister systems
+	# TODO: Skip for origin?
     gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
     ansible-playbook playbooks/unregister.yaml;
@@ -267,8 +287,10 @@ function revert {
     fi
 
     # Pre-registered image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$REGISTERED_IMAGE"
+    if [ -n "$REGISTERED_IMAGE" ]; then
+        if gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
+            gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$REGISTERED_IMAGE"
+        fi
     fi
 
     # Firewall rules
@@ -287,8 +309,10 @@ function revert {
     fi
 
     # RHEL image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null && [ "$DELETE_IMAGE" = true ]; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$RHEL_IMAGE_GCE"
+    if [ -n "$RHEL_IMAGE_GCE" ]; then
+        if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null && [ "$DELETE_IMAGE" = true ]; then
+            gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$RHEL_IMAGE_GCE"
+        fi
     fi
 
     # Remove configuration from local ~/.ssh/config file
@@ -312,7 +336,9 @@ if ! gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED
 fi
 
 # Upload image
-if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
+if [ -n "$RHEL_IMAGE_GCE" ] && gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null ] ; then
+    echo "Image '${RHEL_IMAGE_GCE}' already exists"
+elif [ -n "$RHEL_IMAGE_GCE" ]; then
     echo 'Converting gcow2 image to raw image:'
     qemu-img convert -p -S 4096 -f qcow2 -O raw "$RHEL_IMAGE_PATH" disk.raw
     echo 'Creating archive of raw image:'
@@ -323,8 +349,6 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE
     gcloud --project "$GCLOUD_PROJECT" compute images create "$RHEL_IMAGE_GCE" --source-uri "${bucket}/${RHEL_IMAGE}.tar.gz"
     gsutil -m rm -r "$bucket"
     rm -f disk.raw "${RHEL_IMAGE}.tar.gz"
-else
-    echo "Image '${RHEL_IMAGE_GCE}' already exists"
 fi
 
 # Create network
@@ -366,24 +390,38 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q 
 fi
 
 # Create pre-registered image based on the uploaded image
-if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instances create "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "$OCP_NETWORK" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "ssh-external"
+if [ -n "$REGISTERED_IMAGE" ] && gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
+    echo "Image '${REGISTERED_IMAGE}' already exists"
+elif [ -n "$REGISTERED_IMAGE" ]; then
+    if [ -z "$PARENT_IMAGE_SELECTOR" ]; then
+        PARENT_IMAGE_SELECTOR="--image $RHEL_IMAGE_GCE"
+    fi
+
+    gcloud --project "$GCLOUD_PROJECT" compute instances create "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "$OCP_NETWORK" $PARENT_IMAGE_SELECTOR --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "ssh-external"
     until gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --command "echo" &>/dev/null; do
         echo "Waiting for '${TEMP_INSTANCE}' to come up..."
         sleep 5
     done
     if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-        subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
-        subscription-manager attach --pool=${RH_POOL_ID};
-        subscription-manager repos --disable=\"*\";
-        subscription-manager repos \
-            --enable=\"rhel-7-server-rpms\" \
-            --enable=\"rhel-7-server-extras-rpms\" \
-            --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
+        if [[ \"${OCP_DEPLOYMENT_TYPE}\" == \"origin\" ]]; then
+            yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
+            yum install -y centos-release-openshift-origin;
+            yum --enablerepo=centos-openshift-origin-testing clean all;
+            #yum --enablerepo=centos-openshift-origin-testing install -y atomic-openshift-utils;
+        else
+            subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
+            subscription-manager attach --pool=${RH_POOL_ID};
+            subscription-manager repos --disable=\"*\";
+            subscription-manager repos \
+                --enable=\"rhel-7-server-rpms\" \
+                --enable=\"rhel-7-server-extras-rpms\" \
+                --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
+        fi
 
         yum -q list atomic-openshift-utils;
 
-        cat << EOF > /etc/yum.repos.d/google-cloud.repo
+        if [ ! -e /etc/yum.repos.d/google-cloud.repo ]; then
+            cat << EOF > /etc/yum.repos.d/google-cloud.repo
 [google-cloud-compute]
 name=Google Cloud Compute
 baseurl=https://packages.cloud.google.com/yum/repos/google-cloud-compute-el7-x86_64
@@ -393,11 +431,14 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
+        fi
 
-        yum install -y google-compute-engine google-compute-engine-init google-config wget git net-tools bind-utils iptables-services bridge-utils bash-completion python-httplib2 docker;
+        yum install -y google-compute-engine google-compute-engine-init google-config wget git net-tools bind-utils iptables-services bridge-utils bash-completion python-httplib2 docker PyYAML;
         yum update -y;
         yum clean all;
-        subscription-manager unregister;
+        if [[ \"${OCP_DEPLOYMENT_TYPE}\" != \"origin\" ]]; then
+            subscription-manager unregister;
+        fi
 '"; then
         gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
         gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
@@ -408,30 +449,32 @@ EOF
     gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
     gcloud --project "$GCLOUD_PROJECT" compute images create "$REGISTERED_IMAGE" --source-disk "$TEMP_INSTANCE" --source-disk-zone "$GCLOUD_ZONE"
     gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
-else
-    echo "Image '${REGISTERED_IMAGE}' already exists"
+fi
+
+if [ -z "$BASE_IMAGE_SELECTOR" ]; then
+    BASE_IMAGE_SELECTOR="--image $REGISTERED_IMAGE"
 fi
 
 # Create instance templates
 if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$MASTER_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$MASTER_INSTANCE_TEMPLATE" --machine-type "$MASTER_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-master" --image "$REGISTERED_IMAGE" --boot-disk-size "35" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
+    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$MASTER_INSTANCE_TEMPLATE" --machine-type "$MASTER_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-master" $BASE_IMAGE_SELECTOR --boot-disk-size "35" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
 else
     echo "Instance template '${MASTER_INSTANCE_TEMPLATE}' already exists"
 fi
 if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$NODE_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$NODE_INSTANCE_TEMPLATE" --machine-type "$NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-node" --image "$REGISTERED_IMAGE" --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
+    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$NODE_INSTANCE_TEMPLATE" --machine-type "$NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-node" $BASE_IMAGE_SELECTOR --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
 else
     echo "Instance template '${NODE_INSTANCE_TEMPLATE}' already exists"
 fi
 if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$INFRA_NODE_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$INFRA_NODE_INSTANCE_TEMPLATE" --machine-type "$INFRA_NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-infra-node" --image "$REGISTERED_IMAGE" --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
+    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$INFRA_NODE_INSTANCE_TEMPLATE" --machine-type "$INFRA_NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-infra-node" $BASE_IMAGE_SELECTOR --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
 else
     echo "Instance template '${INFRA_NODE_INSTANCE_TEMPLATE}' already exists"
 fi
 
 # Create Bastion instance
 if ! gcloud --project "$GCLOUD_PROJECT" compute instances describe "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instances create "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "$BASTION_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "bastion,ssh-external" --image "$REGISTERED_IMAGE" --boot-disk-size "20" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
+    gcloud --project "$GCLOUD_PROJECT" compute instances create "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "$BASTION_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "bastion,ssh-external" $BASE_IMAGE_SELECTOR --boot-disk-size "20" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
 else
     echo "Instance '${BASTION_INSTANCE}' already exists"
 fi
@@ -675,19 +718,24 @@ export DNS_DOMAIN \
     REGISTRY_BUCKET \
     GCLOUD_PROJECT \
     OCP_NETWORK \
-    OCP_IDENTITY_PROVIDERS
+    OCP_IDENTITY_PROVIDERS \
+    OCP_DEPLOYMENT_TYPE \
+    OCP_CONTAINERIZED \
+    OCP_VERSION
 envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/ansible-config.yml"
 gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml" "cloud-user@${BASTION_INSTANCE}:" --zone "$GCLOUD_ZONE"
 
 # Prepare bastion instance for openshift installation
 gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-    subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
-    subscription-manager attach --pool=${RH_POOL_ID};
-    subscription-manager repos --disable=\"*\";
-    subscription-manager repos \
-        --enable=\"rhel-7-server-rpms\" \
-        --enable=\"rhel-7-server-extras-rpms\" \
-        --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
+    if [[ \"${OCP_DEPLOYMENT_TYPE}\" != \"origin\" ]]; then
+        subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
+        subscription-manager attach --pool=${RH_POOL_ID};
+        subscription-manager repos --disable=\"*\";
+        subscription-manager repos \
+            --enable=\"rhel-7-server-rpms\" \
+            --enable=\"rhel-7-server-extras-rpms\" \
+            --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
+    fi
     yum install -y python-libcloud atomic-openshift-utils;
 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
@@ -697,25 +745,45 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
         echo \"export INVENTORY_IP_TYPE=internal\" >> /etc/profile.d/ocp.sh;
     fi
 '";
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
+
+GCLOUD_INSTALL_COMMAND=${GCLOUD_INSTALL_COMMAND:-
     if [ ! -d ~/google-cloud-sdk ]; then
+        cd ~;
         curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar -xz;
         ~/google-cloud-sdk/bin/gcloud -q components update;
         ~/google-cloud-sdk/install.sh -q --usage-reporting false;
     fi
+}
 
+OCP_ANSIBLE_SSH_KEY_SETUP_COMMAND=${OCP_ANSIBLE_SSH_KEY_SETUP_COMMAND:-
     if [ ! -f ~/.ssh/google_compute_engine ]; then
-        ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N \"\";
+        ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N \\\"\\\";
     fi
 
     # This command will upload our public SSH key to the GCE project metadata
     ~/google-cloud-sdk/bin/gcloud compute ssh cloud-user@${BASTION_INSTANCE} --zone ${GCLOUD_ZONE} --command echo;
+}
 
+OCP_ANSIBLE_CHECKOUT_COMMAND=${OCP_ANSIBLE_CHECKOUT_COMMAND:-}
+
+OCP_ANSIBLE_CONTRIB_CHECKOUT_COMMAND=${OCP_ANSIBLE_CONTRIB_CHECKOUT_COMMAND:-
     if [ ! -d ~/openshift-ansible-contrib ]; then
         git clone https://github.com/openshift/openshift-ansible-contrib.git ~/openshift-ansible-contrib;
     fi
+}
+
+OCP_DEPLOY_COMMAND=${OCP_DEPLOY_COMMAND:-
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
     ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} -e @~/ansible-config.yml playbooks/openshift-install.yaml;
+}
+
+gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
+    bash -euc \"${GCLOUD_INSTALL_COMMAND}\"
+    bash -euc \"${OCP_ANSIBLE_SSH_KEY_SETUP_COMMAND}\"
+    bash -euc \"${OCP_ANSIBLE_CHECKOUT_COMMAND}\"
+    bash -euc \"${OCP_ANSIBLE_CONTRIB_CHECKOUT_COMMAND}\"
+    bash -euc \"${OCP_DEPLOY_COMMAND}\"
+    
 '";
 
 echo
