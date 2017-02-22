@@ -57,6 +57,7 @@ Host bastion
      Hostname                   bastion.sysdeseng.com
      user                       ec2-user
      StrictHostKeyChecking      no
+     ProxyCommand               none
      CheckHostIP                no
      ForwardAgent               yes
      IdentityFile               /path/to/ssh/key
