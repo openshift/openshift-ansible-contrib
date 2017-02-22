@@ -9,6 +9,8 @@
 
 - include: ../../../playbooks/prerequisite.yaml
 
+- include: ../../../playbooks/unexclude-atomic-docker.yaml
+
 - include: ../../../playbooks/openshift-storage.yaml
 
 - name: call openshift includes for installer
@@ -66,3 +68,5 @@
       url:
       bindDN:
       bindPassword:
+
+- include: ../../../playbooks/exclude-atomic-docker.yaml

@@ -10,19 +10,8 @@
   - cfn-outputs
   - instance-groups
 
-- hosts: localhost
-  connection: local
-  gather_facts: no
-  become: no
-  vars_files:
-  - vars/main.yaml
-  roles:
-  - host-up
-
-- include: ../../../playbooks/prerequisite.yaml
-
 - include: ../../../playbooks/unexclude-atomic-docker.yaml
 
-- include: openshift-setup.yaml
+- include: minor-update.yaml
 
 - include: ../../../playbooks/exclude-atomic-docker.yaml

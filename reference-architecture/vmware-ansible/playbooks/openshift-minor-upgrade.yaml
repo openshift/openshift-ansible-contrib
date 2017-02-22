@@ -1,0 +1,14 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  become: no
+  roles:
+  # Group systems
+  - instance-groups
+
+- include: ../../../playbooks/unexclude-atomic-docker.yaml
+
+- include: minor-update.yaml
+
+- include: ../../../playbooks/exclude-atomic-docker.yaml

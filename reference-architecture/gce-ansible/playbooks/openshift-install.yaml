@@ -7,6 +7,8 @@
 
 - include: ../../../playbooks/prerequisite.yaml
 
+- include: ../../../playbooks/unexclude-atomic-docker.yaml
+
 - include: ../../../playbooks/openshift-storage.yaml
 
 - hosts: cluster_hosts
@@ -15,6 +17,8 @@
     - gce-cloudconfig
 
 - include: openshift-setup.yaml
+
+- include: ../../../playbooks/exclude-atomic-docker.yaml
 
 - hosts: masters
   gather_facts: no
