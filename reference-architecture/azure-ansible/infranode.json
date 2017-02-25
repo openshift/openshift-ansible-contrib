@@ -18,7 +18,7 @@
       "type" : "string"
     },
     "sshKeyData" : {
-      "type" : "string",
+      "type" : "securestring",
       "metadata" : {
         "description" : "SSH RSA public key file as a string."
       }
@@ -157,13 +157,16 @@
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "properties" : {
-        "publisher" : "Microsoft.OSTCExtensions",
-        "type" : "CustomScriptForLinux",
-        "typeHandlerVersion" : "1.3",
+		"publisher": "Microsoft.Azure.Extensions",
+		"type": "CustomScript",
+		"typeHandlerVersion": "2.0",
+		"autoUpgradeMinorVersion": true,
         "settings" : {
           "fileUris" : [
             "[concat(parameters('baseTemplateUrl'), 'node.sh')]"
-          ],
+          ]
+		},
+		"protectedSettings": {
           "commandToExecute" : "sh node.sh"
         }
       }

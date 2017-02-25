@@ -54,7 +54,7 @@
       "type" : "string"
     },
     "sshPrivateData" : {
-      "type" : "string",
+      "type" : "securestring",
       "metadata" : {
         "description" : "SSH RSA private key file as a string."
       }
@@ -175,13 +175,16 @@
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "properties" : {
-        "publisher" : "Microsoft.OSTCExtensions",
-        "type" : "CustomScriptForLinux",
-        "typeHandlerVersion" : "1.3",
+		"publisher": "Microsoft.Azure.Extensions",
+		"type": "CustomScript",
+		"typeHandlerVersion": "2.0",
+		"autoUpgradeMinorVersion": true,
         "settings" : {
           "fileUris" : [
             "[concat(parameters('baseTemplateUrl'), 'bastion.sh')]"
-          ],
+          ]
+		},
+		"protectedSettings": {
           "commandToExecute" : "[ concat('sh bastion.sh ', resourceGroup().name, ' ', parameters('wildcardZone'), ' ',  parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote')  ) ]"
         }
       }

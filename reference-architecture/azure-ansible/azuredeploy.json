@@ -16,7 +16,7 @@
       }
     },
     "sshKeyData" : {
-      "type" : "string",
+      "type" : "securestring",
       "metadata" : {
         "description" : "SSH RSA public key file as a string."
       }
@@ -49,10 +49,8 @@
     },
     "masterVMSize" : {
       "type" : "string",
-      "defaultValue" : "Standard_DS3",
+      "defaultValue" : "Standard_DS3_v2",
       "allowedValues" : [
-        "Standard_A0",
-        "Standard_A1",
         "Standard_A2",
         "Standard_A3",
         "Standard_A4",
@@ -63,7 +61,6 @@
         "Standard_A9",
         "Standard_A10",
         "Standard_A11",
-        "Standard_D1",
         "Standard_D2",
         "Standard_D3",
         "Standard_D4",
@@ -71,7 +68,6 @@
         "Standard_D12",
         "Standard_D13",
         "Standard_D14",
-        "Standard_D1_v2",
         "Standard_D2_v2",
         "Standard_D3_v2",
         "Standard_D4_v2",
@@ -85,7 +81,6 @@
         "Standard_G3",
         "Standard_G4",
         "Standard_G5",
-        "Standard_DS1",
         "Standard_DS2",
         "Standard_DS3",
         "Standard_DS4",
@@ -93,6 +88,14 @@
         "Standard_DS12",
         "Standard_DS13",
         "Standard_DS14",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2",
+        "Standard_DS11_v2",
+        "Standard_DS12_v2",
+        "Standard_DS13_v2",
+        "Standard_DS14_v2",
         "Standard_GS1",
         "Standard_GS2",
         "Standard_GS3",
@@ -105,10 +108,8 @@
     },
     "infranodeVMSize" : {
       "type" : "string",
-      "defaultValue" : "Standard_DS2",
+      "defaultValue" : "Standard_DS_v2",
       "allowedValues" : [
-        "Standard_A0",
-        "Standard_A1",
         "Standard_A2",
         "Standard_A3",
         "Standard_A4",
@@ -119,7 +120,6 @@
         "Standard_A9",
         "Standard_A10",
         "Standard_A11",
-        "Standard_D1",
         "Standard_D2",
         "Standard_D3",
         "Standard_D4",
@@ -127,7 +127,6 @@
         "Standard_D12",
         "Standard_D13",
         "Standard_D14",
-        "Standard_D1_v2",
         "Standard_D2_v2",
         "Standard_D3_v2",
         "Standard_D4_v2",
@@ -141,7 +140,6 @@
         "Standard_G3",
         "Standard_G4",
         "Standard_G5",
-        "Standard_DS1",
         "Standard_DS2",
         "Standard_DS3",
         "Standard_DS4",
@@ -149,6 +147,14 @@
         "Standard_DS12",
         "Standard_DS13",
         "Standard_DS14",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2",
+        "Standard_DS11_v2",
+        "Standard_DS12_v2",
+        "Standard_DS13_v2",
+        "Standard_DS14_v2",
         "Standard_GS1",
         "Standard_GS2",
         "Standard_GS3",
@@ -161,10 +167,8 @@
     },
     "nodeVMSize" : {
       "type" : "string",
-      "defaultValue" : "Standard_DS12",
+      "defaultValue" : "Standard_DS12_v2",
       "allowedValues" : [
-        "Standard_A0",
-        "Standard_A1",
         "Standard_A2",
         "Standard_A3",
         "Standard_A4",
@@ -175,7 +179,6 @@
         "Standard_A9",
         "Standard_A10",
         "Standard_A11",
-        "Standard_D1",
         "Standard_D2",
         "Standard_D3",
         "Standard_D4",
@@ -183,7 +186,6 @@
         "Standard_D12",
         "Standard_D13",
         "Standard_D14",
-        "Standard_D1_v2",
         "Standard_D2_v2",
         "Standard_D3_v2",
         "Standard_D4_v2",
@@ -197,7 +199,6 @@
         "Standard_G3",
         "Standard_G4",
         "Standard_G5",
-        "Standard_DS1",
         "Standard_DS2",
         "Standard_DS3",
         "Standard_DS4",
@@ -205,6 +206,14 @@
         "Standard_DS12",
         "Standard_DS13",
         "Standard_DS14",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2",
+        "Standard_DS11_v2",
+        "Standard_DS12_v2",
+        "Standard_DS13_v2",
+        "Standard_DS14_v2",
         "Standard_GS1",
         "Standard_GS2",
         "Standard_GS3",
@@ -246,7 +255,7 @@
       "defaultValue" : "Standard_DS3_v2",
       "allowedValues" : [
         "Standard_DS3_v2",
-        "Standard_DS12\t"
+        "Standard_DS12_v2"
       ],
       "metadata" : {
         "description" : "The size of the each Node Virtual Machine."
@@ -271,7 +280,8 @@
     "infranodeStorageName" : "[concat(uniqueString(resourceGroup().id), 'infranodesa')]",
     "nodeStorageName" : "[concat(uniqueString(resourceGroup().id), 'nodesa')]",
     "masterStorageName" : "[concat(uniqueString(resourceGroup().id), 'mastersa')]",
-    "vhdStorageType" : "Standard_LRS",
+	"storeStorageName" : "[concat(uniqueString(resourceGroup().id), 'storesa')]",
+    "vhdStorageType" : "Premium_LRS",
     "vnetId" : "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "infranodeSubnetRef" : "[concat(variables('vnetId'), '/subnets/', variables('infranodesubnetName'))]",
     "nodeSubnetRef" : "[concat(variables('vnetId'), '/subnets/', variables('nodesubnetName'))]",
@@ -284,7 +294,174 @@
     },
     "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastion.json')]",
     "tmApiVersion" : "2015-11-01",
-    "baseVMachineTemplateUriStore" : "[concat(variables('baseTemplateUrl'), 'store.json')]"
+    "baseVMachineTemplateUriStore" : "[concat(variables('baseTemplateUrl'), 'store.json')]",
+	"vmSizesMap": {
+		"Standard_A2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A3": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A4": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A5": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A6": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A7": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A8": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A9": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A10": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_A11": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D1": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D3": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D4": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D11": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D12": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D13": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D14": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D1_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D2_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D3_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D4_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D5_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D11_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D12_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D13_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_D14_v2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_G1": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_G2": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_G3": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_G4": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_G5": {
+			"storageAccountType": "Standard_LRS"
+		},
+		"Standard_DS1": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS3": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS4": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS11": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS12": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS13": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS14": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS1_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS2_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS3_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS4_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS5_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS11_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS12_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS13_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS14_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_DS15_v2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_GS1": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_GS2": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_GS3": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_GS4": {
+			"storageAccountType": "Premium_LRS"
+		},
+		"Standard_GS5": {
+			"storageAccountType": "Premium_LRS"
+		}
+	}
   },
   "resources" : [
     {
@@ -296,7 +473,7 @@
         "displayName" : "StorageAccount"
       },
       "properties" : {
-        "accountType" : "[variables('vhdStorageType')]"
+        "accountType" : "[variables('vmSizesMap')[parameters('infranodeVMSize')].storageAccountType]"
       }
     },
     {
@@ -308,7 +485,7 @@
         "displayName" : "StorageAccount"
       },
       "properties" : {
-        "accountType" : "[variables('vhdStorageType')]"
+        "accountType" : "[variables('vmSizesMap')[parameters('nodeVmSize')].storageAccountType]"
       }
     },
     {
@@ -320,7 +497,19 @@
         "displayName" : "StorageAccount"
       },
       "properties" : {
-        "accountType" : "[variables('vhdStorageType')]"
+        "accountType" : "[variables('vmSizesMap')[parameters('masterVMSize')].storageAccountType]"
+      }
+    },
+	{
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('storeStorageName')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "[variables('vmSizesMap')[parameters('storeVMSize')].storageAccountType]"
       }
     },
     {
@@ -362,7 +551,7 @@
     {
       "name" : "[concat('nodeSet', copyindex())]",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "copy" : {
         "name" : "nodeSet",
         "count" : "[parameters('numberOfNodes')]"
@@ -408,7 +597,7 @@
     {
       "name" : "master1",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]",
@@ -475,7 +664,7 @@
     {
       "name" : "infranode1",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('infranodeStorageName'))]"
@@ -520,7 +709,7 @@
     {
       "name" : "bastion",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]",
@@ -593,7 +782,7 @@
     {
       "name" : "master2",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]",
@@ -660,7 +849,7 @@
     {
       "name" : "master3",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]"
@@ -779,10 +968,10 @@
     {
       "name" : "store1",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('nodeStorageName'))]"
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storeStorageName'))]"
       ],
       "properties" : {
         "mode" : "Incremental",
@@ -795,7 +984,7 @@
             "value" : "store1"
           },
           "sa" : {
-            "value" : "[variables('nodeStorageName')]"
+            "value" : "[variables('storeStorageName')]"
           },
           "subnetRef" : {
             "value" : "[variables('nodeSubnetRef')]"
@@ -824,7 +1013,7 @@
     {
       "name" : "infranode2",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('infranodeStorageName'))]"
@@ -869,7 +1058,7 @@
     {
       "name" : "infranode3",
       "type" : "Microsoft.Resources/deployments",
-      "apiVersion" : "2013-03-01",
+      "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('infranodeStorageName'))]"
