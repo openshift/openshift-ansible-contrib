@@ -263,7 +263,8 @@
     }
   },
   "variables" : {
-    "baseTemplateUrl" : "https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/",
+    "branch" : "azuredevelop",
+    "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/')]",
     "baseVMachineTemplateUriInfranode" : "[concat(variables('baseTemplateUrl'), 'infranode.json')]",
     "baseVMachineTemplateUriNode" : "[concat(variables('baseTemplateUrl'), 'node.json')]",
     "baseVMachineTemplateUriMaster" : "[concat(variables('baseTemplateUrl'), 'master.json')]",
