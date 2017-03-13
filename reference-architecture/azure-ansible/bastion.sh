@@ -166,8 +166,6 @@ master2.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
 master3.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
 node[01:${NODECOUNT}].${domain} openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 
-[misc]
-store1.${domain}
 EOF
 
 
@@ -231,42 +229,6 @@ cat <<EOF > /home/${AUSERNAME}/quota.yml
   - name: Update Mount to Handle Quota
     mount: fstype=xfs name=/var/lib/origin/openshift.local/volumes src=/dev/sdd option="gquota" state="mounted"
 EOF
-
-
-cat <<EOF > /home/${AUSERNAME}/setupiscsi.yml
-- hosts: all
-  vars:
-    description: "Subscribe OCP"
-  tasks:
-  - name: Install iSCSI initiator utils
-    yum: name=iscsi-initiator-utils state=latest
-  - name: add new initiator name
-    lineinfile: dest=/etc/iscsi/initiatorname.iscsi create=yes regexp="InitiatorName=*" line="InitiatorName=iqn.2016-02.local.azure.nodes" state=present
-  - name: restart iSCSI service
-    shell: systemctl restart iscsi
-    ignore_errors: yes
-  - name: Enable iSCSI
-    shell: systemctl enable iscsi
-    ignore_errors: yes
-  - name: Start iSCSI Initiator Service
-    shell: systemctl start iscsi
-    ignore_errors: yes
-  - name: Discover iSCSI on all hosts
-    shell: iscsiadm --mode discovery --type sendtargets --portal store1
-    register: task_result
-    until: task_result.rc == 0
-    retries: 10
-    delay: 30
-    ignore_errors: yes
-  - name: Login All Hosts
-    shell: iscsiadm --mode node --portal store1 --login
-    register: task_result
-    until: task_result.rc == 0
-    retries: 10
-    delay: 30
-    ignore_errors: yes
-EOF
-
 
 cat <<EOF > /home/${AUSERNAME}/postinstall.yml
 ---
