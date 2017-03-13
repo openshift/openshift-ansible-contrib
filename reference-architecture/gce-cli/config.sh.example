@@ -7,7 +7,7 @@ RHEL_IMAGE_PATH="${HOME}/Downloads/rhel-guest-image-7.3-35.x86_64.qcow2"
 # Choose to delete or retain the clean image
 DELETE_IMAGE='false'
 
-# Choose to delete or retain the golf image
+# Choose to delete or retain the gold image
 DELETE_GOLD_IMAGE='true'
 
 # Username and password for Red Hat Customer Portal
