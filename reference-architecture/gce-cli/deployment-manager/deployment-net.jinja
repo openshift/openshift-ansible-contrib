@@ -1,0 +1,145 @@
+resources:
+- name: {{ properties['prefix'] }}-network
+  properties:
+    autoCreateSubnetworks: true
+    subnetworks:
+    - projects/{{env['project']}}/regions/{{ properties['region'] }}/subnetworks/{{ properties['prefix'] }}-network
+    x_gcloud_mode: auto
+  type: compute.v1.network
+- name: {{ properties['prefix'] }}-icmp
+  properties:
+    allowed:
+    - IPProtocol: icmp
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceRanges:
+    - 0.0.0.0/0
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-ssh-external
+  properties:
+    allowed:
+    - IPProtocol: tcp
+      ports:
+      - '22'
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceRanges:
+    - 0.0.0.0/0
+    targetTags:
+    - {{ properties['prefix'] }}-ssh-external
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-ssh-internal
+  properties:
+    allowed:
+    - IPProtocol: tcp
+      ports:
+      - '22'
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceTags:
+    - {{ properties['prefix'] }}-bastion
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-master-internal-dns
+  properties:
+    allowed:
+    - IPProtocol: udp
+      ports:
+      - '8053'
+    - IPProtocol: tcp
+      ports:
+      - '8053'
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceTags:
+    - {{ properties['prefix'] }}
+    targetTags:
+    - {{ properties['prefix'] }}-master
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-master-internal-etcd
+  properties:
+    allowed:
+    - IPProtocol: tcp
+      ports:
+      - '2379'
+    - IPProtocol: tcp
+      ports:
+      - '2380'
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceTags:
+    - {{ properties['prefix'] }}-master
+    targetTags:
+    - {{ properties['prefix'] }}-master
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-master-external
+  properties:
+    allowed:
+    - IPProtocol: tcp
+      ports:
+      - {{ properties['console_port'] }}
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceRanges:
+    - 0.0.0.0/0
+    targetTags:
+    - {{ properties['prefix'] }}-master
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-node-internal-sdn
+  properties:
+    allowed:
+    - IPProtocol: udp
+      ports:
+      - '4789'
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceTags:
+    - {{ properties['prefix'] }}-node
+    - {{ properties['prefix'] }}-infra-node
+    targetTags:
+    - {{ properties['prefix'] }}-node
+    - {{ properties['prefix'] }}-infra-node
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-node-internal-kubelet
+  properties:
+    allowed:
+    - IPProtocol: tcp
+      ports:
+      - '10250'
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceTags:
+    - {{ properties['prefix'] }}-master
+    targetTags:
+    - {{ properties['prefix'] }}-node
+    - {{ properties['prefix'] }}-infra-node
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-infra-node-internal
+  properties:
+    allowed:
+    - IPProtocol: tcp
+      ports:
+      - '5000'
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceTags:
+    - {{ properties['prefix'] }}-node
+    - {{ properties['prefix'] }}-infra-node
+    targetTags:
+    - {{ properties['prefix'] }}-infra-node
+  type: compute.v1.firewall
+- name: {{ properties['prefix'] }}-infra-node-external
+  properties:
+    allowed:
+    - IPProtocol: tcp
+      ports:
+      - '80'
+    - IPProtocol: tcp
+      ports:
+      - '443'
+    description: ''
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    sourceRanges:
+    - 0.0.0.0/0
+    targetTags:
+    - {{ properties['prefix'] }}-infra-node
+  type: compute.v1.firewall

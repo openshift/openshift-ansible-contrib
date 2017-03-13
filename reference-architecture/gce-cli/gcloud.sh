@@ -23,7 +23,7 @@
 # SOFTWARE.
 
 #
-# Script to prepare infrastructure for OpenShift Cloud Platform installation on GCE.
+# Script to deploy infrastructure and OpenShift Cloud Platform on GCP.
 #
 
 set -euo pipefail
@@ -31,8 +31,6 @@ set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "${DIR}/config.sh"
-
-ssh_config_file=~/.ssh/config
 
 function echoerr {
     cat <<< "$@" 1>&2;
@@ -105,7 +103,7 @@ RHEL_IMAGE=${RHEL_IMAGE%.qcow2}
 
 # Image name in GCE can't contain '.' or '_', so replace them with '-'
 RHEL_IMAGE_GCE=${RHEL_IMAGE//[._]/-}
-REGISTERED_IMAGE="${RHEL_IMAGE_GCE}-registered"
+GOLD_IMAGE="${RHEL_IMAGE_GCE}-gold"
 
 # If user doesn't provide DNS_DOMAIN_NAME, create it
 if [ -z "$DNS_DOMAIN_NAME" ]; then
@@ -118,11 +116,11 @@ GCLOUD_REGION=${GCLOUD_ZONE%-*}
 
 function revert {
     # Unregister systems
-    gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
+    gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
     ansible-playbook playbooks/unregister.yaml;
     '";
-    
+
     # Bucket for registry
     if gsutil ls -p "$GCLOUD_PROJECT" "gs://${REGISTRY_BUCKET}" &>/dev/null; then
         gsutil -m rm -r "gs://${REGISTRY_BUCKET}"
@@ -137,162 +135,46 @@ function revert {
         rm -f "$EMPTY_FILE"
     fi
 
-    # Router forwarding rule
-    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$ROUTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION"
-    fi
-
-    # Router IP
-    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION"
-    fi
-
-    # Router target pool
-    if gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$ROUTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute target-pools delete "$ROUTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION"
-    fi
-
-    # Router health check
-    if gcloud --project "$GCLOUD_PROJECT" compute http-health-checks describe "$ROUTER_NETWORK_LB_HEALTH_CHECK" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute http-health-checks delete "$ROUTER_NETWORK_LB_HEALTH_CHECK"
-    fi
-
-    # Internal master forwarding rule
-    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$MASTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION"
-    fi
-
-    # Internal master IP
-    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION"
-    fi
-
-    # Internal master target pool
-    if gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$MASTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute target-pools delete "$MASTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION"
-    fi
-
-    # Internal master health check
-    if gcloud --project "$GCLOUD_PROJECT" compute http-health-checks describe "$MASTER_NETWORK_LB_HEALTH_CHECK" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute http-health-checks delete "$MASTER_NETWORK_LB_HEALTH_CHECK"
-    fi
-
-    # Master forwarding rule
-    if gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_SSL_LB_RULE" --global &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute forwarding-rules delete "$MASTER_SSL_LB_RULE" --global
-    fi
-
-    # Master target proxy
-    if gcloud --project "$GCLOUD_PROJECT" compute target-ssl-proxies describe "$MASTER_SSL_LB_TARGET" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute target-ssl-proxies delete "$MASTER_SSL_LB_TARGET"
+    # Core deployment
+    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${CORE_DEPLOYMENT}" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${CORE_DEPLOYMENT}"
     fi
 
     # Master certificate
-    if gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MASTER_SSL_LB_CERT" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute ssl-certificates delete "$MASTER_SSL_LB_CERT"
-    fi
-
-    # Master IP
-    if gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_SSL_LB_IP" --global &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute addresses delete "$MASTER_SSL_LB_IP" --global
-    fi
-
-    # Master backend service
-    if gcloud --project "$GCLOUD_PROJECT" beta compute backend-services describe "$MASTER_SSL_LB_BACKEND" --global &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" beta compute backend-services delete "$MASTER_SSL_LB_BACKEND" --global
-    fi
-
-    # Master health check
-    if gcloud --project "$GCLOUD_PROJECT" compute health-checks describe "$MASTER_SSL_LB_HEALTH_CHECK" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute health-checks delete "$MASTER_SSL_LB_HEALTH_CHECK"
-    fi
-
-    # Additional disks for node instances for docker and openshift storage
-    instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
-    for i in $instances; do
-        docker_disk="${i}${NODE_DOCKER_DISK_POSTFIX}"
-        openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
-        instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
-        if gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
-            gcloud --project "$GCLOUD_PROJECT" compute instances detach-disk "${i}" --disk "$docker_disk" --zone "$instance_zone"
-            gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$docker_disk" --zone "$instance_zone"
-        fi
-        if gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
-            gcloud --project "$GCLOUD_PROJECT" compute instances detach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
-            gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$openshift_disk" --zone "$instance_zone"
-        fi
-    done
-
-    # Master instance group
-    if gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed describe "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" beta compute instance-groups managed delete "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE"
-    fi
-
-    # Node instance group
-    if gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed describe "$NODE_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" beta compute instance-groups managed delete "$NODE_INSTANCE_GROUP" --zone "$GCLOUD_ZONE"
-    fi
-
-    # Infra node instance group
-    if gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed describe "$INFRA_NODE_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" beta compute instance-groups managed delete "$INFRA_NODE_INSTANCE_GROUP" --zone "$GCLOUD_ZONE"
-    fi
-
-    # Bastion instance
-    if gcloud --project "$GCLOUD_PROJECT" compute instances describe "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE"
+    if gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute ssl-certificates delete "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}"
     fi
 
     # Temp instance (it shouldn't exist, just to be sure..)
-    if gcloud --project "$GCLOUD_PROJECT" compute instances describe "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
+    if gcloud --project "$GCLOUD_PROJECT" compute instances describe "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
     fi
-    if gcloud --project "$GCLOUD_PROJECT" compute disks describe "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
-    fi
-
-    # Master instance template
-    if gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$MASTER_INSTANCE_TEMPLATE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute instance-templates delete "$MASTER_INSTANCE_TEMPLATE"
+    if gcloud --project "$GCLOUD_PROJECT" compute disks describe "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
     fi
 
-    # Node instance template
-    if gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$NODE_INSTANCE_TEMPLATE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute instance-templates delete "$NODE_INSTANCE_TEMPLATE"
+    # Dynamic firewall rule
+    if gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute firewall-rules delete "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}"
     fi
 
-    # Infra node instance template
-    if gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$INFRA_NODE_INSTANCE_TEMPLATE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute instance-templates delete "$INFRA_NODE_INSTANCE_TEMPLATE"
+    # Network deployment
+    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${NETWORK_DEPLOYMENT}" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${NETWORK_DEPLOYMENT}"
     fi
 
-    # Pre-registered image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null && [ "$DELETE_IMAGE" = true ]; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$REGISTERED_IMAGE"
-    fi
-
-    # Firewall rules
-    for rule in "${!FW_RULES[@]}"; do
-        if gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "$rule" &>/dev/null; then
-            gcloud -q --project "$GCLOUD_PROJECT" compute firewall-rules delete "$rule"
-        fi
-    done
-    if gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "$BASTION_SSH_FW_RULE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute firewall-rules delete "$BASTION_SSH_FW_RULE"
-    fi
-
-    # Network
-    if gcloud --project "$GCLOUD_PROJECT" compute networks describe "$OCP_NETWORK" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute networks delete "$OCP_NETWORK"
+    # Gold image
+    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$GOLD_IMAGE" &>/dev/null && [ "$DELETE_GOLD_IMAGE" = 'true' ]; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$GOLD_IMAGE"
     fi
 
     # RHEL image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null && [ "$DELETE_IMAGE" = true ]; then
+    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null && [ "$DELETE_IMAGE" = 'true' ]; then
         gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$RHEL_IMAGE_GCE"
     fi
 
     # Remove configuration from local ~/.ssh/config file
-    sed -i '/^# OpenShift on GCE Section$/,/^# End of OpenShift on GCE Section$/d' "$ssh_config_file"
+    sed -i '/^# OpenShift on GCP Section$/,/^# End of OpenShift on GCP Section$/d' "$SSH_CONFIG_FILE"
 }
 
 # Support the revert option
@@ -327,22 +209,6 @@ else
     echo "Image '${RHEL_IMAGE_GCE}' already exists"
 fi
 
-# Create network
-if ! gcloud --project "$GCLOUD_PROJECT" compute networks describe "$OCP_NETWORK" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute networks create "$OCP_NETWORK" --mode "auto"
-else
-    echo "Network '${OCP_NETWORK}' already exists"
-fi
-
-# Create firewall rules
-for rule in "${!FW_RULES[@]}"; do
-    if ! gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "$rule" &>/dev/null; then
-        gcloud --project "$GCLOUD_PROJECT" compute firewall-rules create "$rule" --network "$OCP_NETWORK" ${FW_RULES[$rule]}
-    else
-        echo "Firewall rule '${rule}' already exists"
-    fi
-done
-
 # Create SSH key for GCE
 if [ ! -f ~/.ssh/google_compute_engine ]; then
     ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N ''
@@ -365,14 +231,25 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q 
     rm -f "$key_tmp_file"
 fi
 
-# Create pre-registered image based on the uploaded image
-if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instances create "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "$OCP_NETWORK" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "ssh-external"
-    until gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --command "echo" &>/dev/null; do
-        echo "Waiting for '${TEMP_INSTANCE}' to come up..."
+# Deploy network and firewall rules
+export OCP_PREFIX \
+    GCLOUD_REGION \
+    CONSOLE_PORT
+envsubst < "${DIR}/deployment-manager/deployment-net-config.yml.tpl" > "${DIR}/deployment-manager/deployment-net-config.yml"
+if ! gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${NETWORK_DEPLOYMENT}" &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments create "${OCP_PREFIX}-${NETWORK_DEPLOYMENT}" --config "${DIR}/deployment-manager/deployment-net-config.yml"
+else
+    echo "Deployment '${OCP_PREFIX}-${NETWORK_DEPLOYMENT}' already exists"
+fi
+
+# Create the gold image based on the uploaded image
+if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$GOLD_IMAGE" &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" compute instances create "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "${OCP_PREFIX}-${OCP_NETWORK}" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "${OCP_PREFIX}-ssh-external"
+    until gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --command "echo" &>/dev/null; do
+        echo "Waiting for '${OCP_PREFIX}-${TEMP_INSTANCE}' to come up..."
         sleep 5
     done
-    if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
+    if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
         subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
         subscription-manager attach --pool=${RH_POOL_ID};
         subscription-manager repos --disable=\"*\";
@@ -393,123 +270,27 @@ repo_gpgcheck=1
 gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
        https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
 EOF
-
+        yum remove -y irqbalance
         yum install -y google-compute-engine google-compute-engine-init google-config wget git net-tools bind-utils iptables-services bridge-utils bash-completion python-httplib2 docker;
         yum update -y;
         yum clean all;
         subscription-manager unregister;
 '"; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
-        gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
+        gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
+        gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
         echoerr "Deployment failed, please check provided Red Hat Username, Password and Pool ID and rerun the script"
         exit 1
     fi
-    gcloud --project "$GCLOUD_PROJECT" compute instances stop "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
-    gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
-    gcloud --project "$GCLOUD_PROJECT" compute images create "$REGISTERED_IMAGE" --source-disk "$TEMP_INSTANCE" --source-disk-zone "$GCLOUD_ZONE"
-    gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
+    gcloud --project "$GCLOUD_PROJECT" compute instances stop "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
+    gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
+    gcloud --project "$GCLOUD_PROJECT" compute images create "$GOLD_IMAGE" --source-disk "${OCP_PREFIX}-${TEMP_INSTANCE}" --source-disk-zone "$GCLOUD_ZONE"
+    gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
 else
-    echo "Image '${REGISTERED_IMAGE}' already exists"
-fi
-
-# Create instance templates
-if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$MASTER_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$MASTER_INSTANCE_TEMPLATE" --machine-type "$MASTER_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-master" --image "$REGISTERED_IMAGE" --boot-disk-size "35" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
-else
-    echo "Instance template '${MASTER_INSTANCE_TEMPLATE}' already exists"
-fi
-if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$NODE_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$NODE_INSTANCE_TEMPLATE" --machine-type "$NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-node" --image "$REGISTERED_IMAGE" --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
-else
-    echo "Instance template '${NODE_INSTANCE_TEMPLATE}' already exists"
-fi
-if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$INFRA_NODE_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$INFRA_NODE_INSTANCE_TEMPLATE" --machine-type "$INFRA_NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-infra-node" --image "$REGISTERED_IMAGE" --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
-else
-    echo "Instance template '${INFRA_NODE_INSTANCE_TEMPLATE}' already exists"
-fi
-
-# Create Bastion instance
-if ! gcloud --project "$GCLOUD_PROJECT" compute instances describe "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instances create "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "$BASTION_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "bastion,ssh-external" --image "$REGISTERED_IMAGE" --boot-disk-size "20" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
-else
-    echo "Instance '${BASTION_INSTANCE}' already exists"
-fi
-
-# Allow bastion to connect via SSH to other instances via external IP
-bastion_ext_ip=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name=${BASTION_INSTANCE}" --format='value(EXTERNAL_IP)')
-if ! gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "$BASTION_SSH_FW_RULE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute firewall-rules create "$BASTION_SSH_FW_RULE" --network "$OCP_NETWORK" --allow tcp:22 --source-ranges "$bastion_ext_ip"
-else
-    echo "Firewall rule '${BASTION_SSH_FW_RULE}' already exists"
-fi
-
-# Create Infra node instance group
-if ! gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed describe "$INFRA_NODE_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed create "$INFRA_NODE_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" --template "$INFRA_NODE_INSTANCE_TEMPLATE" --size "$INFRA_NODE_INSTANCE_GROUP_SIZE"
-else
-    echo "Instance group '${INFRA_NODE_INSTANCE_GROUP}' already exists"
-fi
-
-# Create Node instance group
-if ! gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed describe "$NODE_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed create "$NODE_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" --template "$NODE_INSTANCE_TEMPLATE" --size "$NODE_INSTANCE_GROUP_SIZE"
-else
-    echo "Instance group '${NODE_INSTANCE_GROUP}' already exists"
-fi
-
-# Create Master instance group
-if ! gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed describe "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed create "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" --template "$MASTER_INSTANCE_TEMPLATE" --size "$MASTER_INSTANCE_GROUP_SIZE"
-    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-named-ports "$MASTER_INSTANCE_GROUP" --zone "$GCLOUD_ZONE" --named-ports "${MASTER_NAMED_PORT_NAME}:${CONSOLE_PORT}"
-else
-    echo "Instance group '${MASTER_INSTANCE_GROUP}' already exists"
-fi
-
-# Attach additional disks to node instances for docker and openshift storage
-instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp-node OR tags.items:ocp-infra-node' --format='value(name)')
-for i in $instances; do
-    docker_disk="${i}${NODE_DOCKER_DISK_POSTFIX}"
-    openshift_disk="${i}${NODE_OPENSHIFT_DISK_POSTFIX}"
-    instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name:${i}" --format='value(zone)')
-    if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
-        gcloud --project "$GCLOUD_PROJECT" compute disks create "$docker_disk" --zone "$instance_zone" --size "$NODE_DOCKER_DISK_SIZE" --type "pd-ssd"
-        gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$docker_disk" --zone "$instance_zone"
-    else
-        echo "Disk '${docker_disk}' already exists"
-    fi
-    if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
-        gcloud --project "$GCLOUD_PROJECT" compute disks create "$openshift_disk" --zone "$instance_zone" --size "$NODE_OPENSHIFT_DISK_SIZE" --type "pd-ssd"
-        gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
-    else
-        echo "Disk '${openshift_disk}' already exists"
-    fi
-done
-
-# Master health check
-if ! gcloud --project "$GCLOUD_PROJECT" compute health-checks describe "$MASTER_SSL_LB_HEALTH_CHECK" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute health-checks create https "$MASTER_SSL_LB_HEALTH_CHECK" --port "$CONSOLE_PORT" --request-path "/healthz"
-else
-    echo "Health check '${MASTER_SSL_LB_HEALTH_CHECK}' already exists"
-fi
-
-# Master backend service
-if ! gcloud --project "$GCLOUD_PROJECT" beta compute backend-services describe "$MASTER_SSL_LB_BACKEND" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" beta compute backend-services create "$MASTER_SSL_LB_BACKEND" --health-checks "$MASTER_SSL_LB_HEALTH_CHECK" --port-name "$MASTER_NAMED_PORT_NAME" --protocol "SSL" --global
-    gcloud --project "$GCLOUD_PROJECT" beta compute backend-services add-backend "$MASTER_SSL_LB_BACKEND" --instance-group "$MASTER_INSTANCE_GROUP" --global --instance-group-zone "$GCLOUD_ZONE"
-else
-    echo "Backend service '${MASTER_SSL_LB_BACKEND}' already exists"
-fi
-
-# Master IP
-if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_SSL_LB_IP" --global &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute addresses create "$MASTER_SSL_LB_IP" --global
-else
-    echo "IP '${MASTER_SSL_LB_IP}' already exists"
+    echo "Image '${GOLD_IMAGE}' already exists"
 fi
 
 # Master Certificate
-if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MASTER_SSL_LB_CERT" &>/dev/null; then
+if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" &>/dev/null; then
     if [ -z "${MASTER_HTTPS_KEY_FILE:-}" ] || [ -z "${MASTER_HTTPS_CERT_FILE:-}" ]; then
         KEY='/tmp/ocp-ssl.key'
         CERT='/tmp/ocp-ssl.crt'
@@ -518,92 +299,70 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "$MAST
         KEY="$MASTER_HTTPS_KEY_FILE"
         CERT="$MASTER_HTTPS_CERT_FILE"
     fi
-    gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates create "$MASTER_SSL_LB_CERT" --private-key "$KEY" --certificate "$CERT"
+    gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates create "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" --private-key "$KEY" --certificate "$CERT"
     if [ -z "${MASTER_HTTPS_KEY_FILE:-}" ] || [ -z "${MASTER_HTTPS_CERT_FILE:-}" ]; then
         rm -fv "$KEY" "$CERT"
     fi
 else
-    echo "Certificate '${MASTER_SSL_LB_CERT}' already exists"
+    echo "Certificate '${OCP_PREFIX}-${MASTER_SSL_LB_CERT}' already exists"
 fi
 
-# Master ssl proxy target
-if ! gcloud --project "$GCLOUD_PROJECT" compute target-ssl-proxies describe "$MASTER_SSL_LB_TARGET" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute target-ssl-proxies create "$MASTER_SSL_LB_TARGET" --backend-service "$MASTER_SSL_LB_BACKEND" --ssl-certificate "$MASTER_SSL_LB_CERT"
+# Deploy core infrastructure
+export OCP_PREFIX \
+    GCLOUD_PROJECT \
+    GCLOUD_REGION \
+    GCLOUD_ZONE \
+    GOLD_IMAGE \
+    CONSOLE_PORT \
+    BASTION_MACHINE_TYPE \
+    BASTION_DISK_SIZE \
+    MASTER_MACHINE_TYPE \
+    MASTER_BOOT_DISK_SIZE \
+    NODE_MACHINE_TYPE \
+    NODE_BOOT_DISK_SIZE \
+    MASTER_INSTANCE_GROUP_SIZE \
+    INFRA_NODE_INSTANCE_GROUP_SIZE \
+    NODE_INSTANCE_GROUP_SIZE
+envsubst < "${DIR}/deployment-manager/deployment-core-config.yml.tpl" > "${DIR}/deployment-manager/deployment-core-config.yml"
+if ! gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${CORE_DEPLOYMENT}" &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments create "${OCP_PREFIX}-${CORE_DEPLOYMENT}" --config "${DIR}/deployment-manager/deployment-core-config.yml"
 else
-    echo "Proxy target '${MASTER_SSL_LB_TARGET}' already exists"
+    echo "Deployment '${OCP_PREFIX}-${CORE_DEPLOYMENT}' already exists"
 fi
 
-# Master forwarding rule
-if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_SSL_LB_RULE" --global &>/dev/null; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_SSL_LB_IP" --global --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_SSL_LB_RULE" --address "$IP" --global --ports "$CONSOLE_PORT" --target-ssl-proxy "$MASTER_SSL_LB_TARGET"
+# Allow bastion to connect via SSH to other instances via external IP
+bastion_ext_ip=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name=${OCP_PREFIX}-bastion" --format='value(EXTERNAL_IP)')
+if ! gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}" &>/dev/null; then
+    gcloud --project "$GCLOUD_PROJECT" compute firewall-rules create "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}" --network "${OCP_PREFIX}-${OCP_NETWORK}" --allow tcp:22 --source-ranges "$bastion_ext_ip"
 else
-    echo "Forwarding rule '${MASTER_SSL_LB_RULE}' already exists"
+    echo "Firewall rule '${OCP_PREFIX}-${BASTION_SSH_FW_RULE}' already exists"
 fi
 
-# Internal master health check
-if ! gcloud --project "$GCLOUD_PROJECT" compute http-health-checks describe "$MASTER_NETWORK_LB_HEALTH_CHECK" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute http-health-checks create "$MASTER_NETWORK_LB_HEALTH_CHECK" --port "8080" --request-path "/healthz"
-else
-    echo "Health check '${MASTER_NETWORK_LB_HEALTH_CHECK}' already exists"
-fi
-
-# Internal master target pool
-if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$MASTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$MASTER_NETWORK_LB_POOL" --http-health-check "$MASTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
-    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-target-pools "$MASTER_INSTANCE_GROUP" --target-pools "$MASTER_NETWORK_LB_POOL" --zone "$GCLOUD_ZONE"
-else
-    echo "Target pool '${MASTER_NETWORK_LB_POOL}' already exists"
-fi
-
-# Internal master IP
-if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute addresses create "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION"
-else
-    echo "IP '${MASTER_NETWORK_LB_IP}' already exists"
-fi
-
-# Internal master forwarding rule
-if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$MASTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$MASTER_NETWORK_LB_RULE" --address "$IP" --ports "$CONSOLE_PORT" --region "$GCLOUD_REGION" --target-pool "$MASTER_NETWORK_LB_POOL"
-else
-    echo "Forwarding rule '${MASTER_NETWORK_LB_RULE}' already exists"
-fi
-
-# Router health check
-if ! gcloud --project "$GCLOUD_PROJECT" compute http-health-checks describe "$ROUTER_NETWORK_LB_HEALTH_CHECK" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute http-health-checks create "$ROUTER_NETWORK_LB_HEALTH_CHECK" --port "1936" --request-path "/healthz"
-else
-    echo "Health check '${ROUTER_NETWORK_LB_HEALTH_CHECK}' already exists"
-fi
-
-# Router target pool
-if ! gcloud --project "$GCLOUD_PROJECT" compute target-pools describe "$ROUTER_NETWORK_LB_POOL" --region "$GCLOUD_REGION" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute target-pools create "$ROUTER_NETWORK_LB_POOL" --http-health-check "$ROUTER_NETWORK_LB_HEALTH_CHECK" --region "$GCLOUD_REGION"
-    gcloud --project "$GCLOUD_PROJECT" beta compute instance-groups managed set-target-pools "$INFRA_NODE_INSTANCE_GROUP" --target-pools "$ROUTER_NETWORK_LB_POOL" --zone "$GCLOUD_ZONE"
-else
-    echo "Target pool '${ROUTER_NETWORK_LB_POOL}' already exists"
-fi
-
-# Router IP
-if ! gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute addresses create "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION"
-else
-    echo "IP '${ROUTER_NETWORK_LB_IP}' already exists"
-fi
-
-# Router forwarding rule
-if ! gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules describe "$ROUTER_NETWORK_LB_RULE" --region "$GCLOUD_REGION" &>/dev/null; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" compute forwarding-rules create "$ROUTER_NETWORK_LB_RULE" --address "$IP" --ports '80-443' --region "$GCLOUD_REGION" --target-pool "$ROUTER_NETWORK_LB_POOL"
-else
-    echo "Forwarding rule '${ROUTER_NETWORK_LB_RULE}' already exists"
-fi
+# Attach additional disks to node instances for docker and openshift storage
+instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="tags.items=${OCP_PREFIX}-node OR tags.items=${OCP_PREFIX}-infra-node" --format='value(name)')
+for i in $instances; do
+    docker_disk="${i}-docker"
+    openshift_disk="${i}-openshift"
+    instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name=${i}" --format='value(zone)')
+    if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
+        gcloud --project "$GCLOUD_PROJECT" compute disks create "$docker_disk" --zone "$instance_zone" --size "$NODE_DOCKER_DISK_SIZE" --type "pd-ssd"
+        gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$docker_disk" --zone "$instance_zone"
+        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$docker_disk" --auto-delete
+    else
+        echo "Disk '${docker_disk}' already exists"
+    fi
+    if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
+        gcloud --project "$GCLOUD_PROJECT" compute disks create "$openshift_disk" --zone "$instance_zone" --size "$NODE_OPENSHIFT_DISK_SIZE" --type "pd-ssd"
+        gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
+        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$openshift_disk" --auto-delete
+    else
+        echo "Disk '${openshift_disk}' already exists"
+    fi
+done
 
 # DNS record for master lb
 if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$MASTER_DNS_NAME" 2>/dev/null | grep -q "$MASTER_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_SSL_LB_IP" --global --format='value(address)')
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "${OCP_PREFIX}-master-ssl-lb-ip" --global --format='value(address)')
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${MASTER_DNS_NAME}." --type A "$IP"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction execute -z "$DNS_MANAGED_ZONE"
@@ -613,7 +372,7 @@ fi
 
 # DNS record for internal master lb
 if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$INTERNAL_MASTER_DNS_NAME" 2>/dev/null | grep -q "$INTERNAL_MASTER_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$MASTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "${OCP_PREFIX}-master-network-lb-ip" --region "$GCLOUD_REGION" --format='value(address)')
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${INTERNAL_MASTER_DNS_NAME}." --type A "$IP"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction execute -z "$DNS_MANAGED_ZONE"
@@ -623,7 +382,7 @@ fi
 
 # DNS record for router lb
 if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$OCP_APPS_DNS_NAME" 2>/dev/null | grep -q "$OCP_APPS_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "$ROUTER_NETWORK_LB_IP" --region "$GCLOUD_REGION" --format='value(address)')
+    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "${OCP_PREFIX}-router-network-lb-ip" --region "$GCLOUD_REGION" --format='value(address)')
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${OCP_APPS_DNS_NAME}." --type A "$IP"
     gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "*.${OCP_APPS_DNS_NAME}." --type CNAME "${OCP_APPS_DNS_NAME}."
@@ -640,34 +399,35 @@ else
 fi
 
 # Configure local SSH so we can connect directly to all instances
-touch "$ssh_config_file"
-chmod 600 "$ssh_config_file"
-sed -i '/^# OpenShift on GCE Section$/,/^# End of OpenShift on GCE Section$/d' "$ssh_config_file"
-echo -e '# OpenShift on GCE Section\n' >> "$ssh_config_file"
-bastion_data=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='name:bastion' --format='value(EXTERNAL_IP,id)')
-echo "Host bastion
-    HostName $(echo $bastion_data | cut -d ' ' -f 1)
+touch "$SSH_CONFIG_FILE"
+chmod 600 "$SSH_CONFIG_FILE"
+sed -i '/^# OpenShift on GCP Section$/,/^# End of OpenShift on GCP Section$/d' "$SSH_CONFIG_FILE"
+echo -e '# OpenShift on GCP Section\n' >> "$SSH_CONFIG_FILE"
+bastion_data=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name=${OCP_PREFIX}-bastion" --format='value(EXTERNAL_IP,id)')
+echo "Host ${OCP_PREFIX}-bastion
+    HostName $(echo ${bastion_data} | cut -d ' ' -f 1)
     User cloud-user
     IdentityFile ~/.ssh/google_compute_engine
     UserKnownHostsFile ~/.ssh/google_compute_known_hosts
-    HostKeyAlias compute.$(echo $bastion_data | cut -d ' ' -f 2)
+    HostKeyAlias compute.$(echo ${bastion_data} | cut -d ' ' -f 2)
     IdentitiesOnly yes
     CheckHostIP no
-" >> "$ssh_config_file"
-instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter='tags.items:ocp' --format='value(name)')
+" >> "$SSH_CONFIG_FILE"
+instances=$(gcloud --project "${GCLOUD_PROJECT}" compute instances list --filter="tags.items=${OCP_PREFIX}" --format='value(name)')
 for i in $instances; do
     echo "Host ${i}
     User cloud-user
     IdentityFile ~/.ssh/google_compute_engine
-    proxycommand ssh bastion -W %h:%p
-" >> "$ssh_config_file"
+    proxycommand ssh ${OCP_PREFIX}-bastion -W %h:%p
+" >> "$SSH_CONFIG_FILE"
 done
-echo -e '# End of OpenShift on GCE Section\n' >> "$ssh_config_file"
+echo -e '# End of OpenShift on GCP Section\n' >> "$SSH_CONFIG_FILE"
 
 # Prepare config file for ansible based on the configuration from this script
 export DNS_DOMAIN \
     OCP_APPS_DNS_NAME \
     OPENSHIFT_SDN \
+    OCP_PREFIX \
     MASTER_DNS_NAME \
     INTERNAL_MASTER_DNS_NAME \
     CONSOLE_PORT \
@@ -677,10 +437,10 @@ export DNS_DOMAIN \
     OCP_NETWORK \
     OCP_IDENTITY_PROVIDERS
 envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/ansible-config.yml"
-gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml" "cloud-user@${BASTION_INSTANCE}:" --zone "$GCLOUD_ZONE"
+gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml" "cloud-user@${OCP_PREFIX}-bastion:" --zone "$GCLOUD_ZONE"
 
 # Prepare bastion instance for openshift installation
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
+gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
     subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
     subscription-manager attach --pool=${RH_POOL_ID};
     subscription-manager repos --disable=\"*\";
@@ -697,7 +457,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
         echo \"export INVENTORY_IP_TYPE=internal\" >> /etc/profile.d/ocp.sh;
     fi
 '";
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
+gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
     if [ ! -d ~/google-cloud-sdk ]; then
         curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar -xz;
         ~/google-cloud-sdk/bin/gcloud -q components update;
@@ -709,7 +469,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${BASTION_INSTANCE}" 
     fi
 
     # This command will upload our public SSH key to the GCE project metadata
-    ~/google-cloud-sdk/bin/gcloud compute ssh cloud-user@${BASTION_INSTANCE} --zone ${GCLOUD_ZONE} --command echo;
+    ~/google-cloud-sdk/bin/gcloud compute ssh cloud-user@${OCP_PREFIX}-bastion --zone ${GCLOUD_ZONE} --command echo;
 
     if [ ! -d ~/openshift-ansible-contrib ]; then
         git clone https://github.com/openshift/openshift-ansible-contrib.git ~/openshift-ansible-contrib;

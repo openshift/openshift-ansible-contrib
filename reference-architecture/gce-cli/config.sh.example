@@ -4,11 +4,11 @@
 # Path to a RHEL image on local machine, downloaded from Red Hat Customer Portal
 RHEL_IMAGE_PATH="${HOME}/Downloads/rhel-guest-image-7.3-35.x86_64.qcow2"
 
-# Choose to delete or retain the unregistered image
-DELETE_IMAGE=true
+# Choose to delete or retain the clean image
+DELETE_IMAGE='false'
 
-# Choose to delete or retain the registered image
-REGISTERED_IMAGE_DELETE=true
+# Choose to delete or retain the golf image
+DELETE_GOLD_IMAGE='true'
 
 # Username and password for Red Hat Customer Portal
 RH_USERNAME='user@example.com'
@@ -35,82 +35,51 @@ OCP_APPS_DNS_NAME="apps.${DNS_DOMAIN}"
 MASTER_HTTPS_CERT_FILE="${HOME}/master.${DNS_DOMAIN}.pem"
 MASTER_HTTPS_KEY_FILE="${HOME}/master.${DNS_DOMAIN}.key"
 
+# Prefix for every resource name deployed
+OCP_PREFIX='ocp'
+
 # OpenShift Identity providers. This is Google oauth example (hosted_domain is optional and restricts login to users only from the specified domain)
 OCP_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "login": "true", "challenge": "false", "mapping_method": "claim", "client_id": "xxx-yyy.apps.googleusercontent.com", "client_secret": "zzz", "hosted_domain": "example.com"} ]'
 
-# OpenShift SDN selection (default is 'openshift-ovs-subnet')
+# OpenShift SDN selection (options are 'openshift-ovs-subnet', 'openshift-ovs-multitenant')
 OPENSHIFT_SDN='openshift-ovs-subnet'
 
 ## DEFAULT VALUES ##
 
 OCP_VERSION='3.4'
 
-CONSOLE_PORT='443'
-
-OCP_NETWORK='ocp-network'
-
-MASTER_MACHINE_TYPE='n1-standard-2'
-NODE_MACHINE_TYPE='n1-standard-2'
-INFRA_NODE_MACHINE_TYPE='n1-standard-2'
-BASTION_MACHINE_TYPE='n1-standard-1'
-
-MASTER_INSTANCE_TEMPLATE='master-template'
-NODE_INSTANCE_TEMPLATE='node-template'
-INFRA_NODE_INSTANCE_TEMPLATE='infra-node-template'
-
-BASTION_INSTANCE='bastion'
-
-MASTER_INSTANCE_GROUP='ocp-master'
-# How many instances should be created for this group
+# How many instances should be created for each group
 MASTER_INSTANCE_GROUP_SIZE='3'
-MASTER_NAMED_PORT_NAME='web-console'
-INFRA_NODE_INSTANCE_GROUP='ocp-infra'
-INFRA_NODE_INSTANCE_GROUP_SIZE='2'
-NODE_INSTANCE_GROUP='ocp-node'
+INFRA_NODE_INSTANCE_GROUP_SIZE='3'
 NODE_INSTANCE_GROUP_SIZE='2'
 
+BASTION_MACHINE_TYPE='n1-standard-1'
+MASTER_MACHINE_TYPE='n1-standard-2'
+NODE_MACHINE_TYPE='n1-standard-2'
+
+BASTION_DISK_SIZE='20'
+MASTER_BOOT_DISK_SIZE='35'
+NODE_BOOT_DISK_SIZE='25'
 NODE_DOCKER_DISK_SIZE='25'
-NODE_DOCKER_DISK_POSTFIX='-docker'
 NODE_OPENSHIFT_DISK_SIZE='50'
-NODE_OPENSHIFT_DISK_POSTFIX='-openshift'
 
-MASTER_NETWORK_LB_HEALTH_CHECK='master-network-lb-health-check'
-MASTER_NETWORK_LB_POOL='master-network-lb-pool'
-MASTER_NETWORK_LB_IP='master-network-lb-ip'
-MASTER_NETWORK_LB_RULE='master-network-lb-rule'
+NETWORK_DEPLOYMENT='deployment-net'
+CORE_DEPLOYMENT='deployment-core'
 
-MASTER_SSL_LB_HEALTH_CHECK='master-ssl-lb-health-check'
-MASTER_SSL_LB_BACKEND='master-ssl-lb-backend'
-MASTER_SSL_LB_IP='master-ssl-lb-ip'
+OCP_NETWORK='network'
+
 MASTER_SSL_LB_CERT='master-ssl-lb-cert'
-MASTER_SSL_LB_TARGET='master-ssl-lb-target'
-MASTER_SSL_LB_RULE='master-ssl-lb-rule'
 
-ROUTER_NETWORK_LB_HEALTH_CHECK='router-network-lb-health-check'
-ROUTER_NETWORK_LB_POOL='router-network-lb-pool'
-ROUTER_NETWORK_LB_IP='router-network-lb-ip'
-ROUTER_NETWORK_LB_RULE='router-network-lb-rule'
-
-IMAGE_BUCKET="${GCLOUD_PROJECT}-rhel-guest-raw-image"
-REGISTRY_BUCKET="${GCLOUD_PROJECT}-openshift-docker-registry"
-
-TEMP_INSTANCE='ocp-rhel-temp'
-
-GOOGLE_CLOUD_SDK_VERSION='134.0.0'
-
-# Firewall rules in a form:
-# ['name']='parameters for "gcloud compute firewall-rules create"'
-# For all possible parameters see: gcloud compute firewall-rules create --help
-declare -A FW_RULES=(
-    ['icmp']='--allow icmp'
-    ['ssh-external']='--allow tcp:22 --target-tags ssh-external'
-    ['ssh-internal']='--allow tcp:22 --source-tags bastion'
-    ['master-internal']='--allow tcp:8053,udp:8053 --source-tags ocp --target-tags ocp-master'
-    ['master-internal-etcd']='--allow tcp:2379,tcp:2380 --source-tags ocp-master --target-tags ocp-master'
-    ['master-external']="--allow tcp:${CONSOLE_PORT} --target-tags ocp-master"
-    ['node-internal-sdn']='--allow udp:4789 --source-tags ocp-node,ocp-infra-node --target-tags ocp-node,ocp-infra-node'
-    ['node-internal-kubelet']='--allow tcp:10250 --source-tags ocp-master --target-tags ocp-node,ocp-infra-node'
-    ['infra-node-internal']='--allow tcp:5000 --source-tags ocp-node,ocp-infra-node --target-tags ocp-infra-node'
-    ['infra-node-external']='--allow tcp:80,tcp:443 --target-tags ocp-infra-node'
-)
 BASTION_SSH_FW_RULE='bastion-ssh-to-external-ip'
+
+IMAGE_BUCKET="${GCLOUD_PROJECT}-${OCP_PREFIX}-rhel-guest-raw-image"
+REGISTRY_BUCKET="${GCLOUD_PROJECT}-${OCP_PREFIX}-registry-bucket"
+
+TEMP_INSTANCE='rhel-temp'
+
+GOOGLE_CLOUD_SDK_VERSION='146.0.0'
+
+# Only 443 is supported
+CONSOLE_PORT='443'
+
+SSH_CONFIG_FILE="${HOME}/.ssh/config"
