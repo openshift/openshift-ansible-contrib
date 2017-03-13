@@ -41,6 +41,9 @@ OCP_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "
 # OpenShift SDN selection (default is 'openshift-ovs-subnet')
 OPENSHIFT_SDN='openshift-ovs-subnet'
 
+# OpenShift metrics deployment (default is 'false')
+OPENSHIFT_METRICS='false'
+
 ## DEFAULT VALUES ##
 
 OCP_VERSION='3.4'

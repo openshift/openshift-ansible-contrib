@@ -668,6 +668,7 @@ echo -e '# End of OpenShift on GCE Section\n' >> "$ssh_config_file"
 export DNS_DOMAIN \
     OCP_APPS_DNS_NAME \
     OPENSHIFT_SDN \
+    OPENSHIFT_METRICS \
     MASTER_DNS_NAME \
     INTERNAL_MASTER_DNS_NAME \
     CONSOLE_PORT \

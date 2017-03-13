@@ -56,6 +56,7 @@ def launch_refarch_env(console_port=8443,
                     ldap_user_password=None,
                     ldap_fqdn=None,
                     openshift_sdn=None,
+                    openshift_metrics=None,
                     clean=None):
 
   # Open config file INI for values first
@@ -87,6 +88,7 @@ def launch_refarch_env(console_port=8443,
     'rhsm_org_id':'',
     'rhsm_pool':'OpenShift Enterprise, Premium',
     'openshift_sdn':'openshift-ovs-subnet',
+    'openshift_metrics':'false',
     'byo_lb':'no',
     'lb_host':'haproxy-',
     'byo_nfs':'no',
@@ -139,6 +141,7 @@ def launch_refarch_env(console_port=8443,
   rhsm_org_id = config.get('vmware', 'rhsm_org_id')
   rhsm_pool = config.get('vmware', 'rhsm_pool')
   openshift_sdn = config.get('vmware', 'openshift_sdn')
+  openshift_metrics = config.get('vmware', 'openshift_metrics')
   byo_lb = config.get('vmware', 'byo_lb')
   lb_host = config.get('vmware', 'lb_host')
   byo_nfs = config.get('vmware', 'byo_nfs')
@@ -423,6 +426,7 @@ def launch_refarch_env(console_port=8443,
       click.echo('\trhsm_org_id: rhsm_org_id')
 
   click.echo('\topenshift_sdn: %s' % openshift_sdn)
+  click.echo('\topenshift_metrics: %s' % openshift_metrics)
   click.echo('\tbyo_lb: %s' % byo_lb)
   click.echo('\tlb_host: %s' % lb_host)
   click.echo('\tbyo_nfs: %s' % byo_nfs)
@@ -504,6 +508,7 @@ def launch_refarch_env(console_port=8443,
     rhsm_org_id=%s \
     rhsm_pool=%s \
     openshift_sdn=%s \
+    openshift_hosted_metrics_deploy=%s \
     lb_host=%s \
     nfs_registry_host=%s \
     nfs_registry_mountpoint=%s \' %s' % ( tags,
@@ -531,6 +536,7 @@ def launch_refarch_env(console_port=8443,
                     rhsm_org_id,
                     rhsm_pool,
                     openshift_sdn,
+                    openshift_metrics,
                     lb_host,
                     nfs_registry_host,
                     nfs_registry_mountpoint,
