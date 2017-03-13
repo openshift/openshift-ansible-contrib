@@ -105,7 +105,7 @@ RHEL_IMAGE=${RHEL_IMAGE%.qcow2}
 
 # Image name in GCE can't contain '.' or '_', so replace them with '-'
 RHEL_IMAGE_GCE=${RHEL_IMAGE//[._]/-}
-REGISTERED_IMAGE="${RHEL_IMAGE_GCE}-registered"
+PATCHED_IMAGE="${RHEL_IMAGE_GCE}-registered"
 
 # If user doesn't provide DNS_DOMAIN_NAME, create it
 if [ -z "$DNS_DOMAIN_NAME" ]; then
@@ -267,8 +267,8 @@ function revert {
     fi
 
     # Pre-registered image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null && [ "$DELETE_IMAGE" = true ]; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$REGISTERED_IMAGE"
+    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$PATCHED_IMAGE" &>/dev/null && [ "$PATCHED_IMAGE_DELETE" = true ]; then
+        gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$PATCHED_IMAGE"
     fi
 
     # Firewall rules
@@ -366,7 +366,7 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q 
 fi
 
 # Create pre-registered image based on the uploaded image
-if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$REGISTERED_IMAGE" &>/dev/null; then
+if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$PATCHED_IMAGE" &>/dev/null; then
     gcloud --project "$GCLOUD_PROJECT" compute instances create "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "$OCP_NETWORK" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "ssh-external"
     until gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --command "echo" &>/dev/null; do
         echo "Waiting for '${TEMP_INSTANCE}' to come up..."
@@ -406,32 +406,32 @@ EOF
     fi
     gcloud --project "$GCLOUD_PROJECT" compute instances stop "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
     gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
-    gcloud --project "$GCLOUD_PROJECT" compute images create "$REGISTERED_IMAGE" --source-disk "$TEMP_INSTANCE" --source-disk-zone "$GCLOUD_ZONE"
+    gcloud --project "$GCLOUD_PROJECT" compute images create "$PATCHED_IMAGE" --source-disk "$TEMP_INSTANCE" --source-disk-zone "$GCLOUD_ZONE"
     gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "$TEMP_INSTANCE" --zone "$GCLOUD_ZONE"
 else
-    echo "Image '${REGISTERED_IMAGE}' already exists"
+    echo "Image '${PATCHED_IMAGE}' already exists"
 fi
 
 # Create instance templates
 if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$MASTER_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$MASTER_INSTANCE_TEMPLATE" --machine-type "$MASTER_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-master" --image "$REGISTERED_IMAGE" --boot-disk-size "35" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
+    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$MASTER_INSTANCE_TEMPLATE" --machine-type "$MASTER_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-master" --image "$PATCHED_IMAGE" --boot-disk-size "35" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
 else
     echo "Instance template '${MASTER_INSTANCE_TEMPLATE}' already exists"
 fi
 if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$NODE_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$NODE_INSTANCE_TEMPLATE" --machine-type "$NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-node" --image "$REGISTERED_IMAGE" --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
+    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$NODE_INSTANCE_TEMPLATE" --machine-type "$NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-node" --image "$PATCHED_IMAGE" --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-ro,compute-rw
 else
     echo "Instance template '${NODE_INSTANCE_TEMPLATE}' already exists"
 fi
 if ! gcloud --project "$GCLOUD_PROJECT" compute instance-templates describe "$INFRA_NODE_INSTANCE_TEMPLATE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$INFRA_NODE_INSTANCE_TEMPLATE" --machine-type "$INFRA_NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-infra-node" --image "$REGISTERED_IMAGE" --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
+    gcloud --project "$GCLOUD_PROJECT" compute instance-templates create "$INFRA_NODE_INSTANCE_TEMPLATE" --machine-type "$INFRA_NODE_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "ocp,ocp-infra-node" --image "$PATCHED_IMAGE" --boot-disk-size "25" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
 else
     echo "Instance template '${INFRA_NODE_INSTANCE_TEMPLATE}' already exists"
 fi
 
 # Create Bastion instance
 if ! gcloud --project "$GCLOUD_PROJECT" compute instances describe "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instances create "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "$BASTION_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "bastion,ssh-external" --image "$REGISTERED_IMAGE" --boot-disk-size "20" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
+    gcloud --project "$GCLOUD_PROJECT" compute instances create "$BASTION_INSTANCE" --zone "$GCLOUD_ZONE" --machine-type "$BASTION_MACHINE_TYPE" --network "$OCP_NETWORK" --tags "bastion,ssh-external" --image "$PATCHED_IMAGE" --boot-disk-size "20" --boot-disk-type "pd-ssd" --scopes logging-write,monitoring-write,useraccounts-ro,service-control,service-management,storage-rw,compute-rw
 else
     echo "Instance '${BASTION_INSTANCE}' already exists"
 fi

@@ -8,7 +8,7 @@ RHEL_IMAGE_PATH="${HOME}/Downloads/rhel-guest-image-7.3-35.x86_64.qcow2"
 DELETE_IMAGE=true
 
 # Choose to delete or retain the registered image
-REGISTERED_IMAGE_DELETE=true
+PATCHED_IMAGE_DELETE=true
 
 # Username and password for Red Hat Customer Portal
 RH_USERNAME='user@example.com'
