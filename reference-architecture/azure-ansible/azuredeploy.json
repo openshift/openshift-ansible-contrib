@@ -452,7 +452,7 @@
         "storageAccountType" : "Premium_LRS"
       }
     },
-    "registryStorageName" : "[concat(uniqueString(resourceGroup().id), 'registrysa')]"
+    "registryStorageName" : "[concat(resourceGroup().name, 'registrysa')]"
   },
   "resources" : [
     {
