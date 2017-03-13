@@ -52,6 +52,7 @@ def launch_refarch_env(console_port=8443,
                     vm_ipaddr_start=None,
                     ocp_hostname_prefix=None,
                     create_ocp_vars=None,
+                    auth_type=None,
                     ldap_user=None,
                     ldap_user_password=None,
                     ldap_fqdn=None,
@@ -97,6 +98,7 @@ def launch_refarch_env(console_port=8443,
     'app_nodes':'3',
     'vm_ipaddr_start':'',
     'ocp_hostname_prefix':'',
+    'auth_type':'ldap',
     'ldap_user':'openshift',
     'ldap_user_password':'',
     'ldap_fqdn':'' }
@@ -149,6 +151,7 @@ def launch_refarch_env(console_port=8443,
   app_nodes = config.get('vmware', 'app_nodes')
   vm_ipaddr_start = config.get('vmware', 'vm_ipaddr_start')
   ocp_hostname_prefix = config.get('vmware', 'ocp_hostname_prefix')
+  auth_type = config.get('vmware', 'auth_type')
   ldap_user = config.get('vmware', 'ldap_user')
   ldap_user_password = config.get('vmware', 'ldap_user_password')
   ldap_fqdn = config.get('vmware', 'ldap_fqdn')
@@ -192,6 +195,7 @@ def launch_refarch_env(console_port=8443,
 
   if create_ocp_vars is True:
     click.echo('Configured OCP variables:')
+    click.echo('\tauth_type: %s' % auth_type)
     click.echo('\tldap_fqdn: %s' % ldap_fqdn)
     click.echo('\tldap_user: %s' % ldap_user)
     click.echo('\tldap_user_password: %s' % ldap_user_password)
@@ -202,65 +206,77 @@ def launch_refarch_env(console_port=8443,
     click.echo('\tUsing values from: %s' % vmware_ini_path)
     if not no_confirm:
       click.confirm('Continue using these values?', abort=True)
+    if auth_type == 'ldap':
+        l_bdn = ""
 
-    l_bdn = ""
+        for d in ldap_fqdn.split("."):
+            l_bdn = l_bdn + "dc=" + d + ","
 
-    for d in ldap_fqdn.split("."):
-       l_bdn = l_bdn + "dc=" + d + ","
+        l = ldap.initialize("ldap://" + ldap_fqdn)
+        try:
+            l.protocol_version = ldap.VERSION3
+            l.set_option(ldap.OPT_REFERRALS, 0)
+            bind = l.simple_bind_s(ldap_user, ldap_user_password)
 
-    l = ldap.initialize("ldap://" + ldap_fqdn)
-    try:
-         l.protocol_version = ldap.VERSION3
-         l.set_option(ldap.OPT_REFERRALS, 0)
-         bind = l.simple_bind_s(ldap_user, ldap_user_password)
+            base = l_bdn[:-1]
+            criteria = "(&(objectClass=user)(sAMAccountName=" + ldap_user + "))"
+            attributes = 'displayName', 'distinguishedName'
+            result = l.search_s(base, ldap.SCOPE_SUBTREE, criteria, attributes)
 
-         base = l_bdn[:-1]
-         criteria = "(&(objectClass=user)(sAMAccountName=" + ldap_user + "))"
-         attributes = 'displayName', 'distinguishedName'
-         result = l.search_s(base, ldap.SCOPE_SUBTREE, criteria, attributes)
+            results = [entry for dn, entry in result if isinstance(entry, dict)]
+        finally:
+            l.unbind()
 
-         results = [entry for dn, entry in result if isinstance(entry, dict)]
-    finally:
-         l.unbind()
+        for result in results:
 
-    for result in results:
+            bindDN = str(result['distinguishedName']).strip("'[]")
+            url_base = bindDN.replace(("CN=" + ldap_user + ","), "")
+            url = "ldap://" + ldap_fqdn + ":389/" + url_base + "?sAMAccountName"
 
-         bindDN = str(result['distinguishedName']).strip("'[]")
-         url_base = bindDN.replace(("CN=" + ldap_user + ","), "")
-         url = "ldap://" + ldap_fqdn + ":389/" + url_base + "?sAMAccountName"
+        install_file = "playbooks/openshift-install.yaml"
 
-    install_file = "playbooks/openshift-install.yaml"
+        for line in fileinput.input(install_file, inplace=True):
+        # Parse our ldap url
+            if line.startswith("      url:"):
+                print "      url: " + url
+            elif line.startswith("      bindPassword:"):
+                print "      bindPassword: " + ldap_user_password
+            elif line.startswith("      bindDN:"):
+                print "      bindDN: " + bindDN
+            elif line.startswith("    wildcard_zone:"):
+                print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
+            elif line.startswith("    load_balancer_hostname:"):
+                print "    load_balancer_hostname: " + lb_host
+            elif line.startswith("    deployment_type:"):
+                print "    deployment_type: " + deployment_type
+            else:
+                print line,
+        # Provide values for update playbook
+        update_file = "playbooks/minor-update.yaml"
 
-    for line in fileinput.input(install_file, inplace=True):
-    # Parse our ldap url
-         if line.startswith("      url:"):
-              print "      url: " + url
-         elif line.startswith("      bindPassword:"):
-              print "      bindPassword: " + ldap_user_password
-         elif line.startswith("      bindDN:"):
-              print "      bindDN: " + bindDN
-         elif line.startswith("    wildcard_zone:"):
-              print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
-         elif line.startswith("    load_balancer_hostname:"):
-              print "    load_balancer_hostname: " + lb_host
-         elif line.startswith("    deployment_type:"):
-              print "    deployment_type: " + deployment_type
-         else:
-              print line,
-    # Provide values for update playbook
-    update_file = "playbooks/minor-update.yaml"
-
-    for line in fileinput.input(update_file, inplace=True):
-         if line.startswith("    wildcard_zone:"):
-              print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
-         elif line.startswith("    load_balancer_hostname:"):
-              print "    load_balancer_hostname: " + lb_host
-         elif line.startswith("    deployment_type:"):
-              print "    deployment_type: " + deployment_type
-         else:
-              print line,
-    #End create_ocp_vars
+        for line in fileinput.input(update_file, inplace=True):
+            if line.startswith("    wildcard_zone:"):
+                print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
+            elif line.startswith("    load_balancer_hostname:"):
+                print "    load_balancer_hostname: " + lb_host
+            elif line.startswith("    deployment_type:"):
+                print "    deployment_type: " + deployment_type
+            else:
+                print line,
+        #End create_ocp_vars
+        exit(0)
+    if auth_type == 'none':
+        playbooks = ["playbooks/openshift-install.yaml", "playbooks/minor-update.yaml"]
+        for ocp_file in playbooks:
+            for line in fileinput.input(ocp_file, inplace=True):
+                if line.startswith('    #openshift_master_identity_providers:'):
+                    line = line.replace('#', '')
+                    print line
+                else:
+                    print line,
     exit(0)
+
+
   if create_inventory is True:
     click.echo('Configured inventory values:')
     click.echo('\tmaster_nodes: %s' % master_nodes)
