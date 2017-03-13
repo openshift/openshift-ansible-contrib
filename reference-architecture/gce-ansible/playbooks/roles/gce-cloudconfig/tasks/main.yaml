@@ -5,6 +5,9 @@
     state: directory
     recurse: yes
 
+- name: ensure the /etc/orgin/cloudprovider folder exists
+  file: name=/etc/origin/cloudprovider state=directory
+
 - name: configure gce cloud config options
   ini_file:
     dest: /etc/origin/cloudprovider/gce.conf

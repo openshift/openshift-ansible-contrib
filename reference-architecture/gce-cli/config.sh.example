@@ -44,6 +44,7 @@ OPENSHIFT_SDN='openshift-ovs-subnet'
 ## DEFAULT VALUES ##
 
 OCP_VERSION='3.4'
+OS_CONTAINERIZED='false'
 
 CONSOLE_PORT='443'
 
