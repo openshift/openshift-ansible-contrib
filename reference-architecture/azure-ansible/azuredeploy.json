@@ -249,17 +249,6 @@
       "metadata" : {
         "description" : "SSH RSA private key file as a base64 string."
       }
-    },
-    "storeVMSize" : {
-      "type" : "string",
-      "defaultValue" : "Standard_DS3_v2",
-      "allowedValues" : [
-        "Standard_DS3_v2",
-        "Standard_DS12_v2"
-      ],
-      "metadata" : {
-        "description" : "The size of the each Node Virtual Machine."
-      }
     }
   },
   "variables" : {
@@ -281,7 +270,6 @@
     "infranodeStorageName" : "[concat(uniqueString(resourceGroup().id), 'infranodesa')]",
     "nodeStorageName" : "[concat(uniqueString(resourceGroup().id), 'nodesa')]",
     "masterStorageName" : "[concat(uniqueString(resourceGroup().id), 'mastersa')]",
-    "storeStorageName" : "[concat(uniqueString(resourceGroup().id), 'storesa')]",
     "vhdStorageType" : "Premium_LRS",
     "vnetId" : "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "infranodeSubnetRef" : "[concat(variables('vnetId'), '/subnets/', variables('infranodesubnetName'))]",
@@ -500,18 +488,6 @@
       },
       "properties" : {
         "accountType" : "[variables('vmSizesMap')[parameters('masterVMSize')].storageAccountType]"
-      }
-    },
-    {
-      "type" : "Microsoft.Storage/storageAccounts",
-      "name" : "[variables('storeStorageName')]",
-      "apiVersion" : "[variables('apiVersion')]",
-      "location" : "[variables('location')]",
-      "tags" : {
-        "displayName" : "StorageAccount"
-      },
-      "properties" : {
-        "accountType" : "[variables('vmSizesMap')[parameters('storeVMSize')].storageAccountType]"
       }
     },
     {
