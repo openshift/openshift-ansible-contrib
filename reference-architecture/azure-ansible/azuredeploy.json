@@ -284,7 +284,6 @@
     },
     "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastion.json')]",
     "tmApiVersion" : "2015-11-01",
-    "baseVMachineTemplateUriStore" : "[concat(variables('baseTemplateUrl'), 'store.json')]",
     "vmSizesMap" : {
       "Standard_A2" : {
         "storageAccountType" : "Standard_LRS"
