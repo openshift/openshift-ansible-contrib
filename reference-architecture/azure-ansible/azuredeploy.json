@@ -453,7 +453,7 @@
       }
     },
     "registryStorageName" : "[concat(resourceGroup().name, 'registrysa')]",
-    "registryConnect" : "[reference([variables('registryStorageName')].outputs.registryConnect])]"
+    "registryConnect" : "[reference([variables('registryStorageName')]).outputs.registryConnect.value]"
   },
   "resources" : [
     {
