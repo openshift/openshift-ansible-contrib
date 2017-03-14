@@ -452,8 +452,7 @@
         "storageAccountType" : "Premium_LRS"
       }
     },
-    "registryStorageName" : "[concat(resourceGroup().name, 'registrysa')]",
-    "registryConnect" : "[reference([variables('registryStorageName')]).outputs.registryConnect.value]"
+    "registryStorageName" : "[concat(resourceGroup().name, 'registrysa')]"
   },
   "resources" : [
     {
@@ -696,7 +695,8 @@
         "[resourceId('Microsoft.Resources/deployments', 'master1')]",
         "[resourceId('Microsoft.Resources/deployments', 'master2')]",
         "[resourceId('Microsoft.Resources/deployments', 'master3')]",
-        "[resourceId('Microsoft.Resources/deployments', 'infranode1')]"
+        "[resourceId('Microsoft.Resources/deployments', 'infranode1')]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]"
       ],
       "properties" : {
         "mode" : "Incremental",
@@ -757,7 +757,7 @@
             "value" : "[parameters('WildcardZone')]"
           },
           "registryConnect" : {
-            "value" : "[variables(parameters('registryConnect'))]"
+            "value" : "[listKeys(variables('registryStorageName'),'2015-06-15').key1]"
           }
         }
       }
