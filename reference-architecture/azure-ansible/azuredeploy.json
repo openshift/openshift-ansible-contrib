@@ -756,7 +756,7 @@
             "value" : "[parameters('WildcardZone')]"
           },
           "registryConnect" : {
-            "value" : "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('registryStorageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
+            "value" : "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('registryStorageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
           }
         }
       }
