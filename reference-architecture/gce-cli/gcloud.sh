@@ -250,8 +250,16 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$GOLD_IMAGE" &>
         sleep 5
     done
     if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-        subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
-        subscription-manager attach --pool=${RH_POOL_ID};
+        if ! subscription-manager identity &>/dev/null; then
+            subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
+        fi
+        for i in {0..5}; do
+            if subscription-manager list --consumed | grep -q ${RH_POOL_ID}; then
+                break;
+            fi
+            sleep 10;
+            subscription-manager attach --pool=${RH_POOL_ID} || true;
+        done
         subscription-manager repos --disable=\"*\";
         subscription-manager repos \
             --enable=\"rhel-7-server-rpms\" \
@@ -441,13 +449,22 @@ gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml
 
 # Prepare bastion instance for openshift installation
 gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-    subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
-    subscription-manager attach --pool=${RH_POOL_ID};
+    if ! subscription-manager identity &>/dev/null; then
+        subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
+    fi
+    for i in {0..5}; do
+        if subscription-manager list --consumed | grep -q ${RH_POOL_ID}; then
+            break;
+        fi
+        sleep 10;
+        subscription-manager attach --pool=${RH_POOL_ID} || true;
+    done
     subscription-manager repos --disable=\"*\";
     subscription-manager repos \
         --enable=\"rhel-7-server-rpms\" \
         --enable=\"rhel-7-server-extras-rpms\" \
         --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
+
     yum install -y python-libcloud atomic-openshift-utils;
 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
@@ -456,7 +473,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion
     if ! grep -q \"export INVENTORY_IP_TYPE=internal\" /etc/profile.d/ocp.sh 2>/dev/null; then
         echo \"export INVENTORY_IP_TYPE=internal\" >> /etc/profile.d/ocp.sh;
     fi
-'";
+'"
 gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
     if [ ! -d ~/google-cloud-sdk ]; then
         curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar -xz;
@@ -476,7 +493,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion
     fi
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
     ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} -e @~/ansible-config.yml playbooks/openshift-install.yaml;
-'";
+'"
 
 echo
 echo "Deployment is complete. OpenShift Console can be found at https://${MASTER_DNS_NAME}"
