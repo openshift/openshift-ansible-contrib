@@ -67,5 +67,5 @@
       url:
       bindDN:
       bindPassword:
-    #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"
+     #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"
 - include: ../../../playbooks/exclude-atomic-docker.yaml
