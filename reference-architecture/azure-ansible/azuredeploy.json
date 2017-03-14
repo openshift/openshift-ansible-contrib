@@ -756,7 +756,7 @@
             "value" : "[parameters('WildcardZone')]"
           },
           "registryConnect" : {
-            "value" : "[listKeys(variables('registryStorageName'),'2015-06-15').keys[0].value]"
+            "value" : "[listKeys(variables('registryStorageName'),'2016-01-01').keys[0].value]"
           }
         }
       }
