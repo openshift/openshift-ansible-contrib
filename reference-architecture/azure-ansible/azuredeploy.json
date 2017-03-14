@@ -1101,9 +1101,6 @@
       },
       "properties" : {
         "accountType" : "['Standard_RAGRS']"
-      },
-      "outputs" : {
-        "registryConnect" : "[Concat('DefaultEndpointsProtocol=https;AccountName=',variables('registryStorageName'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('registryStorageName')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
       }
     }
   ],
