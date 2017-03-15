@@ -269,7 +269,7 @@ def launch_refarch_env(console_port=8443,
         playbooks = ["playbooks/openshift-install.yaml", "playbooks/minor-update.yaml"]
         for ocp_file in playbooks:
             for line in fileinput.input(ocp_file, inplace=True):
-                if line.startswith('    #openshift_master_identity_providers:'):
+                if line.startswith('#openshift_master_identity_providers:'):
                     line = line.replace('#', '    ')
                     print line
                 else:
