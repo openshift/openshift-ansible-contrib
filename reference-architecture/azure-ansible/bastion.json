@@ -62,7 +62,7 @@
     "wildcardZone" : {
       "type" : "string"
     },
-    "registryStorageName" : {
+    "registrystoragename" : {
       "type" : "string"
     }
   },
@@ -70,7 +70,7 @@
     "apiVersion" : "2015-06-15",
     "sshKeyPath" : "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
     "sQuote" : "\"",
-    "registryConnect" : "[listKeys(parameters('registryStorageName'),'2015-06-15').key1]"
+    "registryConnect" : "[listKeys(parameters('registrystoragename'),'2015-06-15').key1]"
   },
   "resources" : [
     {
