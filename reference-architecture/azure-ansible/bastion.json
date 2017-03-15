@@ -70,7 +70,7 @@
     "apiVersion" : "2015-06-15",
     "sshKeyPath" : "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
     "sQuote" : "\"",
-    "registryConnect" : "[Concat('DefaultEndpointsProtocol=https;AccountName=',variables('registrystorageame'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('registrystoragename')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
+    "registryConnect" : "[Concat('DefaultEndpointsProtocol=https;AccountName=',variables('registrystoragename'),';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('registrystoragename')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value)]"
   },
   "resources" : [
     {
