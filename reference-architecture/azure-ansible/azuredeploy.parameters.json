@@ -31,9 +31,6 @@
     },
     "sshPrivateData" : {
       "value" : ""
-    },
-    "registryConnect" : {
-      "value" : ""
     }
   }
 }
