@@ -14,6 +14,8 @@ export SSHPRIVATEDATA=${11}
 export SSHPUBLICDATA=${12}
 export SSHPUBLICDATA2=${13}
 export SSHPUBLICDATA3=${14}
+export REGISTRYSTORAGENAME=${15}
+export REGISTRYKEY=${16}
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 
@@ -22,6 +24,13 @@ ps -ef | grep bastion.sh > cmdline.out
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
+mkdir -p /home/$AUSERNAME/.azuresettings
+echo $REGISTRYSTORAGENAME > /home/$AUSERNAME/.azuresettings/registry_storage_name
+echo $REGISTRYKEY > /home/$AUSERNAME/.azuresettings/registry_key
+chown -f $AUSERNAME /home/$AUSERNAME/.azuresettings
+chown -f $AUSERNAME /home/$AUSERNAME/.azuresettings/*
+chmod 600 /home/$AUSERNAME/.azuresettings/*
+
 mkdir -p /home/$AUSERNAME/.ssh
 echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3 >  /home/$AUSERNAME/.ssh/id_rsa.pub
 echo $SSHPRIVATEDATA | base64 --d > /home/$AUSERNAME/.ssh/id_rsa
@@ -29,6 +38,13 @@ chown $AUSERNAME /home/$AUSERNAME/.ssh/id_rsa.pub
 chmod 600 /home/$AUSERNAME/.ssh/id_rsa.pub
 chown $AUSERNAME /home/$AUSERNAME/.ssh/id_rsa
 chmod 600 /home/$AUSERNAME/.ssh/id_rsa
+
+mkdir -p /root/.azuresettings
+echo $REGISTRYSTORAGENAME > /root/.azuresettings/registry_storage_name
+echo $REGISTRYKEY > /root/.azuresettings/registry_key
+chown root /root/.azuresettings
+chown -f root /root/.azuresettings/*
+chmod -f 600 /root/.azuresettings/*
 
 mkdir -p /root/.ssh
 echo $SSHPRIVATEDATA | base64 --d > /root/.ssh/id_rsa
@@ -87,8 +103,7 @@ subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms"
 subscription-manager repos     --enable="rhel-7-server-ose-3.4-rpms"
-yum -y install atomic-openshift-utils
-yum -y install git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools
+yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs
 touch /root/.updateok
 cat <<EOF > /etc/ansible/hosts
 [OSEv3:children]

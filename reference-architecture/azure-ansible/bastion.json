@@ -191,7 +191,7 @@
           ]
         },
         "protectedSettings" : {
-          "commandToExecute" : "[ concat('sh bastion.sh ', resourceGroup().name, ' ', parameters('wildcardZone'), ' ',  parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote'), ' ', variables('sQuote'), parameters('registrykey'), variables('sQuote') )]"
+          "commandToExecute" : "[ concat('sh bastion.sh ', resourceGroup().name, ' ', parameters('wildcardZone'), ' ',  parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote'), ' ', variables('sQuote'), parameters('registrystoragename'), variables('sQuote'), ' ', variables('sQuote'), parameters('registrykey'), variables('sQuote') )]"
         }
       }
     },
