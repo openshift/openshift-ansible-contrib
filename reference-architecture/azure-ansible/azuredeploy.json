@@ -757,6 +757,9 @@
           },
           "registrystoragename" : {
             "value" : "[variables('registryStorageName')]"
+          },
+          "registrykey" : {
+            "value" : "[listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('registryStorageName')),'2015-06-15').key1]"
           }
         }
       }
