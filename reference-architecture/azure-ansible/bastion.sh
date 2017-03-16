@@ -25,8 +25,8 @@ systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
 mkdir -p /home/$AUSERNAME/.azuresettings
-echo $REGISTRYSTORAGENAME > /home/$AUSERNAME/.azuresettings/registry_storage_name
-echo $REGISTRYKEY > /home/$AUSERNAME/.azuresettings/registry_key
+echo ${15} > /home/$AUSERNAME/.azuresettings/registry_storage_name
+echo ${16} > /home/$AUSERNAME/.azuresettings/registry_key
 chmod 600 /home/$AUSERNAME/.azuresettings/registry_storage_name
 chmod 600 /home/$AUSERNAME/.azuresettings/registry_key
 chown $AUSERNAME /home/$AUSERNAME/.azuresettings
@@ -42,8 +42,8 @@ chown $AUSERNAME /home/$AUSERNAME/.ssh/id_rsa
 chmod 600 /home/$AUSERNAME/.ssh/id_rsa
 
 mkdir -p /root/.azuresettings
-echo $REGISTRYSTORAGENAME > /root/.azuresettings/registry_storage_name
-echo $REGISTRYKEY > /root/.azuresettings/registry_key
+echo ${15} > /root/.azuresettings/registry_storage_name
+echo ${16} > /root/.azuresettings/registry_key
 chmod 600 /root/.azuresettings/registry_storage_name
 chmod 600 /root/.azuresettings/registry_key
 chown root /root/.azuresettings
