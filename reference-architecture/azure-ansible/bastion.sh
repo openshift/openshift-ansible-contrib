@@ -27,9 +27,11 @@ systemctl start dnsmasq.service
 mkdir -p /home/$AUSERNAME/.azuresettings
 echo $REGISTRYSTORAGENAME > /home/$AUSERNAME/.azuresettings/registry_storage_name
 echo $REGISTRYKEY > /home/$AUSERNAME/.azuresettings/registry_key
-chown -f $AUSERNAME /home/$AUSERNAME/.azuresettings
-chown -f $AUSERNAME /home/$AUSERNAME/.azuresettings/*
-chmod 600 /home/$AUSERNAME/.azuresettings/*
+chmod 600 /home/$AUSERNAME/.azuresettings/registry_storage_name
+chmod 600 /home/$AUSERNAME/.azuresettings/registry_key
+chown $AUSERNAME /home/$AUSERNAME/.azuresettings
+chown $AUSERNAME /home/$AUSERNAME/.azuresettings/registry_storage_name
+chown $AUSERNAME /home/$AUSERNAME/.azuresettings/registry_key
 
 mkdir -p /home/$AUSERNAME/.ssh
 echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3 >  /home/$AUSERNAME/.ssh/id_rsa.pub
@@ -42,9 +44,11 @@ chmod 600 /home/$AUSERNAME/.ssh/id_rsa
 mkdir -p /root/.azuresettings
 echo $REGISTRYSTORAGENAME > /root/.azuresettings/registry_storage_name
 echo $REGISTRYKEY > /root/.azuresettings/registry_key
+chmod 600 /root/.azuresettings/registry_storage_name
+chmod 600 /root/.azuresettings/registry_key
 chown root /root/.azuresettings
-chown -f root /root/.azuresettings/*
-chmod -f 600 /root/.azuresettings/*
+chown root /root/.azuresettings/registry_storage_name
+chown root /root/.azuresettings/registry_key
 
 mkdir -p /root/.ssh
 echo $SSHPRIVATEDATA | base64 --d > /root/.ssh/id_rsa
