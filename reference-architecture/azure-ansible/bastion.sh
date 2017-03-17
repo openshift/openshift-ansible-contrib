@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo $@ > debug.txt
+
 export RESOURCEGROUP=$1
 export WILDCARDZONE=$2
 export AUSERNAME=$3
@@ -29,8 +31,8 @@ systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
 mkdir -p /home/$AUSERNAME/.azuresettings
-echo REGISTRYSTORAGENAME > /home/$AUSERNAME/.azuresettings/registry_storage_name
-echo REGISTRYKEY > /home/$AUSERNAME/.azuresettings/registry_key
+echo $REGISTRYSTORAGENAME > /home/$AUSERNAME/.azuresettings/registry_storage_name
+echo $REGISTRYKEY > /home/$AUSERNAME/.azuresettings/registry_key
 chmod 600 /home/$AUSERNAME/.azuresettings/registry_storage_name
 chmod 600 /home/$AUSERNAME/.azuresettings/registry_key
 chown $AUSERNAME /home/$AUSERNAME/.azuresettings
