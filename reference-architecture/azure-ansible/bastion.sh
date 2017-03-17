@@ -17,6 +17,10 @@ export SSHPUBLICDATA3=${14}
 export REGISTRYSTORAGENAME=${15}
 export REGISTRYKEY=${16}
 
+echo 'Show Registry Values'
+echo ${15}
+echo ${16}
+
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 
 ps -ef | grep bastion.sh > cmdline.out
@@ -25,8 +29,8 @@ systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
 mkdir -p /home/$AUSERNAME/.azuresettings
-echo ${15} > /home/$AUSERNAME/.azuresettings/registry_storage_name
-echo ${16} > /home/$AUSERNAME/.azuresettings/registry_key
+echo REGISTRYSTORAGENAME > /home/$AUSERNAME/.azuresettings/registry_storage_name
+echo REGISTRYKEY > /home/$AUSERNAME/.azuresettings/registry_key
 chmod 600 /home/$AUSERNAME/.azuresettings/registry_storage_name
 chmod 600 /home/$AUSERNAME/.azuresettings/registry_key
 chown $AUSERNAME /home/$AUSERNAME/.azuresettings
