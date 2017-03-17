@@ -249,6 +249,18 @@
       "metadata" : {
         "description" : "SSH RSA private key file as a base64 string."
       }
+    },
+    "aadClientId" : {
+      "type" : "string",
+      "metadata" : {
+        "description" : "Azure AD Client Id"
+      }
+    },
+    "aadClientSecret" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "Azure AD Client Secret"
+      }
     }
   },
   "variables" : {
@@ -451,7 +463,9 @@
         "storageAccountType" : "Premium_LRS"
       }
     },
-    "registryStorageName" : "[concat(resourceGroup().name, 'registrysa')]"
+    "registryStorageName" : "[concat(resourceGroup().name, 'registrysa')]",
+    "subscriptionId" : "[subscription().subscriptionId]",
+    "tenantId" : "[subscription().tenantId]"
   },
   "resources" : [
     {
@@ -760,6 +774,21 @@
           },
           "registrykey" : {
             "value" : "[listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('registryStorageName')),'2015-06-15').key1]"
+          },
+          "location" : {
+            "value" : "[variables('location')]"
+          },
+          "subscriptionid" : {
+            "value" : "[variables('subscriptionId')]"
+          },
+          "tenantid" : {
+            "value" : "[variables('tenantId')]"
+          },
+          "aadclientid" : {
+            "value" : "[parameters('aadClientId')]"
+          },
+          "aadclientsecret" : {
+            "value" : "[parameters('aadClientSecret')]"
           }
         }
       }

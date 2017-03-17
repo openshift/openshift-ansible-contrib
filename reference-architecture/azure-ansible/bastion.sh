@@ -18,10 +18,20 @@ export SSHPUBLICDATA2=${13}
 export SSHPUBLICDATA3=${14}
 export REGISTRYSTORAGENAME=${array[14]}
 export REGISTRYKEY=${array[15]}
+export LOCATION=${array[16]}
+export SUBSCRIPTIONID=${array[17]}
+export TENANTID=${array[18]}
+export AADCLIENTID=${array[19]}
+export AADCLIENTSECRET=${array[20]}
 
 echo 'Show Registry Values'
 echo $REGISTRYSTORAGENAME
 echo $REGISTRYKEY
+echo $LOCATION
+echo $SUBSCRIPTIONID
+echo $TENANTID
+echo $AADCLIENTID
+echo $AADCLIENTSECRET
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 
@@ -33,11 +43,13 @@ systemctl start dnsmasq.service
 mkdir -p /home/$AUSERNAME/.azuresettings
 echo $REGISTRYSTORAGENAME > /home/$AUSERNAME/.azuresettings/registry_storage_name
 echo $REGISTRYKEY > /home/$AUSERNAME/.azuresettings/registry_key
-chmod 600 /home/$AUSERNAME/.azuresettings/registry_storage_name
-chmod 600 /home/$AUSERNAME/.azuresettings/registry_key
-chown $AUSERNAME /home/$AUSERNAME/.azuresettings
-chown $AUSERNAME /home/$AUSERNAME/.azuresettings/registry_storage_name
-chown $AUSERNAME /home/$AUSERNAME/.azuresettings/registry_key
+echo $LOCATION > /home/$AUSERNAME/.azuresettings/location
+echo $SUBSCRIPTIONID > /home/$AUSERNAME/.azuresettings/subscription_id
+echo $TENANTID > /home/$AUSERNAME/.azuresettings/tenant_id
+echo $AADCLIENTID > /home/$AUSERNAME/.azuresettings/aad_client_id
+echo $AADCLIENTSECRET > /home/$AUSERNAME/.azuresettings/aad_client_secret
+chmod -R 600 /home/$AUSERNAME/.azuresettings/*
+chown -R $AUSERNAME /home/$AUSERNAME/.azuresettings
 
 mkdir -p /home/$AUSERNAME/.ssh
 echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3 >  /home/$AUSERNAME/.ssh/id_rsa.pub
@@ -50,11 +62,13 @@ chmod 600 /home/$AUSERNAME/.ssh/id_rsa
 mkdir -p /root/.azuresettings
 echo $REGISTRYSTORAGENAME > /root/.azuresettings/registry_storage_name
 echo $REGISTRYKEY > /root/.azuresettings/registry_key
-chmod 600 /root/.azuresettings/registry_storage_name
-chmod 600 /root/.azuresettings/registry_key
-chown root /root/.azuresettings
-chown root /root/.azuresettings/registry_storage_name
-chown root /root/.azuresettings/registry_key
+echo $LOCATION > /root/.azuresettings/location
+echo $SUBSCRIPTIONID > /root/.azuresettings/subscription_id
+echo $TENANTID > /root/.azuresettings/tenant_id
+echo $AADCLIENTID > /root/.azuresettings/aad_client_id
+echo $AADCLIENTSECRET > /root/.azuresettings/aad_client_secret
+chmod -R 600 /root/.azuresettings/*
+chown -R root /root/.azuresettings
 
 mkdir -p /root/.ssh
 echo $SSHPRIVATEDATA | base64 --d > /root/.ssh/id_rsa
