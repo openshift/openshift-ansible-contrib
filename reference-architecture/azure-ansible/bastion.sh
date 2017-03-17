@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo $@ > debug.txt
-
+export MYARGS=$@
+IFS=' ' read -r -a array <<< "$MYARGS"
 export RESOURCEGROUP=$1
 export WILDCARDZONE=$2
 export AUSERNAME=$3
@@ -16,12 +16,12 @@ export SSHPRIVATEDATA=${11}
 export SSHPUBLICDATA=${12}
 export SSHPUBLICDATA2=${13}
 export SSHPUBLICDATA3=${14}
-export REGISTRYSTORAGENAME=${15}
-export REGISTRYKEY=${16}
+export REGISTRYSTORAGENAME=${array[14]}
+export REGISTRYKEY=${array[15]}
 
 echo 'Show Registry Values'
-echo ${15}
-echo ${16}
+echo $REGISTRYSTORAGENAME
+echo $REGISTRYKEY
 
 domain=$(grep search /etc/resolv.conf | awk '{print $2}')
 
@@ -48,8 +48,8 @@ chown $AUSERNAME /home/$AUSERNAME/.ssh/id_rsa
 chmod 600 /home/$AUSERNAME/.ssh/id_rsa
 
 mkdir -p /root/.azuresettings
-echo ${15} > /root/.azuresettings/registry_storage_name
-echo ${16} > /root/.azuresettings/registry_key
+echo $REGISTRYSTORAGENAME > /root/.azuresettings/registry_storage_name
+echo $REGISTRYKEY > /root/.azuresettings/registry_key
 chmod 600 /root/.azuresettings/registry_storage_name
 chmod 600 /root/.azuresettings/registry_key
 chown root /root/.azuresettings
