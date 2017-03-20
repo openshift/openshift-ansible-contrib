@@ -129,6 +129,34 @@ subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-
 subscription-manager repos     --enable="rhel-7-server-ose-3.4-rpms"
 yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs
 touch /root/.updateok
+
+cat > /home/${AUSERNAME}/setupregistry.yml <<EOF
+---
+- hosts: master1
+  remote_user: ${AUSERNAME}
+  become: yes
+  become_method: sudo
+  vars:
+    description: "Set registry to use Azure Storage"
+  tasks:
+  - name: Configure docker-registry to use Azure Storage
+    shell: oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
+EOF
+
+# Create azure.conf file
+
+cat > /home/${AUSERNAME}/azure.conf <<EOF
+{
+   "tenantId": "$TENANTID",
+   "subscriptionId": "$SUBSCRIPTIONID",
+   "aadClientId": "$AADCLIENTID",
+   "aadClientSecret": "$AADCLIENTSECRET",
+   "aadTenantID": "$TENANTID",
+   "resourceGroup": "$RESOURCEGROUP",
+   "location": "$LOCATION",
+}
+EOF
+
 cat <<EOF > /etc/ansible/hosts
 [OSEv3:children]
 masters
