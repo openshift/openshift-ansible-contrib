@@ -1,0 +1,4 @@
+---
+service_account: '{{ prefix }}-ansible'
+service_account_id: '{{ service_account }}@{{ gcloud_project }}.iam.gserviceaccount.com'
+service_account_name: '{{ prefix | upper }} Ansible'

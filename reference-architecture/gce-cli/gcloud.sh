@@ -185,6 +185,18 @@ fi
 
 ### PROVISION THE INFRASTRUCTURE ###
 
+# Prepare main ansible config file based on the configuration from this script
+export GCLOUD_PROJECT \
+    GCLOUD_REGION \
+    GCLOUD_ZONE \
+    OCP_PREFIX
+envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
+
+# Configure ansible connection to the GCP
+pushd "${DIR}/ansible"
+ansible-playbook -i inventory/inventory playbooks/local.yaml
+popd
+
 # Check the DNS managed zone in Google Cloud DNS, create it if it doesn't exist and exit after printing NS servers
 if ! gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" &>/dev/null; then
     echo "DNS zone '${DNS_MANAGED_ZONE}' doesn't exist. It will be created and installation will stop. Please configure the following NS servers for your domain in your domain provider before proceeding with the installation:"
