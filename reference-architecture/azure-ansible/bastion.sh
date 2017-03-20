@@ -85,7 +85,7 @@ cat <<EOF > /root/setup_ssmtp.sh
 # \$3 = Notification email address
 # Setup ssmtp mta agent for use with gmail
 yum -y install wget
-wget -c https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm
+wget -c https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-9.noarch.rpm
 rpm -ivh epel-release-7-8.noarch.rpm
 yum -y install ssmtp
 alternatives --set mta  /usr/sbin/sendmail.ssmtp
