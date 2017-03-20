@@ -315,7 +315,7 @@ echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOUR
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null &> byo.out
 
 wget http://master1:8443/api > healtcheck.out
-ansible-playbook /home/$(AUSERNAME}/setupregistry.yml
+ansible-playbook /home/${AUSERNAME}/setupregistry.yml 
 ansible-playbook /home/${AUSERNAME}/quota.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
