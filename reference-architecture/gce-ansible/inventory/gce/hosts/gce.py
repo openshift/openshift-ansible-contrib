@@ -339,8 +339,7 @@ class GceInventory(object):
                 if groups.has_key(tag): groups[tag].append(name)
                 else: groups[tag] = [name]
                 if tag_prefix != 'ocp' and t.startswith(tag_prefix):
-                    pos = t.find('-') # we use this in the deployment manager in gcloud.sh
-                    tag = 'tag_ocp-%s' % t[pos+1:]
+                    tag = 'tag_ocp-%s' % t[len(tag_prefix)+1:]
                     if groups.has_key(tag): groups[tag].append(name)
                     else: groups[tag] = [name]
 
