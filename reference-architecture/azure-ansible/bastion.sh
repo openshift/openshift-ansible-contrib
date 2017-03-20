@@ -162,7 +162,6 @@ cat <<EOF > /etc/ansible/hosts
 masters
 etcd
 nodes
-misc
 
 [OSEv3:vars]
 debug_level=2
@@ -204,9 +203,6 @@ openshift_master_cluster_method=native
 openshift_master_cluster_hostname=${RESOURCEGROUP}.trafficmanager.net
 openshift_master_cluster_public_hostname=${RESOURCEGROUP}.trafficmanager.net
 
-# default storage plugin dependencies to install, by default the ceph and
-# glusterfs plugin dependencies will be installed, if available.
-osn_storage_plugin_deps=['iscsi']
 
 [masters]
 master1.${domain} openshift_node_labels="{'role': 'master'}"
