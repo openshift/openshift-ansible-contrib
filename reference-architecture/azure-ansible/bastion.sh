@@ -223,12 +223,6 @@ infranode1.${domain}  openshift_node_labels="{'role': 'infra', 'zone': 'default'
 infranode2.${domain}  openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode3.${domain} openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 
-[quotanodes]
-master1.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
-master2.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
-master3.${domain} openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}].${domain} openshift_node_labels="{'role': 'app', 'zone': 'default'}"
-
 EOF
 
 
@@ -287,7 +281,7 @@ EOF
 
 cat <<EOF > /home/${AUSERNAME}/quota.yml
 ---
-- hosts: quotanodes
+- hosts: nodes
   tasks:
   - name: Update Mount to Handle Quota
     mount: fstype=xfs name=/var/lib/origin/openshift.local/volumes src=/dev/sdd option="gquota" state="mounted"
