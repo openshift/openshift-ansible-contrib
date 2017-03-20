@@ -319,9 +319,9 @@ echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOUR
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null &> byo.out
 
 wget http://master1:8443/api > healtcheck.out
+ansible-playbook /home/$(AUSERNAME}/setupregistry.yml
 ansible-playbook /home/${AUSERNAME}/quota.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
-ansible-playbook /home/${AUSERNAME}/setupiscsi.yml
 cd /root
 mkdir .kube
 scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${AUSERNAME}@master1:~/.kube/config /tmp/kube-config
@@ -330,7 +330,6 @@ mkdir /home/${AUSERNAME}/.kube
 cp /tmp/kube-config /home/${AUSERNAME}/.kube/config
 chown --recursive ${AUSERNAME} /home/${AUSERNAME}/.kube
 rm -f /tmp/kube-config
-ansible-playbook /home/${AUSERNAME}/setupiscsi.yml
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
