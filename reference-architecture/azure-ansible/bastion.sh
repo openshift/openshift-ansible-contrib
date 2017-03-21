@@ -283,8 +283,12 @@ cat <<EOF > /home/${AUSERNAME}/quota.yml
 ---
 - hosts: nodes
   tasks:
+  - name: Create Partition
+    shell: parted -s -a optimal /dev/sdd mklabel gpt -- mkpart primary xfs 1 -1
+  - name: Format Disk
+    filesystem: fstype=xfs dev=/dev/sdd1 force=yes
   - name: Update Mount to Handle Quota
-    mount: fstype=xfs name=/var/lib/origin/openshift.local/volumes src=/dev/sdd option="gquota" state="mounted"
+    mount: boot=yes fstype=xfs name=/var/lib/origin/openshift.local/volumes src=/dev/sdd1 opts="gquota" state="mounted"
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/postinstall.yml
