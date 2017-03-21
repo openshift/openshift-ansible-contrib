@@ -309,12 +309,12 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 sleep 120
 ansible all --module-name=ping > ansible-preinstall-ping.out || true
 ansible-playbook  /home/${AUSERNAME}/subscribe.yml
+ansible-playbook /home/${AUSERNAME}/quota.yml
 echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Bastion BYO Install" ${RHNUSERNAME} || true
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null &> byo.out
 
 wget http://master1:8443/api > healtcheck.out
 ansible-playbook /home/${AUSERNAME}/setupregistry.yml 
-ansible-playbook /home/${AUSERNAME}/quota.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
 mkdir .kube
