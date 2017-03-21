@@ -288,7 +288,7 @@ cat <<EOF > /home/${AUSERNAME}/quota.yml
   - name: Format Disk
     filesystem: fstype=xfs dev=/dev/sdd1 force=yes
   - name: Update Mount to Handle Quota
-    mount: boot=yes fstype=xfs name=/var/lib/origin/openshift.local/volumes src=/dev/sdd1 opts="gquota" state="mounted"
+    mount: boot=yes fstype=xfs name=/var/lib/origin/openshift.local.volumes src=/dev/sdd1 opts="gquota" state="mounted"
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/postinstall.yml
