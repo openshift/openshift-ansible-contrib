@@ -89,8 +89,7 @@ wget -c https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-9.noarch
 rpm -ivh epel-release-7-8.noarch.rpm
 yum -y install ssmtp
 alternatives --set mta  /usr/sbin/sendmail.ssmtp
-systemctl stop postfix
-systemctl disable postfix
+mkdir /etc/ssmtp
 cat <<EOFZ > /etc/ssmtp/ssmtp.conf
 root=postmaster
 mailhub=mail
