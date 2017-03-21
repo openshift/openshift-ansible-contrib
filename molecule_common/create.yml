@@ -1,0 +1,25 @@
+---
+# Ansible 2.2 required
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  vars:
+    molecule_scenario_basename: "{{ molecule_scenario_directory | basename }}"
+    molecule_docker_config_subdir: "{{ 'mock_aws' if molecule_scenario_basename.startswith('mock-aws') else 'base' }}"
+    molecule_docker_image: "openshift-ansible-contrib-tests-{{ molecule_docker_config_subdir }}:latest"
+  tasks:
+    - name: Build an Ansible compatible image
+      docker_image:
+        path: "{{ molecule_docker_config_subdir }}"
+        name: "{{ molecule_docker_image }}"
+
+    - name: Create molecule instance(s)
+      docker_container:
+        name: "{{ item }}"
+        hostname: "{{ item }}"
+        image: "{{ molecule_docker_image }}"
+        state: started
+        recreate: no
+        log_driver: syslog
+        command: sleep infinity
+      with_items: "{{ groups.test_group }}"

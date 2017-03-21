@@ -1,0 +1,19 @@
+---
+galaxy_info:
+  author: Jason DeTiberus
+  description: AWS provisioning for OpenShift
+  company: Red Hat, Inc.
+  license: Apache License, Version 2.0
+  min_ansible_version: 2.2
+  platforms:
+  - name: Fedora
+    versions:
+    - 24
+    - 25
+  - name: EL
+    versions:
+    - 7
+  galaxy_tags: []
+dependencies:
+- openshift_provisioning_aws_defaults
+- openshift_provisioning_aws_vpc

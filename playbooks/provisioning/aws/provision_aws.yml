@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  become: no
+  gather_facts: no
+  roles:
+  - role: openshift_provisioning_aws
+    openshift_cluster_id: "{{ openshift_cluster_id | default('default') }}"
+    openshift_env_id: "{{ openshift_env_id | default('default') }}"

@@ -1,0 +1,20 @@
+---
+- hosts: test_group
+  roles:
+  - role: openshift_provisioning_aws_defaults
+  tasks:
+  - name: Validate default vars
+    assert:
+      that:
+      - openshift_provisioning_aws_region == 'us-east-1'
+      - openshift_cluster_id is not defined
+      - openshift_env_id is not defined
+    when: inventory_hostname in groups.default_group
+
+  - name: Validate override vars
+    assert:
+      that:
+      - openshift_provisioning_aws_region == 'us-west-2'
+      - openshift_cluster_id == 'test_cluster'
+      - openshift_env_id == 'test_env'
+    when: inventory_hostname in groups.override_group

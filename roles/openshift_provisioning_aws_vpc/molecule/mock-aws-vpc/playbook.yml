@@ -1,0 +1,12 @@
+---
+- hosts: test_group
+  pre_tasks:
+  - name: Start moto service
+    shell: nohup moto_server ec2 </dev/null >/dev/null 2>&1 &
+    changed_when: false
+  - name: Write boto config
+    copy:
+      src: boto_config
+      dest: /root/.boto
+  roles:
+  - role: openshift_provisioning_aws_vpc
