@@ -1,0 +1,5 @@
+---
+parameters:
+  image: fedora25
+  flavor: m1.tiny
+  ssh_user: fedora

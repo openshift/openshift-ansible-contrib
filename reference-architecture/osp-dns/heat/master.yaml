@@ -1,0 +1,237 @@
+---
+heat_template_version: 2016-10-14
+
+description:
+  An instance for a DNS master server
+  The instances are created with Heat and then configured with Ansible
+
+parameters:
+
+  # Networks to connect to or create
+  external_network:
+    type: string
+    description: >
+      The external network that provides floating IP addresses for the nodes
+    constraints:
+    - custom_constraint: neutron.network
+
+  service_network:
+    description: >
+      The name or ID of the internal network
+    type: string
+    constraints:
+    - custom_constraint: neutron.network
+
+  service_subnet:
+    description: >
+      The name or ID of the internal IPv4 space
+    type: string
+    constraints:
+    - custom_constraint: neutron.subnet
+
+  security_group:
+    description: >
+      Allow DNS service access to instances
+    type: string
+    constraints:
+    - custom_constraint: neutron.security_group
+
+  image:
+    description: >
+      The Glance image to use as a base for DNS servers
+    type: string
+    constraints:
+    - custom_constraint: glance.image
+
+  flavor:
+    description: >
+      The name of the OpenStack instance flavor to use for DNS servers
+    type: string
+    default: m1.small
+    constraints:
+    - custom_constraint: nova.flavor
+
+  hostname:
+    description: >
+      The Infrastructure hostname portion of the FQDN
+    type: string
+    default: "ns-master"
+    constraints:
+    - allowed_pattern: '[a-z0-9\-]*'
+      description: Hostname must contain only characters [a-z0-9\-].
+
+  domain_name:
+    description: >
+      All VMs will be placed in this domain
+    type: string
+
+  # Access to the VMs
+  ssh_user:
+    type: string
+    description: >
+      The SSH user available on all nodes.
+
+  ssh_key_name:
+    type: string
+    description: Name of the SSH keypair registered with Nova
+    constraints:
+    - custom_constraint: nova.keypair
+
+  # Red Hat subscription parameters
+  rhn_username:
+    type: string
+    description: >
+      The username for registering the hosts with RHN. If empty, they will not
+      be registered.
+    default: ''
+
+  rhn_password:
+    type: string
+    description: >
+      The password for registering the hosts with RHN. If empty, they will not
+      be registered.
+    hidden: true
+    default: ''
+
+  # Red Hat satellite subscription parameters
+  sat6_hostname:
+    type: string
+    description: >
+      The hostname of the Satellite 6 server which will provide software updates
+    default: ''
+
+  sat6_organization:
+    type: string
+    description: >
+      An organization string provided by Sat6 to group subscriptions
+    default: ''
+
+  sat6_activationkey:
+    type: string
+    description: >
+      An activation key string provided by Sat6 to enable subscriptions
+    default: ''
+
+  rhn_pool:
+    type: string
+    description: >
+      The pool to attach. Will use `subscription-manager attach --auto` if left
+      blank.
+    hidden: true
+    default: ''
+
+  # Delay openshift installation until the master is ready to accept
+  timeout:
+    description: Time to wait until the master setup is ready.
+    type: number
+    default: 4000
+
+resources:
+  # A VM to provide host based orchestration and other sub-services
+  host:
+    type: OS::Nova::Server
+    properties:
+      name:
+        str_replace:
+          template: "HOST.DOMAIN"
+          params:
+            HOST: {get_param: hostname}
+            DOMAIN: {get_param: domain_name}
+      admin_user: {get_param: ssh_user}
+      image: {get_param: image}
+      flavor: {get_param: flavor}
+      key_name: {get_param: ssh_key_name}
+      networks:
+      - port: {get_resource: port}
+      user_data_format: SOFTWARE_CONFIG
+      user_data: {get_resource: init}
+
+  port:
+    type: OS::Neutron::Port
+    properties:
+      security_groups:
+      - {get_param: security_group}
+      network: {get_param: service_network}
+      fixed_ips:
+      - subnet: {get_param: service_subnet}
+      replacement_policy: AUTO
+
+  floating_ip:
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: {get_param: external_network}
+      port_id: {get_resource: port}
+
+  set_hostname:
+    type: OS::Heat::CloudConfig
+    properties:
+      cloud_config:
+        hostname: {get_param: hostname}
+        fqdn:
+          str_replace:
+            template: "HOSTNAME.DOMAIN"
+            params:
+              HOSTNAME: {get_param: hostname}
+              DOMAIN: {get_param: domain_name}
+
+
+  init:
+    type: OS::Heat::MultipartMime
+    properties:
+      parts:
+      - config: {get_resource: set_hostname}
+      - config: {get_resource: included_files}
+      - config: {get_resource: rhn_register}
+      - config: {get_resource: install_python}
+      - config: {get_resource: install_complete}
+
+  included_files:
+    type: OS::Heat::CloudConfig
+    properties:
+      cloud_config:
+        write_files:
+        - path: /usr/local/lib/notify.sh
+          permissions: 0755
+          content:
+            str_replace:
+              params:
+                $WC_NOTIFY: { get_attr: ['wait_handle', 'curl_cli'] }
+              template: {get_file: fragments/notify.sh}
+
+  # Register the host with RHN for access to software packages
+  rhn_register:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config:
+        str_replace:
+          params:
+            '{{rhn_username}}': {get_param: rhn_username}
+            '{{rhn_password}}': {get_param: rhn_password}
+            '{{rhn_pool_id}}': {get_param: rhn_pool}
+            '{{sat6_hostname}}': {get_param: sat6_hostname}
+            '{{sat6_organization}}': {get_param: sat6_organization}
+            '{{sat6_activationkey}}': {get_param: sat6_activationkey}
+          template: {get_file: fragments/rhn-register.sh}
+
+  install_python:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config: {get_file: fragments/install_python.sh}
+
+  install_complete:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      config: {get_file: fragments/install_complete.sh}
+
+  # Wait until the cloud-init process ends and reports or times out
+  wait_condition:
+    type: OS::Heat::WaitCondition
+    properties:
+      handle: {get_resource: wait_handle}
+      timeout: {get_param: timeout}
+
+  # This is passed to bastion_init cloud-init script as a curl CLI command
+  # When the cloud-init process ends it queries the URL with
+  # a message which ends the wait and returns the value
+  wait_handle:
+    type: OS::Heat::WaitConditionHandle

@@ -25,3 +25,4 @@ infrastructure.json
 ansible.log
 .tox
 static-inventory
+*.retry
