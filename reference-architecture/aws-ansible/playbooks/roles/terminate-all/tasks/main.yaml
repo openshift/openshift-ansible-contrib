@@ -22,7 +22,7 @@
     template: roles/cloudformation-infra/files/add-infra-node.json
     region: "{{ region }}"
   with_items:
-  - extra_infra_nodes
+  - "{{ extra_infra_nodes }}"
   when: extra_infra_nodes is defined
 
 - name: Remove Cloudformation
