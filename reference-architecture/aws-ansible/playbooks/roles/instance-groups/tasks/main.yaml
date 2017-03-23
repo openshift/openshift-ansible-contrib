@@ -15,7 +15,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_master'] }}"
   when:
-    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}" 
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
 
 - name: Add a master to the single master group
   add_host:
