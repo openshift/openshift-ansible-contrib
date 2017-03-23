@@ -1,5 +1,5 @@
 ---
 - name: Get current Ansible version on local host
   assert:
-    that: "ansible_version.full | version_compare('2.2', '>=')" 
+    that: "ansible_version.full | version_compare('2.2', '>=')"
     msg: "You need Ansible version 2.2.0+"

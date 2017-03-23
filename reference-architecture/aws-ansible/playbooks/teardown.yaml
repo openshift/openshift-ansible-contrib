@@ -7,7 +7,7 @@
   - vars/main.yaml
   roles:
   - cfn-outputs
-  - termination-instance-groups
+  - instance-groups
 
 - include: ../../../playbooks/unregister.yaml
 
