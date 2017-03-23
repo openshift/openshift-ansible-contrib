@@ -168,6 +168,7 @@ def launch_refarch_env(console_port=8443,
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
   tags = []
+  tags.append('setup')
 
   # Our initial support node is the wildcard_ip
   support_nodes=1
