@@ -48,3 +48,19 @@
         state: absent
         force: true
       with_dict: "{{infrastructure_hosts}}"
+
+- hosts: localhost
+  user: root
+  become: false
+  vars_files:
+    - vars/main.yaml
+  tasks:
+    - name: "Remove resource pool on vCenter"
+      vmware_resource_pool:
+        hostname: "{{ vcenter_host }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        cluster: "{{ vcenter_cluster}}"
+        resource_pool: "{{ vcenter_resource_pool }}"
+        state: "absent"
