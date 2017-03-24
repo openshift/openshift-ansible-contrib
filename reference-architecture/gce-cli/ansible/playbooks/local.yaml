@@ -7,3 +7,4 @@
   - ansible-gcp
   - dns-zone
   - rhel-image
+  - gcp-ssh-key

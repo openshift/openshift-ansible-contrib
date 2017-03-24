@@ -203,28 +203,6 @@ pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/local.yaml
 popd
 
-# Create SSH key for GCE
-if [ ! -f ~/.ssh/google_compute_engine ]; then
-    ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N ''
-    if [ -z "${SSH_AGENT_PID:-}" ]; then
-        eval $(ssh-agent -s)
-    fi
-    ssh-add ~/.ssh/google_compute_engine
-fi
-
-# Check if the ~/.ssh/google_compute_engine.pub key is in the project metadata, and if not, add it there
-pub_key=$(cut -d ' ' -f 2 < ~/.ssh/google_compute_engine.pub)
-key_tmp_file='/tmp/ocp-gce-keys'
-if ! gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q "$pub_key"; then
-    if gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep -q ssh-rsa; then
-        gcloud --project "$GCLOUD_PROJECT" compute project-info describe | grep ssh-rsa | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/value: //' > "$key_tmp_file"
-    fi
-    echo -n 'cloud-user:' >> "$key_tmp_file"
-    cat ~/.ssh/google_compute_engine.pub >> "$key_tmp_file"
-    gcloud --project "$GCLOUD_PROJECT" compute project-info add-metadata --metadata-from-file "sshKeys=${key_tmp_file}"
-    rm -f "$key_tmp_file"
-fi
-
 # Deploy network and firewall rules
 export OCP_PREFIX \
     GCLOUD_REGION \
