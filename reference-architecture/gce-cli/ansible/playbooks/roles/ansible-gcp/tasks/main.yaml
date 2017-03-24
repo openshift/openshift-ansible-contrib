@@ -2,13 +2,14 @@
 - name: check for service account
   command: gcloud --project {{ gcloud_project }} iam service-accounts list --filter {{ service_account }}
   register: service_account_output
+  changed_when: false
 
 - name: create new service account
   command: gcloud --project {{ gcloud_project }} iam service-accounts create {{ service_account }} --display-name '{{ service_account_name }}'
   register: service_account_created
-  when: '"{{ service_account }}" not in service_account_output.stdout'
+  when: service_account not in service_account_output.stdout
 
-- name: create project key
+- name: create service account key
   command: gcloud --project {{ gcloud_project }} iam service-accounts keys create {{ inventory_dir }}/gce/hosts/project.json --iam-account {{ service_account_id }} creates={{ inventory_dir }}/gce/hosts/project.json
 
 - name: grant service account access to the gcp project

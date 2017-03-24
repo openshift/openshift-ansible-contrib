@@ -185,25 +185,22 @@ fi
 
 ### PROVISION THE INFRASTRUCTURE ###
 
+# Configure python path
+PYTHONPATH="${PYTHONPATH:-}:${DIR}/ansible/inventory/gce/hosts"
+export PYTHONPATH
+
 # Prepare main ansible config file based on the configuration from this script
 export GCLOUD_PROJECT \
     GCLOUD_REGION \
     GCLOUD_ZONE \
-    OCP_PREFIX
+    OCP_PREFIX \
+    DNS_DOMAIN
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
-# Configure ansible connection to the GCP
+# Configure Ansible connection to the GCP
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/local.yaml
 popd
-
-# Check the DNS managed zone in Google Cloud DNS, create it if it doesn't exist and exit after printing NS servers
-if ! gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" &>/dev/null; then
-    echo "DNS zone '${DNS_MANAGED_ZONE}' doesn't exist. It will be created and installation will stop. Please configure the following NS servers for your domain in your domain provider before proceeding with the installation:"
-    gcloud --project "$GCLOUD_PROJECT" dns managed-zones create "$DNS_MANAGED_ZONE" --dns-name "$DNS_DOMAIN" --description "${DNS_DOMAIN} domain"
-    gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" --format='value(nameServers)' | tr ';' '\n'
-    exit 0
-fi
 
 # Upload image
 if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
