@@ -194,29 +194,14 @@ export GCLOUD_PROJECT \
     GCLOUD_REGION \
     GCLOUD_ZONE \
     OCP_PREFIX \
-    DNS_DOMAIN
+    DNS_DOMAIN \
+    RHEL_IMAGE_PATH
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
 # Configure Ansible connection to the GCP
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/local.yaml
 popd
-
-# Upload image
-if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null; then
-    echo 'Converting gcow2 image to raw image:'
-    qemu-img convert -p -S 4096 -f qcow2 -O raw "$RHEL_IMAGE_PATH" disk.raw
-    echo 'Creating archive of raw image:'
-    tar -Szcvf "${RHEL_IMAGE}.tar.gz" disk.raw
-    bucket="gs://${IMAGE_BUCKET}"
-    gsutil ls -p "$GCLOUD_PROJECT" "$bucket" &>/dev/null || gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "$bucket"
-    gsutil ls -p "$GCLOUD_PROJECT" "${bucket}/${RHEL_IMAGE}.tar.gz" &>/dev/null || gsutil cp "${RHEL_IMAGE}.tar.gz" "$bucket"
-    gcloud --project "$GCLOUD_PROJECT" compute images create "$RHEL_IMAGE_GCE" --source-uri "${bucket}/${RHEL_IMAGE}.tar.gz"
-    gsutil -m rm -r "$bucket"
-    rm -f disk.raw "${RHEL_IMAGE}.tar.gz"
-else
-    echo "Image '${RHEL_IMAGE_GCE}' already exists"
-fi
 
 # Create SSH key for GCE
 if [ ! -f ~/.ssh/google_compute_engine ]; then
