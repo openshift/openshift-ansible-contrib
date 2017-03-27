@@ -64,12 +64,13 @@ else
    exit 5
 fi
 
+mkdir -p /var/lib/origin/openshift.local.volumes
 ZEROVG=$( parted -m /dev/sda print all 2>/dev/null | grep unknown | grep /dev/sd | cut -d':' -f1 )
-
 parted -s -a optimal ${ZEROVG} mklabel gpt -- mkpart primary xfs 1 -1
-mkfs.xfs -f ${ZEROVG}
-echo "$ZEROVG  /var/lib/origin/openshift.local.volumes xfs  defaults,grpquota  0  0" >> /etc/fstab
-mount ${ZEROVG}
+sleep 5
+mkfs.xfs -f ${ZEROVG}1
+echo "${ZEROVG}1  /var/lib/origin/openshift.local.volumes xfs  defaults,grpquota  0  0" >> /etc/fstab
+mount ${ZEROVG}1
 
 
 cat <<EOF > /home/${USERNAME}/.ansible.cfg
