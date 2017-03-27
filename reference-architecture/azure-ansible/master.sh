@@ -45,7 +45,6 @@ subscription-manager repos     --enable="rhel-7-server-ose-3.4-rpms"
 yum -y install atomic-openshift-utils
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools
                                                                                          
-touch /root/.updateok
 
 mkdir -p /var/lib/origin/openshift.local.volumes
 ZEROVG=$( parted -m /dev/sda print all 2>/dev/null | grep unknown | grep /dev/sd | cut -d':' -f1 )
@@ -77,4 +76,5 @@ cat <<EOF > /root/.ansible.cfg
 host_key_checking = False
 EOF
 
+touch /root/.updateok
 
