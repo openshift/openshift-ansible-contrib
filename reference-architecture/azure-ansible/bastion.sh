@@ -437,6 +437,9 @@ rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients 
 echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
+sleep 120
+echo "Setup Azure PVC"
+ansible-playbook /home/${AUSERNAME}/setup-azure-config.yml &> setup-azure.out
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
