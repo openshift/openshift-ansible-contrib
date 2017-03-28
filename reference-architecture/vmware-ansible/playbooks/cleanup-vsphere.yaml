@@ -2,14 +2,17 @@
 - hosts: localhost
   user: root
   become: false
+  ignore_errors: yes
   vars_files:
     - vars/main.yaml
   roles:
     - instance-groups
 
+
 - hosts: cluster_hosts
   user: root
   become: false
+  ignore_errors: yes
   vars_files:
     - vars/main.yaml
   roles:
@@ -18,6 +21,7 @@
 - hosts: loadbalancer, infra-nfs
   user: root
   become: false
+  ignore_errors: yes
   vars_files:
     - vars/main.yaml
   roles:
@@ -26,6 +30,7 @@
 - hosts: localhost
   user: root
   become: false
+  ignore_errors: yes
   vars_files:
     - vars/main.yaml
   tasks:
@@ -52,6 +57,7 @@
 - hosts: localhost
   user: root
   become: false
+  ignore_errors: yes
   vars_files:
     - vars/main.yaml
   tasks:
@@ -63,4 +69,13 @@
         datacenter: "{{ vcenter_datacenter }}"
         cluster: "{{ vcenter_cluster}}"
         resource_pool: "{{ vcenter_resource_pool }}"
+        state: "absent"
+    - name: "Remove folder on vCenter"
+      vmware_folder:
+        hostname: "{{ vcenter_host }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        cluster: "{{ vcenter_cluster}}"
+        folder: "{{ vcenter_folder }}"
         state: "absent"

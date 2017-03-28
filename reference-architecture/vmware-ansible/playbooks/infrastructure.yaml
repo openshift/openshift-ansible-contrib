@@ -1,6 +1,6 @@
 ---
 - include: stage-vsphere.yaml
-  tags: ['setup', 'all']
+  tags: ['setup', 'stage', 'all']
 
 - include: setup-nfs.yaml
   tags: ['nfs', 'all']

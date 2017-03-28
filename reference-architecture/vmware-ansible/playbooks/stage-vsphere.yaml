@@ -14,3 +14,12 @@
         cluster: "{{ vcenter_cluster}}"
         resource_pool: "{{ vcenter_resource_pool }}"
         state: "present"
+    - name: "Create folder structure on vCenter"
+      vmware_folder:
+        hostname: "{{ vcenter_host }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        cluster: "{{ vcenter_cluster}}"
+        folder: "{{ vcenter_folder }}"
+        state: "present"
