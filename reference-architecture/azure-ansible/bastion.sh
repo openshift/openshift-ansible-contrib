@@ -129,19 +129,6 @@ subscription-manager repos     --enable="rhel-7-server-ose-3.4-rpms"
 yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs
 touch /root/.updateok
 
-cat > /home/${AUSERNAME}/setupregistry.yml <<EOF
----
-- hosts: master1
-  remote_user: ${AUSERNAME}
-  become: yes
-  become_method: sudo
-  vars:
-    description: "Set registry to use Azure Storage"
-  tasks:
-  - name: Configure docker-registry to use Azure Storage
-    shell: oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
-EOF
-
 # Create azure.conf file
 
 cat > /home/${AUSERNAME}/azure.conf <<EOF
@@ -300,7 +287,6 @@ echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOUR
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null &> byo.out
 
 wget http://master1:8443/api > healtcheck.out
-ansible-playbook /home/${AUSERNAME}/setupregistry.yml 
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
 mkdir .kube
@@ -310,6 +296,9 @@ mkdir /home/${AUSERNAME}/.kube
 cp /tmp/kube-config /home/${AUSERNAME}/.kube/config
 chown --recursive ${AUSERNAME} /home/${AUSERNAME}/.kube
 rm -f /tmp/kube-config
+yum -y install atomic-openshift-clients 
+echo "setup registry for azure"
+oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
