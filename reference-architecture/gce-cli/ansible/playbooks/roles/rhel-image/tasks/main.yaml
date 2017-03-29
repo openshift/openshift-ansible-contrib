@@ -33,6 +33,7 @@
   - name: create gce image from the uploaded archive
     gce_img:
       name: '{{ rhel_image_gce }}'
+      family: '{{ rhel_image_gce_family }}'
       source: '{{ rhel_image_in_bucket }}'
 
   - name: delete bucket with uploaded archive
