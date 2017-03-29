@@ -195,24 +195,15 @@ export GCLOUD_PROJECT \
     GCLOUD_ZONE \
     OCP_PREFIX \
     DNS_DOMAIN \
-    RHEL_IMAGE_PATH
+    RHEL_IMAGE_PATH \
+    CONSOLE_PORT \
+    NETWORK_DEPLOYMENT
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
 # Configure Ansible connection to the GCP
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/local.yaml
 popd
-
-# Deploy network and firewall rules
-export OCP_PREFIX \
-    GCLOUD_REGION \
-    CONSOLE_PORT
-envsubst < "${DIR}/deployment-manager/deployment-net-config.yml.tpl" > "${DIR}/deployment-manager/deployment-net-config.yml"
-if ! gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${NETWORK_DEPLOYMENT}" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments create "${OCP_PREFIX}-${NETWORK_DEPLOYMENT}" --config "${DIR}/deployment-manager/deployment-net-config.yml"
-else
-    echo "Deployment '${OCP_PREFIX}-${NETWORK_DEPLOYMENT}' already exists"
-fi
 
 # Create the gold image based on the uploaded image
 if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$GOLD_IMAGE" &>/dev/null; then

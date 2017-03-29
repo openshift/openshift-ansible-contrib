@@ -2,9 +2,6 @@ resources:
 - name: {{ properties['prefix'] }}-network
   properties:
     autoCreateSubnetworks: true
-    subnetworks:
-    - projects/{{env['project']}}/regions/{{ properties['region'] }}/subnetworks/{{ properties['prefix'] }}-network
-    x_gcloud_mode: auto
   type: compute.v1.network
 - name: {{ properties['prefix'] }}-icmp
   properties:

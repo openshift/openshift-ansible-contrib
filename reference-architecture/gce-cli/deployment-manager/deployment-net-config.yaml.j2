@@ -4,6 +4,5 @@ resources:
 - name: deployment-net
   type: deployment-net.jinja
   properties:
-    prefix: ${OCP_PREFIX}
-    region: ${GCLOUD_REGION}
-    console_port: ${CONSOLE_PORT}
+    prefix: {{ prefix }}
+    console_port: {{ console_port }}

@@ -8,3 +8,4 @@
   - dns-zone
   - rhel-image
   - gcp-ssh-key
+  - { role: deployment-manager, deployment_name: '{{ network_deployment }}' }
