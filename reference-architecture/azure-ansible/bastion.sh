@@ -156,7 +156,6 @@ EOF
 
 cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
 #!/usr/bin/ansible-playbook 
-
 - hosts: masters
   gather_facts: no
   vars_files:
@@ -290,6 +289,7 @@ nodes
 [OSEv3:vars]
 debug_level=2
 console_port=8443
+docker_udev_workaround=True
 openshift_node_debug_level="{{ node_debug_level | default(debug_level, true) }}"
 openshift_master_debug_level="{{ master_debug_level | default(debug_level, true) }}"
 openshift_master_access_token_max_seconds=2419200
@@ -298,6 +298,7 @@ openshift_hosted_registry_replicas=1
 openshift_master_api_port="{{ console_port }}"
 openshift_master_console_port="{{ console_port }}"
 openshift_override_hostname_check=true
+os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
 osm_use_cockpit=false
 openshift_release=v3.4
 openshift_cloudprovider_kind=azure
