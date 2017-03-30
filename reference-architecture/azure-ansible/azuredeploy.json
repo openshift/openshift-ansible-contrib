@@ -467,7 +467,8 @@
     },
     "registryStorageName" : "[concat(resourceGroup().name, 'registrysa')]",
     "subscriptionId" : "[subscription().subscriptionId]",
-    "tenantId" : "[subscription().tenantId]"
+    "tenantId" : "[subscription().tenantId]",
+    "bastionVMSize" : "Standard_DS1_v2"
   },
   "resources" : [
     {
@@ -729,7 +730,7 @@
             "value" : "[variables('masterSubnetRef')]"
           },
           "vmSize" : {
-            "value" : "[parameters('masterVMSize')]"
+            "value" : "[variables('bastionVMSize')]"
           },
           "adminUsername" : {
             "value" : "[parameters('adminUsername')]"
