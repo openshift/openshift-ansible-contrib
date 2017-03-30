@@ -264,6 +264,8 @@
     }
   },
   "variables" : {
+    "persistentVolume1Type" : "Standard_LRS",
+    "persistentVolume2Type" : "Standard_LRS",
     "gituser" : "glennswest",
     "branch" : "master",
     "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/')]",
@@ -1128,6 +1130,30 @@
       },
       "properties" : {
         "accountType" : "['Standard_RAGRS']"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('newStorageAccountPersistentVolume1')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "PersistentVolume1StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "[variables('persistentVolume1Type')]"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('newStorageAccountPersistentVolume2')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "PersistentVolume2StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "[variables('persistentVolume2Type')]"
       }
     }
   ],
