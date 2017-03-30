@@ -49,7 +49,7 @@
     },
     "masterVMSize" : {
       "type" : "string",
-      "defaultValue" : "Standard_DS3_v2",
+      "defaultValue" : "Standard_DS4_v2",
       "allowedValues" : [
         "Standard_A2",
         "Standard_A3",
@@ -108,7 +108,7 @@
     },
     "infranodeVMSize" : {
       "type" : "string",
-      "defaultValue" : "Standard_DS3_v2",
+      "defaultValue" : "Standard_DS4_v2",
       "allowedValues" : [
         "Standard_A2",
         "Standard_A3",
@@ -167,7 +167,7 @@
     },
     "nodeVMSize" : {
       "type" : "string",
-      "defaultValue" : "Standard_DS12_v2",
+      "defaultValue" : "Standard_DS4_v2",
       "allowedValues" : [
         "Standard_A2",
         "Standard_A3",
@@ -705,10 +705,6 @@
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]",
-        "[resourceId('Microsoft.Resources/deployments', 'master1')]",
-        "[resourceId('Microsoft.Resources/deployments', 'master2')]",
-        "[resourceId('Microsoft.Resources/deployments', 'master3')]",
-        "[resourceId('Microsoft.Resources/deployments', 'infranode1')]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('registryStorageName'))]"
       ],
       "properties" : {
