@@ -283,7 +283,6 @@ EOF
 cat <<EOF > /etc/ansible/hosts
 [OSEv3:children]
 masters
-etcd
 nodes
 
 [OSEv3:vars]
