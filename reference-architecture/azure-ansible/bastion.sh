@@ -156,7 +156,7 @@ EOF
 
 cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
 #!/usr/bin/ansible-playbook 
-- hosts: masters
+- hosts: master1
   gather_facts: no
   vars_files:
   - vars.yml
@@ -228,7 +228,7 @@ cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
     - restart atomic-openshift-master-api
     - restart atomic-openshift-master-controllers
 
-- hosts: nodes:!masters
+- hosts: node01
   gather_facts: no
   vars_files:
   - vars.yml
@@ -439,7 +439,7 @@ echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 sleep 120
 echo "Setup Azure PVC"
-# ansible-playbook /home/${AUSERNAME}/setup-azure-config.yml &> /home/${AUSERNAME}/setup-azure.out
+ansible-playbook /home/${AUSERNAME}/setup-azure-config.yml &> /home/${AUSERNAME}/setup-azure.out
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
