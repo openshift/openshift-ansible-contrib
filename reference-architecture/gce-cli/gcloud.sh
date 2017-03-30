@@ -202,7 +202,7 @@ envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.y
 
 # Configure Ansible connection to the GCP
 pushd "${DIR}/ansible"
-ansible-playbook -i inventory/inventory playbooks/local.yaml
+ansible-playbook -i inventory/inventory playbooks/prereq.yaml
 popd
 
 # Create the gold image based on the uploaded image
