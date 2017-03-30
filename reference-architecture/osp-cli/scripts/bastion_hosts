@@ -1,0 +1,9 @@
+172.18.10.9 app-node-0.ocp3.e2e.bos.redhat.com app-node-0
+172.18.10.10 app-node-1.ocp3.e2e.bos.redhat.com app-node-1
+172.18.10.11 app-node-2.ocp3.e2e.bos.redhat.com app-node-2
+172.18.10.3 bastion.ocp3.e2e.bos.redhat.com bastion
+172.18.10.7 infra-node-0.ocp3.e2e.bos.redhat.com infra-node-0
+172.18.10.8 infra-node-1.ocp3.e2e.bos.redhat.com infra-node-1
+172.18.10.4 master-0.ocp3.e2e.bos.redhat.com master-0
+172.18.10.5 master-1.ocp3.e2e.bos.redhat.com master-1
+172.18.10.6 master-2.ocp3.e2e.bos.redhat.com master-2
