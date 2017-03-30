@@ -1155,6 +1155,27 @@
       "properties" : {
         "accountType" : "[variables('persistentVolume2Type')]"
       }
+    },
+    {
+      "type" : "Microsoft.Compute/availabilitySets",
+      "name" : "masteravailabilityset",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionCompute')]",
+      "properties" : {}
+    },
+    {
+      "type" : "Microsoft.Compute/availabilitySets",
+      "name" : "infraavailabilityset",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionCompute')]",
+      "properties" : {}
+    },
+    {
+      "type" : "Microsoft.Compute/availabilitySets",
+      "name" : "nodeavailabilityset",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionCompute')]",
+      "properties" : {}
     }
   ],
   "outputs" : {
