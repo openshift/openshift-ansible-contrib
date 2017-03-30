@@ -2,14 +2,14 @@
 # heat stack-create ocp3-heat -f openshift.yaml
 #      -e openshift_parameters.yaml \
 parameters:
-  # OpenStack user credentials - Adjust as needed
+# OpenStack user credentials - Adjust as needed
   os_auth_url: http://10.19.115.62:5000/v2.0 # <1>
   os_username: <username> # <2>
   os_password: <password> # <2>
   os_region_name: default
   os_tenant_name: <project name> # <2>
 
-  # Red Hat Subscription information - Adjust as needed
+# Red Hat Subscription information - Adjust as needed
   rhn_username: "<username>" # <3>
   rhn_password: "<password>" # <3>
   rhn_pool: '<pool id containing openshift>' # <3>
@@ -18,7 +18,7 @@ parameters:
   dns_nameserver: 10.19.114.130,10.16.36.29,10.11.5.19 # <4>
 
   deployment_type: openshift-enterprise
-  ose_version: "3.2" # <5>
+  ose_version: "3.4" # <5>
 
   domain_name: "ocp3.example.com" # <6>
   lb_hostname: "devs" # <7>
@@ -28,17 +28,17 @@ parameters:
   ssh_user: cloud-user
 
   bastion_hostname: "bastion"
-  bastion_image: rhel72
+  bastion_image: rhel7
   master_hostname: "master"
-  master_image: rhel72
+  master_image: rhel7
   master_count: 3
   master_docker_volume_size_gb: 5
   infra_hostname: "infra"
-  infra_image: rhel72
+  infra_image: rhel7
   infra_count: 3
   infra_docker_volume_size_gb: 5
   node_hostname: "node"
-  node_image: rhel72
+  node_image: rhel7
   node_count: 2
   node_docker_volume_size_gb: 5
 
@@ -48,7 +48,7 @@ parameters:
   deploy_registry: true
 
 parameter_defaults:
-#  # Authentication service information
+# Authentication service information
   ldap_url: "ldap://ad.example.com.com:389/cn=users,dc=example,dc=com?sAMAccountName" # <8>
   ldap_preferred_username: "sAMAccountName"
   ldap_bind_dn: "cn=openshift,cn=users,dc=example,dc=com" # <9>
