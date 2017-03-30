@@ -468,7 +468,9 @@
     "registryStorageName" : "[concat(resourceGroup().name, 'registrysa')]",
     "subscriptionId" : "[subscription().subscriptionId]",
     "tenantId" : "[subscription().tenantId]",
-    "bastionVMSize" : "Standard_DS1_v2"
+    "bastionVMSize" : "Standard_DS1_v2",
+    "newStorageAccountPersistentVolume1" : "[concat('pv1sa', uniqueString(concat(resourceGroup().id, 'persistentvolume1')))]",
+    "newStorageAccountPersistentVolume2" : "[concat('pv2sa', uniqueString(concat(resourceGroup().id, 'persistentvolume2')))]"
   },
   "resources" : [
     {
