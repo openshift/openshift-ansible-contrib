@@ -156,7 +156,7 @@ EOF
 
 cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
 #!/usr/bin/ansible-playbook 
-- hosts: master1
+- hosts: masters
   gather_facts: no
   vars_files:
   - vars.yml
@@ -228,7 +228,7 @@ cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
     - restart atomic-openshift-master-api
     - restart atomic-openshift-master-controllers
 
-- hosts: node01
+- hosts: compute
   gather_facts: no
   vars_files:
   - vars.yml
@@ -346,6 +346,9 @@ node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+
+[compute]
+node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 
 EOF
 
