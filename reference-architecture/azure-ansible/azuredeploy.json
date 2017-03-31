@@ -297,7 +297,6 @@
       "version" : "latest"
     },
     "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastion.json')]",
-    "tmApiVersion" : "2015-11-01",
     "vmSizesMap" : {
       "Standard_A2" : {
         "storageAccountType" : "Standard_LRS"
@@ -487,7 +486,11 @@
     "infraLbBackendPoolId" : "[concat(variables('infraLbId'),'/backendAddressPools/loadBalancerBackend')]",
     "infraLbHttpProbeId" : "[concat(variables('infraLbId'),'/probes/httpProbe')]",
     "infraLbHttpsProbeId" : "[concat(variables('infraLbId'),'/probes/httpsProbe')]",
-    "infraLbCockpitProbeId" : "[concat(variables('infraLbId'),'/probes/cockpitProbe')]"
+    "infraLbCockpitProbeId" : "[concat(variables('infraLbId'),'/probes/cockpitProbe')]",
+    "apiVersionNetwork" : "2016-03-30",
+    "tmApiVersion" : "2015-11-01",
+    "apiVersionStorage" : "2015-06-15",
+    "apiVersionLinkTemplate" : "2015-01-01"
   },
   "resources" : [
     {
