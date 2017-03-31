@@ -883,6 +883,12 @@
           },
           "sshPrivateData" : {
             "value" : "[parameters('sshPrivateData')]"
+          },
+          "masterLoadBalancerName" : {
+            "value" : "[variables('masterLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['masteravailabilityset']"
           }
         }
       }
@@ -949,6 +955,12 @@
           },
           "sshPrivateData" : {
             "value" : "[parameters('sshPrivateData')]"
+          },
+          "masterLoadBalancerName" : {
+            "value" : "[variables('masterLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['masteravailabilityset']"
           }
         }
       }
