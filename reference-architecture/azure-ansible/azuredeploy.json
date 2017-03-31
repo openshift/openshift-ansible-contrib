@@ -471,7 +471,23 @@
     "bastionVMSize" : "Standard_DS1_v2",
     "newStorageAccountPersistentVolume1" : "[concat('pv1sa', uniqueString(concat(resourceGroup().id, 'persistentvolume1')))]",
     "newStorageAccountPersistentVolume2" : "[concat('pv2sa', uniqueString(concat(resourceGroup().id, 'persistentvolume2')))]",
-    "apiVersionCompute" : "2015-06-15"
+    "apiVersionCompute" : "2015-06-15",
+    "masterLoadBalancerName" : "[concat(variables('openshiftMasterHostname'), 'lb')]",
+    "masterPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', parameters('openshiftMasterPublicIpDnsLabel'))]",
+    "masterLbId" : "[resourceId('Microsoft.Network/loadBalancers', variables('masterLoadBalancerName'))]",
+    "masterLbFrontEndConfigId" : "[concat(variables('masterLbId'), '/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "masterLbBackendPoolId" : "[concat(variables('masterLbId'),'/backendAddressPools/loadBalancerBackend')]",
+    "masterLbHttpProbeId" : "[concat(variables('masterLbId'),'/probes/httpProbe')]",
+    "masterLb8443ProbeId" : "[concat(variables('masterLbId'),'/probes/8443Probe')]",
+    "masterLbCockpitProbeId" : "[concat(variables('masterLbId'),'/probes/cockpitProbe')]",
+    "infraLoadBalancerName" : "[concat(variables('openshiftInfraHostname'), 'lb')]",
+    "infraPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', parameters('infraLbPublicIpDnsLabel'))]",
+    "infraLbId" : "[resourceId('Microsoft.Network/loadBalancers', variables('infraLoadBalancerName'))]",
+    "infraLbFrontEndConfigId" : "[concat(variables('infraLbId'), '/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "infraLbBackendPoolId" : "[concat(variables('infraLbId'),'/backendAddressPools/loadBalancerBackend')]",
+    "infraLbHttpProbeId" : "[concat(variables('infraLbId'),'/probes/httpProbe')]",
+    "infraLbHttpsProbeId" : "[concat(variables('infraLbId'),'/probes/httpsProbe')]",
+    "infraLbCockpitProbeId" : "[concat(variables('infraLbId'),'/probes/cockpitProbe')]"
   },
   "resources" : [
     {
@@ -655,6 +671,12 @@
           },
           "sshPrivateData" : {
             "value" : "[parameters('sshPrivateData')]"
+          },
+          "masterLoadBalancerName" : {
+            "value" : "[variables('masterLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['masteravailabilityset']"
           }
         }
       }
@@ -929,59 +951,6 @@
       }
     },
     {
-      "apiVersion" : "[variables('tmApiVersion')]",
-      "type" : "Microsoft.Network/trafficManagerProfiles",
-      "name" : "MasterLB",
-      "location" : "global",
-      "dependsOn" : [
-        "[resourceId('Microsoft.Resources/deployments', 'master1')]",
-        "[resourceId('Microsoft.Resources/deployments', 'master2')]",
-        "[resourceId('Microsoft.Resources/deployments', 'master3')]"
-      ],
-      "properties" : {
-        "profileStatus" : "Enabled",
-        "trafficRoutingMethod" : "Weighted",
-        "dnsConfig" : {
-          "relativeName" : "[resourceGroup().name]",
-          "ttl" : 30
-        },
-        "monitorConfig" : {
-          "protocol" : "https",
-          "port" : 8443,
-          "path" : "/api"
-        },
-        "endpoints" : [
-          {
-            "name" : "endpoint0",
-            "type" : "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
-            "properties" : {
-              "targetResourceId" : "[resourceId('Microsoft.Network/publicIPAddresses', 'master1pip')]",
-              "endpointStatus" : "Enabled",
-              "weight" : 1
-            }
-          },
-          {
-            "name" : "endpoint1",
-            "type" : "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
-            "properties" : {
-              "targetResourceId" : "[resourceId('Microsoft.Network/publicIPAddresses', 'master2pip')]",
-              "endpointStatus" : "Enabled",
-              "weight" : 2
-            }
-          },
-          {
-            "name" : "endpoint2",
-            "type" : "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
-            "properties" : {
-              "targetResourceId" : "[resourceId('Microsoft.Network/publicIPAddresses', 'master3pip')]",
-              "endpointStatus" : "Enabled",
-              "weight" : 3
-            }
-          }
-        ]
-      }
-    },
-    {
       "name" : "infranode2",
       "type" : "Microsoft.Resources/deployments",
       "apiVersion" : "2015-01-01",
@@ -1175,11 +1144,219 @@
       "properties" : {}
     },
     {
+      "type" : "Microsoft.Network/publicIPAddresses",
+      "name" : "[parameters('WildcardZone')]",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionNetwork')]",
+      "tags" : {
+        "displayName" : "OpenShiftInfraLBPublicIP"
+      },
+      "properties" : {
+        "publicIPAllocationMethod" : "Static",
+        "dnsSettings" : {
+          "domainNameLabel" : "[parameters('WildcardZone')]"
+        }
+      }
+    },
+    {
       "type" : "Microsoft.Compute/availabilitySets",
       "name" : "nodeavailabilityset",
       "location" : "[variables('location')]",
       "apiVersion" : "[variables('apiVersionCompute')]",
       "properties" : {}
+    },
+    {
+      "type" : "Microsoft.Network/publicIPAddresses",
+      "name" : "[resourceGroup().name]",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionNetwork')]",
+      "tags" : {
+        "displayName" : "OpenShiftMasterPublicIP"
+      },
+      "properties" : {
+        "publicIPAllocationMethod" : "Static",
+        "dnsSettings" : {
+          "domainNameLabel" : "[resourceGroup().name]"
+        }
+      }
+    },
+    {
+      "type" : "Microsoft.Network/loadBalancers",
+      "name" : "[variables('masterLoadBalancerName')]",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionNetwork')]",
+      "tags" : {
+        "displayName" : "OpenShiftMasterLB"
+      },
+      "dependsOn" : [
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('openshiftMasterPublicIpDnsLabel'))]"
+      ],
+      "properties" : {
+        "frontendIPConfigurations" : [
+          {
+            "name" : "LoadBalancerFrontEnd",
+            "properties" : {
+              "publicIPAddress" : {
+                "id" : "[variables('masterPublicIpAddressId')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools" : [
+          {
+            "name" : "loadBalancerBackEnd"
+          }
+        ],
+        "loadBalancingRules" : [
+          {
+            "name" : "OpenShiftAdminConsole",
+            "properties" : {
+              "frontendIPConfiguration" : {
+                "id" : "[variables('masterLbFrontEndConfigId')]"
+              },
+              "backendAddressPool" : {
+                "id" : "[variables('masterLbBackendPoolId')]"
+              },
+              "protocol" : "Tcp",
+              "loadDistribution" : "SourceIP",
+              "idleTimeoutInMinutes" : 30,
+              "frontendPort" : 8443,
+              "backendPort" : 8443,
+              "probe" : {
+                "id" : "[variables('masterLb8443ProbeId')]"
+              }
+            }
+          },
+          {
+            "name" : "CockpitConsole",
+            "properties" : {
+              "frontendIPConfiguration" : {
+                "id" : "[variables('masterLbFrontEndConfigId')]"
+              },
+              "backendAddressPool" : {
+                "id" : "[variables('masterLbBackendPoolId')]"
+              },
+              "protocol" : "Tcp",
+              "loadDistribution" : "SourceIP",
+              "idleTimeoutInMinutes" : 30,
+              "frontendPort" : 9090,
+              "backendPort" : 9090,
+              "probe" : {
+                "id" : "[variables('masterLbCockpitProbeId')]"
+              }
+            }
+          }
+        ],
+        "probes" : [
+          {
+            "name" : "8443Probe",
+            "properties" : {
+              "protocol" : "Tcp",
+              "port" : 8443,
+              "intervalInSeconds" : 5,
+              "numberOfProbes" : 2
+            }
+          },
+          {
+            "name" : "cockpitProbe",
+            "properties" : {
+              "protocol" : "Tcp",
+              "port" : 9090,
+              "intervalInSeconds" : 5,
+              "numberOfProbes" : 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type" : "Microsoft.Network/loadBalancers",
+      "name" : "[variables('masterLoadBalancerName')]",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionNetwork')]",
+      "tags" : {
+        "displayName" : "OpenShiftMasterLB"
+      },
+      "dependsOn" : [
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('openshiftMasterPublicIpDnsLabel'))]"
+      ],
+      "properties" : {
+        "frontendIPConfigurations" : [
+          {
+            "name" : "LoadBalancerFrontEnd",
+            "properties" : {
+              "publicIPAddress" : {
+                "id" : "[variables('masterPublicIpAddressId')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools" : [
+          {
+            "name" : "loadBalancerBackEnd"
+          }
+        ],
+        "loadBalancingRules" : [
+          {
+            "name" : "OpenShiftAdminConsole",
+            "properties" : {
+              "frontendIPConfiguration" : {
+                "id" : "[variables('masterLbFrontEndConfigId')]"
+              },
+              "backendAddressPool" : {
+                "id" : "[variables('masterLbBackendPoolId')]"
+              },
+              "protocol" : "Tcp",
+              "loadDistribution" : "SourceIP",
+              "idleTimeoutInMinutes" : 30,
+              "frontendPort" : 8443,
+              "backendPort" : 8443,
+              "probe" : {
+                "id" : "[variables('masterLb8443ProbeId')]"
+              }
+            }
+          },
+          {
+            "name" : "CockpitConsole",
+            "properties" : {
+              "frontendIPConfiguration" : {
+                "id" : "[variables('masterLbFrontEndConfigId')]"
+              },
+              "backendAddressPool" : {
+                "id" : "[variables('masterLbBackendPoolId')]"
+              },
+              "protocol" : "Tcp",
+              "loadDistribution" : "SourceIP",
+              "idleTimeoutInMinutes" : 30,
+              "frontendPort" : 9090,
+              "backendPort" : 9090,
+              "probe" : {
+                "id" : "[variables('masterLbCockpitProbeId')]"
+              }
+            }
+          }
+        ],
+        "probes" : [
+          {
+            "name" : "8443Probe",
+            "properties" : {
+              "protocol" : "Tcp",
+              "port" : 8443,
+              "intervalInSeconds" : 5,
+              "numberOfProbes" : 2
+            }
+          },
+          {
+            "name" : "cockpitProbe",
+            "properties" : {
+              "protocol" : "Tcp",
+              "port" : 9090,
+              "intervalInSeconds" : 5,
+              "numberOfProbes" : 2
+            }
+          }
+        ]
+      }
     }
   ],
   "outputs" : {

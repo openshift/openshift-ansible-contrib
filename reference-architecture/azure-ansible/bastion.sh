@@ -158,6 +158,7 @@ cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
 #!/usr/bin/ansible-playbook 
 - hosts: masters
   gather_facts: no
+  serial: 1
   vars_files:
   - vars.yml
   become: yes
@@ -229,6 +230,7 @@ cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
     - restart atomic-openshift-master-controllers
 
 - hosts: compute
+  serial: 1
   gather_facts: no
   vars_files:
   - vars.yml
