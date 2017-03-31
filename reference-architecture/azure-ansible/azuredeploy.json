@@ -481,7 +481,7 @@
     "masterLb8443ProbeId" : "[concat(variables('masterLbId'),'/probes/8443Probe')]",
     "masterLbCockpitProbeId" : "[concat(variables('masterLbId'),'/probes/cockpitProbe')]",
     "infraLoadBalancerName" : "[concat(parameters('WildcardZone'), 'lb')]",
-    "infraPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', parameters(parameters('WildcardZone')))]",
+    "infraPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', parameters('WildcardZone'))]",
     "infraLbId" : "[resourceId('Microsoft.Network/loadBalancers', variables('infraLoadBalancerName'))]",
     "infraLbFrontEndConfigId" : "[concat(variables('infraLbId'), '/frontendIPConfigurations/loadBalancerFrontEnd')]",
     "infraLbBackendPoolId" : "[concat(variables('infraLbId'),'/backendAddressPools/loadBalancerBackend')]",
