@@ -480,7 +480,7 @@
     "masterLbHttpProbeId" : "[concat(variables('masterLbId'),'/probes/httpProbe')]",
     "masterLb8443ProbeId" : "[concat(variables('masterLbId'),'/probes/8443Probe')]",
     "masterLbCockpitProbeId" : "[concat(variables('masterLbId'),'/probes/cockpitProbe')]",
-    "infraLoadBalancerName" : "[concat(variables('openshiftInfraHostname'), 'lb')]",
+    "infraLoadBalancerName" : "[concat(parameters('WildcardZone'), 'lb')]",
     "infraPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', parameters('infraLbPublicIpDnsLabel'))]",
     "infraLbId" : "[resourceId('Microsoft.Network/loadBalancers', variables('infraLoadBalancerName'))]",
     "infraLbFrontEndConfigId" : "[concat(variables('infraLbId'), '/frontendIPConfigurations/loadBalancerFrontEnd')]",
