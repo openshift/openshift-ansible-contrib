@@ -101,7 +101,7 @@
               },
               "loadBalancerBackendAddressPools" : [
                 {
-                  "id" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', variables('masterLoadBalancerName'), '/backendAddressPools/loadBalancerBackEnd')]"
+                  "id" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('masterLoadBalancerName'), '/backendAddressPools/loadBalancerBackEnd')]"
                 }
               ]
             }
