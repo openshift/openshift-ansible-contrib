@@ -472,7 +472,7 @@
     "newStorageAccountPersistentVolume1" : "[concat('pv1sa', uniqueString(concat(resourceGroup().id, 'persistentvolume1')))]",
     "newStorageAccountPersistentVolume2" : "[concat('pv2sa', uniqueString(concat(resourceGroup().id, 'persistentvolume2')))]",
     "apiVersionCompute" : "2015-06-15",
-    "masterLoadBalancerName" : "[concat(variables('openshiftMasterHostname'), 'lb')]",
+    "masterLoadBalancerName" : "[concat('MasterLb',resourceGroup().name)]",
     "masterPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', parameters('openshiftMasterPublicIpDnsLabel'))]",
     "masterLbId" : "[resourceId('Microsoft.Network/loadBalancers', variables('masterLoadBalancerName'))]",
     "masterLbFrontEndConfigId" : "[concat(variables('masterLbId'), '/frontendIPConfigurations/loadBalancerFrontEnd')]",
