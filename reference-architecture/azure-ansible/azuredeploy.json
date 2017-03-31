@@ -1044,59 +1044,6 @@
       }
     },
     {
-      "apiVersion" : "[variables('tmApiVersion')]",
-      "type" : "Microsoft.Network/trafficManagerProfiles",
-      "name" : "AppLB",
-      "location" : "global",
-      "dependsOn" : [
-        "[resourceId('Microsoft.Resources/deployments', 'infranode1')]",
-        "[resourceId('Microsoft.Resources/deployments', 'infranode2')]",
-        "[resourceId('Microsoft.Resources/deployments', 'infranode3')]"
-      ],
-      "properties" : {
-        "profileStatus" : "Enabled",
-        "trafficRoutingMethod" : "Weighted",
-        "dnsConfig" : {
-          "relativeName" : "[parameters('WildcardZone')]",
-          "ttl" : 30
-        },
-        "monitorConfig" : {
-          "protocol" : "https",
-          "port" : 8080,
-          "path" : "/api"
-        },
-        "endpoints" : [
-          {
-            "name" : "endpoint0",
-            "type" : "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
-            "properties" : {
-              "targetResourceId" : "[resourceId('Microsoft.Network/publicIPAddresses', 'infranode1pip')]",
-              "endpointStatus" : "Enabled",
-              "weight" : 1
-            }
-          },
-          {
-            "name" : "endpoint1",
-            "type" : "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
-            "properties" : {
-              "targetResourceId" : "[resourceId('Microsoft.Network/publicIPAddresses', 'infranode2pip')]",
-              "endpointStatus" : "Enabled",
-              "weight" : 2
-            }
-          },
-          {
-            "name" : "endpoint2",
-            "type" : "Microsoft.Network/trafficManagerProfiles/azureEndpoints",
-            "properties" : {
-              "targetResourceId" : "[resourceId('Microsoft.Network/publicIPAddresses', 'infranode3pip')]",
-              "endpointStatus" : "Enabled",
-              "weight" : 3
-            }
-          }
-        ]
-      }
-    },
-    {
       "type" : "Microsoft.Storage/storageAccounts",
       "name" : "[variables('registryStorageName')]",
       "apiVersion" : "[variables('apiVersion')]",
@@ -1359,21 +1306,6 @@
             }
           }
         ]
-      }
-    },
-    {
-      "type" : "Microsoft.Network/publicIPAddresses",
-      "name" : "[parameters('WildcardZone')]",
-      "location" : "[variables('location')]",
-      "apiVersion" : "[variables('apiVersionNetwork')]",
-      "tags" : {
-        "displayName" : "OpenShiftMasterPublicIP"
-      },
-      "properties" : {
-        "publicIPAllocationMethod" : "Static",
-        "dnsSettings" : {
-          "domainNameLabel" : "[parameters('WildcardZone')]"
-        }
       }
     }
   ],
