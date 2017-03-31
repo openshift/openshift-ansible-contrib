@@ -1192,7 +1192,7 @@
         "displayName" : "OpenShiftMasterLB"
       },
       "dependsOn" : [
-        "[concat('Microsoft.Network/publicIPAddresses/', parameters('openshiftMasterPublicIpDnsLabel'))]"
+        "[concat('Microsoft.Network/publicIPAddresses/', resourceGroup().name)]"
       ],
       "properties" : {
         "frontendIPConfigurations" : [
@@ -1281,7 +1281,7 @@
         "displayName" : "OpenShiftMasterLB"
       },
       "dependsOn" : [
-        "[concat('Microsoft.Network/publicIPAddresses/', parameters('openshiftMasterPublicIpDnsLabel'))]"
+        "[concat('Microsoft.Network/publicIPAddresses/', resourceGroup().name)]"
       ],
       "properties" : {
         "frontendIPConfigurations" : [
