@@ -1161,9 +1161,37 @@
     }
   },
   "Outputs" : {
+    "StackVpc" : {
+      "Value" : { "Ref" : "Vpc" },
+      "Description" : "VPC that was created"
+    },
+    "PrivateSubnet1" : {
+      "Value" : { "Ref" : "PrivateSubnet1" },
+      "Description" : "Private Subnet 1"
+    },
+    "PrivateSubnet2" : {
+      "Value" : { "Ref" : "PrivateSubnet2" },
+      "Description" : "Private Subnet 2"
+    },
+    "PrivateSubnet3" : {
+      "Value" : { "Ref" : "PrivateSubnet3" },
+      "Description" : "Private Subnet 3"
+    },
+    "NodeSGId" : {
+      "Value" : { "Fn::GetAtt": [ "NodeSG", "GroupId" ]},
+      "Description" : "Node SG id"
+    },
+    "InfraSGId" : {
+      "Value" : { "Fn::GetAtt": [ "InfraSG", "GroupId" ]},
+      "Description" : "Infra Node SG id"
+    },
+    "NodeARN" : {
+      "Value" : {"Fn::GetAtt" : ["NodeInstanceProfile", "Arn"] },
+      "Description": "ARN for the Node instance profile"
+    },
     "S3UserAccessId" : {
       "Value" : { "Ref" : "CFNKeys" },
-      "Description" : "AWSAccessKeyId of new user"
+      "Description" : "AWSAccessKeyId of user"
     },
     "S3UserSecretKey" : {
       "Value" : { "Fn::GetAtt" : ["CFNKeys", "SecretAccessKey"]},

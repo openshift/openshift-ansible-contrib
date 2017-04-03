@@ -1469,6 +1469,10 @@
       "Value" : { "Ref" : "CFNKeys" },
       "Description" : "AWSAccessKeyId of user"
     },
+    "NodeARN" : {
+      "Value" : {"Fn::GetAtt" : ["NodeInstanceProfile", "Arn"] },
+      "Description": "ARN for the Node instance profile"
+    },
     "S3UserSecretKey" : {
       "Value" : { "Fn::GetAtt" : ["CFNKeys", "SecretAccessKey"]},
       "Description" : "AWSSecretKey of new S3"
