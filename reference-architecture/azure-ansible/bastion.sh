@@ -23,6 +23,7 @@ export SUBSCRIPTIONID=${array[17]}
 export TENANTID=${array[18]}
 export AADCLIENTID=${array[19]}
 export AADCLIENTSECRET=${array[20]}
+export FULLDOMAIN=${HOSTNAME#"."}
 
 echo 'Show Registry Values'
 echo $REGISTRYSTORAGENAME
@@ -320,14 +321,14 @@ ansible_become=yes
 ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
 
-openshift_master_default_subdomain=${WILDCARDZONE}.trafficmanager.net
-osm_default_subdomain=${WILDCARDZONE}.trafficmanager.net
+openshift_master_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
+osm_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
 openshift_use_dnsmasq=false
-openshift_public_hostname=${RESOURCEGROUP}.trafficmanager.net
+openshift_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
 openshift_master_cluster_method=native
-openshift_master_cluster_hostname=${RESOURCEGROUP}.trafficmanager.net
-openshift_master_cluster_public_hostname=${RESOURCEGROUP}.trafficmanager.net
+openshift_master_cluster_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
+openshift_master_cluster_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
 
 [masters]
