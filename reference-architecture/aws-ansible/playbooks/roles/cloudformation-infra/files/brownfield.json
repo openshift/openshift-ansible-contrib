@@ -904,7 +904,7 @@
           {
             "DeviceName": "/dev/xvdd",
             "Ebs": {
-              "DeleteOnTermination": "false",
+              "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "MasterEmptyVolSize"},
               "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
@@ -958,7 +958,7 @@
           {
             "DeviceName": "/dev/xvdd",
             "Ebs": {
-              "DeleteOnTermination": "false",
+              "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "MasterEmptyVolSize"},
               "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
@@ -1012,7 +1012,7 @@
           {
             "DeviceName": "/dev/xvdd",
             "Ebs": {
-              "DeleteOnTermination": "false",
+              "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "MasterEmptyVolSize"},
               "VolumeType": {"Ref": "MasterEmptyVolType"}
             }
