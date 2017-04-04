@@ -157,7 +157,8 @@ EOF
 
 cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
 #!/usr/bin/ansible-playbook 
-- gather_facts: no
+- hosts: masters
+  gather_facts: no
   serial: 1
   vars_files:
   - vars.yml
@@ -233,7 +234,8 @@ EOF
 
 cat > /home/${AUSERNAME}/setup-azure-compute.yml <<EOF
 #!/usr/bin/ansible-playbook 
-- serial: 1
+- hosts: compute
+  serial: 1
   gather_facts: no
   vars_files:
   - vars.yml
@@ -266,7 +268,6 @@ cat > /home/${AUSERNAME}/setup-azure-compute.yml <<EOF
         } 
     notify:
     - restart atomic-openshift-node
-
   - name: insert the azure disk config into the node
     modify_yaml:
       dest: "{{ node_conf }}"
@@ -447,11 +448,20 @@ echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 sleep 120
 echo "Setup Azure PVC"
+echo "Azure Setup master1"
 ansible-playbook --limit master1 /home/${AUSERNAME}/setup-azure-master.yml 
 sleep 120
+echo "Azure Setup master2"
 ansible-playbook --limit master2 /home/${AUSERNAME}/setup-azure-master.yml 
 sleep 120
+echo "Azure Setup master3"
 ansible-playbook --limit master3 /home/${AUSERNAME}/setup-azure-master.yml 
+sleep 120
+for i in {1..$NODECOUNT}; do 
+ echo "Azure Setup Node"
+ ansible-playbook --limit node$i -f 1 /home/${AUSERNAME}/setup-azure-compute.yml ;
+ sleep 120;
+ done
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
