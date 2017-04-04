@@ -46,3 +46,12 @@
       tags:
         provision: node
     with_items: "{{ groups['tag_provision_node'] }}"
+
+- hosts: cluster_hosts
+  gather_facts: yes
+  become: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - { role: openshift-gluster, when: add_node == "yes" and node_type == "gluster" }
+  - openshift-gluster

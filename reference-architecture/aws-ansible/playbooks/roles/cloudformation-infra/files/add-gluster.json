@@ -29,6 +29,14 @@
       "Type": "String",
       "Default": "gp2"
     },
+    "GlusterVolType": {
+      "Type": "String",
+      "Default": "gp2"
+    },
+    "GlusterVolSize": {
+      "Type": "Number",
+      "Default": "500"
+    },
     "NodeUserData": {
       "Type": "String"
     },
@@ -83,23 +91,13 @@
             "Type": "A",
 	            "TTL": "300",
 		    "ResourceRecords": [{ "Fn::GetAtt" : ["GlusterNode1", "PrivateIp"] }]
-          }
-        ]
-      },
-      "Properties": {
-        "HostedZoneName": { "Ref": "Route53HostedZone" },
-        "RecordSets": [
+          },
           {
             "Name":  {"Fn::Join": [".", ["ose-gluster-node02",{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
 	            "TTL": "300",
 		    "ResourceRecords": [{ "Fn::GetAtt" : ["GlusterNode2", "PrivateIp"] }]
-          }
-        ]
-      },
-      "Properties": {
-        "HostedZoneName": { "Ref": "Route53HostedZone" },
-        "RecordSets": [
+          },
           {
             "Name":  {"Fn::Join": [".", ["ose-gluster-node03",{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
@@ -154,6 +152,14 @@
               "VolumeSize": {"Ref": "NodeEmptyVolSize"},
               "VolumeType": {"Ref": "NodeEmptyVolType"}
             }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "GlusterVolSize"},
+              "VolumeType": {"Ref": "GlusterVolType"}
+            }
           }
          ]
      }
@@ -204,6 +210,14 @@
               "VolumeSize": {"Ref": "NodeEmptyVolSize"},
               "VolumeType": {"Ref": "NodeEmptyVolType"}
             }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "GlusterVolSize"},
+              "VolumeType": {"Ref": "GlusterVolType"}
+            }
           }
          ]
      }
@@ -252,6 +266,14 @@
               "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "NodeEmptyVolSize"},
               "VolumeType": {"Ref": "NodeEmptyVolType"}
+            }
+          },
+          {
+            "DeviceName": "/dev/xvdd",
+            "Ebs": {
+              "DeleteOnTermination": "true",
+              "VolumeSize": {"Ref": "GlusterVolSize"},
+              "VolumeType": {"Ref": "GlusterVolType"}
             }
           }
          ]

@@ -28,6 +28,10 @@ import sys
               show_default=True)
 @click.option('--private-subnet-id3', help='Specify a Private subnet within the existing VPC',
               show_default=True)
+@click.option('--gluster-volume-size', default='500', help='Gluster volume size in GB',
+              show_default=True)
+@click.option('--gluster-volume-type', default='gp2', help='Gluster volume type',
+              show_default=True)
 
 ### DNS options
 @click.option('--public-hosted-zone', help='hosted zone for accessing the environment')
@@ -36,7 +40,8 @@ import sys
 @click.option('--rhsm-user', help='Red Hat Subscription Management User')
 @click.option('--rhsm-password', help='Red Hat Subscription Management Password',
                 hide_input=True,)
-@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
+@click.option('--rhsm-openshift-pool', help='Red Hat Subscription Management Pool ID or Subscription Name for OpenShift')
+@click.option('--rhsm-gluster-pool', help='Red Hat Subscription Management Pool ID or Subscription Name for Gluster Storage')
 
 ### Miscellaneous options
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',
@@ -60,12 +65,15 @@ def launch_refarch_env(region=None,
                     deployment_type=None,
                     rhsm_user=None,
                     rhsm_password=None,
-                    rhsm_pool=None,
+                    rhsm_openshift_pool=None,
+                    rhsm_gluster_pool=None,
                     containerized=None,
                     node_type=None,
                     private_subnet_id1=None,
                     private_subnet_id2=None,
                     private_subnet_id3=None,
+                    gluster_volume_type=None,
+                    gluster_volume_size=None,
                     node_sg=None,
                     iam_role=None,
                     existing_stack=None,
@@ -88,8 +96,10 @@ def launch_refarch_env(region=None,
     rhsm_user = click.prompt("RHSM username?")
   if deployment_type in ['openshift-enterprise'] and rhsm_password is None:
     rhsm_password = click.prompt("RHSM password?", hide_input=True)
-  if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
-    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
+  if deployment_type in ['openshift-enterprise'] and rhsm_openshift_pool is None:
+    rhsm_openshift_pool = click.prompt("RHSM Pool ID or Subscription Name for OpenShift?")
+  if deployment_type in ['openshift-enterprise'] and rhsm_gluster_pool is None:
+    rhsm_gluster_pool = click.prompt("RHSM Pool ID or Subscription Name for Gluster?")
 
   # Hidden facts for infrastructure.yaml
   create_key = "no"
@@ -105,13 +115,16 @@ def launch_refarch_env(region=None,
   click.echo('\tprivate_subnet_id1: %s' % private_subnet_id1)
   click.echo('\tprivate_subnet_id2: %s' % private_subnet_id2)
   click.echo('\tprivate_subnet_id3: %s' % private_subnet_id3)
+  click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
+  click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
   click.echo('\tkeypair: %s' % keypair)
   click.echo('\tnode_sg: %s' % node_sg)
   click.echo('\tdeployment_type: %s' % deployment_type)
   click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
   click.echo('\trhsm_user: %s' % rhsm_user)
   click.echo('\trhsm_password: *******')
-  click.echo('\trhsm_pool: %s' % rhsm_pool)
+  click.echo('\trhsm_openshift_pool: %s' % rhsm_openshift_pool)
+  click.echo('\trhsm_glusterpool: %s' % rhsm_gluster_pool)
   click.echo('\tcontainerized: %s' % containerized)
   click.echo('\tiam_role: %s' % iam_role)
   click.echo('\texisting_stack: %s' % existing_stack)
@@ -149,12 +162,15 @@ def launch_refarch_env(region=None,
     	deployment_type=%s \
     	rhsm_user=%s \
     	rhsm_password=%s \
-    	rhsm_pool=%s \
+    	rhsm_openshift_pool=%s \
+    	rhsm_gluster_pool=%s \
     	containerized=%s \
     	node_type=gluster \
     	key_path=/dev/null \
     	create_key=%s \
     	create_vpc=%s \
+        gluster_volume_type=%s \
+        gluster_volume_size=%s \
     	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
@@ -163,10 +179,13 @@ def launch_refarch_env(region=None,
                     	deployment_type,
                     	rhsm_user,
                     	rhsm_password,
-                    	rhsm_pool,
+                    	rhsm_openshift_pool,
+                    	rhsm_gluster_pool,
                     	containerized,
                     	create_key,
                     	create_vpc,
+                        gluster_volume_type,
+                        gluster_volume_size,
                     	existing_stack,
                     	playbook)
     else:
@@ -183,13 +202,16 @@ def launch_refarch_env(region=None,
     	deployment_type=%s \
     	rhsm_user=%s \
     	rhsm_password=%s \
-    	rhsm_pool=%s \
+    	rhsm_openshift_pool=%s \
+    	rhsm_gluster_pool=%s \
     	containerized=%s \
     	node_type=gluster \
     	iam_role=%s \
     	key_path=/dev/null \
     	create_key=%s \
     	create_vpc=%s \
+        gluster_volume_type=%s \
+        gluster_volume_size=%s \
     	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
@@ -202,11 +224,14 @@ def launch_refarch_env(region=None,
                     	deployment_type,
                     	rhsm_user,
                     	rhsm_password,
-                    	rhsm_pool,
+                    	rhsm_openshift_pool,
+                    	rhsm_gluster_pool,
                     	containerized,
                     	iam_role,
                     	create_key,
                     	create_vpc,
+                        gluster_volume_type,
+                        gluster_volume_size,
                     	existing_stack,
                     	playbook)
 

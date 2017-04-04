@@ -535,14 +535,44 @@
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "InfraElbSG", "GroupId" ] }
       }
     },
-    "NodeIngressMasterKubelet": {
+    "GlusterDaemon": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
         "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
         "IpProtocol": "tcp",
-        "FromPort": "10250",
-        "ToPort": "10250",
+        "FromPort": "24007",
+        "ToPort": "24007",
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "MasterSG", "GroupId" ] }
+      }
+    },
+    "GlusterManagement": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "24008",
+        "ToPort": "24008",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
+      }
+    },
+    "GlusterSsh": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "2222",
+        "ToPort": "2222",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
+      }
+    },
+    "GlusterNfs": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "49152",
+        "ToPort": "49664",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
       }
     },
     "NodeIngressNodeKubelet": {
@@ -1470,7 +1500,7 @@
       "Description" : "AWSAccessKeyId of user"
     },
     "NodeARN" : {
-      "Value" : {"Fn::GetAtt" : ["NodeInstanceProfile", "Arn"] },
+      "Value" : { "Ref": "NodeInstanceProfile" },
       "Description": "ARN for the Node instance profile"
     },
     "S3UserSecretKey" : {
