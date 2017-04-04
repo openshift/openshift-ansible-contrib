@@ -115,10 +115,6 @@ def launch_refarch_env(region=None,
   # Calculate various DNS values
   fqdn="%s.%s" % (shortname, public_hosted_zone)
 
-  # Ask for ELB if new node is infra
-  if node_type in 'infra' and infra_elb_name is None:
-	  infra_elb_name = click.prompt("Specify the ELB Name used by the router and registry?")
-
   # Hidden facts for infrastructure.yaml
   create_key = "no"
   create_vpc = "no"

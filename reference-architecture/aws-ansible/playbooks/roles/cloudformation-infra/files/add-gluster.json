@@ -125,10 +125,10 @@
               "Value": "node"
             },
             { "Key": "openshift-role",
-              "Value": app 
+              "Value": "app" 
             },
             { "Key": "openshift-storage-type",
-              "Value": "Value": {"Ref": "NodeType"}
+              "Value": {"Ref": "NodeType"}
             }
           ],
           "BlockDeviceMappings" : [
@@ -186,10 +186,10 @@
               "Value": "node"
             },
             { "Key": "openshift-role",
-              "Value": app 
+              "Value": "app" 
             },
             { "Key": "openshift-storage-type",
-              "Value": "Value": {"Ref": "NodeType"}
+              "Value": {"Ref": "NodeType"}
             }
           ],
           "BlockDeviceMappings" : [
@@ -249,7 +249,7 @@
               "Value": "app"
             },
             { "Key": "openshift-storage-type",
-              "Value": "Value": {"Ref": "NodeType"}
+              "Value": {"Ref": "NodeType"}
             }
           ],
           "BlockDeviceMappings" : [

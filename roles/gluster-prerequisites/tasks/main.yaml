@@ -1,19 +1,18 @@
 ---
-- name: Register host
-  redhat_subscription:
-    username: "{{ rhsm_user }}"
-    password: "{{ rhsm_password }}"
-    state: present
-    pool: "{{ rhsm_gluster_pool }}"
-  when: ansible_distribution == "RedHat"
+- block
+    - name: Register host
+      redhat_subscription:
+        username: "{{ rhsm_user }}"
+        password: "{{ rhsm_password }}"
+        state: present
+        pool: "{{ rhsm_gluster_pool }}"
 
-- name: add gluster repo
-  command: subscription-manager repos --enable=rh-gluster-3-for-rhel-7-server-rpms
-  when: add_node == "yes" and node_type == "gluster"
+    - name: add gluster repo
+      command: subscription-manager repos --enable=rh-gluster-3-for-rhel-7-server-rpms
 
-- name: Install the gluster rpms
-  package:
-    name: cns-deploy heketi-client
-    state: latest
-  when: add_node == "yes" and node_type == "gluster"
+    - name: Install the gluster rpms
+      package:
+        name: cns-deploy heketi-client
+        state: latest
 
+  when: ansible_distribution == "RedHat" and not openshift.common.is_atomic | bool
