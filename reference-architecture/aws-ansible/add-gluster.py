@@ -8,6 +8,8 @@ import sys
 @click.command()
 
 ### Cluster options
+@click.option('--console-port', default='443', type=click.IntRange(1,65535), help='OpenShift web console port',
+              show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
               show_default=True)
 
@@ -63,6 +65,7 @@ def launch_refarch_env(region=None,
                     keypair=None,
                     public_hosted_zone=None,
                     deployment_type=None,
+                    console_port=443,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_openshift_pool=None,
@@ -121,6 +124,7 @@ def launch_refarch_env(region=None,
   click.echo('\tnode_sg: %s' % node_sg)
   click.echo('\tdeployment_type: %s' % deployment_type)
   click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
+  click.echo('\tconsole port: %s' % console_port)
   click.echo('\trhsm_user: %s' % rhsm_user)
   click.echo('\trhsm_password: *******')
   click.echo('\trhsm_openshift_pool: %s' % rhsm_openshift_pool)
@@ -160,6 +164,7 @@ def launch_refarch_env(region=None,
     	node_instance_type=%s \
     	public_hosted_zone=%s \
     	deployment_type=%s \
+        console_port=%s \
     	rhsm_user=%s \
     	rhsm_password=%s \
     	rhsm_openshift_pool=%s \
@@ -177,6 +182,7 @@ def launch_refarch_env(region=None,
                     	node_instance_type,
                     	public_hosted_zone,
                     	deployment_type,
+                        console_port,
                     	rhsm_user,
                     	rhsm_password,
                     	rhsm_openshift_pool,
@@ -200,9 +206,10 @@ def launch_refarch_env(region=None,
     	private_subnet_id3=%s \
     	public_hosted_zone=%s \
     	deployment_type=%s \
+        console_port=%s \
     	rhsm_user=%s \
     	rhsm_password=%s \
-    	rhsm_openshift_pool=%s \
+    	rhsm_pool=%s \
     	rhsm_gluster_pool=%s \
     	containerized=%s \
     	node_type=gluster \
@@ -222,6 +229,7 @@ def launch_refarch_env(region=None,
                     	private_subnet_id3,
                     	public_hosted_zone,
                     	deployment_type,
+                        console_port,
                     	rhsm_user,
                     	rhsm_password,
                     	rhsm_openshift_pool,
