@@ -155,10 +155,9 @@ EOF
 
 # Create Azure Cloud Provider configuration Playbook
 
-cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
+cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
 #!/usr/bin/ansible-playbook 
-- hosts: masters
-  gather_facts: no
+- gather_facts: no
   serial: 1
   vars_files:
   - vars.yml
@@ -230,8 +229,11 @@ cat > /home/${AUSERNAME}/setup-azure-config.yml <<EOF
     - restart atomic-openshift-master-api
     - restart atomic-openshift-master-controllers
 
-- hosts: compute
-  serial: 1
+EOF
+
+cat > /home/${AUSERNAME}/setup-azure-compute.yml <<EOF
+#!/usr/bin/ansible-playbook 
+- serial: 1
   gather_facts: no
   vars_files:
   - vars.yml
@@ -428,7 +430,7 @@ sleep 120
 ansible all --module-name=ping > ansible-preinstall-ping.out || true
 ansible-playbook  /home/${AUSERNAME}/subscribe.yml
 echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Bastion BYO Install" ${RHNUSERNAME} || true
-ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null &> byo.out
+ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null 
 
 wget http://master1:8443/api > healtcheck.out
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
@@ -445,7 +447,11 @@ echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 sleep 120
 echo "Setup Azure PVC"
-ansible-playbook /home/${AUSERNAME}/setup-azure-config.yml &> /home/${AUSERNAME}/setup-azure.out
+ansible-playbook --limit master1 /home/${AUSERNAME}/setup-azure-master.yml 
+sleep 120
+ansible-playbook --limit master2 /home/${AUSERNAME}/setup-azure-master.yml 
+sleep 120
+ansible-playbook --limit master3 /home/${AUSERNAME}/setup-azure-master.yml 
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
