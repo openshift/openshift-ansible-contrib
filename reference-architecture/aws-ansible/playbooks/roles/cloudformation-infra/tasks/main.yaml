@@ -168,7 +168,7 @@
     template: "roles/cloudformation-infra/files/add-node.json"
     template_parameters:
       NodeName: "{{ fqdn }}"
-      NodeSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default( node_sg ) }}" 
+      NodeSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default( node_sg ) }}"
       Subnet: "{{ subnet_id }}"
       Route53HostedZone: "{{ public_hosted_zone }}."
       KeyName: "{{ keypair }}"
@@ -195,7 +195,7 @@
     template: "roles/cloudformation-infra/files/add-infra-node.json"
     template_parameters:
       NodeName: "{{ fqdn }}"
-      NodeSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default( node_sg ) }}" 
+      NodeSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default( node_sg ) }}"
       InfraSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['InfraSGId'] | default( node_sg ) }}"
       Subnet: "{{ subnet_id }}"
       Route53HostedZone: "{{ public_hosted_zone }}."
@@ -222,7 +222,7 @@
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/add-gluster.json"
     template_parameters:
-      NodeSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default( node_sg ) }}" 
+      NodeSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default( node_sg ) }}"
       PrivateSubnet1: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['PrivateSubnet1'] | default( private_subnet_id1 ) }}"
       PrivateSubnet2: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['PrivateSubnet2'] | default( private_subnet_id2 ) }}"
       PrivateSubnet3: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['PrivateSubnet3'] | default( private_subnet_id3 ) }}"
@@ -236,8 +236,8 @@
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       NodeRootVolSize: 15
       NodeRootVolType: gp2
-      GlusterVolSize: "{{ gluster_volume_size }}" 
-      GlusterVolType: "{{ gluster_volume_type }}" 
+      GlusterVolSize: "{{ gluster_volume_size }}"
+      GlusterVolType: "{{ gluster_volume_type }}"
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
       NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default( iam_role ) }}"
