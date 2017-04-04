@@ -5,7 +5,7 @@
     state: absent
     force: yes
 
-- name: Remove Cloudformation
+- name: Remove extra App nodes Cloudformation
   cloudformation:
     stack_name: "{{ item }}"
     state: absent
@@ -15,7 +15,7 @@
   - "{{ extra_app_nodes }}"
   when: extra_app_nodes is defined
 
-- name: Remove Cloudformation
+- name: Remove extra Infra nodes Cloudformation
   cloudformation:
     stack_name: "{{ item }}"
     state: absent
@@ -24,6 +24,16 @@
   with_items:
   - "{{ extra_infra_nodes }}"
   when: extra_infra_nodes is defined
+
+- name: Remove Gluster Cloudformation
+  cloudformation:
+    stack_name: "{{ item }}"
+    state: absent
+    template: roles/cloudformation-infra/files/add-gluster.json
+    region: "{{ region }}"
+  with_items:
+  - "{{ gluster_nodes }}"
+  when: gluster_nodes is defined
 
 - name: Remove Cloudformation
   cloudformation:

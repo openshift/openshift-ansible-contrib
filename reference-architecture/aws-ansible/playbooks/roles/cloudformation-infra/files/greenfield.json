@@ -1485,6 +1485,10 @@
       "Value" : { "Ref" : "Vpc" },
       "Description" : "VPC that was created"
     },
+    "InfraLb" : {
+      "Value" : { "Ref" : "InfraElb" },
+      "Description" : "Infrastructure ELB name"
+    },
     "PrivateSubnet1" : {
       "Value" : { "Ref" : "PrivateSubnet1" },
       "Description" : "Private Subnet 1"

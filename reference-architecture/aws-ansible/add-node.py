@@ -20,6 +20,8 @@ import sys
               show_default=True)
 @click.option('--node-instance-type', default='t2.medium', help='ec2 instance type',
               show_default=True)
+@click.option('--use-cloudformation-facts', is_flag=True, help='Use cloudformation to populate facts. Requires Deployment >= OCP 3.5',
+              show_default=True)
 @click.option('--keypair', help='ec2 keypair name',
               show_default=True)
 @click.option('--subnet-id', help='Specify a Private subnet within the existing VPC',
@@ -78,20 +80,12 @@ def launch_refarch_env(region=None,
                     iam_role=None,
                     infra_elb_name=None,
                     existing_stack=None,
+                    use_cloudformation_facts=False,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
-
-  if iam_role is None:
-    iam_role = click.prompt('Specify the name of the existing IAM Instance Profile')
-
-  if node_sg is None:
-    node_sg = click.prompt('Node Security group')
-
-  if node_type in 'infra' and infra_sg is None:
-    infra_sg = click.prompt('Infra Node Security group')
 
   if shortname is None:
     shortname = click.prompt('Hostname of newly created system')
@@ -178,54 +172,99 @@ def launch_refarch_env(region=None,
     command='rm -rf .ansible/cached_facts'
     os.system(command)
 
-    command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
-    ami=%s \
-    keypair=%s \
-    add_node=yes \
-    subnet_id=%s \
-    node_sg=%s \
-    infra_sg=%s \
-    node_instance_type=%s \
-    public_hosted_zone=%s \
-    wildcard_zone=%s \
-    shortname=%s \
-    fqdn=%s \
-    console_port=%s \
-    deployment_type=%s \
-    rhsm_user=%s \
-    rhsm_password=%s \
-    rhsm_pool=%s \
-    containerized=%s \
-    node_type=%s \
-    iam_role=%s \
-    key_path=/dev/null \
-    infra_elb_name=%s \
-    create_key=%s \
-    create_vpc=%s \
-    stack_name=%s \' %s' % (region,
-                    ami,
-                    keypair,
-                    subnet_id,
-                    node_sg,
-                    infra_sg,
-                    node_instance_type,
-                    public_hosted_zone,
-                    wildcard_zone,
-                    shortname,
-                    fqdn,
-                    console_port,
-                    deployment_type,
-                    rhsm_user,
-                    rhsm_password,
-                    rhsm_pool,
-                    containerized,
-                    node_type,
-                    iam_role,
-                    infra_elb_name,
-                    create_key,
-                    create_vpc,
-                    existing_stack,
-                    playbook)
+    if use_cloudformation_facts:
+        command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
+        ami=%s \
+        keypair=%s \
+        add_node=yes \
+        subnet_id=%s \
+        node_instance_type=%s \
+        public_hosted_zone=%s \
+        wildcard_zone=%s \
+        shortname=%s \
+        fqdn=%s \
+        console_port=%s \
+        deployment_type=%s \
+        rhsm_user=%s \
+        rhsm_password=%s \
+        rhsm_pool=%s \
+        containerized=%s \
+        node_type=%s \
+        key_path=/dev/null \
+        infra_elb_name=%s \
+        create_key=%s \
+        create_vpc=%s \
+        stack_name=%s \' %s' % (region,
+                        ami,
+                        keypair,
+                        subnet_id,
+                        node_instance_type,
+                        public_hosted_zone,
+                        wildcard_zone,
+                        shortname,
+                        fqdn,
+                        console_port,
+                        deployment_type,
+                        rhsm_user,
+                        rhsm_password,
+                        rhsm_pool,
+                        containerized,
+                        node_type,
+                        infra_elb_name,
+                        create_key,
+                        create_vpc,
+                        existing_stack,
+                        playbook)
+
+    else:
+        command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
+        ami=%s \
+        keypair=%s \
+        add_node=yes \
+        subnet_id=%s \
+        node_sg=%s \
+        infra_sg=%s \
+        node_instance_type=%s \
+        public_hosted_zone=%s \
+        wildcard_zone=%s \
+        shortname=%s \
+        fqdn=%s \
+        console_port=%s \
+        deployment_type=%s \
+        rhsm_user=%s \
+        rhsm_password=%s \
+        rhsm_pool=%s \
+        containerized=%s \
+        node_type=%s \
+        iam_role=%s \
+        key_path=/dev/null \
+        infra_elb_name=%s \
+        create_key=%s \
+        create_vpc=%s \
+        stack_name=%s \' %s' % (region,
+                        ami,
+                        keypair,
+                        subnet_id,
+                        node_sg,
+                        infra_sg,
+                        node_instance_type,
+                        public_hosted_zone,
+                        wildcard_zone,
+                        shortname,
+                        fqdn,
+                        console_port,
+                        deployment_type,
+                        rhsm_user,
+                        rhsm_password,
+                        rhsm_pool,
+                        containerized,
+                        node_type,
+                        iam_role,
+                        infra_elb_name,
+                        create_key,
+                        create_vpc,
+                        existing_stack,
+                        playbook)
 
     if verbose > 0:
       command += " -" + "".join(['v']*verbose)
