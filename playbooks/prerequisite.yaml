@@ -12,6 +12,7 @@
   roles:
   - rhsm-repos
   - prerequisites
+  - { role: gluster-prerequisites, when: add_node == "yes" and node_type == "gluster" }
 
 - hosts: master
   gather_facts: yes
