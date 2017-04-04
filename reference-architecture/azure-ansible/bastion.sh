@@ -6,7 +6,7 @@ export RESOURCEGROUP=$1
 export WILDCARDZONE=$2
 export AUSERNAME=$3
 export PASSWORD=$4
-export HOSTNAME=$5
+export THEHOSTNAME=$5
 export NODECOUNT=$6
 export ROUTEREXTIP=$7
 export RHNUSERNAME=$8
@@ -23,7 +23,7 @@ export SUBSCRIPTIONID=${array[17]}
 export TENANTID=${array[18]}
 export AADCLIENTID=${array[19]}
 export AADCLIENTSECRET=${array[20]}
-export FULLDOMAIN=${HOSTNAME#"."}
+export FULLDOMAIN=${THEHOSTNAME#*.*}
 
 echo 'Show Registry Values'
 echo $REGISTRYSTORAGENAME
