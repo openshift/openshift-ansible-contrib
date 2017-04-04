@@ -22,12 +22,6 @@
     - NetworkManager
     - network
 
-  - name: Install the gluster rpms
-    package:
-      name: cns-deploy heketi-client
-      state: latest
-    when: add_node == "yes" and node_type == "gluster"
-
   when: not openshift.common.is_atomic | bool
 
 - block:
