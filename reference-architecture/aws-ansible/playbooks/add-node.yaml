@@ -31,7 +31,7 @@
   - name: add instance to ELB if node is infra
     ec2_elb:
       instance_id: "{{ hostvars[item].ec2_id }}"
-      ec2_elbs: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['InfraLb'] | default( infra_elb_name ) }}"
+      ec2_elbs: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['InfraSG'] | default(infra_elb_name) }}"
       region: "{{ region }}"
       wait: no
       state: present
