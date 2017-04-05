@@ -1,6 +1,7 @@
 ---
 # Create a bind master
 - hosts: bind
+  become: true
 
   vars:
 
@@ -51,6 +52,7 @@
         dest: /etc/named.conf
 
 - hosts: masters
+  become: true
   vars:
 
   tasks:
@@ -98,6 +100,7 @@
       systemd: name=named state=restarted
 
 - hosts: slaves
+  become: true
 
   vars:
 
