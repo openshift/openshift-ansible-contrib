@@ -459,7 +459,7 @@ ansible-playbook --limit master3 /home/${AUSERNAME}/setup-azure-master.yml
 sleep 240
 for i in {01..$NODECOUNT}; do 
  echo "Azure Setup Node"
- ansible-playbook --limit node\$\{i\} -f 1 /home/${AUSERNAME}/setup-azure-compute.yml ;
+ ansible-playbook --limit node\${i} -f 1 /home/${AUSERNAME}/setup-azure-compute.yml ;
  sleep 240;
  done
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
