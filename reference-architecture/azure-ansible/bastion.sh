@@ -457,7 +457,7 @@ sleep 240
 echo "Azure Setup master3"
 ansible-playbook --limit master3 /home/${AUSERNAME}/setup-azure-master.yml 
 sleep 240
-for i in {1..$NODECOUNT}; do 
+for i in {01..$NODECOUNT}; do 
  echo "Azure Setup Node"
  ansible-playbook --limit node\$\{i\} -f 1 /home/${AUSERNAME}/setup-azure-compute.yml ;
  sleep 240;
