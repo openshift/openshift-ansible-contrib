@@ -1,3 +1,4 @@
+---
 domain_name: ocp3.example.com
 dns_forwarders: [8.8.8.8, 8.8.4.4]
 external_network: public

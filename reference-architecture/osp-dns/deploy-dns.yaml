@@ -24,7 +24,7 @@
       template: heat/dns_service.yaml
       parameters:
         domain_name: "{{ domain_name }}"
-        external_network:  "{{ external_network }}"
+        external_network: "{{ external_network }}"
         ssh_key_name: "{{ ssh_key_name }}"
         dns_forwarders: "{{ dns_forwarders }}"
         image: "{{ image }}"
