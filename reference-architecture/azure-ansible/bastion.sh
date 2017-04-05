@@ -446,21 +446,21 @@ rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients 
 echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
-sleep 120
+sleep 240
 echo "Setup Azure PVC"
 echo "Azure Setup master1"
 ansible-playbook --limit master1 /home/${AUSERNAME}/setup-azure-master.yml 
-sleep 120
+sleep 240
 echo "Azure Setup master2"
 ansible-playbook --limit master2 /home/${AUSERNAME}/setup-azure-master.yml 
-sleep 120
+sleep 240
 echo "Azure Setup master3"
 ansible-playbook --limit master3 /home/${AUSERNAME}/setup-azure-master.yml 
-sleep 120
+sleep 240
 for i in {1..$NODECOUNT}; do 
  echo "Azure Setup Node"
  ansible-playbook --limit node$i -f 1 /home/${AUSERNAME}/setup-azure-compute.yml ;
- sleep 120;
+ sleep 240;
  done
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
