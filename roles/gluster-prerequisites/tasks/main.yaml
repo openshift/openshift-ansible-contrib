@@ -1,5 +1,5 @@
 ---
-- block
+- block:
     - name: Register host
       redhat_subscription:
         username: "{{ rhsm_user }}"
