@@ -9,3 +9,5 @@
     - 24008/tcp
     - 2222/tcp
     - 49152-49664/tcp
+- name: force a reload of firewalld
+  command: /bin/firewall-cmd --reload
