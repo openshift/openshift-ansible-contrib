@@ -120,3 +120,8 @@ resources:
     properties:
       name: slave_server_group
       policies: {get_param: slave_server_group_policies}
+
+
+outputs:
+  entries:
+    value: {get_attr: [slaves, entry]}

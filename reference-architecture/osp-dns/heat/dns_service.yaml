@@ -105,3 +105,11 @@ resources:
       ssh_user: {get_param: ssh_user}
       ssh_key_name: {get_param: ssh_key_name}
 
+outputs:
+  ip_address:
+    description: The floating IP address of the DNS servers
+    value:
+      master:
+        name: {get_param: master_hostname}
+        address: {get_attr: [hosts, master_ip_address]}
+      slaves: {get_attr: [hosts, slave_entries]}

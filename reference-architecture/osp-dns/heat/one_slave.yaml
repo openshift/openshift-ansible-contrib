@@ -131,3 +131,8 @@ resources:
               HOSTNAME: {get_param: hostname}
               DOMAIN: {get_param: domain_name}
 
+outputs:
+  entry:
+    value:
+      name: {get_param: hostname}
+      address: {get_attr: [floating_ip, floating_ip_address]}
