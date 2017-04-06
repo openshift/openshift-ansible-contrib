@@ -552,7 +552,7 @@
         "IpProtocol": "tcp",
         "FromPort": "24007",
         "ToPort": "24007",
-        "SourceSecurityGroupId": { "Fn::GetAtt": [ "MasterSG", "GroupId" ] }
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "NodeSG", "GroupId" ] }
       }
     },
     "GlusterManagement": {
