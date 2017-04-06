@@ -15,7 +15,7 @@
   with_items:
   - "{{ groups['tag_openshift_role_master'] }}"
   when:
-  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+  - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
 
 
 - name: command for masters
@@ -23,7 +23,7 @@
   with_items:
   - "{{ groups['tag_openshift_role_master'] }}"
   when:
-  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+  - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
 
 - name: define nodes
   lineinfile:
@@ -34,7 +34,7 @@
   with_items:
   - "{{ groups['tag_openshift_role_master'] }}"
   when:
-  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+  - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
 
 - name: define nodes
   lineinfile:
@@ -45,7 +45,7 @@
   with_items:
   - "{{ groups['tag_openshift_role_app'] }}"
   when:
-  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+  - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
 
 - name: define nodes
   lineinfile:
@@ -56,4 +56,15 @@
   with_items:
   - "{{ groups['tag_openshift_role_infra'] }}"
   when:
-  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+  - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
+
+- name: define nodes
+  lineinfile:
+    line: "{{ hostvars[item].ec2_tag_Name }} openshift_node_labels=\"{'role': 'storage'}\""
+    insertafter: [nodes]
+    state: present
+    dest: ../static-inventory
+  with_items: "{{ groups['tag_openshift_role_storage'] }}"
+  when:
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}" and "{{ groups['tag_openshift_role_storage'] }}" is defined
+
