@@ -23,15 +23,25 @@
   - name: "Generate dns records"
     include: dns_records.yml
 
+# Workaround - copy the DNS files over to the DNS server for sourcing ...
+- hosts: dns
+  tasks:
+  - name: "Copy named_views.yml"
+    copy:
+      src: /tmp/named_views.yml
+      dest: /tmp/named_views.yml
+  - name: "Copy records.yml"
+    copy:
+      src: /tmp/records.yml
+      dest: /tmp/records.yml
+
 # Configure DNS Server(s)
 - hosts: dns
   pre_tasks:
   - name: "Include the generated views"
     include_vars: /tmp/named_views.yml
-    delegate_to: localhost
   - name: "Include generated dns records"
     include_vars: /tmp/records.yml
-    delegate_to: localhost
   roles:
     - role: dns-server
     - role: dns
