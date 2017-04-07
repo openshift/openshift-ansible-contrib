@@ -326,7 +326,7 @@ remote_user=${AUSERNAME}
 
 openshift_master_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
 osm_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
-openshift_use_dnsmasq=false
+openshift_use_dnsmasq=true
 openshift_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
 openshift_master_cluster_method=native
