@@ -17,6 +17,7 @@
     - name: Is the host already registered?
       command: "subscription-manager status"
       register: subscribed
+      changed_when: no
       ignore_errors: yes
 
     - name: Register host via Activation key
