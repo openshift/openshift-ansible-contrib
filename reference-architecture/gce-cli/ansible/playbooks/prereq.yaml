@@ -1,11 +1,11 @@
 ---
-- name: configure ansible connection to the gcp
+- name: configure ansible connection to the gcp and basic stuff
   hosts: localhost
   vars_files:
   - ../../ansible-main-config.yaml
   roles:
   - ansible-gcp
   - dns-zone
-  - rhel-image
   - gcp-ssh-key
-  - { role: deployment-manager, deployment_name: '{{ network_deployment }}' }
+  - rhel-image
+  - { role: deployment-create, deployment_name: 'network' }

@@ -146,8 +146,8 @@ function revert {
     fi
 
     # Temp instance (it shouldn't exist, just to be sure..)
-    if gcloud --project "$GCLOUD_PROJECT" compute instances describe "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
+    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${TEMP_INSTANCE}" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${TEMP_INSTANCE}"
     fi
     if gcloud --project "$GCLOUD_PROJECT" compute disks describe "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" &>/dev/null; then
         gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
@@ -164,8 +164,8 @@ function revert {
     fi
 
     # Gold image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$GOLD_IMAGE" &>/dev/null && [ "$DELETE_GOLD_IMAGE" = 'true' ]; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$GOLD_IMAGE"
+    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-gold-image" &>/dev/null && [ "$DELETE_GOLD_IMAGE" = 'true' ]; then
+        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-gold-image"
     fi
 
     # RHEL image
@@ -196,69 +196,15 @@ export GCLOUD_PROJECT \
     OCP_PREFIX \
     DNS_DOMAIN \
     RHEL_IMAGE_PATH \
-    CONSOLE_PORT \
-    NETWORK_DEPLOYMENT
+    CONSOLE_PORT
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
-# Configure Ansible connection to the GCP
+# Run Ansible
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/prereq.yaml
+ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} playbooks/gold-image.yaml
 popd
-
-# Create the gold image based on the uploaded image
-if ! gcloud --project "$GCLOUD_PROJECT" compute images describe "$GOLD_IMAGE" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute instances create "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --machine-type "n1-standard-1" --network "${OCP_PREFIX}-${OCP_NETWORK}" --image "$RHEL_IMAGE_GCE" --boot-disk-size "10" --no-boot-disk-auto-delete --boot-disk-type "pd-ssd" --tags "${OCP_PREFIX}-ssh-external"
-    until gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --command "echo" &>/dev/null; do
-        echo "Waiting for '${OCP_PREFIX}-${TEMP_INSTANCE}' to come up..."
-        sleep 5
-    done
-    if ! gcloud -q --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-        if ! subscription-manager identity &>/dev/null; then
-            subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
-        fi
-        for i in {0..5}; do
-            if subscription-manager list --consumed | grep -q ${RH_POOL_ID}; then
-                break;
-            fi
-            sleep 10;
-            subscription-manager attach --pool=${RH_POOL_ID} || true;
-        done
-        subscription-manager repos --disable=\"*\";
-        subscription-manager repos \
-            --enable=\"rhel-7-server-rpms\" \
-            --enable=\"rhel-7-server-extras-rpms\" \
-            --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
-
-        yum -q list atomic-openshift-utils;
-
-        cat << EOF > /etc/yum.repos.d/google-cloud.repo
-[google-cloud-compute]
-name=Google Cloud Compute
-baseurl=https://packages.cloud.google.com/yum/repos/google-cloud-compute-el7-x86_64
-enabled=1
-gpgcheck=1
-repo_gpgcheck=1
-gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg
-       https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
-EOF
-        yum remove -y irqbalance
-        yum install -y google-compute-engine google-compute-engine-init google-config wget git net-tools bind-utils iptables-services bridge-utils bash-completion python-httplib2 docker;
-        yum update -y;
-        yum clean all;
-        subscription-manager unregister;
-'"; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
-        gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
-        echoerr "Deployment failed, please check provided Red Hat Username, Password and Pool ID and rerun the script"
-        exit 1
-    fi
-    gcloud --project "$GCLOUD_PROJECT" compute instances stop "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
-    gcloud -q --project "$GCLOUD_PROJECT" compute instances delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
-    gcloud --project "$GCLOUD_PROJECT" compute images create "$GOLD_IMAGE" --source-disk "${OCP_PREFIX}-${TEMP_INSTANCE}" --source-disk-zone "$GCLOUD_ZONE"
-    gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
-else
-    echo "Image '${GOLD_IMAGE}' already exists"
-fi
+exit 0
 
 # Master Certificate
 if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" &>/dev/null; then

@@ -1,0 +1,10 @@
+imports:
+- path: gold-image.jinja
+resources:
+- name: gold-image
+  type: gold-image.jinja
+  properties:
+    prefix: {{ prefix }}
+    zone: {{ gcloud_zone }}
+    gold_image: {{ gold_image }}
+    gold_image_family: {{ gold_image_family }}

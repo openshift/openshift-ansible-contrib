@@ -1,0 +1,4 @@
+---
+rhel_image: '{{ rhel_image_path | basename | regex_replace("^(.*)\.qcow2$", "\1") }}'
+rhel_image_gce: '{{ rhel_image | replace(".", "-") | replace("_", "-") }}'
+gold_image: '{{ rhel_image_gce }}-gold'

@@ -1,0 +1,70 @@
+---
+- block:
+  - name: register host
+    include_role:
+      name: rhsm-subscription
+
+  - name: enable repos
+    include_role:
+      name: rhsm-repos
+
+  - name: check subscription. if this task fails, please check your username, password and pool id
+    command: yum list atomic-openshift-utils
+
+  - name: add google repo
+    yum_repository:
+      name: google-cloud-compute
+      description: Google Cloud Compute
+      baseurl: https://packages.cloud.google.com/yum/repos/google-cloud-compute-el7-x86_64
+      enabled: true
+      gpgcheck: true
+      repo_gpgcheck: true
+      gpgkey: "https://packages.cloud.google.com/yum/doc/yum-key.gpg\n https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+
+  - name: remove irqbalance package
+    package:
+      name: irqbalance
+      state: absent
+
+  - name: update instance
+    include_role:
+      name: update-instances
+
+  - name: install required packages
+    package:
+      name: '{{ item }}'
+      state: present
+    with_items:
+    - google-config
+    - google-compute-engine
+    - google-compute-engine-init
+
+  - name: clear yum cache
+    command: yum clean all
+
+  - name: unregister the system
+    include_role:
+      name: rhsm-unregister
+
+  rescue:
+  - name: unregister the system
+    include_role:
+      name: rhsm-unregister
+
+  - name: delete temp instance
+    include_role:
+      name: deployment-delete
+    vars:
+      deployment_name: tmp-instance
+    delegate_to: localhost
+
+  - name: delete temp disk
+    gce_pd:
+      name: '{{ prefix }}-tmp-instance'
+      zone: '{{ gcloud_zone }}'
+      state: absent
+    delegate_to: localhost
+
+  - name: set fact indicating that the temp instance failed
+    set_fact:
+      tmp_instance_failed: true
