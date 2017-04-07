@@ -363,6 +363,45 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
 ---
 - hosts: all
   vars:
+    description: "Wait for nodes"
+  tasks:
+  - name: wait for .updateok
+    wait_for: path=/root/.updateok
+
+- hosts: all
+  vars:
+    description: "Get all variables updated"
+  tasks: []
+- hosts: all
+  gather_facts: True
+  vars:
+    description: "Update /etc/hosts"
+  tasks:
+  - name: setup
+    setup:
+  - name: "Build hosts file"
+    lineinfile: dest=/etc/hosts 
+                state=present
+                dest=/etc/hosts 
+                regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" 
+    when: hostvars[item].ansible_default_ipv4.address is defined
+    with_items: "{{ groups['all'] }}"
+- hosts: localhost
+  gather_facts: True
+  tasks:
+  - name: check connection
+    ping:
+  - name: setup
+    setup:
+  - name: "Build hosts file"
+    lineinfile: dest=/etc/hosts 
+                state=present
+                dest=/etc/hosts 
+                regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" 
+    when: hostvars[item].ansible_default_ipv4.address is defined
+    with_items: "{{ groups['all'] }}"
+- hosts: all
+  vars:
     description: "Subscribe OCP"
   tasks:
   - name: wait for .updateok
@@ -459,7 +498,7 @@ ansible-playbook --limit master3 /home/${AUSERNAME}/setup-azure-master.yml
 sleep 240
 for i in {01..$NODECOUNT}; do 
  echo "Azure Setup Node"
- ansible-playbook --limit node\$\{i\} -f 1 /home/${AUSERNAME}/setup-azure-compute.yml ;
+ ansible-playbook --limit node\${i} -f 1 /home/${AUSERNAME}/setup-azure-compute.yml ;
  sleep 240;
  done
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
