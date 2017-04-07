@@ -66,5 +66,4 @@
     dest: ../static-inventory
   with_items: "{{ groups['tag_openshift_role_storage'] }}"
   when:
-    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}" and "{{ groups['tag_openshift_role_storage'] }}" is defined
-
+  - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}" and "{{ groups['tag_openshift_role_storage'] }}" is defined

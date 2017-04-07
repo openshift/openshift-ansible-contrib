@@ -100,6 +100,32 @@ def launch_refarch_env(region=None,
   if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name for OpenShift?")
 
+  # Prompt for vars if they are not defined
+  if use_cloudformation_facts and iam_role is None:
+    iam_role = "Computed by Cloudformations"
+  elif iam_role is None:
+    iam_role = click.prompt("Specify the IAM Role of the node?")
+
+  if use_cloudformation_facts and node_sg is None:
+    node_sg = "Computed by Cloudformations"
+  elif node_sg is None:
+    node_sg = click.prompt("Specify the Security Group for the nodes?")
+
+  if use_cloudformation_facts and private_subnet_id1 is None:
+    private_subnet_id1 = "Computed by Cloudformations"
+  elif private_subnet_id1 is None:
+    private_subnet_id1 = click.prompt("Specify the first private subnet for the nodes?")
+
+  if use_cloudformation_facts and private_subnet_id2 is None:
+    private_subnet_id2 = "Computed by Cloudformations"
+  elif private_subnet_id2 is None:
+    private_subnet_id2 = click.prompt("Specify the second private subnet for the nodes?")
+
+  if use_cloudformation_facts and private_subnet_id3 is None:
+    private_subnet_id3 = "Computed by Cloudformations"
+  elif private_subnet_id3 is None:
+    private_subnet_id3 = click.prompt("Specify the third private subnet for the nodes?")
+
   # Hidden facts for infrastructure.yaml
   create_key = "no"
   create_vpc = "no"

@@ -97,10 +97,6 @@ def launch_refarch_env(region=None,
   if keypair is None:
     keypair = click.prompt('A SSH keypair must be specified or created')
 
- # If no subnets are defined prompt:
-  if subnet_id is None:
-    subnet_id = click.prompt('Specify a Private subnet within the existing VPC')
-
   # If the user already provided values, don't bother asking again
   if deployment_type in ['openshift-enterprise'] and rhsm_user is None:
     rhsm_user = click.prompt("RHSM username?")
@@ -108,6 +104,33 @@ def launch_refarch_env(region=None,
     rhsm_password = click.prompt("RHSM password?", hide_input=True)
   if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
+
+  # Prompt for vars if they are not defined
+  if use_cloudformation_facts and iam_role is None:
+    iam_role = "Computed by Cloudformations"
+  elif iam_role is None:
+    iam_role = click.prompt("Specify the IAM Role of the node?")
+
+  if use_cloudformation_facts and node_sg is None:
+    node_sg = "Computed by Cloudformations"
+  elif node_sg is None:
+    node_sg = click.prompt("Specify the Security Group for the nodes?")
+
+  if use_cloudformation_facts and subnet_id is None:
+    subnet_id = "Computed by Cloudformations"
+  elif subnet_id is None:
+    subnet_id = click.prompt("Specify the private subnet for the nodes?")
+
+  if node_type in 'infra' and use_cloudformation_facts: 
+    infra_sg = "Computed by Cloudformations"
+  elif node_type in 'infra' and infra_sg is None:
+    infra_sg = click.prompt("Specify the Infra Security Group for the node?")
+
+  if use_cloudformation_facts and subnet_id is None:
+    subnet_id = "Computed by Cloudformations"
+  else:
+    subnet_id = click.prompt("Specify the private subnet for the node?")
+
 
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
