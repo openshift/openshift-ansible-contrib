@@ -368,11 +368,11 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
   - name: wait for .updateok
     wait_for: path=/root/.updateok
 
-- hosts: bastion
+- hosts: localhost:all
   vars:
     description: "Get all variables updated"
   tasks: []
-- hosts: all
+- hosts: localhost:all
   gather_facts: True
   vars:
     description: "Update /etc/hosts"
@@ -387,76 +387,9 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     when: hostvars[item].ansible_default_ipv4.address is defined
     with_items: "{{ groups['all'] }}"
 
-- hosts: all
+- hosts: localhost:all
   vars:
-    description: "Get all variables updated"
-  tasks: []
-
-- hosts: all
-  gather_facts: True
-  vars:
-    description: "Update /etc/hosts"
-  tasks:
-  - name: setup
-    setup:
-  - name: "Build hosts file"
-    lineinfile: dest=/etc/hosts 
-                state=present
-                dest=/etc/hosts 
-                regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" 
-    when: hostvars[item].ansible_default_ipv4.address is defined
-    with_items: "{{ groups['all'] }}"
-
-- hosts: all
-  vars:
-    description: "Update /etc/hosts"
-  tasks:
-  - name: setup
-    setup:
-  - name: "Change PEERDNS=yes to PEERDNS=no"
-    replace: 
-         dest: /etc/sysconfig/network-scripts/ifcfg-eth0
-         regexp: '^PEERDNS=yes$'
-         replace: 'PEERDNS=no'
-  - name: "Fix ifcfg DNS Entry"
-    lineinfile:
-         dest: /etc/sysconfig/network-scripts/ifcfg-eth0
-         line: 'DNS1=127.0.0.1'
-         state: present
-  - name: 'Copy and Backup the resolv.conf'
-    copy: 
-         src: /etc/resolv.conf
-         dest: /etc/dnsmasq-resolv.conf
-         backup: yes
-  - name: 'dnsmasq to use new resolver'
-    replace: 
-         dest: /etc/dnsmasq.conf
-         regexp: '^#resolv-file=$'
-         replace: 'resolv-file=/etc/dnsmasq-resolv.conf'
-         backup: yes
-  - name: 'restart dnsmasq'
-    service:
-         name: dnsmasq
-         state: restarted
-  - name: 'Remove resolv.conf'
-    file: 
-         state: absent
-         path: /etc/resolv.conf
-  - name: 'Update resolv.conf'
-    blockinfile:
-         dest: /etc/resolv.conf
-         create: yes
-         block: |
-            nameserver 127.0.0.1
-            search .
-  - name: 'restart network'
-    service:
-         name: network
-         state: restarted
-
-- hosts: bastion
-  vars:
-    description: "Update /etc/hosts"
+    description: "Fix resolv and dnsmasq"
   tasks:
   - name: setup
     setup:
