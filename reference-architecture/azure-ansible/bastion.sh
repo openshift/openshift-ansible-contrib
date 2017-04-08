@@ -368,7 +368,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
   - name: wait for .updateok
     wait_for: path=/root/.updateok
 
-- hosts: all:bastion
+- hosts: all,bastion
   vars:
     description: "Get all variables updated"
   tasks: []
@@ -387,7 +387,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     when: hostvars[item].ansible_default_ipv4.address is defined
     with_items: "{{ groups['all'] }}"
 
-- hosts: all:bastion
+- hosts: all,bastion
   vars:
     description: "Update /etc/hosts"
   tasks:
