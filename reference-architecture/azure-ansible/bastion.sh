@@ -211,6 +211,8 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
       yaml_key: "{{ item.key }}"
       yaml_value: "{{ item.value }}"
     with_items:
+    - key: nodeName
+      value: "{{ inventory_hostname }}"
     - key: kubernetesMasterConfig.apiServerArguments.cloud-config
       value:
       - "{{ azure_conf }}"
@@ -274,6 +276,8 @@ cat > /home/${AUSERNAME}/setup-azure-compute.yml <<EOF
       yaml_key: "{{ item.key }}"
       yaml_value: "{{ item.value }}"
     with_items:
+    - key: nodeName
+      value: "{{ inventory_hostname }}"
     - key: kubeletArguments.cloud-config
       value:
       - "{{ azure_conf }}"
