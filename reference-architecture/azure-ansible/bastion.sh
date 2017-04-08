@@ -326,7 +326,7 @@ remote_user=${AUSERNAME}
 
 openshift_master_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
 osm_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
-openshift_use_dnsmasq=true
+openshift_use_dnsmasq=false
 openshift_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
 openshift_master_cluster_method=native
@@ -368,7 +368,7 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
   - name: wait for .updateok
     wait_for: path=/root/.updateok
 
-- hosts: all
+- hosts: all:bastion
   vars:
     description: "Get all variables updated"
   tasks: []
@@ -386,26 +386,58 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
                 regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" 
     when: hostvars[item].ansible_default_ipv4.address is defined
     with_items: "{{ groups['all'] }}"
-- hosts: localhost
-  gather_facts: True
+
+- hosts: all:bastion
+  vars:
+    description: "Update /etc/hosts"
   tasks:
-  - name: check connection
-    ping:
   - name: setup
     setup:
-  - name: "Build hosts file"
-    lineinfile: dest=/etc/hosts 
-                state=present
-                dest=/etc/hosts 
-                regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" 
-    when: hostvars[item].ansible_default_ipv4.address is defined
-    with_items: "{{ groups['all'] }}"
+  - name: "Change PEERDNS=yes to PEERDNS=no"
+    replace: 
+         dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+         regexp: '^PEERDNS=yes$'
+         replace: 'PEERDNS=no'
+  - name: "Fix ifcfg DNS Entry"
+    lineinfile:
+         dest: /etc/sysconfig/network-scripts/ifcfg-eth0
+         line: 'DNS1=127.0.0.1'
+         state: present
+  - name: 'Copy and Backup the resolv.conf'
+    copy: 
+         src: /etc/resolv.conf
+         dest: /etc/dnsmasq-resolv.conf
+         backup: yes
+  - name: 'dnsmasq to use new resolver'
+    replace: 
+         dest: /etc/dnsmasq.conf
+         regexp: '^#resolv-file=$'
+         replace: 'resolv-file=/etc/dnsmasq-resolv.conf'
+         backup: yes
+  - name: 'restart dnsmasq'
+    service:
+         name: dnsmasq
+         state: restarted
+  - name: 'Remove resolv.conf'
+    file: 
+         state: absent
+         path: /etc/resolv.conf
+  - name: 'Update resolv.conf'
+    blockinfile:
+         dest: /etc/resolv.conf
+         create: yes
+         block: |
+            nameserver 127.0.0.1
+            search .
+  - name: 'restart network'
+    service:
+         name: network
+         state: restarted
+
 - hosts: all
   vars:
     description: "Subscribe OCP"
   tasks:
-  - name: wait for .updateok
-    wait_for: path=/root/.updateok
   - name: check connection
     ping:
   - name: Get rid of RHUI repos
