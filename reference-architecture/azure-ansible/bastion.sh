@@ -211,8 +211,6 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
       yaml_key: "{{ item.key }}"
       yaml_value: "{{ item.value }}"
     with_items:
-    - key: nodeName
-      value: "{{ inventory_hostname }}"
     - key: kubernetesMasterConfig.apiServerArguments.cloud-config
       value:
       - "{{ azure_conf }}"
@@ -276,8 +274,6 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
       yaml_key: "{{ item.key }}"
       yaml_value: "{{ item.value }}"
     with_items:
-    - key: nodeName
-      value: "{{ inventory_hostname }}"
     - key: kubeletArguments.cloud-config
       value:
       - "{{ azure_conf }}"
@@ -339,26 +335,21 @@ openshift_master_cluster_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
 
 [masters]
-master1 openshift_node_labels="{'role': 'master'}"
-master2 openshift_node_labels="{'role': 'master'}"
-master3 openshift_node_labels="{'role': 'master'}"
-
-[etcd]
-master1
-master2
-master3
+master1 openshift_hostname=master1 openshift_node_labels="{'role': 'master'}"
+master2 openshift_hostname=master2 openshift_node_labels="{'role': 'master'}"
+master3 openshift_hostname=master3 openshift_node_labels="{'role': 'master'}"
 
 [nodes]
-master1 openshift_node_labels="{'role':'master','zone':'default'}"
-master2 openshift_node_labels="{'role':'master','zone':'default'}"
-master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
-infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
-infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default'}"
+master2 openshift_hostname=master2 openshift_node_labels="{'role':'master','zone':'default'}"
+master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone':'default'}"
+node[01:${NODECOUNT}] openshift_hostname=node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
+infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
+infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 
 [compute]
-node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
+node[01:${NODECOUNT}] openshift_hostname=node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 
 EOF
 
