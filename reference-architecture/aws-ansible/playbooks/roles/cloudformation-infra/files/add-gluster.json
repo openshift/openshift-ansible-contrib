@@ -62,6 +62,15 @@
       "Type": "String",
       "Default": "gluster"
     },
+    "GlusterNodeDns1": {
+      "Type": "String"
+    },
+    "GlusterNodeDns2": {
+      "Type": "String"
+    },
+    "GlusterNodeDns3": {
+      "Type": "String"
+    },
     "PrivateSubnet1": {
       "Type": "String"
     },
@@ -87,19 +96,19 @@
         "HostedZoneName": { "Ref": "Route53HostedZone" },
         "RecordSets": [
           {
-            "Name":  {"Fn::Join": [".", ["ose-gluster-node01",{"Ref": "Route53HostedZone"}]]},
+            "Name":  {"Fn::Join": [".", [{"Ref": "GlusterNodeDns1"},{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
 	            "TTL": "300",
 		    "ResourceRecords": [{ "Fn::GetAtt" : ["GlusterNode1", "PrivateIp"] }]
           },
           {
-            "Name":  {"Fn::Join": [".", ["ose-gluster-node02",{"Ref": "Route53HostedZone"}]]},
+            "Name":  {"Fn::Join": [".", [{"Ref": "GlusterNodeDns2"},{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
 	            "TTL": "300",
 		    "ResourceRecords": [{ "Fn::GetAtt" : ["GlusterNode2", "PrivateIp"] }]
           },
           {
-            "Name":  {"Fn::Join": [".", ["ose-gluster-node03",{"Ref": "Route53HostedZone"}]]},
+            "Name":  {"Fn::Join": [".", [{"Ref": "GlusterNodeDns3"},{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
 	            "TTL": "300",
 		    "ResourceRecords": [{ "Fn::GetAtt" : ["GlusterNode3", "PrivateIp"] }]
@@ -119,7 +128,7 @@
           "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
-              "Value": {"Fn::Join": [".", ["ose-gluster-node01",{"Ref": "PublicHostedZone"}]]}
+              "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns1"},{"Ref": "PublicHostedZone"}]]}
             },
             { "Key": "provision",
               "Value": "node"
@@ -177,7 +186,7 @@
           "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
-              "Value": {"Fn::Join": [".", ["ose-gluster-node02",{"Ref": "PublicHostedZone"}]]}
+              "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns2"},{"Ref": "PublicHostedZone"}]]}
             },
             { "Key": "provision",
               "Value": "node"
@@ -234,7 +243,7 @@
           "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
-              "Value": {"Fn::Join": [".", ["ose-gluster-node03",{"Ref": "PublicHostedZone"}]]}
+              "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns3"},{"Ref": "PublicHostedZone"}]]}
             },
             { "Key": "provision",
               "Value": "node"

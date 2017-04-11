@@ -14,6 +14,8 @@ import sys
               show_default=True)
 
 ### AWS/EC2 options
+@click.option('--gluster-stack', default='gluster', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
+              show_default=True)
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
 @click.option('--ami', default='ami-10251c7a', help='ec2 ami',
@@ -61,6 +63,7 @@ def launch_refarch_env(region=None,
                     ami=None,
                     no_confirm=False,
                     node_instance_type=None,
+                    gluster_stack=None,
                     keypair=None,
                     public_hosted_zone=None,
                     deployment_type=None,
@@ -137,6 +140,7 @@ def launch_refarch_env(region=None,
       click.echo('Configured values:')
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
+      click.echo('\tgluster_stack: %s' % gluster_stack)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
@@ -155,6 +159,7 @@ def launch_refarch_env(region=None,
       click.echo('Configured values:')
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
+      click.echo('\tgluster_stack: %s' % gluster_stack)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tprivate_subnet_id1: %s' % private_subnet_id1)
       click.echo('\tprivate_subnet_id2: %s' % private_subnet_id2)
@@ -200,6 +205,7 @@ def launch_refarch_env(region=None,
         command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
         ami=%s \
         keypair=%s \
+        gluster_stack=%s \
         add_node=yes \
     	node_instance_type=%s \
     	public_hosted_zone=%s \
@@ -218,6 +224,7 @@ def launch_refarch_env(region=None,
     	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
+                        gluster_stack,
                     	node_instance_type,
                     	public_hosted_zone,
                     	deployment_type,
@@ -236,6 +243,7 @@ def launch_refarch_env(region=None,
         command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
         ami=%s \
         keypair=%s \
+        gluster_stack=%s \
         add_node=yes \
    	node_sg=%s \
     	node_instance_type=%s \
@@ -259,6 +267,7 @@ def launch_refarch_env(region=None,
     	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
+                        gluster_stack,
                     	node_sg,
                     	node_instance_type,
                     	private_subnet_id1,
