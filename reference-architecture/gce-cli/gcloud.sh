@@ -204,7 +204,6 @@ pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/prereq.yaml
 ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} playbooks/gold-image.yaml
 popd
-exit 0
 
 # Master Certificate
 if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" &>/dev/null; then
@@ -374,7 +373,7 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion
         --enable=\"rhel-7-server-extras-rpms\" \
         --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
 
-    yum install -y python-libcloud atomic-openshift-utils;
+    yum install -y git python-libcloud atomic-openshift-utils;
 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
         echo \"export GCE_PROJECT=${GCLOUD_PROJECT}\" >> /etc/profile.d/ocp.sh;
