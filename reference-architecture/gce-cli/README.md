@@ -25,15 +25,15 @@ Note: You need to have GNU tar because the BSD version will not work. Also, it m
 Currently, we are in a process of migrating away from shell to pure Ansible deployment. Most notable change of this process is that the whole deployment will be run from the local machine and not partly from the bastion host. Because of this change, we now require Ansible installer locally available. If you are running RHEL-7 with proper subscription, just install the `atomic-openshift-utils` package:
 ```
 subscription-manager repos --enable rhel-7-server-optional-rpms
-subscription-manager repos --enable rhel-7-server-ose-3.4-rpms
+subscription-manager repos --enable rhel-7-server-ose-3.5-rpms
 yum -y install atomic-openshift-utils
 ```
 
-For Fedora, clone the `openshift-ansible` repo next to the `openshift-ansible-contrib` repo (info below) and **switch to the correct tag**, currently it's `openshift-ansible-3.4.75-1`:
+For Fedora, clone the `openshift-ansible` repo next to the `openshift-ansible-contrib` repo (info below) and **switch to the correct tag**, currently it's `openshift-ansible-3.5.53-1`:
 ```
 git clone https://github.com/openshift/openshift-ansible.git
 cd openshift-ansible
-git checkout openshift-ansible-3.4.75-1
+git checkout openshift-ansible-3.5.53-1
 cd ..
 ```
 

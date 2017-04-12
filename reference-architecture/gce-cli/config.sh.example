@@ -46,7 +46,7 @@ OPENSHIFT_SDN='openshift-ovs-subnet'
 
 ## DEFAULT VALUES ##
 
-OCP_VERSION='3.4'
+OCP_VERSION='3.5'
 
 # How many instances should be created for each group
 MASTER_INSTANCE_GROUP_SIZE='3'
