@@ -1,0 +1,2 @@
+---
+deployment_name_with_prefix: '{{ prefix }}-{{ deployment_name }}'

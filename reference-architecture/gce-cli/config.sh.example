@@ -46,7 +46,7 @@ OPENSHIFT_SDN='openshift-ovs-subnet'
 
 ## DEFAULT VALUES ##
 
-OCP_VERSION='3.4'
+OCP_VERSION='3.5'
 
 # How many instances should be created for each group
 MASTER_INSTANCE_GROUP_SIZE='3'
@@ -63,7 +63,7 @@ NODE_BOOT_DISK_SIZE='25'
 NODE_DOCKER_DISK_SIZE='25'
 NODE_OPENSHIFT_DISK_SIZE='50'
 
-NETWORK_DEPLOYMENT='deployment-net'
+NETWORK_DEPLOYMENT='network'
 CORE_DEPLOYMENT='deployment-core'
 
 OCP_NETWORK='network'

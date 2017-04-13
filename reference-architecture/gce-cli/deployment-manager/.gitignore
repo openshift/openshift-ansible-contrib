@@ -1,2 +1,2 @@
-deployment-net-config.yml
+*.yaml
 deployment-core-config.yml

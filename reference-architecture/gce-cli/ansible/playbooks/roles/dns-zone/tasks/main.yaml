@@ -2,8 +2,8 @@
 - name: create dns zone
   gcdns_zone:
     zone: '{{ dns_domain }}'
-    state: present
     description: '{{ dns_domain }} domain'
+    state: present
   register: dns_created
 
 - block:
