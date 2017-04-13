@@ -29,7 +29,7 @@
   cloudformation:
     stack_name: "{{ item }}"
     state: absent
-    template: roles/cloudformation-infra/files/add-gluster.json
+    template: roles/cloudformation-infra/files/add-cns-storage.json
     region: "{{ region }}"
   with_items:
   - "{{ gluster_nodes }}"

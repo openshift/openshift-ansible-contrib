@@ -220,7 +220,7 @@
     stack_name: "{{ stack_name }}-{{ gluster_stack }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/add-gluster.json"
+    template: "roles/cloudformation-infra/files/add-cns-storage.json"
     template_parameters:
       GlusterNodeDns1: "{{ gluster_node01 }}"
       GlusterNodeDns2: "{{ gluster_node02 }}"
