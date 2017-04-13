@@ -1300,6 +1300,10 @@
       "Value" : { "Fn::GetAtt": [ "InfraSG", "GroupId" ]},
       "Description" : "Infra Node SG id"
     },
+    "BastionSGId" : {
+      "Value" : { "Fn::GetAtt": [ "BastionSg", "GroupId" ]},
+      "Description" : "Bastion SG id"
+    },
     "NodeARN" : {
       "Value" : {"Fn::GetAtt" : ["NodeInstanceProfile", "Arn"] },
       "Description": "ARN for the Node instance profile"

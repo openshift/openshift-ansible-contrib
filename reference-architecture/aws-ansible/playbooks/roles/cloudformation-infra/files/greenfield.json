@@ -1509,6 +1509,10 @@
       "Value" : { "Fn::GetAtt": [ "InfraSG", "GroupId" ]},
       "Description" : "Infra Node SG id"
     },
+    "BastionSGId" : {
+      "Value" : { "Fn::GetAtt": [ "BastionSg", "GroupId" ]},
+      "Description" : "Bastion SG id"
+    },
     "S3UserAccessId" : {
       "Value" : { "Ref" : "CFNKeys" },
       "Description" : "AWSAccessKeyId of user"
