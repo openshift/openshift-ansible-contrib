@@ -177,6 +177,16 @@
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
       }
     },
+    "GlusterWebFromNode": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "8080",
+        "ToPort": "8080",
+        "SourceSecurityGroupId": { "Ref": "NodeSG" }
+      }
+    },
     "GlusterNfs": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
@@ -185,6 +195,16 @@
         "FromPort": "49152",
         "ToPort": "49664",
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
+      }
+    },
+    "GlusterNfs": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "49152",
+        "ToPort": "49664",
+        "SourceSecurityGroupId": { "Ref": "NodeSG" }
       }
     },
     "GlusterNode1" : {
