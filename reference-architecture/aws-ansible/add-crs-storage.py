@@ -32,6 +32,10 @@ import sys
               show_default=True)
 @click.option('--bastion-sg', help='Specify the Bastion Security Group',
               show_default=True)
+@click.option('--node-sg', help='Specify the Node Security Group',
+              show_default=True)
+@click.option('--vpc', help='Specify the existing VPC',
+              show_default=True)
 
 ### DNS options
 @click.option('--public-hosted-zone', help='hosted zone for accessing the environment')
@@ -66,6 +70,8 @@ def launch_refarch_env(region=None,
                     gluster_volume_type=None,
                     gluster_volume_size=None,
                     bastion_sg=None,
+                    node_sg=None,
+                    vpc=None,
                     existing_stack=None,
                     use_cloudformation_facts=False,
                     verbose=0):
@@ -86,6 +92,16 @@ def launch_refarch_env(region=None,
   elif bastion_sg is None:
     bastion_sg = click.prompt("Specify the Security Group of the Bastion?")
 
+  if use_cloudformation_facts and node_sg is None:
+    node_sg = "Computed by Cloudformations"
+  elif node_sg is None:
+    node_sg = click.prompt("Specify the Security Group of the Node?")
+
+  if use_cloudformation_facts and vpc is None:
+    vpc = "Computed by Cloudformations"
+  elif vpc is None:
+    vpc = click.prompt("Specify the existing VPC?")
+
   if use_cloudformation_facts and private_subnet_id1 is None:
     private_subnet_id1 = "Computed by Cloudformations"
   elif private_subnet_id1 is None:
@@ -104,7 +120,8 @@ def launch_refarch_env(region=None,
   # Hidden facts for infrastructure.yaml
   create_key = "no"
   create_vpc = "no"
-  add_node = "yes"
+  add_node = "no"
+  deploy_crs = "yes"
 
   # Display information to the user about their choices
   if use_cloudformation_facts:
@@ -120,7 +137,7 @@ def launch_refarch_env(region=None,
       click.echo('\trhsm_password: *******')
       click.echo('\trhsm_pool: %s' % rhsm_pool)
       click.echo('\texisting_stack: %s' % existing_stack)
-      click.echo('\tSubnets, Security Groups, and IAM Roles will be gather from the CloudFormation')
+      click.echo('\tSubnets and Security Groups will be gather from the CloudFormation')
       click.echo("")
   else:
       click.echo('Configured values:')
@@ -133,6 +150,8 @@ def launch_refarch_env(region=None,
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
       click.echo('\tbastion_sg: %s' % bastion_sg)
+      click.echo('\tnode_sg: %s' % node_sg)
+      click.echo('\tvpc: %s' % vpc)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
       click.echo('\trhsm_user: %s' % rhsm_user)
@@ -144,7 +163,7 @@ def launch_refarch_env(region=None,
   if not no_confirm:
     click.confirm('Continue using these values?', abort=True)
 
-  playbooks = ['playbooks/infrastructure.yaml', 'playbooks/add-node.yaml']
+  playbooks = ['playbooks/infrastructure.yaml', 'playbooks/add-crs.yaml']
 
   for playbook in playbooks:
 
@@ -168,7 +187,8 @@ def launch_refarch_env(region=None,
         ami=%s \
         keypair=%s \
         gluster_stack=%s \
-        add_node=yes \
+        add_node=no \
+        deploy_crs=yes \
     	node_instance_type=%s \
     	public_hosted_zone=%s \
     	rhsm_user=%s \
@@ -199,7 +219,8 @@ def launch_refarch_env(region=None,
         ami=%s \
         keypair=%s \
         gluster_stack=%s \
-        add_node=yes \
+        add_node=no \
+        deploy_crs=yes \
     	node_instance_type=%s \
     	private_subnet_id1=%s \
     	private_subnet_id2=%s \
@@ -214,6 +235,8 @@ def launch_refarch_env(region=None,
         gluster_volume_type=%s \
         gluster_volume_size=%s \
         bastion_sg=%s \
+        node_sg=%s \
+        vpc=%s \
     	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
@@ -231,6 +254,8 @@ def launch_refarch_env(region=None,
                         gluster_volume_type,
                         gluster_volume_size,
                         bastion_sg,
+                        node_sg,
+                        vpc,
                     	existing_stack,
                     	playbook)
 

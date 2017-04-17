@@ -4,6 +4,9 @@
     "KeyName": {
       "Type": "AWS::EC2::KeyPair::KeyName"
     },
+    "Vpc": {
+      "Type": "String"
+    },
     "Route53HostedZone": {
       "Type": "String"
     },
@@ -55,9 +58,6 @@
     "PublicHostedZone": {
       "Type": "String"
     },
-    "NodeInstanceProfile": {
-      "Type": "String"
-    },
     "NodeType": {
       "Type": "String",
       "Default": "gluster"
@@ -81,6 +81,9 @@
       "Type": "String"
     },
     "BastionSG": {
+      "Type": "String"
+    },
+    "NodeSG": {
       "Type": "String"
     }
   },
@@ -164,6 +167,16 @@
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
       }
     },
+    "GlusterWeb": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "8080",
+        "ToPort": "8080",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
+      }
+    },
     "GlusterNfs": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
@@ -181,12 +194,14 @@
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	  "InstanceType": {"Ref": "InstanceType"},
-	  "SecurityGroupIds": [{"Ref": "GlusterSG"}],
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }, { "Ref": "NodeSG" }],
           "SubnetId" : {"Ref": "PrivateSubnet1"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns1"},{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "StorageType",
+              "Value": "crs"
             }
           ],
           "BlockDeviceMappings" : [
@@ -216,13 +231,14 @@
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	  "InstanceType": {"Ref": "InstanceType"},
-	  "SecurityGroupIds": [{"Ref": "GlusterSG"}],
-	  "SecurityGroupIds": [{"Ref": "GlusterSG"}],
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }, { "Ref": "NodeSG" }],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns2"},{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "StorageType",
+              "Value": "crs"
             }
           ],
           "BlockDeviceMappings" : [
@@ -252,12 +268,14 @@
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	  "InstanceType": {"Ref": "InstanceType"},
-	  "SecurityGroupIds": [{"Ref": "GlusterSG"}],
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }, { "Ref": "NodeSG" }],
           "SubnetId" : {"Ref": "PrivateSubnet3"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns3"},{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "StorageType",
+              "Value": "crs"
             }
           ],
           "BlockDeviceMappings" : [

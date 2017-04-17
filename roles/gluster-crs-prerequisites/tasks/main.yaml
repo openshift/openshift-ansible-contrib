@@ -1,0 +1,23 @@
+---
+- name: Clear yum cache
+  command: "yum clean all"
+  ignore_errors: true
+
+- name: Install the required rpms
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+  - redhat-storage-server
+  - heketi
+  - heketi-client
+  - firewalld
+
+- name: Start Glusterd and firewalld 
+  service:
+    name: "{{ item }}" 
+    state: restarted
+    enabled: true
+  with_items:
+  - firewalld
+  - glusterd

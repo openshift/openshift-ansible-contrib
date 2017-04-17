@@ -6,6 +6,7 @@
     state: enabled
   with_items:
     - 24007/tcp
+    - 8080/tcp
     - 24008/tcp
     - 2222/tcp
     - 49152-49664/tcp

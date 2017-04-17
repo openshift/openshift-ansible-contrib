@@ -254,9 +254,11 @@
     stack_name: "{{ stack_name }}-{{ gluster_stack }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/add-cns-storage.json"
+    template: "roles/cloudformation-infra/files/add-crs-storage.json"
     template_parameters:
-      BastionSG: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default(bastion_sg) }}"
+      Vpc: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['StackVpc'] | default(vpc) }}"
+      BastionSG: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['BastionSGId'] | default(bastion_sg) }}"
+      NodeSG: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default(node_sg) }}"
       GlusterNodeDns1: "{{ gluster_node01 }}"
       GlusterNodeDns2: "{{ gluster_node02 }}"
       GlusterNodeDns3: "{{ gluster_node03 }}"
@@ -268,7 +270,7 @@
       KeyName: "{{ keypair }}"
       AmiId: "{{ ami }}"
       InstanceType: "{{ node_instance_type }}"
-      NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
+      NodeUserData: "{{ lookup('file', 'user_data_gluster.yml') | b64encode }}"
       NodeRootVolSize: 15
       NodeRootVolType: gp2
       GlusterVolSize: "{{ gluster_volume_size }}"

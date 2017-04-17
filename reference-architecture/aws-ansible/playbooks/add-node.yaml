@@ -53,4 +53,4 @@
   vars_files:
   - vars/main.yaml
   roles:
-  - openshift-gluster
+  - gluster-ports
