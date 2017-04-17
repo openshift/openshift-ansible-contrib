@@ -8,7 +8,7 @@
       with_items:
         - rhel-7-server-rpms
         - rhel-7-server-extras-rpms
-        - rh-gluster-3-for-rhel-7-server-rpms 
+        - rh-gluster-3-for-rhel-7-server-rpms
 
     - name: check to see if rhui exists
       stat:

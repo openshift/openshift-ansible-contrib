@@ -13,9 +13,9 @@
   - heketi-client
   - firewalld
 
-- name: Start Glusterd and firewalld 
+- name: Start Glusterd and firewalld
   service:
-    name: "{{ item }}" 
+    name: "{{ item }}"
     state: restarted
     enabled: true
   with_items:
