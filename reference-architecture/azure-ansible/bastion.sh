@@ -517,8 +517,8 @@ oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_AC
 sleep 30
 echo "Setup Azure PVC"
 echo "Azure Setup masters"
-ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml 
-ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml 
+# ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml 
+# ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml 
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
