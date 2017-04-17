@@ -196,7 +196,7 @@
     template_parameters:
       NodeName: "{{ fqdn }}"
       NodeSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeSGId'] | default(node_sg) }}"
-      InfraSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['InfraSGId'] | default(node_sg) }}"
+      InfraSg: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['InfraSGId'] | default(infra_sg) }}"
       Subnet: "{{ subnet_id }}"
       Route53HostedZone: "{{ public_hosted_zone }}."
       KeyName: "{{ keypair }}"
@@ -209,7 +209,7 @@
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
-      NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
+      NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}" 
       NodeType: "{{ node_type }}"
     tags:
       KubernetesCluster: "{{ stack_name }}"

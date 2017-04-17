@@ -10,8 +10,7 @@
   roles:
   # Upload ssh-key
   - { role: ssh-key, when: create_key == "yes" }
-  - { role: cfn-outputs, when: create_vpc == "no" and add_node == "yes" }
-  - { role: cfn-outputs, when: create_vpc == "no" and deploy_crs == "yes" }
+  - { role: cfn-outputs, when: create_vpc == "no" and add_node == "yes" or deploy_crs is defined }
   # Create VPC and subnets in multiple AZ
   - pre-install-check
   - cloudformation-infra
