@@ -275,4 +275,4 @@
       NodeRootVolType: gp2
       GlusterVolSize: "{{ gluster_volume_size }}"
       GlusterVolType: "{{ gluster_volume_type }}"
-  when: create_vpc == "no" and deploy_crs == "yes"
+  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes"
