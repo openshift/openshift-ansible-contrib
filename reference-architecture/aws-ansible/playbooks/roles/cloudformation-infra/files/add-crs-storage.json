@@ -157,6 +157,16 @@
         "SourceSecurityGroupId": {"Ref": "BastionSG" }
       }
     },
+    "BastionSsh": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "22",
+        "ToPort": "22",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
+      }
+    },
     "GlusterSsh": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
