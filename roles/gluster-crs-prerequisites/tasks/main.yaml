@@ -9,7 +9,6 @@
     state: latest
   with_items:
   - redhat-storage-server
-  - heketi
   - heketi-client
   - firewalld
 
