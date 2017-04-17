@@ -349,13 +349,13 @@ master3
 master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default'}"
 master2 openshift_hostname=master2 openshift_node_labels="{'role':'master','zone':'default'}"
 master3 openshift_hostname=master3 openshift_node_labels="{'role':'master','zone':'default'}"
-node[01:${NODECOUNT}] openshift_hostname=node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
+node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 infranode1 openshift_hostname=infranode1 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode2 openshift_hostname=infranode2 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 infranode3 openshift_hostname=infranode3 openshift_node_labels="{'role': 'infra', 'zone': 'default'}"
 
 [compute]
-node[01:${NODECOUNT}] openshift_hostname=node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
+node[01:${NODECOUNT}] openshift_node_labels="{'role': 'app', 'zone': 'default'}"
 
 EOF
 
