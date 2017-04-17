@@ -79,4 +79,4 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups.tag_provision_node | default([]) }}"
   when:
-    - add_node is defined and hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}-gluster"
+    - add_node is defined and hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{gluster_stack }}-{{ stack_name }}"
