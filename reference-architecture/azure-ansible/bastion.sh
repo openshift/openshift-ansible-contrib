@@ -290,6 +290,7 @@ cat <<EOF > /etc/ansible/hosts
 [OSEv3:children]
 masters
 nodes
+etcd
 
 [OSEv3:vars]
 debug_level=2
@@ -338,6 +339,11 @@ openshift_master_cluster_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 master1 openshift_hostname=master1 openshift_node_labels="{'role': 'master'}"
 master2 openshift_hostname=master2 openshift_node_labels="{'role': 'master'}"
 master3 openshift_hostname=master3 openshift_node_labels="{'role': 'master'}"
+
+[etcd]
+master1 
+master2 
+master3 
 
 [nodes]
 master1 openshift_hostname=master1 openshift_node_labels="{'role':'master','zone':'default'}"
