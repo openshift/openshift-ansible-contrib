@@ -1,31 +1,4 @@
 ---
-- name: Check if firewalld is running
-  command: systemctl status firewalld
-  ignore_errors: yes
-  register: firewalld_status 
-
-- name: open gluster ports
-  firewalld:
-    port: "{{ item }}"
-    permanent: true
-    state: enabled
-  with_items:
-    - 24007/tcp
-    - 8080/tcp
-    - 24008/tcp
-    - 2222/tcp
-    - 49152-49664/tcp
-  when: "'active' in firewalld_status"
-
-- name: force a reload of firewalld
-  command: /bin/firewall-cmd --reload
-  when: "'active' in firewalld_status"
-
-- name: Check if iptables is running
-  command: systemctl status iptables
-  ignore_errors: yes
-  register: iptables_status 
-
 - name: open gluster ports
   iptables:
     chain: INPUT
@@ -38,5 +11,4 @@
     - 8080
     - 24008
     - 2222
-    - 49152-49664
-  when: "'active' in iptables_status"
+    - 49152:49664

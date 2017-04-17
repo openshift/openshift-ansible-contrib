@@ -54,4 +54,4 @@
   vars_files:
   - vars/main.yaml
   roles:
-  - gluster-ports
+  { role: gluster-ports, when:  == "yes" }
