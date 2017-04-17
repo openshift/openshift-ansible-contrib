@@ -3,7 +3,7 @@
   iptables:
     chain: INPUT
     destination_port: "{{ item }}"
-    jump: ACCEPT 
+    jump: ACCEPT
     protocol: tcp
     match: tcp
   with_items:
