@@ -111,26 +111,19 @@ def launch_refarch_env(region=None,
   elif iam_role is None:
     iam_role = click.prompt("Specify the IAM Role of the node?")
 
+ # If no keypair is specified fail:
+  if subnet_id is None:
+    subnet_id = click.prompt('A private subnet must be specified for the instance')
+
   if use_cloudformation_facts and node_sg is None:
     node_sg = "Computed by Cloudformations"
   elif node_sg is None:
     node_sg = click.prompt("Specify the Security Group for the nodes?")
 
-  if use_cloudformation_facts and subnet_id is None:
-    subnet_id = "Computed by Cloudformations"
-  elif subnet_id is None:
-    subnet_id = click.prompt("Specify the private subnet for the nodes?")
-
   if node_type in 'infra' and use_cloudformation_facts: 
     infra_sg = "Computed by Cloudformations"
   elif node_type in 'infra' and infra_sg is None:
     infra_sg = click.prompt("Specify the Infra Security Group for the node?")
-
-  if use_cloudformation_facts and subnet_id is None:
-    subnet_id = "Computed by Cloudformations"
-  else:
-    subnet_id = click.prompt("Specify the private subnet for the node?")
-
 
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
@@ -229,7 +222,7 @@ def launch_refarch_env(region=None,
         deployment_type=%s \
         rhsm_user=%s \
         rhsm_password=%s \
-        rhsm_pool=%s \
+        rhsm_pool="%s" \
         containerized=%s \
         node_type=%s \
         key_path=/dev/null \
@@ -275,7 +268,7 @@ def launch_refarch_env(region=None,
         deployment_type=%s \
         rhsm_user=%s \
         rhsm_password=%s \
-        rhsm_pool=%s \
+        rhsm_pool="%s" \
         containerized=%s \
         node_type=%s \
         iam_role=%s \
