@@ -24,6 +24,13 @@ export TENANTID=${array[18]}
 export AADCLIENTID=${array[19]}
 export AADCLIENTSECRET=${array[20]}
 export FULLDOMAIN=${THEHOSTNAME#*.*}
+export WILDCARDFQDN=${WILDCARDZONE}.${FULLDOMAIN}
+export WILDCARDIP=`dig +short ${WILDCARDFQDN}`
+export WILDCARDNIP=${WILDCARDIP}.nip.io
+echo "Show wildcard info"
+echo $WILDCARDFQDN
+echo $WILDCARDIP
+echo $WILDCARDNIP
 
 echo 'Show Registry Values'
 echo $REGISTRYSTORAGENAME
@@ -343,7 +350,8 @@ ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
 
 openshift_master_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
-osm_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
+# osm_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
+osm_default_subdomain=${WILDCARDNIP}
 openshift_use_dnsmasq=false
 openshift_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
