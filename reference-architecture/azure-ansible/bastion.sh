@@ -349,7 +349,8 @@ ansible_become=yes
 ansible_ssh_user=${AUSERNAME}
 remote_user=${AUSERNAME}
 
-openshift_master_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
+openshift_master_default_subdomain=${WILDCARDNIP}
+#openshift_master_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
 # osm_default_subdomain=${WILDCARDZONE}.${FULLDOMAIN}
 osm_default_subdomain=${WILDCARDNIP}
 openshift_use_dnsmasq=false
