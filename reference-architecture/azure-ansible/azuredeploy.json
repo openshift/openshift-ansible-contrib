@@ -1367,7 +1367,7 @@
   "outputs" : {
     "Openshift Webconsole" : {
       "type" : "string",
-      "value" : "[concat('https://', reference('master1').outputs.fqdn.value, ':8443')]"
+      "value" : "[concat('https://', reference(resourceGroup().name)).dnsSettings.fqdn, ':8443/console')]"
     },
     "Openshift Master ssh" : {
       "type" : "string",
@@ -1375,7 +1375,7 @@
     },
     "Openshift Router Public IP" : {
       "type" : "string",
-      "value" : "[reference('infranode1').outputs.pip.value]"
+      "value" : "[reference(parameters('WildcardZone')).outputs.pip.value]"
     }
   }
 }
