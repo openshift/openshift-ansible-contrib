@@ -1367,7 +1367,7 @@
   "outputs" : {
     "Openshift Webconsole" : {
       "type" : "string",
-      "value" : "[concat('https://', reference(resourceGroup().name)).dnsSettings.fqdn, ':8443/console')]"
+      "value" : "[concat('https://', reference(resourceGroup().name).dnsSettings.fqdn, ':8443/console')]"
     },
     "Openshift Master ssh" : {
       "type" : "string",
