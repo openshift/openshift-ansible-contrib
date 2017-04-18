@@ -1,5 +1,10 @@
 ---
 - block:
+    - name: Allow rhsm a longer timeout to help out with subscription-manager
+      lineinfile:
+        path: /etc/rhsm/rhsm.conf
+        line: 'server_timeout=600'
+
     - name: Check for sat config file
       stat: path=/etc/rhsm/rhsm.conf.kat-backup
       register: sat_cfg
