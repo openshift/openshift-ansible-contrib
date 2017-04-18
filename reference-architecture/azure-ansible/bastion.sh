@@ -229,6 +229,12 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
     notify:
     - restart atomic-openshift-master-api
     - restart atomic-openshift-master-controllers
+  - name: delete the node so it can recreate itself
+    command: oc delete node {{inventory_hostname}}
+    delegate_to: bastion
+  - name: sleep to let node come back to life
+    pause:
+       minutes: 1
 
 EOF
 
@@ -283,6 +289,12 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
       - azure
     notify:
     - restart atomic-openshift-node
+  - name: delete the node so it can recreate itself
+    command: oc delete node {{inventory_hostname}}
+    delegate_to: bastion
+  - name: sleep to let node come back to life
+    pause:
+       minutes: 1
 EOF
 
 
@@ -523,8 +535,8 @@ oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_AC
 sleep 30
 echo "Setup Azure PVC"
 echo "Azure Setup masters"
-# ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml 
-# ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml 
+ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml 
+ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml 
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
