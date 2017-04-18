@@ -59,6 +59,7 @@ chown $AUSERNAME /home/$AUSERNAME/.ssh/id_rsa.pub
 chmod 600 /home/$AUSERNAME/.ssh/id_rsa.pub
 chown $AUSERNAME /home/$AUSERNAME/.ssh/id_rsa
 chmod 600 /home/$AUSERNAME/.ssh/id_rsa
+cp /home/$AUSERNAME/.ssh/authorized_keys /root/.ssh/authorized_keys
 
 mkdir -p /root/.azuresettings
 echo $REGISTRYSTORAGENAME > /root/.azuresettings/registry_storage_name
@@ -74,10 +75,14 @@ chown -R root /root/.azuresettings
 mkdir -p /root/.ssh
 echo $SSHPRIVATEDATA | base64 --d > /root/.ssh/id_rsa
 echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3   >  /root/.ssh/id_rsa.pub
+cp /home/$AUSERNAME/.ssh/authorized_keys /root/.ssh/authorized_keys
 chown root /root/.ssh/id_rsa.pub
 chmod 600 /root/.ssh/id_rsa.pub
 chown root /root/.ssh/id_rsa
 chmod 600 /root/.ssh/id_rsa
+chown root /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+
 
 sleep 30
 cat <<EOF > /root/setup_ssmtp.sh
