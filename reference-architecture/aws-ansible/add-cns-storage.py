@@ -14,7 +14,7 @@ import sys
               show_default=True)
 
 ### AWS/EC2 options
-@click.option('--gluster-stack', default='gluster', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
+@click.option('--gluster-stack', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
               show_default=True)
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
@@ -90,6 +90,9 @@ def launch_refarch_env(region=None,
 
   if existing_stack is None:
     existing_stack = click.prompt('Specify the name of the existing CloudFormation stack')
+
+  if gluster_stack is None:
+    gluster_stack = click.prompt('Specify a unique name for the CNS CloudFormation stack')
 
  # If no keypair is specified fail:
   if keypair is None:
