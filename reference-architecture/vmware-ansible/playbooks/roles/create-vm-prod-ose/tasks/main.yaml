@@ -9,7 +9,6 @@
     datacenter: "{{ vcenter_datacenter }}"
     resource_pool: "{{ vcenter_resource_pool }}"
     template: "{{vcenter_template_name}}"
-    wait_for_ip_address: no
     state: poweredon
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
