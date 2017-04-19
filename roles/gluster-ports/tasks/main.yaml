@@ -26,7 +26,7 @@
     protocol: tcp
     match: tcp
   when: groups['crs'] is defined and groups['crs'] != []
-  register: heketi 
+  register: heketi
 
 - name: save iptables
   shell: iptables-save > /etc/sysconfig/iptables

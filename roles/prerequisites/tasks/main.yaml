@@ -10,11 +10,11 @@
 
   - name: Install the required rpms
     package:
-      name: "{{ item }}" 
+      name: "{{ item }}"
       state: latest
     with_items:
     - iptables
-    - iptables-services 
+    - iptables-services
 
   - name: Start NetworkManager and network
     service:
