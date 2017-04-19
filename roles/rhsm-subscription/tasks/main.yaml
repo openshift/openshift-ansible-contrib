@@ -38,4 +38,25 @@
         pool: "{{ rhsm_pool }}"
       when: "'Current' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
 
+    - name: Check if subscription is attached
+      command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"
+      register: subscription_attached
+      changed_when: no
+
+    - block:
+        - name: Get pool id
+          shell: subscription-manager list --available --pool-only --matches="{{ rhsm_pool }}" | head -n 1
+          register: pool_id
+          changed_when: no
+
+        - name: Fail if no pool ID is returned
+          fail:
+            msg: No subscription matching "{{ rhsm_pool }}" found
+          when: pool_id.stdout == ""
+
+        - name: Attach subscription
+          command: subscription-manager attach --pool="{{ pool_id.stdout }}"
+
+      when: subscription_attached.stdout == ""
+
   when: ansible_distribution == "RedHat"
