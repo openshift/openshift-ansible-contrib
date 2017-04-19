@@ -25,11 +25,20 @@
     - NetworkManager
     - network
 
+  - name: Determine if firewalld is installed
+    rpm_q:
+      name: "firewalld"
+      state: present
+    register: firewalld_installed
+    failed_when: false
+
   - name: Stop firewalld
     service:
-      name: firewalld
+      name: firewalld 
       state: stopped
       enabled: false
+    when:
+    - "{{ firewalld_installed.installed_versions | default([]) | length > 0 }}"
 
   - name: Start iptables
     service:
