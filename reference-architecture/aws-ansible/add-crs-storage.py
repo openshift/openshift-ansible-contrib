@@ -120,6 +120,14 @@ def launch_refarch_env(region=None,
   elif private_subnet_id3 is None:
     private_subnet_id3 = click.prompt("Specify the third private subnet for the nodes?")
 
+  # If the user already provided values, don't bother asking again
+  if rhsm_user is None:
+    rhsm_user = click.prompt("RHSM username?")
+  if rhsm_password is None:
+    rhsm_password = click.prompt("RHSM password?", hide_input=True)
+  if rhsm_pool is None:
+    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
+
   # Hidden facts for infrastructure.yaml
   create_key = "no"
   create_vpc = "no"
