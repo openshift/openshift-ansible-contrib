@@ -10,7 +10,7 @@
   with_items:
   - redhat-storage-server
   - heketi-client
-  - firewalld
+  - iptables-services 
 
 - name: Start Glusterd and firewalld
   service:
@@ -18,5 +18,5 @@
     state: restarted
     enabled: true
   with_items:
-  - firewalld
+  - iptables 
   - glusterd

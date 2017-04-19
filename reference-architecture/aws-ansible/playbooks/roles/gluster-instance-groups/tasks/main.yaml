@@ -1,5 +1,5 @@
 ---
-- name: Add app instances to host group
+- name: Add gluster instances to host group
   add_host:
     name: "{{ hostvars[item].ec2_tag_Name }}"
     groups: nodes, cluster_hosts, schedulable_nodes

@@ -157,7 +157,7 @@
         "SourceSecurityGroupId": {"Ref": "BastionSG" }
       }
     },
-    "BastionSsh": {
+    "GlusterCommonSsh": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
         "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
@@ -224,7 +224,7 @@
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	  "InstanceType": {"Ref": "InstanceType"},
-	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }, { "Ref": "NodeSG" }],
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet1"},
           "Tags": [
             { "Key": "Name",
@@ -261,7 +261,7 @@
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	  "InstanceType": {"Ref": "InstanceType"},
-	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }, { "Ref": "NodeSG" }],
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
           "Tags": [
             { "Key": "Name",
@@ -298,7 +298,7 @@
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
 	  "InstanceType": {"Ref": "InstanceType"},
-	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }, { "Ref": "NodeSG" }],
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["GlusterSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet3"},
           "Tags": [
             { "Key": "Name",
