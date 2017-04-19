@@ -9,7 +9,7 @@
   # Group systems
   - gluster-instance-groups
 
-- hosts: cluster_hosts
+- hosts: crs
   gather_facts: yes
   become: yes
   serial: 1
@@ -18,7 +18,7 @@
   roles:
   - rhsm-subscription
 
-- hosts: cluster_hosts
+- hosts: crs
   gather_facts: yes
   become: yes
   vars_files:

@@ -8,7 +8,26 @@
     match: tcp
   with_items:
     - 24007
-    - 8080
     - 24008
     - 2222
     - 49152:49664
+  when: groups['storage'] is defined and groups['storage'] != []
+  register: rule
+
+- name: save iptables
+  shell: iptables-save > /etc/sysconfig/iptables
+  when: rule|changed
+
+- name: open gluster ports
+  iptables:
+    chain: INPUT
+    destination_port: 8080
+    jump: ACCEPT
+    protocol: tcp
+    match: tcp
+  when: groups['crs'] is defined and groups['crs'] != []
+  register: heketi 
+
+- name: save iptables
+  shell: iptables-save > /etc/sysconfig/iptables
+  when: heketi|changed
