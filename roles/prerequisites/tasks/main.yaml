@@ -10,8 +10,11 @@
 
   - name: Install the required rpms
     package:
-      name: NetworkManager
+      name: "{{ item }}" 
       state: latest
+    with_items:
+    - iptables
+    - iptables-services 
 
   - name: Start NetworkManager and network
     service:
@@ -21,6 +24,18 @@
     with_items:
     - NetworkManager
     - network
+
+  - name: Stop firewalld
+    service:
+      name: firewalld
+      state: stopped
+      enabled: false
+
+  - name: Start iptables
+    service:
+      name: iptables
+      state: started
+      enabled: true
 
   when: not openshift.common.is_atomic | bool
 
