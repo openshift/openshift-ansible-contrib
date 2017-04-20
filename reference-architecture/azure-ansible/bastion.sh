@@ -100,8 +100,8 @@ cat <<EOF > /root/setup_ssmtp.sh
 # \$3 = Notification email address
 # Setup ssmtp mta agent for use with gmail
 yum -y install wget
-wget -c https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-9.noarch.rpm
-rpm -ivh epel-release-7-8.noarch.rpm
+wget -c https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -ivh epel-release-latest-7.noarch.rpm
 yum -y install ssmtp
 alternatives --set mta  /usr/sbin/sendmail.ssmtp
 mkdir /etc/ssmtp
@@ -528,9 +528,10 @@ cat <<EOF > /home/${AUSERNAME}/postinstall.yml
 
 EOF
 
+npm install -g azure-cli
+azure telemetry --disable
 cat <<'EOF' > /home/${AUSERNAME}/createvhdcontainer.sh
 # $1 is the storage account to create container
-npm install -g azure-cli
 mkdir -p ~/.azuresettings/$1
 export TENANT=$(< ~/.azuresettings/tenant_id)
 export AAD_CLIENT_ID=$(< ~/.azuresettings/aad_client_id)
@@ -571,10 +572,10 @@ echo "Setup Azure PVC"
 echo "Azure Setup masters"
 ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml 
 ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml 
-./home/${AUSERNAME}/createvhdcontainer.sh sapv1${RESOURCEGROUP}
-./home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
+/home/${AUSERNAME}/createvhdcontainer.sh sapv1${RESOURCEGROUP}
+/home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
 oc create -f /home/${AUSERNAME}/scgeneric.yml
-echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
+cat openshift-install.out |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/scgeneric.yml
