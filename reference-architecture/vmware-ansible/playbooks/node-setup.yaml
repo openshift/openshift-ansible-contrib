@@ -19,10 +19,7 @@
     openshift_node_local_quota_per_fsgroup: 512Mi
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: vsphere
-    openshift_master_cluster_hostname:  "{{ load_balancer_hostname }}" 
-    openshift_master_cluster_public_hostname:  "{{ load_balancer_hostname }}" 
-    osm_default_subdomain: "{{ wildcard_zone }}"
-    osm_default_node_selector: "role=app"
-    deployment_type: openshift-enterprise
-    osm_use_cockpit: false
-    containerized: false
+    deployment_type:
+    load_balancer_hostname:
+    openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
+    openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"

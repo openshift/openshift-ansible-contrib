@@ -256,9 +256,9 @@ def launch_refarch_env(console_port=8443,
                 print "    openshift_hosted_registry_storage_nfs_directory: " + nfs_registry_mountpoint
             else:
                 print line,
-        # Provide values for update playbook
-        update_file = "playbooks/minor-update.yaml"
 
+        # Provide values for update and add node playbooks       
+        update_file = ["playbooks/minor-update.yaml"]
         for line in fileinput.input(update_file, inplace=True):
             if line.startswith("    wildcard_zone:"):
                 print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
@@ -268,8 +268,9 @@ def launch_refarch_env(console_port=8443,
                 print "    deployment_type: " + deployment_type
             else:
                 print line,
-        #End create_ocp_vars
-        exit(0)
+            #End create_ocp_vars
+            exit(0)
+
     if auth_type == 'none':
         playbooks = ["playbooks/openshift-install.yaml", "playbooks/minor-update.yaml"]
         for ocp_file in playbooks:
