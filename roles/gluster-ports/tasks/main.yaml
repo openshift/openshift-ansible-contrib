@@ -18,6 +18,13 @@
   shell: iptables-save > /etc/sysconfig/iptables
   when: rule|changed
 
+- name: restart iptables when changed
+  service:
+    name: iptables
+    state: restarted
+    enabled: true
+  when: rule|changed
+
 - name: open gluster ports
   iptables:
     chain: INPUT
@@ -30,4 +37,11 @@
 
 - name: save iptables
   shell: iptables-save > /etc/sysconfig/iptables
+  when: heketi|changed
+
+- name: restart iptables when changed
+  service:
+    name: iptables
+    state: restarted
+    enabled: true
   when: heketi|changed
