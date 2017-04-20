@@ -1097,7 +1097,7 @@
         "displayName" : "PersistentVolume1StorageAccount"
       },
       "properties" : {
-        "accountType" : "[variables('persistentVolume1Type')]"
+        "accountType" : "[variables('vmSizesMap')[parameters('nodeVmSize')].storageAccountType]"
       }
     },
     {

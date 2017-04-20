@@ -56,6 +56,7 @@ echo $SUBSCRIPTIONID > /home/$AUSERNAME/.azuresettings/subscription_id
 echo $TENANTID > /home/$AUSERNAME/.azuresettings/tenant_id
 echo $AADCLIENTID > /home/$AUSERNAME/.azuresettings/aad_client_id
 echo $AADCLIENTSECRET > /home/$AUSERNAME/.azuresettings/aad_client_secret
+echo $RESOURCEGROUP > /home/$AUSERNAME/.azuresettings/resource_group
 chmod -R 600 /home/$AUSERNAME/.azuresettings/*
 chown -R $AUSERNAME /home/$AUSERNAME/.azuresettings
 
@@ -76,6 +77,7 @@ echo $SUBSCRIPTIONID > /root/.azuresettings/subscription_id
 echo $TENANTID > /root/.azuresettings/tenant_id
 echo $AADCLIENTID > /root/.azuresettings/aad_client_id
 echo $AADCLIENTSECRET > /root/.azuresettings/aad_client_secret
+echo $RESOURCEGROUP > /root/.azuresettings/resource_group
 chmod -R 600 /root/.azuresettings/*
 chown -R root /root/.azuresettings
 
@@ -310,6 +312,7 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
 EOF
 
 
+
 cat <<EOF > /etc/ansible/hosts
 [OSEv3:children]
 masters
@@ -525,6 +528,23 @@ cat <<EOF > /home/${AUSERNAME}/postinstall.yml
 
 EOF
 
+cat <<'EOF' > /home/${AUSERNAME}/createvhdcontainer.sh
+# $1 is the storage account to create container
+npm install -g azure-cli
+mkdir -p ~/.azuresettings/$1
+export TENANT=$(< ~/.azuresettings/tenant_id)
+export AAD_CLIENT_ID=$(< ~/.azuresettings/aad_client_id)
+export AAD_CLIENT_SECRET=$(< ~/.azuresettings/aad_client_secret)
+export RESOURCEGROUP=$(< ~/.azuresettings/resource_group)
+azure login --service-principal --tenant ${TENANT}  -u ${AAD_CLIENT_ID} -p ${AAD_CLIENT_SECRET}
+azure storage account connectionstring show ${1} --resource-group ${RESOURCEGROUP}  > ~/.azuresettings/$1/connection.out
+sed -n '/connectionstring:/{p}' < ~/.azuresettings/${1}/connection.out > ~/.azuresettings/${1}/dataline.out
+export DATALINE=$(< ~/.azuresettings/${1}/dataline.out)
+export AZURE_STORAGE_CONNECTION_STRING=${DATALINE:27}
+azure storage container create vhds > ~/.azuresettings/${1}/container.dat
+EOF
+chmod +x /home/${AUSERNAME}/createvhdcontainer.sh
+
 cat <<EOF > /home/${AUSERNAME}/openshift-install.sh
 export ANSIBLE_HOST_KEY_CHECKING=False
 sleep 120
@@ -551,7 +571,22 @@ echo "Setup Azure PVC"
 echo "Azure Setup masters"
 ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml 
 ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml 
+./home/${AUSERNAME}/createvhdcontainer.sh sapv1${RESOURCEGROUP}
+./home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
+oc create -f /home/${AUSERNAME}/scgeneric.yml
 echo "${RESOURCEGROUP} Installation Is Complete" | mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
+EOF
+
+cat <<EOF > /home/${AUSERNAME}/scgeneric.yml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: generic
+  annotations:
+    storageclass.beta.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/azure-disk
+parameters:
+  storageAccount: ${$RESOURCEGROUP}
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/.ansible.cfg
