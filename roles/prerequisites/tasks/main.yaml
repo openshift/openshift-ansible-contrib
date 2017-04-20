@@ -34,7 +34,7 @@
 
   - name: Stop firewalld
     service:
-      name: firewalld 
+      name: firewalld
       state: stopped
       enabled: false
     when:
