@@ -1,0 +1,3 @@
+---
+- name: restart iptables 
+  systemd: name=iptables state=restarted

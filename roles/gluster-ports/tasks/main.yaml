@@ -4,6 +4,7 @@
     chain: INPUT
     destination_port: "{{ item }}"
     jump: ACCEPT
+    ctstate: NEW
     protocol: tcp
     match: tcp
   with_items:
@@ -17,18 +18,14 @@
 - name: save iptables
   shell: iptables-save > /etc/sysconfig/iptables
   when: rule|changed
-
-- name: restart iptables when changed
-  service:
-    name: iptables
-    state: restarted
-    enabled: true
-  when: rule|changed
+  notify:
+    - restart iptables
 
 - name: open gluster ports
   iptables:
     chain: INPUT
     destination_port: 8080
+    ctstate: NEW
     jump: ACCEPT
     protocol: tcp
     match: tcp
@@ -38,10 +35,5 @@
 - name: save iptables
   shell: iptables-save > /etc/sysconfig/iptables
   when: heketi|changed
-
-- name: restart iptables when changed
-  service:
-    name: iptables
-    state: restarted
-    enabled: true
-  when: heketi|changed
+  notify:
+    - restart iptables
