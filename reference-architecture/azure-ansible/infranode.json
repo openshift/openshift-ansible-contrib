@@ -56,7 +56,6 @@
         "displayName" : "NetworkInterface"
       },
       "dependsOn" : [
-        "[concat('Microsoft.Network/publicIPAddresses/', concat(parameters('vmName'), 'pip'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', concat(parameters('vmName'), 'nsg'))]"
       ],
       "properties" : {
@@ -220,27 +219,7 @@
           }
         ]
       }
-    },
-    {
-      "apiVersion" : "[variables('apiVersion')]",
-      "type" : "Microsoft.Network/publicIPAddresses",
-      "name" : "[concat(parameters('vmName'), 'pip')]",
-      "location" : "[resourceGroup().location]",
-      "tags" : {
-        "displayName" : "PublicIPAddress"
-      },
-      "properties" : {
-        "publicIPAllocationMethod" : "Static",
-        "dnsSettings" : {
-          "domainNameLabel" : "[parameters('dnsName')]"
-        }
-      }
     }
   ],
-  "outputs" : {
-    "pip" : {
-      "type" : "string",
-      "value" : "[reference(concat(parameters('vmName'), 'pip')).ipAddress]"
-    }
-  }
+  "outputs" : {}
 }
