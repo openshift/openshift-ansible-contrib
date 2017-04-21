@@ -143,6 +143,10 @@ def launch_refarch_env(region=None,
   if keypair is None and create_key in 'yes':
     keypair = click.prompt('Specify a name for the keypair')
 
+ # Fail on missing key_path
+  if key_path in '/dev/null' and create_key in 'yes':
+    key_path = click.prompt('Specify the location of the public key')
+
  # If no subnets are defined prompt:
   if create_vpc in 'no' and vpc_id is None:
     vpc_id = click.prompt('Specify the VPC ID')

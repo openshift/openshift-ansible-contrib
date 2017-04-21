@@ -15,7 +15,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_master'] }}"
   when:
-    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
 
 - name: Add a master to the single master group
   add_host:
@@ -35,7 +35,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_infra'] }}"
   when:
-    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
 
 - name: Add app instances to host group
   add_host:
@@ -46,7 +46,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_app'] }}"
   when:
-    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
 
 - name: Add new node instances to host group
   add_host:

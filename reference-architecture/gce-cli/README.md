@@ -11,7 +11,7 @@ Described usage is for RHEL 7 based operating system.
 
 Installation of gcloud utility is interactive, usually you will want to answer positively to asked questions.
 ```
-sudo yum -y install curl python which tar qemu-img openssl gettext git
+sudo yum -y install curl python which tar qemu-img openssl gettext git ansible python-libcloud
 curl https://sdk.cloud.google.com | bash
 exec -l $SHELL
 gcloud components install beta
@@ -19,6 +19,23 @@ gcloud init
 ```
 
 Note: You need to have GNU tar because the BSD version will not work. Also, it may be necessary to update qemu-img if the package is already installed. If the package is not updated errors may occur when uploading the RHEL image to GCE.
+
+### Ansible Installer
+
+Currently, we are in a process of migrating away from shell to pure Ansible deployment. Most notable change of this process is that the whole deployment will be run from the local machine and not partly from the bastion host. Because of this change, we now require Ansible installer locally available. If you are running RHEL-7 with proper subscription, just install the `atomic-openshift-utils` package:
+```
+subscription-manager repos --enable rhel-7-server-optional-rpms
+subscription-manager repos --enable rhel-7-server-ose-3.4-rpms
+yum -y install atomic-openshift-utils
+```
+
+For Fedora, clone the `openshift-ansible` repo next to the `openshift-ansible-contrib` repo (info below) and **switch to the correct tag**, currently it's `openshift-ansible-3.4.75-1`:
+```
+git clone https://github.com/openshift/openshift-ansible.git
+cd openshift-ansible
+git checkout openshift-ansible-3.4.75-1
+cd ..
+```
 
 ### Clone this repository
 

@@ -1,0 +1,6 @@
+---
+parameters:
+  external_network: public_network
+  domain_name: ocp3.example.com
+  dns_forwarders: []
+  slave_count: 2

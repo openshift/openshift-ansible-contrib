@@ -1,0 +1,5 @@
+---
+parameters:
+  image: rhel7
+  flavor: m1.small
+  ssh_user: cloud-user

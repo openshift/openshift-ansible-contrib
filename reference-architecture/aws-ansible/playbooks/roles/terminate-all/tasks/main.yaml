@@ -4,6 +4,27 @@
     name: "{{ s3_bucket_name }}"
     state: absent
     force: yes
+
+- name: Remove Cloudformation
+  cloudformation:
+    stack_name: "{{ item }}"
+    state: absent
+    template: roles/cloudformation-infra/files/add-node.json
+    region: "{{ region }}"
+  with_items:
+  - "{{ extra_app_nodes }}"
+  when: extra_app_nodes is defined
+
+- name: Remove Cloudformation
+  cloudformation:
+    stack_name: "{{ item }}"
+    state: absent
+    template: roles/cloudformation-infra/files/add-infra-node.json
+    region: "{{ region }}"
+  with_items:
+  - "{{ extra_infra_nodes }}"
+  when: extra_infra_nodes is defined
+
 - name: Remove Cloudformation
   cloudformation:
     stack_name: "{{ stack_name }}"
@@ -11,17 +32,19 @@
     template: roles/cloudformation-infra/files/greenfield.json
     region: "{{ region }}"
   ignore_errors: true
+
 - name: lookup up vols
   ec2_vol_facts:
     region: "{{ region }}"
     filters:
       status: available
   register: vols
+
 - name: cleanup
   ec2_vol:
     id: "{{ item.id }}"
     state: absent
     region: "{{ region }}"
   with_items:
-    - "{{ vols.volumes }}"
+  - "{{ vols.volumes }}"
   when: ci

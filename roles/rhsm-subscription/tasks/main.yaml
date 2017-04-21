@@ -14,6 +14,12 @@
       when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
       ignore_errors: yes
 
+    - name: Is the host already registered?
+      command: "subscription-manager status"
+      register: subscribed
+      changed_when: no
+      ignore_errors: yes
+
     - name: Register host via Activation key
       redhat_subscription:
         activationkey: "{{ rhsm_activation_key }}"
@@ -30,6 +36,6 @@
         password: "{{ rhsm_password }}"
         state: present
         pool: "{{ rhsm_pool }}"
-      when: rhsm_user is defined and rhsm_user
+      when: "'Current' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
 
   when: ansible_distribution == "RedHat"

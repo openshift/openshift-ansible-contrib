@@ -1,0 +1,59 @@
+---
+- name: create a new file
+  file:
+    path: ../static-inventory
+    state: absent
+
+- name: Create base file
+  template:
+    src: files/inventory
+    dest: ../static-inventory
+    remote_src: false
+
+- name: command for masters
+  shell: sed -i  '/\[masters\]/a {{ hostvars[item].ec2_tag_Name }}' ../static-inventory
+  with_items:
+  - "{{ groups['tag_openshift_role_master'] }}"
+  when:
+  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+
+
+- name: command for masters
+  shell: sed -i  '/\[etcd\]/a {{ hostvars[item].ec2_tag_Name }}' ../static-inventory
+  with_items:
+  - "{{ groups['tag_openshift_role_master'] }}"
+  when:
+  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+
+- name: define nodes
+  lineinfile:
+    line: "{{ hostvars[item].ec2_tag_Name }} openshift_node_labels=\"{'role': 'master'}\""
+    insertafter: "[nodes]"
+    state: present
+    dest: ../static-inventory
+  with_items:
+  - "{{ groups['tag_openshift_role_master'] }}"
+  when:
+  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+
+- name: define nodes
+  lineinfile:
+    line: "{{ hostvars[item].ec2_tag_Name }} openshift_node_labels=\"{'role': 'app'}\""
+    insertafter: [nodes]
+    state: present
+    dest: ../static-inventory
+  with_items:
+  - "{{ groups['tag_openshift_role_app'] }}"
+  when:
+  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"
+
+- name: define nodes
+  lineinfile:
+    line: "{{ hostvars[item].ec2_tag_Name }} openshift_node_labels=\"{'role': 'infra'}\""
+    insertafter: [nodes]
+    state: present
+    dest: ../static-inventory
+  with_items:
+  - "{{ groups['tag_openshift_role_infra'] }}"
+  when:
+  - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}"

@@ -1,0 +1,8 @@
+imports:
+- path: tmp-instance.jinja
+resources:
+- name: tmp-instance
+  type: tmp-instance.jinja
+  properties:
+    prefix: {{ prefix }}
+    zone: {{ gcloud_zone }}

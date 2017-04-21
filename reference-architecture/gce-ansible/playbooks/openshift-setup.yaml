@@ -1,7 +1,7 @@
 ---
 - include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
   vars:
-    debug_level: 5
+    debug_level: 2
     console_port: 443
     openshift_debug_level: "{{ debug_level }}"
     openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"

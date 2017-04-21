@@ -88,6 +88,7 @@ USER_AGENT_VERSION="v2"
 
 import sys
 import os
+import time
 import argparse
 import ConfigParser
 
@@ -102,6 +103,7 @@ except ImportError:
 try:
     from libcloud.compute.types import Provider
     from libcloud.compute.providers import get_driver
+    from libcloud.common.google import ResourceNotFoundError
     _ = Provider.GCE
 except:
     sys.exit("GCE inventory script requires libcloud >= 0.13")
@@ -250,10 +252,15 @@ class GceInventory(object):
                            help='List instances (default: True)')
         parser.add_argument('--host', action='store',
                            help='Get all information about an instance')
+        parser.add_argument('--tagged', action='store',
+                           help='Only include instances with this tag')
         parser.add_argument('--pretty', action='store_true', default=False,
                            help='Pretty format (default: False)')
         self.args = parser.parse_args()
 
+        tag_env = os.environ.get('GCE_TAGGED_INSTANCES')
+        if not self.args.tagged and tag_env:
+            self.args.tagged = tag_env
 
     def node_to_dict(self, inst):
         md = {}
@@ -287,7 +294,7 @@ class GceInventory(object):
             'gce_metadata': md,
             'gce_network': net,
             # Hosts don't have a public name, so we add an IP
-            'ansible_ssh_host': ssh_host
+            'ansible_host': ssh_host
         }
 
     def get_instance(self, instance_name):
@@ -303,7 +310,23 @@ class GceInventory(object):
         meta = {}
         meta["hostvars"] = {}
 
-        for node in self.driver.list_nodes():
+        # list_nodes will fail if a disk is in the process of being deleted
+        # from a node, which is not uncommon if other playbooks are managing
+        # the same project. Retry if we receive a not found error.
+        nodes = []
+        tries = 0
+        while True:
+            try:
+                nodes = self.driver.list_nodes()
+                break
+            except ResourceNotFoundError:
+                tries = tries + 1
+                if tries > 15:
+                    raise e
+                time.sleep(1)
+                continue
+
+        for node in nodes:
 
             # This check filters on the desired instance states defined in the
             # config file with the instance_states config option.
@@ -316,6 +339,9 @@ class GceInventory(object):
                 continue
 
             name = node.name
+
+            if self.args.tagged and self.args.tagged not in node.extra['tags']:
+                continue
 
             meta["hostvars"][name] = self.node_to_dict(node)
 

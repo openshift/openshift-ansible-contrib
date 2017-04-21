@@ -1,0 +1,7 @@
+include "/etc/named/update.key" ;
+
+zone {{ zone }} {
+  type master ; 
+  file "/var/named/dynamic/zone.db" ;
+  allow-update { key update-key ; } ;
+};

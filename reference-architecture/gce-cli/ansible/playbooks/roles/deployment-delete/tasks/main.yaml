@@ -1,0 +1,4 @@
+---
+- name: delete deployment {{ deployment_name_with_prefix }}
+  command: gcloud -q --project {{ gcloud_project }} deployment-manager deployments delete {{ deployment_name_with_prefix }}
+  ignore_errors: true

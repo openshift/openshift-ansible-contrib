@@ -15,8 +15,6 @@
     openshift_debug_level: "{{ debug_level }}"
     openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
     openshift_node_kubelet_args:
-      max-pods:
-      - "100"
       node-labels:
       - "role={{ openshift_node_labels.role }}"
     openshift_master_debug_level: "{{ master_debug_level | default(debug_level, true) }}"
