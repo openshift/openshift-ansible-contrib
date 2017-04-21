@@ -106,7 +106,7 @@ yum -y install ssmtp
 alternatives --set mta  /usr/sbin/sendmail.ssmtp
 mkdir /etc/ssmtp
 cat <<EOFZ > /etc/ssmtp/ssmtp.conf
-root=postmaster
+root=${1}
 mailhub=mail
 TLS_CA_File=/etc/pki/tls/certs/ca-bundle.crt
 mailhub=smtp.gmail.com:587   # SMTP server for Gmail
@@ -118,7 +118,7 @@ Root=\${3} # Redirect root email
 AuthUser=\${1}@gmail.com
 AuthPass=\${2}
 AuthMethod=LOGIN
-RewriteDomain=gmail.com
+rewriteDomain=azure.com
 EOFZ
 cat <<EOFZ > /etc/ssmtp/revaliases
 root:\${1}@gmail.com:smtp.gmail.com:587
