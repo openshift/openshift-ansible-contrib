@@ -6,6 +6,7 @@
     jump: ACCEPT
     ctstate: NEW
     protocol: tcp
+    action: insert
     match: tcp
   with_items:
     - 24007
