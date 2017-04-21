@@ -546,6 +546,18 @@ azure storage container create vhds > ~/.azuresettings/${1}/container.dat
 EOF
 chmod +x /home/${AUSERNAME}/createvhdcontainer.sh
 
+cat <<EOF > /home/${AUSERNAME}/scgeneric.yml
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+  name: generic
+  annotations:
+    storageclass.beta.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/azure-disk
+parameters:
+  storageAccount: ${$RESOURCEGROUP}
+EOF
+
 cat <<EOF > /home/${AUSERNAME}/openshift-install.sh
 export ANSIBLE_HOST_KEY_CHECKING=False
 sleep 120
@@ -576,18 +588,6 @@ ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml
 /home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
 oc create -f /home/${AUSERNAME}/scgeneric.yml
 cat /home/${AUSERNAME}/openshift-install.out |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
-EOF
-
-cat <<EOF > /home/${AUSERNAME}/scgeneric.yml
-kind: StorageClass
-apiVersion: storage.k8s.io/v1beta1
-metadata:
-  name: generic
-  annotations:
-    storageclass.beta.kubernetes.io/is-default-class: "true"
-provisioner: kubernetes.io/azure-disk
-parameters:
-  storageAccount: ${$RESOURCEGROUP}
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/.ansible.cfg
