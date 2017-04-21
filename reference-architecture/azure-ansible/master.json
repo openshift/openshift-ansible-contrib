@@ -87,7 +87,6 @@
         "displayName" : "NetworkInterface"
       },
       "dependsOn" : [
-        "[concat('Microsoft.Network/publicIPAddresses/', concat(parameters('vmName'), 'pip'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', concat(parameters('vmName'), 'nsg'))]"
       ],
       "properties" : {
