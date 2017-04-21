@@ -7,7 +7,7 @@
   - vars/main.yaml
   roles:
   # Group systems
-  - create-vm-add-prod-ose 
+  - create-vm-add-prod-ose
   - instance-groups
 
 - hosts: new_nodes
@@ -25,7 +25,7 @@
 - include: node-setup.yaml
 
 - hosts: loadbalancer, master, infra
-  gather_facts: yes 
+  gather_facts: yes
   become: no
   vars_files:
   - vars/main.yaml
@@ -38,4 +38,4 @@
   vars_files:
   - vars/main.yaml
   roles:
-  - ../../../roles/infra-node-scaleup 
+  - ../../../roles/infra-node-scaleup
