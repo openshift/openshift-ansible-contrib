@@ -661,7 +661,7 @@
             "value" : "[variables('baseTemplateUrl')]"
           },
           "routerExtIP" : {
-            "value" : "[reference('infranode1').outputs.pip.value]"
+            "value" : "[reference(parameters('WildcardZone')).ipAddress]"
           },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
@@ -752,7 +752,7 @@
             "value" : "[variables('baseTemplateUrl')]"
           },
           "routerExtIP" : {
-            "value" : "[reference('infranode1').outputs.pip.value]"
+            "value" : "[reference(parameters('WildcardZone')).ipAddress]"
           },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
@@ -825,7 +825,7 @@
             "value" : "[variables('baseTemplateUrl')]"
           },
           "routerExtIP" : {
-            "value" : "[reference('infranode1').outputs.pip.value]"
+            "value" : "[reference(parameters('WildcardZone')).ipAddress]"
           },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
@@ -897,7 +897,7 @@
             "value" : "[variables('baseTemplateUrl')]"
           },
           "routerExtIP" : {
-            "value" : "[reference('infranode1').outputs.pip.value]"
+            "value" : "[reference(parameters('WildcardZone')).ipAddress]"
           },
           "imageReference" : {
             "value" : "[variables(parameters('image'))]"
