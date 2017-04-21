@@ -29,6 +29,7 @@
     ctstate: NEW
     jump: ACCEPT
     protocol: tcp
+    action: insert
     match: tcp
   when: groups['crs'] is defined and groups['crs'] != []
   register: heketi

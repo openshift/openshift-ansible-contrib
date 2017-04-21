@@ -137,6 +137,16 @@
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
       }
     },
+    "GlusterDaemon": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "24007",
+        "ToPort": "24007",
+        "SourceSecurityGroupId": { "Ref": "NodeSG" }
+      }
+    },
     "GlusterManagement": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
@@ -145,6 +155,16 @@
         "FromPort": "24008",
         "ToPort": "24008",
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
+      }
+    },
+    "GlusterConnect": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "24008",
+        "ToPort": "24008",
+        "SourceSecurityGroupId": { "Ref": "NodeSG" }
       }
     },
     "BastionSsh": {
