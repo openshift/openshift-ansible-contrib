@@ -711,8 +711,7 @@
       "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]",
-        "[resourceId('Microsoft.Resources/deployments', 'infranode1')]"
+        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]"
       ],
       "properties" : {
         "mode" : "Incremental",
@@ -784,8 +783,7 @@
       "apiVersion" : "2015-01-01",
       "dependsOn" : [
         "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]",
-        "[resourceId('Microsoft.Resources/deployments', 'infranode1')]"
+        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]"
       ],
       "properties" : {
         "mode" : "Incremental",
