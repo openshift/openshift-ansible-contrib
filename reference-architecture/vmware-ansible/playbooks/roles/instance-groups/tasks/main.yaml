@@ -30,3 +30,13 @@
     openshift_node_labels:
       role: app
   with_items: "{{ groups['app'] }}"
+
+- name: Add new node instances to host group
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: new_nodes
+    openshift_node_labels:
+      role: "{{ node_type }}"
+  with_items: "{{ groups.tag_provision_node | default([]) }}"
+  when:
+    - add_node is defined
