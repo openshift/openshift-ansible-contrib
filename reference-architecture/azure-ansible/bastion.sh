@@ -557,7 +557,7 @@ metadata:
     storageclass.beta.kubernetes.io/is-default-class: "true"
 provisioner: kubernetes.io/azure-disk
 parameters:
-  storageAccount: ${$RESOURCEGROUP}
+  storageAccount: sapv1${RESOURCEGROUP}
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/openshift-install.sh
