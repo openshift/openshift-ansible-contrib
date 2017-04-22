@@ -128,6 +128,7 @@ chmod +x /root/setup_ssmtp.sh
 # Continue even if ssmtp.sh script errors out
 /root/setup_ssmtp.sh ${AUSERNAME} ${PASSWORD} ${RHNUSERNAME} || true
 
+sleep 30
 echo "${RESOURCEGROUP} Bastion Host is starting software update" | mail -s "${RESOURCEGROUP} Bastion Software Install" ${RHNUSERNAME} || true
 # Continue Setting Up Bastion
 subscription-manager unregister
@@ -136,6 +137,7 @@ rm -f /etc/yum.repos.d/rh-cloud.repo
 # Found that wildcard disable not working all the time - make sure
 yum-config-manager --disable epel
 yum-config-manager --disable epel-testing
+sleep 30
 subscription-manager register --username $RHNUSERNAME --password ${RHNPASSWORD}
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
