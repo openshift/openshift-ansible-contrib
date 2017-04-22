@@ -316,7 +316,7 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
     pause:
        minutes: 3
   - name: make sure its set to unsceduable
-    command: oadm manage-node {{inventory_hostname}} shedulable=false 
+    command: oadm manage-node {{inventory_hostname}} --schedulable=false
     delegate_to: master1
 EOF
 
