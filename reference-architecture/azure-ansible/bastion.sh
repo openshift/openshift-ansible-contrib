@@ -251,7 +251,8 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
   - name: sleep to let node come back to life
     pause:
        minutes: 1
-
+  - name: make sure its set to unsceduable
+    command: oadm manage-node {{inventory_hostname}} shedulable=false 
 EOF
 
 cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
@@ -586,6 +587,7 @@ echo "Setup Azure PVC"
 echo "Azure Setup masters"
 ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml 
 ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml 
+oadm manage-node <node1> <node2> --schedulable=false
 /home/${AUSERNAME}/createvhdcontainer.sh sapv1${RESOURCEGROUP}
 /home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
 oc create -f /home/${AUSERNAME}/scgeneric.yml
