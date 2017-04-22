@@ -251,8 +251,6 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
   - name: sleep to let node come back to life
     pause:
        minutes: 1
-  - name: make sure its set to unsceduable
-    command: oadm manage-node {{inventory_hostname}} shedulable=false 
 EOF
 
 cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
@@ -312,6 +310,14 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
   - name: sleep to let node come back to life
     pause:
        minutes: 1
+- hosts: masters
+  tasks:
+  - name: sleep to make sure everything up
+    pause:
+       minutes: 3
+  - name: make sure its set to unsceduable
+    command: oadm manage-node {{inventory_hostname}} shedulable=false 
+    delegate_to: master1
 EOF
 
 
