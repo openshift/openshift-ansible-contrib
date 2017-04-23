@@ -137,7 +137,7 @@
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
       }
     },
-    "GlusterDaemon": {
+    "ClientDaemon": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
         "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
@@ -227,7 +227,7 @@
         "SourceSecurityGroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] }
       }
     },
-    "GlusterNfs": {
+    "ClientGlusterNfs": {
       "Type": "AWS::EC2::SecurityGroupIngress",
       "Properties":{
         "GroupId": { "Fn::GetAtt": [ "GlusterSG", "GroupId" ] },
