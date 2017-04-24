@@ -4,5 +4,17 @@ gcloud_region: ${GCLOUD_REGION}
 gcloud_zone: ${GCLOUD_ZONE}
 prefix: ${OCP_PREFIX}
 dns_domain: ${DNS_DOMAIN}
+master_dns_name: ${MASTER_DNS_NAME}
 rhel_image_path: ${RHEL_IMAGE_PATH}
 console_port: ${CONSOLE_PORT}
+master_https_key_file: ${MASTER_HTTPS_KEY_FILE}
+master_https_cert_file: ${MASTER_HTTPS_CERT_FILE}
+master_instance_group_size: ${MASTER_INSTANCE_GROUP_SIZE}
+infra_node_instance_group_size: ${INFRA_NODE_INSTANCE_GROUP_SIZE}
+node_instance_group_size: ${NODE_INSTANCE_GROUP_SIZE}
+bastion_machine_type: ${BASTION_MACHINE_TYPE}
+master_machine_type: ${MASTER_MACHINE_TYPE}
+node_machine_type: ${NODE_MACHINE_TYPE}
+bastion_disk_size: ${BASTION_DISK_SIZE}
+master_boot_disk_size: ${MASTER_BOOT_DISK_SIZE}
+node_boot_disk_size: ${NODE_BOOT_DISK_SIZE}

@@ -1,0 +1,8 @@
+---
+- name: create core infrastructure
+  hosts: localhost
+  vars_files:
+  - ../../ansible-main-config.yaml
+  roles:
+  - ssl-certificate
+  - { role: deployment-create, deployment_name: 'core' }
