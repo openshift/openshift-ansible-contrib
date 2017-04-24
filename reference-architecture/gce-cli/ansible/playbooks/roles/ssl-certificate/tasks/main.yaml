@@ -64,6 +64,6 @@
     path: '{{ item }}'
     state: absent
   with_items:
-    - '{{ ssl_key }}'
-    - '{{ ssl_cert }}'
+  - '{{ ssl_key }}'
+  - '{{ ssl_cert }}'
   when: ssl_selfsigned
