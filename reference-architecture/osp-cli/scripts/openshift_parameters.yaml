@@ -2,21 +2,21 @@
 # Invoke: heat stack-create ocp3-heat -f openshift.yaml -e openshift_parameters.yaml
 parameters:
   # OpenStack user credentials - Adjust as needed
-  os_auth_url: http://10.19.115.62:5000/v2.0 # <1>
-  os_username: <username> # <2>
-  os_password: <password> # <2>
+  os_auth_url: http://10.19.115.62:5000/v2.0
+  os_username: <username>
+  os_password: <password>
   os_region_name: default
-  os_tenant_name: <project name> # <2>
+  os_tenant_name: <project name> 
   # Red Hat Subscription information - Adjust as needed
-  rhn_username: "<username>" # <3>
-  rhn_password: "<password>" # <3>
-  rhn_pool: '<pool id containing openshift>' # <3>
+  rhn_username: "<username>"
+  rhn_password: "<password>"
+  rhn_pool: '<pool id containing openshift>'
   external_network: public_network
   dns_nameserver: 10.19.114.130,10.16.36.29,10.11.5.19 # <4>
   deployment_type: openshift-enterprise
-  ose_version: "3.4" # <5>
-  domain_name: "ocp3.example.com" # <6>
-  lb_hostname: "devs" # <7>
+  ose_version: "3.4"
+  domain_name: "ocp3.example.com"
+  lb_hostname: "devs"
   loadbalancer_type: external
   ssh_key_name: ocp3
   ssh_user: cloud-user
@@ -39,10 +39,10 @@ parameters:
   deploy_registry: true
 parameter_defaults:
   # Authentication service information
-  ldap_url: "ldap://ad.example.com.com:389/cn=users,dc=example,dc=com?sAMAccountName" # <8>
+  ldap_url: "ldap://ad.example.com.com:389/cn=users,dc=example,dc=com?sAMAccountName"
   ldap_preferred_username: "sAMAccountName"
-  ldap_bind_dn: "cn=openshift,cn=users,dc=example,dc=com" # <9>
-  ldap_bind_password: "password" # <10>
+  ldap_bind_dn: "cn=openshift,cn=users,dc=example,dc=com"
+  ldap_bind_password: "password"
   ldap_insecure: true
   # Adjust location
   # Package location: file:///usr/share/openshift-heat-templates/
