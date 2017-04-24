@@ -1,15 +1,14 @@
-# Invoke:
-# heat stack-create ocp3-heat -f openshift.yaml
-#      -e openshift_parameters.yaml \
+---
+# Invoke: heat stack-create ocp3-heat -f openshift.yaml -e openshift_parameters.yaml
 parameters:
-# OpenStack user credentials - Adjust as needed
+  # OpenStack user credentials - Adjust as needed
   os_auth_url: http://10.19.115.62:5000/v2.0 # <1>
   os_username: <username> # <2>
   os_password: <password> # <2>
   os_region_name: default
   os_tenant_name: <project name> # <2>
 
-# Red Hat Subscription information - Adjust as needed
+  # Red Hat Subscription information - Adjust as needed
   rhn_username: "<username>" # <3>
   rhn_password: "<password>" # <3>
   rhn_pool: '<pool id containing openshift>' # <3>
@@ -48,7 +47,7 @@ parameters:
   deploy_registry: true
 
 parameter_defaults:
-# Authentication service information
+  # Authentication service information
   ldap_url: "ldap://ad.example.com.com:389/cn=users,dc=example,dc=com?sAMAccountName" # <8>
   ldap_preferred_username: "sAMAccountName"
   ldap_bind_dn: "cn=openshift,cn=users,dc=example,dc=com" # <9>
@@ -57,7 +56,7 @@ parameter_defaults:
 
 
 # Adjust location
-#   Package location: file:///usr/share/openshift-heat-templates/
+# Package location: file:///usr/share/openshift-heat-templates/
 resource_registry: # <11>
   OOShift::LoadBalancer: /usr/share/openshift-heat-templates/loadbalancer_external.yaml
   OOShift::ContainerPort: /usr/share/openshift-heat-templates/sdn_flannel.yaml
