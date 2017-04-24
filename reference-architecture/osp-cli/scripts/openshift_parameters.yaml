@@ -59,9 +59,9 @@ parameter_defaults:
 # Adjust location
 #   Package location: file:///usr/share/openshift-heat-templates/
 resource_registry: # <11>
-   OOShift::LoadBalancer: /usr/share/openshift-heat-templates/loadbalancer_external.yaml
-   OOShift::ContainerPort: /usr/share/openshift-heat-templates/sdn_flannel.yaml
-   OOShift::IPFailover: /usr/share/openshift-heat-templates/ipfailover_keepalived.yaml
-   OOShift::DockerVolume: /usr/share/openshift-heat-templates/volume_docker.yaml
-   OOShift::DockerVolumeAttachment: /usr/share/openshift-heat-templates/volume_attachment_docker.yaml
-   OOShift::RegistryVolume: /usr/share/openshift-heat-templates/registry_ephemeral.yaml
+  OOShift::LoadBalancer: /usr/share/openshift-heat-templates/loadbalancer_external.yaml
+  OOShift::ContainerPort: /usr/share/openshift-heat-templates/sdn_flannel.yaml
+  OOShift::IPFailover: /usr/share/openshift-heat-templates/ipfailover_keepalived.yaml
+  OOShift::DockerVolume: /usr/share/openshift-heat-templates/volume_docker.yaml
+  OOShift::DockerVolumeAttachment: /usr/share/openshift-heat-templates/volume_attachment_docker.yaml
+  OOShift::RegistryVolume: /usr/share/openshift-heat-templates/registry_ephemeral.yaml
