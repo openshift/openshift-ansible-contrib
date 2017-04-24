@@ -1,7 +1,7 @@
 #!/bin/sh
 
-OSP_VERSION=${OSP_VERSION:-8}
-OCP_VERSION=${OCP_VERSION:-3.2}
+OSP_VERSION=${OSP_VERSION:-10}
+OCP_VERSION=${OCP_VERSION:-3.4}
 
 if [ ! -d group_vars ] ; then
     mkdir group_vars
@@ -31,7 +31,6 @@ sudo subscription-manager repos \
 sudo subscription-manager repos --enable="rhel-7-server-ose-${OCP_VERSION}-rpms"
 
 sudo subscription-manager repos \
-  --enable="rhel-7-server-openstack-${OSP_VERSION}-director-rpms" \
   --enable="rhel-7-server-openstack-${OSP_VERSION}-rpms"
 
 sudo sed -i \
