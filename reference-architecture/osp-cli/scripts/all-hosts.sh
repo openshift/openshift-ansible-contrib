@@ -3,7 +3,7 @@
 # Execute these preparation steps on all hosts
 # Run on the bastion host
 #
-OCP_VERSION=${OCP_VERSION:-3.2}
+OCP_VERSION=${OCP_VERSION:-3.4}
 
 MASTERS="master-0 master-1 master-2"
 INFRA_NODES="infra-node-0 infra-node-1"
@@ -52,8 +52,7 @@ for H in $ALL_HOSTS ; do
         --enable="rhel-7-server-ose-${OCP_VERSION}-rpms"
 
     ssh $H sudo subscription-manager repos \
-        --enable="rhel-7-server-openstack-8-director-rpms" \
-        --enable="rhel-7-server-openstack-8-rpms"
+        --enable="rhel-7-server-openstack-10-rpms"
 
     ssh $H sudo yum -y install \
         os-collect-config \
