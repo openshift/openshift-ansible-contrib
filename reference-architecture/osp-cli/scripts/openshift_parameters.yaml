@@ -12,7 +12,7 @@ parameters:
   rhn_password: "<password>"
   rhn_pool: '<pool id containing openshift>'
   external_network: public_network
-  dns_nameserver: 10.19.114.130,10.16.36.29,10.11.5.19 # <4>
+  dns_nameserver: 10.19.114.130,10.16.36.29,10.11.5.19
   deployment_type: openshift-enterprise
   ose_version: "3.4"
   domain_name: "ocp3.example.com"
