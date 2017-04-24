@@ -1,6 +1,6 @@
 #!/bin/sh
-# Set NAMESERVER to override
-NAMESERVER=${NAMESERVER:-8.8.8.8}
+# REQUIRED: Set NAMESERVER value
+NAMESERVER=
 openstack network create control-network 
 openstack subnet create --net control-network --subnet-range 172.18.10.0/24 \
 --dns-nameserver ${NAMESERVER} control-subnet
