@@ -6,7 +6,7 @@ parameters:
   os_username: <username>
   os_password: <password>
   os_region_name: default
-  os_tenant_name: <project name> 
+  os_tenant_name: <project name>
   # Red Hat Subscription information - Adjust as needed
   rhn_username: "<username>"
   rhn_password: "<password>"
@@ -46,7 +46,7 @@ parameter_defaults:
   ldap_insecure: true
   # Adjust location
   # Package location: file:///usr/share/openshift-heat-templates/
-resource_registry: # <11>
+resource_registry:
   OOShift::LoadBalancer: /usr/share/openshift-heat-templates/loadbalancer_external.yaml
   OOShift::ContainerPort: /usr/share/openshift-heat-templates/sdn_flannel.yaml
   OOShift::IPFailover: /usr/share/openshift-heat-templates/ipfailover_keepalived.yaml
