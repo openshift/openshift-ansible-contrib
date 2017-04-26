@@ -1,7 +1,4 @@
 ---
-# Configure host groups based on inventory results
-- include: plays/configure_host_groups.yml
-
 # Assign hostnames
 - hosts: cluster_hosts
   pre_tasks:

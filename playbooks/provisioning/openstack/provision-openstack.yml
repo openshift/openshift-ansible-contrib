@@ -4,7 +4,7 @@
   - include: roles/common/pre_tasks/pre_tasks.yml
   roles:
   - role: openstack-stack
-    stack_name: "{{ env_id }}"
+    stack_name: "{{ env_id }}.{{ openstack_dns_domain }}"
     dns_domain: "{{ openstack_dns_domain }}"
     dns_nameservers: "{{ openstack_nameservers }}"
     subnet_prefix: "{{ openstack_subnet_prefix }}"
@@ -32,8 +32,6 @@
   gather_facts: False
   tasks:
   - meta: refresh_inventory
-
-- include: plays/configure_host_groups.yml
 
 - hosts: cluster_hosts
   gather_facts: false
