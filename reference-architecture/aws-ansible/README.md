@@ -1,6 +1,8 @@
 # The Reference Architecture OpenShift on Amazon Web Services
 This repository contains the scripts used to deploy an OpenShift Container Platform or OpenShift Origin environment based off of the Reference Architecture Guide for OCP 3.5 on Amazon Web Services.
+
 For more information visit https://access.redhat.com/documentation/en-us/reference_architectures/2017/html/deploying_openshift_container_platform_3_on_amazon_web_services
+
 
 ## Overview
 The repository contains Ansible playbooks which deploy 3 Masters in different availability zones, 3 infrastructure nodes and 2 applcation nodes. The Infrastrucute and Application nodes are split between availbility zones.  The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes.
@@ -16,12 +18,12 @@ The code in this repository handles all of the AWS specific components except fo
 ```
 $ subscription-manager repos --enable rhel-7-server-optional-rpms
 $ subscription-manager repos --enable rhel-7-server-ose-3.5-rpms
+$ subscription-manager repos --enable rhel-7-fast-datapath-rpms
+$ yum -y install atomic-openshift-utils ansible
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-$ yum -y install atomic-openshift-utils \
-                 python2-boto \
+$ yum -y install python2-boto \
                  pyOpenSSL \
                  git \
-                 ansible \
                  python-netaddr \
                  python-six \
                  python2-boto3 \

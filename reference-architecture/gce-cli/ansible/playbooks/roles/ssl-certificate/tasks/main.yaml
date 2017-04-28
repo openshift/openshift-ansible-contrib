@@ -1,0 +1,69 @@
+---
+- block:
+  - name: stat key file
+    stat:
+      path: '{{ master_https_key_file }}'
+    register: https_key_file
+
+  - name: stat cert file
+    stat:
+      path: '{{ master_https_cert_file }}'
+    register: https_cert_file
+
+  - name: check key file
+    assert:
+      that:
+      - 'https_key_file.stat.isreg is defined'
+      - 'https_key_file.stat.isreg'
+      - 'https_key_file.stat.readable'
+      msg: Master HTTPS key file must exist and it must be readable
+
+  - name: check cert file
+    assert:
+      that:
+      - 'https_cert_file.stat.isreg is defined'
+      - 'https_cert_file.stat.isreg'
+      - 'https_cert_file.stat.readable'
+      msg: Master HTTPS certificate file must exist and it must be readable
+
+  - name: set certificate files facts
+    set_fact:
+      ssl_key: '{{ master_https_key_file }}'
+      ssl_cert: '{{ master_https_cert_file }}'
+      ssl_selfsigned: False
+  when:
+  - master_https_key_file is defined
+  - master_https_key_file
+  - master_https_cert_file is defined
+  - master_https_cert_file
+
+- block:
+  - name: set certificate files facts
+    set_fact:
+      ssl_key: /tmp/ocp-ssl.key
+      ssl_cert: /tmp/ocp-ssl.crt
+      ssl_selfsigned: True
+
+  - name: create self signed certificate
+    command: openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj '/C=US/L=Raleigh/O={{ dns_domain }}/CN={{ master_dns_name }}' -keyout '{{ ssl_key }}' -out '{{ ssl_cert }}' creates='{{ ssl_cert }}'
+  when: master_https_key_file is not defined or not master_https_key_file or
+        master_https_cert_file is not defined or not master_https_cert_file
+
+- name: check if ssl certificate exists
+  command: gcloud --project {{ gcloud_project }} compute ssl-certificates describe {{ ssl_lb_cert_with_prefix }}
+  register: ssl_cert_exists
+  changed_when: false
+  ignore_errors: true
+
+- name: create ssl certificate
+  command: gcloud --project {{ gcloud_project }} compute ssl-certificates create {{ ssl_lb_cert_with_prefix }} --private-key "{{ ssl_key }}" --certificate "{{ ssl_cert }}"
+  when: ssl_cert_exists | failed
+
+- name: delete self-signed certificate
+  file:
+    path: '{{ item }}'
+    state: absent
+  with_items:
+  - '{{ ssl_key }}'
+  - '{{ ssl_cert }}'
+  when: ssl_selfsigned

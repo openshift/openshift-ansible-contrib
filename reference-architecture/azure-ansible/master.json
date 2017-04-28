@@ -58,6 +58,18 @@
       "metadata" : {
         "description" : "SSH RSA private key file as a string."
       }
+    },
+    "masterLoadBalancerName" : {
+      "type" : "string",
+      "metadata" : {
+        "description" : "loadbalacername"
+      }
+    },
+    "availabilitySet" : {
+      "type" : "string",
+      "metadata" : {
+        "description" : "availabilityset"
+      }
     }
   },
   "variables" : {
@@ -75,7 +87,6 @@
         "displayName" : "NetworkInterface"
       },
       "dependsOn" : [
-        "[concat('Microsoft.Network/publicIPAddresses/', concat(parameters('vmName'), 'pip'))]",
         "[concat('Microsoft.Network/networkSecurityGroups/', concat(parameters('vmName'), 'nsg'))]"
       ],
       "properties" : {
@@ -84,12 +95,14 @@
             "name" : "ipconfig1",
             "properties" : {
               "privateIPAllocationMethod" : "Dynamic",
-              "publicIPAddress" : {
-                "id" : "[resourceId('Microsoft.Network/publicIPAddresses', concat(parameters('vmName'), 'pip'))]"
-              },
               "subnet" : {
                 "id" : "[parameters('subnetRef')]"
-              }
+              },
+              "loadBalancerBackendAddressPools" : [
+                {
+                  "id" : "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('masterLoadBalancerName'), '/backendAddressPools/loadBalancerBackEnd')]"
+                }
+              ]
             }
           }
         ],
@@ -167,6 +180,9 @@
               "id" : "[resourceId('Microsoft.Network/networkInterfaces', concat(parameters('vmName'), 'nic'))]"
             }
           ]
+        },
+        "availabilitySet" : {
+          "id" : "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySet'))]"
         }
       }
     },
@@ -182,19 +198,19 @@
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "properties" : {
-		"publisher": "Microsoft.Azure.Extensions",
-		"type": "CustomScript",
-		"typeHandlerVersion": "2.0",
-		"autoUpgradeMinorVersion": true,
+        "publisher" : "Microsoft.Azure.Extensions",
+        "type" : "CustomScript",
+        "typeHandlerVersion" : "2.0",
+        "autoUpgradeMinorVersion" : true,
         "settings" : {
           "fileUris" : [
             "[concat(parameters('baseTemplateUrl'), 'master.sh')]"
           ]
-		},
-		"protectedSettings": {
-			"commandToExecute" : "[ concat('sh master.sh ', parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote')  ) ]"
-			}
+        },
+        "protectedSettings" : {
+          "commandToExecute" : "[ concat('sh master.sh ', parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', parameters('vmName'), ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote')  ) ]"
         }
+      }
     },
     {
       "type" : "Microsoft.Network/networkSecurityGroups",
@@ -221,31 +237,7 @@
           }
         ]
       }
-    },
-    {
-      "apiVersion" : "[variables('apiVersion')]",
-      "type" : "Microsoft.Network/publicIPAddresses",
-      "name" : "[concat(parameters('vmName'), 'pip')]",
-      "location" : "[resourceGroup().location]",
-      "tags" : {
-        "displayName" : "PublicIPAddress"
-      },
-      "properties" : {
-        "publicIPAllocationMethod" : "Static",
-        "dnsSettings" : {
-          "domainNameLabel" : "[parameters('dnsName')]"
-        }
-      }
     }
   ],
-  "outputs" : {
-    "fqdn" : {
-      "type" : "string",
-      "value" : "[reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn]"
-    },
-    "pip" : {
-      "type" : "string",
-      "value" : "[reference(concat(parameters('vmName'), 'pip')).ipAddress]"
-    }
-  }
+  "outputs" : {}
 }

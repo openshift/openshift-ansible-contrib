@@ -81,49 +81,6 @@ parameters:
     constraints:
     - custom_constraint: nova.keypair
 
-  # Red Hat subscription parameters
-  rhn_username:
-    type: string
-    description: >
-      The username for registering the hosts with RHN. If empty, they will not
-      be registered.
-    default: ''
-
-  rhn_password:
-    type: string
-    description: >
-      The password for registering the hosts with RHN. If empty, they will not
-      be registered.
-    hidden: true
-    default: ''
-
-  # Red Hat satellite subscription parameters
-  sat6_hostname:
-    type: string
-    description: >
-      The hostname of the Satellite 6 server which will provide software updates
-    default: ''
-
-  sat6_organization:
-    type: string
-    description: >
-      An organization string provided by Sat6 to group subscriptions
-    default: ''
-
-  sat6_activationkey:
-    type: string
-    description: >
-      An activation key string provided by Sat6 to enable subscriptions
-    default: ''
-
-  rhn_pool:
-    type: string
-    description: >
-      The pool to attach. Will use `subscription-manager attach --auto` if left
-      blank.
-    hidden: true
-    default: ''
-
 resources:
 
   network:
@@ -147,9 +104,12 @@ resources:
       slave_count: {get_param: slave_count}
       ssh_user: {get_param: ssh_user}
       ssh_key_name: {get_param: ssh_key_name}
-      rhn_username: {get_param: rhn_username}
-      rhn_password: {get_param: rhn_password}
-      sat6_hostname: {get_param: sat6_hostname}
-      sat6_organization: {get_param: sat6_organization}
-      sat6_activationkey: {get_param: sat6_activationkey}
-      rhn_pool: {get_param: rhn_pool}
+
+outputs:
+  ip_address:
+    description: The floating IP address of the DNS servers
+    value:
+      master:
+        name: {get_param: master_hostname}
+        address: {get_attr: [hosts, master_ip_address]}
+      slaves: {get_attr: [hosts, slave_entries]}

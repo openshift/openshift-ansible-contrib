@@ -1,5 +1,5 @@
 ---
-- name: Create production VMs on vCenter
+- name: Create additional production VMs on vCenter
   vmware_guest:
     hostname: "{{ vcenter_host }}"
     username: "{{ vcenter_username }}"
@@ -26,12 +26,12 @@
   with_dict: "{{host_inventory}}"
   when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
 
-- name: Add production VMs to inventory
-  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group"
+- name: Add additional production VMs to inventory
+  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group, new_nodes"
   with_dict: "{{host_inventory}}"
   when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
 
-- name: Get facts of prod VM
+- name: Get facts of additional prod VM
   vsphere_guest:
     vcenter_hostname: "{{ vcenter_host }}"
     username: "{{ vcenter_username }}"

@@ -3,6 +3,11 @@
   openshift_facts:
     role: common
 
+- name: Set Origin fact
+  set_fact:
+    openshift_release: 1.4.1
+  when: deployment_type == "origin"
+
 - block:
   - name: Clear yum cache
     command: "yum clean all"

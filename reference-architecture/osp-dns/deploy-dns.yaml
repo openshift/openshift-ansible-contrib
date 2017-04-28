@@ -1,0 +1,114 @@
+---
+- name: Deploy the DNS servers
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: no
+  vars:
+    stack_name: dns-service
+    domain_name: example.com
+    flavor: m1.small
+    slave_count: 3
+    slave_server_group_policies: ['anti-affinity']
+    contact: admin@{{ domain_name }}
+  tasks:
+
+  - name: Check whether the stack exists already
+    command: "openstack stack show {{ stack_name }}"
+    ignore_errors: yes
+    register: stack_check
+
+  - name: Create the Heat Stack
+    os_stack:
+      name: "{{ stack_name }}"
+      template: heat/dns_service.yaml
+      parameters:
+        domain_name: "{{ domain_name }}"
+        external_network: "{{ external_network }}"
+        ssh_key_name: "{{ ssh_key_name }}"
+        dns_forwarders: "{{ dns_forwarders }}"
+        image: "{{ image }}"
+        flavor: "{{ flavor }}"
+
+        slave_count: "{{ slave_count }}"
+        slave_server_group_policies: "{{ slave_server_group_policies }}"
+    register: stack_output
+    when: stack_check.rc != 0
+
+  - name: Register stack output
+    command: >
+      openstack stack output show -f value -c output_value
+      {{ stack_name }} ip_address
+    register: stack_output_raw
+
+  - set_fact:
+      stack_output: "{{ stack_output_raw.stdout|from_json }}"
+
+  - name: Add the master to the inventory
+    add_host:
+      name: "{{ stack_output.master.address }}"
+      groups: masters,bind
+      zone: "{{ domain_name }}"
+      domain_name: "{{ domain_name }}"
+      masters: [" {{ stack_output.master.name }} "]
+      forwarders: "{{ dns_forwarders }}"
+      contact: "{{ contact }}"
+      nameservers: "{{ [stack_output.master] + stack_output.slaves }}"
+      ansible_user: "{{ ssh_user }}"
+
+  - name: Add the slaves to the inventory
+    add_host:
+      name: "{{ item.address }}"
+      groups: slaves,bind
+      zone: "{{ domain_name }}"
+      domain_name: "{{ domain_name }}"
+      masters: ["{{ stack_output.master.name }}"]
+      forwarders: "{{ dns_forwarders }}"
+      contact: "{{ contact }}"
+      nameservers: "{{ [stack_output.master] + stack_output.slaves }}"
+      ansible_user: "{{ ssh_user }}"
+    with_items: "{{ stack_output.slaves }}"
+
+  - name: Wait for the deployed servers
+    wait_for:
+      host: "{{ item }}"
+      port: 22
+    with_items: "{{ groups['all'] }}"
+
+  - name: Verify the servers can be SSHd into
+    command: >
+      {{ansible_ssh_executable}} {{ansible_ssh_common_args}}
+      -oBatchMode=yes
+      -o 'StrictHostKeyChecking no' -o 'UserKnownHostsFile /dev/null'
+      -p {{ansible_port|default(22)}} {{ssh_user}}@{{ item }} /bin/true
+    register: result
+    retries: 10
+    delay: 1
+    until: result.rc == 0
+    with_items: "{{ groups['all'] }}"
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: Subscribe to RHN and auto-attach
+    redhat_subscription:
+      username: "{{ rhn_username }}"
+      password: "{{ rhn_password }}"
+      autosubscribe: true
+      server_hostname: "{{ sat6_hostname|default(None) }}"
+      org_id: "{{ sat6_organization|default(None) }}"
+      activationkey: "{{ sat6_activationkey|default(None) }}"
+    when: rhn_username|default and rhn_password|default and rhn_pool|default == ""
+
+  - name: Subscribe to RHN and attach a pool
+    redhat_subscription:
+      username: "{{ rhn_username }}"
+      password: "{{ rhn_password }}"
+      pool_ids: ["{{ rhn_pool }}"]
+      server_hostname: "{{ sat6_hostname|default(None) }}"
+      org_id: "{{ sat6_organization|default(None) }}"
+      activationkey: "{{ sat6_activationkey|default(None) }}"
+    when: rhn_username|default and rhn_password|default and rhn_pool|default
+
+- include: ansible/bind-server.yml

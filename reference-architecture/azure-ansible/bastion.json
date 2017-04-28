@@ -61,6 +61,27 @@
     },
     "wildcardZone" : {
       "type" : "string"
+    },
+    "registrystoragename" : {
+      "type" : "string"
+    },
+    "registrykey" : {
+      "type" : "string"
+    },
+    "location" : {
+      "type" : "string"
+    },
+    "subscriptionid" : {
+      "type" : "string"
+    },
+    "tenantid" : {
+      "type" : "string"
+    },
+    "aadclientid" : {
+      "type" : "string"
+    },
+    "aadclientsecret" : {
+      "type" : "string"
     }
   },
   "variables" : {
@@ -175,17 +196,17 @@
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "properties" : {
-		"publisher": "Microsoft.Azure.Extensions",
-		"type": "CustomScript",
-		"typeHandlerVersion": "2.0",
-		"autoUpgradeMinorVersion": true,
+        "publisher" : "Microsoft.Azure.Extensions",
+        "type" : "CustomScript",
+        "typeHandlerVersion" : "2.0",
+        "autoUpgradeMinorVersion" : true,
         "settings" : {
           "fileUris" : [
             "[concat(parameters('baseTemplateUrl'), 'bastion.sh')]"
           ]
-		},
-		"protectedSettings": {
-          "commandToExecute" : "[ concat('sh bastion.sh ', resourceGroup().name, ' ', parameters('wildcardZone'), ' ',  parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote')  ) ]"
+        },
+        "protectedSettings" : {
+          "commandToExecute" : "[ concat('bash bastion.sh ', resourceGroup().name, ' ', parameters('wildcardZone'), ' ',  parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(concat(parameters('vmName'), 'pip')).dnsSettings.fqdn, ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote'),' ',parameters('registrystoragename'),' ',parameters('registrykey'),' ',parameters('location'),' ',parameters('subscriptionid'),' ',parameters('tenantid'),' ',parameters('aadclientid'),' ',parameters('aadclientsecret'))]"
         }
       }
     },

@@ -1,0 +1,35 @@
+---
+domain_name: ocp3.example.com
+dns_forwarders: [8.8.8.8, 8.8.4.4]
+external_network: public
+image: centos72
+
+# NOTE: This is specific to the image. It's the user name you
+# SSH to the VMs as
+ssh_user: centos
+
+# NOTE: Key name from `openstack keypair list`
+ssh_key_name: default
+
+# NOTE: YOU MUST CHANGE THIS!
+# Can be generated with:
+#     ddns-confgen -r /dev/urandom
+# or:
+#     rndc-confgen -a -c update.key -k update-key -r /dev/urandom
+update_key: "VXQsVJgDtEj1CFPjnt/OK3ilgJyAzT6OeY9CDoqa0/Q="
+
+
+# stack_name: dns-service
+# slave_count: 3
+# slave_server_group_policies: ['anti-affinity']
+# flavor: m1.small
+# contact: admin@ocp3.example.com
+
+# NOTE: For Red Hat Enterprise Linux:
+# rhn_username: ""
+# rhn_password: ""
+# rhn_pool: ""
+
+# sat6_hostname: ""
+# sat6_organization: ""
+# sat6_activationkey: ""

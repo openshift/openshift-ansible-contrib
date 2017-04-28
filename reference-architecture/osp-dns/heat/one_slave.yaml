@@ -76,55 +76,6 @@ parameters:
     constraints:
     - custom_constraint: nova.keypair
 
-  # Software Subscription information
-  rhn_username:
-    description: >
-      A valid user with entitlements to RHEL and OpenShift software repos
-    type: string
-
-  rhn_password:
-    description: >
-      The password for the RHN user
-    type: string
-    hidden: true
-
-  # Red Hat satellite subscription parameters
-  sat6_hostname:
-    type: string
-    description: >
-      The hostname of the Satellite 6 server which will provide software updates
-    default: ''
-
-  sat6_organization:
-    type: string
-    description: >
-      An organization string provided by Sat6 to group subscriptions
-    default: ''
-
-  sat6_activationkey:
-    type: string
-    description: >
-      An activation key string provided by Sat6 to enable subscriptions
-    default: ''
-
-  rhn_pool:
-    description: >
-      A subscription pool containing the RHEL and OpenShift software repos
-      OPTIONAL
-    type: string
-    hidden: true
-
-  extra_rhn_pools:
-    type: comma_delimited_list
-    description: List of rhn pools which will be installed on each node.
-    default: ''
-
-  # Delay openshift installation until the master is ready to accept
-  timeout:
-    description: Time to wait until the master setup is ready.
-    type: number
-    default: 4000
-
 resources:
   host:
     type: OS::Nova::Server
@@ -166,24 +117,7 @@ resources:
     type: OS::Heat::MultipartMime
     properties:
       parts:
-      - config: {get_resource: included_files}
       - config: {get_resource: set_hostname}
-      - config: {get_resource: rhn_register}
-      - config: {get_resource: install_python}
-      - config: {get_resource: install_complete}
-
-  included_files:
-    type: OS::Heat::CloudConfig
-    properties:
-      cloud_config:
-        write_files:
-        - path: /usr/local/lib/notify.sh
-          permissions: 0755
-          content:
-            str_replace:
-              params:
-                $WC_NOTIFY: { get_attr: ['wait_handle', 'curl_cli'] }
-              template: {get_file: fragments/notify.sh}
 
   set_hostname:
     type: OS::Heat::CloudConfig
@@ -197,40 +131,8 @@ resources:
               HOSTNAME: {get_param: hostname}
               DOMAIN: {get_param: domain_name}
 
-  # Register the host with RHN for access to software packages
-  rhn_register:
-    type: OS::Heat::SoftwareConfig
-    properties:
-      config:
-        str_replace:
-          params:
-            '{{rhn_username}}': {get_param: rhn_username}
-            '{{rhn_password}}': {get_param: rhn_password}
-            '{{rhn_pool_id}}': {get_param: rhn_pool}
-            '{{sat6_hostname}}': {get_param: sat6_hostname}
-            '{{sat6_organization}}': {get_param: sat6_organization}
-            '{{sat6_activationkey}}': {get_param: sat6_activationkey}
-          template: {get_file: fragments/rhn-register.sh}
-
-  install_python:
-    type: OS::Heat::SoftwareConfig
-    properties:
-      config: {get_file: fragments/install_python.sh}
-
-  install_complete:
-    type: OS::Heat::SoftwareConfig
-    properties:
-      config: {get_file: fragments/install_complete.sh}
-
-  # Wait until the cloud-init process ends and reports or times out
-  wait_condition:
-    type: OS::Heat::WaitCondition
-    properties:
-      handle: {get_resource: wait_handle}
-      timeout: {get_param: timeout}
-
-  # This is passed to bastion_init cloud-init script as a curl CLI command
-  # When the cloud-init process ends it queries the URL with
-  # a message which ends the wait and returns the value
-  wait_handle:
-    type: OS::Heat::WaitConditionHandle
+outputs:
+  entry:
+    value:
+      name: {get_param: hostname}
+      address: {get_attr: [floating_ip, floating_ip_address]}

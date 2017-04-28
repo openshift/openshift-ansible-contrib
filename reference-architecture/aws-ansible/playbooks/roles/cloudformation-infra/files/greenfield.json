@@ -38,9 +38,6 @@
     "AppWildcardDomain": {
       "Type": "String"
     },
-    "SubnetAvailabilityZones": {
-      "Type": "List<AWS::EC2::AvailabilityZone::Name>"
-    },
     "SubnetCidrBlocks": {
       "Type": "CommaDelimitedList"
     },
@@ -220,7 +217,7 @@
       "Type": "AWS::EC2::Subnet",
       "DependsOn": ["Vpc"],
       "Properties": {
-        "AvailabilityZone": {"Fn::Select": ["0", {"Ref": "SubnetAvailabilityZones"}]},
+        "AvailabilityZone": {"Fn::Select": ["0", { "Fn::GetAZs" : "" }]},
         "CidrBlock": {"Fn::Select": ["0", {"Ref": "SubnetCidrBlocks"}]},
         "Tags": [ {"Key": "Name", "Value": "Public_Subnet_1"} ],
         "MapPublicIpOnLaunch": "true",
@@ -238,7 +235,7 @@
       "Type": "AWS::EC2::Subnet",
       "DependsOn": ["Vpc"],
       "Properties": {
-        "AvailabilityZone": {"Fn::Select": ["1", {"Ref": "SubnetAvailabilityZones"}]},
+        "AvailabilityZone": {"Fn::Select": ["1", { "Fn::GetAZs" : "" }]},
         "CidrBlock": {"Fn::Select": ["1", {"Ref": "SubnetCidrBlocks"}]},
         "Tags": [ {"Key": "Name", "Value": "Public_Subnet_2"} ],
         "MapPublicIpOnLaunch": "true",
@@ -256,7 +253,7 @@
       "Type": "AWS::EC2::Subnet",
       "DependsOn": ["Vpc"],
       "Properties": {
-        "AvailabilityZone": {"Fn::Select": ["2", {"Ref": "SubnetAvailabilityZones"}]},
+        "AvailabilityZone": {"Fn::Select": ["2", { "Fn::GetAZs" : "" }]},
         "CidrBlock": {"Fn::Select": ["2", {"Ref": "SubnetCidrBlocks"}]},
         "Tags": [ {"Key": "Name", "Value": "Public_Subnet_3"} ],
         "MapPublicIpOnLaunch": "true",
@@ -274,7 +271,7 @@
       "DependsOn": ["Nat"],
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "AvailabilityZone": {"Fn::Select": ["0", {"Ref": "SubnetAvailabilityZones"}]},
+        "AvailabilityZone": {"Fn::Select": ["0", { "Fn::GetAZs" : "" }]},
         "CidrBlock": {"Fn::Select": ["3", {"Ref": "SubnetCidrBlocks"}]},
         "Tags": [ {"Key": "Name", "Value": "Private_Subnet_1"} ],
         "VpcId": { "Ref": "Vpc" }
@@ -291,7 +288,7 @@
       "DependsOn": ["Nat"],
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "AvailabilityZone": {"Fn::Select": ["1", {"Ref": "SubnetAvailabilityZones"}]},
+        "AvailabilityZone": {"Fn::Select": ["1", { "Fn::GetAZs" : "" }]},
         "CidrBlock": {"Fn::Select": ["4", {"Ref": "SubnetCidrBlocks"}]},
         "Tags": [ {"Key": "Name", "Value": "Private_Subnet_2"} ],
         "VpcId": { "Ref": "Vpc" }
@@ -309,7 +306,7 @@
       "DependsOn": ["Nat"],
       "Type": "AWS::EC2::Subnet",
       "Properties": {
-        "AvailabilityZone": {"Fn::Select": ["2", {"Ref": "SubnetAvailabilityZones"}]},
+        "AvailabilityZone": {"Fn::Select": ["2", { "Fn::GetAZs" : "" }]},
         "CidrBlock": {"Fn::Select": ["5", {"Ref": "SubnetCidrBlocks"}]},
         "Tags": [ {"Key": "Name", "Value": "Private_Subnet_3"} ],
         "VpcId": { "Ref": "Vpc" }

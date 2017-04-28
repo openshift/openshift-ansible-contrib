@@ -10,7 +10,7 @@ resources:
       mode: READ_WRITE
       type: PERSISTENT
       initializeParams:
-        sourceImage: global/images/{{ properties['gold_image'] }}
+        sourceImage: global/images/family/{{ properties['gold_image'] }}
         diskSizeGb: {{ properties['bastion_disk_size'] }}
         diskType: zones/{{ properties['zone'] }}/diskTypes/pd-ssd
     machineType: zones/{{ properties['zone'] }}/machineTypes/{{ properties['bastion_machine_type'] }}
@@ -51,7 +51,7 @@ resources:
         initializeParams:
           diskSizeGb: {{ properties['master_boot_disk_size'] }}
           diskType: pd-ssd
-          sourceImage: global/images/{{ properties['gold_image'] }}
+          sourceImage: global/images/family/{{ properties['gold_image'] }}
         mode: READ_WRITE
         type: PERSISTENT
       machineType: {{ properties['master_machine_type'] }}
@@ -90,7 +90,7 @@ resources:
         initializeParams:
           diskSizeGb: {{ properties['node_boot_disk_size'] }}
           diskType: pd-ssd
-          sourceImage: global/images/{{ properties['gold_image'] }}
+          sourceImage: global/images/family/{{ properties['gold_image'] }}
         mode: READ_WRITE
         type: PERSISTENT
       machineType: {{ properties['node_machine_type'] }}
@@ -129,7 +129,7 @@ resources:
         initializeParams:
           diskSizeGb: {{ properties['node_boot_disk_size'] }}
           diskType: pd-ssd
-          sourceImage: global/images/{{ properties['gold_image'] }}
+          sourceImage: global/images/family/{{ properties['gold_image'] }}
         mode: READ_WRITE
         type: PERSISTENT
       machineType: {{ properties['node_machine_type'] }}

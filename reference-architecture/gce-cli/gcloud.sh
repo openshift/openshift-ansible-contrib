@@ -195,56 +195,27 @@ export GCLOUD_PROJECT \
     GCLOUD_ZONE \
     OCP_PREFIX \
     DNS_DOMAIN \
+    MASTER_DNS_NAME \
     RHEL_IMAGE_PATH \
-    CONSOLE_PORT
+    CONSOLE_PORT \
+    MASTER_HTTPS_KEY_FILE \
+    MASTER_HTTPS_CERT_FILE \
+    MASTER_INSTANCE_GROUP_SIZE \
+    INFRA_NODE_INSTANCE_GROUP_SIZE \
+    NODE_INSTANCE_GROUP_SIZE \
+    BASTION_MACHINE_TYPE \
+    MASTER_MACHINE_TYPE \
+    NODE_MACHINE_TYPE \
+    BASTION_DISK_SIZE \
+    MASTER_BOOT_DISK_SIZE \
+    NODE_BOOT_DISK_SIZE
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
 # Run Ansible
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/prereq.yaml
-ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} playbooks/gold-image.yaml
+ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} playbooks/main.yaml
 popd
-
-# Master Certificate
-if ! gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" &>/dev/null; then
-    if [ -z "${MASTER_HTTPS_KEY_FILE:-}" ] || [ -z "${MASTER_HTTPS_CERT_FILE:-}" ]; then
-        KEY='/tmp/ocp-ssl.key'
-        CERT='/tmp/ocp-ssl.crt'
-        openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj "/C=US/L=Raleigh/O=${DNS_DOMAIN}/CN=${MASTER_DNS_NAME}" -keyout "$KEY" -out "$CERT"
-    else
-        KEY="$MASTER_HTTPS_KEY_FILE"
-        CERT="$MASTER_HTTPS_CERT_FILE"
-    fi
-    gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates create "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" --private-key "$KEY" --certificate "$CERT"
-    if [ -z "${MASTER_HTTPS_KEY_FILE:-}" ] || [ -z "${MASTER_HTTPS_CERT_FILE:-}" ]; then
-        rm -fv "$KEY" "$CERT"
-    fi
-else
-    echo "Certificate '${OCP_PREFIX}-${MASTER_SSL_LB_CERT}' already exists"
-fi
-
-# Deploy core infrastructure
-export OCP_PREFIX \
-    GCLOUD_PROJECT \
-    GCLOUD_REGION \
-    GCLOUD_ZONE \
-    GOLD_IMAGE \
-    CONSOLE_PORT \
-    BASTION_MACHINE_TYPE \
-    BASTION_DISK_SIZE \
-    MASTER_MACHINE_TYPE \
-    MASTER_BOOT_DISK_SIZE \
-    NODE_MACHINE_TYPE \
-    NODE_BOOT_DISK_SIZE \
-    MASTER_INSTANCE_GROUP_SIZE \
-    INFRA_NODE_INSTANCE_GROUP_SIZE \
-    NODE_INSTANCE_GROUP_SIZE
-envsubst < "${DIR}/deployment-manager/deployment-core-config.yml.tpl" > "${DIR}/deployment-manager/deployment-core-config.yml"
-if ! gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${CORE_DEPLOYMENT}" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments create "${OCP_PREFIX}-${CORE_DEPLOYMENT}" --config "${DIR}/deployment-manager/deployment-core-config.yml"
-else
-    echo "Deployment '${OCP_PREFIX}-${CORE_DEPLOYMENT}' already exists"
-fi
 
 # Allow bastion to connect via SSH to other instances via external IP
 bastion_ext_ip=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name=${OCP_PREFIX}-bastion" --format='value(EXTERNAL_IP)')

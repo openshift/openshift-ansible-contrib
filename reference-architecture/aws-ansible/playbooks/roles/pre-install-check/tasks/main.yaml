@@ -3,3 +3,7 @@
   assert:
     that: "ansible_version.full | version_compare('2.2', '>=')"
     msg: "You need Ansible version 2.2.0+"
+- name: Ensure Ansible version is not 2.3
+  assert:
+    that: "ansible_version.full | version_compare('2.3', '<')"
+    msg: "Downgrade to Ansible version 2.2.0+"

@@ -16,7 +16,6 @@
       AppWildcardDomain: "*.{{ wildcard_zone }}"
       VpcCidrBlock: "{{ cidr_block }}"
       VpcName: "{{ vpc_prefix }}"
-      SubnetAvailabilityZones: "{{ vpc_subnet_azs }}"
       SubnetCidrBlocks: "{{ subnet_blocks }}"
       KeyName: "{{ keypair }}"
       MasterInstanceType: "{{ master_instance_type }}"
