@@ -18,9 +18,9 @@ multi_ec2.yaml
 multi_inventory.yaml
 .vagrant
 .tags*
-ocp-on-vmware.ini
-ocp-installer
-vmware_inventory.ini
+*.ini
+*ocp-installer
+add-node.json
 infrastructure.json
 ansible.log
 .tox
