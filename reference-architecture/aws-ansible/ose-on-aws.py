@@ -22,11 +22,11 @@ import sys
               show_default=True)
 @click.option('--ami', default='ami-a33668b4', help='ec2 ami',
               show_default=True)
-@click.option('--master-instance-type', default='m4.large', help='ec2 instance type',
+@click.option('--master-instance-type', default='m4.xlarge', help='ec2 instance type',
               show_default=True)
-@click.option('--node-instance-type', default='t2.medium', help='ec2 instance type',
+@click.option('--node-instance-type', default='t2.large', help='ec2 instance type',
               show_default=True)
-@click.option('--app-instance-type', default='t2.medium', help='ec2 instance type',
+@click.option('--app-instance-type', default='t2.large', help='ec2 instance type',
               show_default=True)
 @click.option('--bastion-instance-type', default='t2.micro', help='ec2 instance type',
               show_default=True)

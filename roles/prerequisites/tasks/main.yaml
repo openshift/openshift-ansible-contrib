@@ -15,6 +15,7 @@
     with_items:
     - iptables
     - iptables-services
+    - NetworkManager
 
   - name: Start NetworkManager and network
     service:
