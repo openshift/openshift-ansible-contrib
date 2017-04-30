@@ -4,12 +4,13 @@
   become: yes
   serial: 1
   roles:
-  - rhel_subscribe
+  - rhsm-subscription
 
 - hosts: cluster_hosts
   gather_facts: no
   become: yes
   roles:
+  - rhsm-repos
   - prerequisites
 
 - hosts: master

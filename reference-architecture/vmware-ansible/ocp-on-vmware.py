@@ -32,10 +32,11 @@ def launch_refarch_env(console_port=8443,
                     vm_gw=None,
                     vm_netmask=None,
                     vm_network=None,
-                    rhel_subscription_user=None,
-                    rhel_subscription_pass=None,
-                    rhel_subscription_server=None,
-                    rhel_subscription_pool=None,
+                    rhsm_user=None,
+                    rhsm_password=None,
+                    rhsm_activation_key=None,
+                    rhsm_org_id=None,
+                    rhsm_pool=None,
                     byo_lb=None,
                     lb_host=None,
                     byo_nfs=None,
@@ -81,10 +82,11 @@ def launch_refarch_env(console_port=8443,
     'vm_gw':'',
     'vm_netmask':'',
     'vm_network':'VM Network',
-    'rhel_subscription_user':'',
-    'rhel_subscription_pass':'',
-    'rhel_subscription_server':'',
-    'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
+    'rhsm_user':'',
+    'rhsm_password':'',
+    'rhsm_activation_key':'',
+    'rhsm_org_id':'',
+    'rhsm_pool':'OpenShift Enterprise, Premium',
     'openshift_sdn':'openshift-ovs-subnet',
     'byo_lb':'no',
     'lb_host':'haproxy-',
@@ -133,10 +135,11 @@ def launch_refarch_env(console_port=8443,
   vm_gw = config.get('vmware', 'vm_gw')
   vm_netmask = config.get('vmware', 'vm_netmask')
   vm_network = config.get('vmware', 'vm_network')
-  rhel_subscription_user = config.get('vmware', 'rhel_subscription_user')
-  rhel_subscription_pass = config.get('vmware', 'rhel_subscription_pass')
-  rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
-  rhel_subscription_pool = config.get('vmware', 'rhel_subscription_pool')
+  rhsm_user = config.get('vmware', 'rhsm_user')
+  rhsm_password = config.get('vmware', 'rhsm_password')
+  rhsm_activation_key = config.get('vmware', 'rhsm_activation_key')
+  rhsm_org_id = config.get('vmware', 'rhsm_org_id')
+  rhsm_pool = config.get('vmware', 'rhsm_pool')
   openshift_sdn = config.get('vmware', 'openshift_sdn')
   byo_lb = config.get('vmware', 'byo_lb')
   lb_host = config.get('vmware', 'lb_host')
@@ -255,7 +258,7 @@ def launch_refarch_env(console_port=8443,
                 print line,
 
         # Provide values for update and add node playbooks       
-        update_file = "playbooks/minor-update.yaml"
+        update_file = ["playbooks/minor-update.yaml"]
         for line in fileinput.input(update_file, inplace=True):
             if line.startswith("    wildcard_zone:"):
                 print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
@@ -266,7 +269,7 @@ def launch_refarch_env(console_port=8443,
             else:
                 print line,
             #End create_ocp_vars
-        exit(0)
+            exit(0)
 
     if auth_type == 'none':
         playbooks = ["playbooks/openshift-install.yaml", "playbooks/minor-update.yaml"]
@@ -414,9 +417,41 @@ def launch_refarch_env(console_port=8443,
 
   # Display information to the user about their choices
   click.echo('Configured values:')
-  for each_section in config.sections():
-            for (key, val) in config.items(each_section):
-                print '\t %s:  %s' % ( key,  val )
+  click.echo('\tconsole port: %s' % console_port)
+  click.echo('\tdeployment_type: %s' % deployment_type)
+  click.echo('\topenshift_version: %s' % openshift_vers)
+  click.echo('\tvcenter_host: %s' % vcenter_host)
+  click.echo('\tvcenter_username: %s' % vcenter_username)
+  click.echo('\tvcenter_password: *******')
+  click.echo('\tvcenter_template_name: %s' % vcenter_template_name)
+  click.echo('\tvcenter_folder: %s' % vcenter_folder)
+  click.echo('\tvcenter_cluster: %s' % vcenter_cluster)
+  click.echo('\tvcenter_datacenter: %s' % vcenter_datacenter)
+  click.echo('\tvcenter_resource_pool: %s' % vcenter_resource_pool)
+  click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
+  click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
+  click.echo('\tvm_dns: %s' % vm_dns)
+  click.echo('\tvm_gw: %s' % vm_gw)
+  click.echo('\tvm_netmask: %s' % vm_netmask)
+  click.echo('\tvm_network: %s' % vm_network)
+
+  if rhsm_user != '' and tag:
+      click.echo('\trhsm_user: %s' % rhsm_user)
+      click.echo('\trhsm_password: *******')
+
+
+  if rhsm_activation_key != '' and tag:
+      click.echo('\trhsm_activation_key: %s' % rhsm_activation_key)
+      click.echo('\trhsm_org_id: rhsm_org_id')
+
+  click.echo('\topenshift_sdn: %s' % openshift_sdn)
+  click.echo('\tbyo_lb: %s' % byo_lb)
+  click.echo('\tlb_host: %s' % lb_host)
+  click.echo('\tbyo_nfs: %s' % byo_nfs)
+  click.echo('\tnfs_registry_host: %s' % nfs_registry_host)
+  click.echo('\tnfs_registry_mountpoint: %s' % nfs_registry_mountpoint)
+  click.echo('\tapps_dns: %s' % wildcard_zone)
+  click.echo('\tUsing values from: %s' % vmware_ini_path)
   click.echo("")
 
   if not no_confirm:
@@ -485,10 +520,11 @@ def launch_refarch_env(console_port=8443,
     console_port=%s \
     deployment_type=%s \
     openshift_vers=%s \
-    rhel_subscription_user=%s \
-    rhel_subscription_pass=%s \
-    rhel_subscription_server=%s \
-    rhel_subscription_pool="%s" \
+    rhsm_user=%s \
+    rhsm_password=%s \
+    rhsm_activation_key=%s \
+    rhsm_org_id=%s \
+    rhsm_pool="%s" \
     openshift_sdn=%s \
     lb_host=%s \
     nfs_registry_host=%s \
@@ -511,10 +547,11 @@ def launch_refarch_env(console_port=8443,
                     console_port,
                     deployment_type,
                     openshift_vers,
-                    rhel_subscription_user,
-                    rhel_subscription_pass,
-                    rhel_subscription_server,
-                    rhel_subscription_pool,
+                    rhsm_user,
+                    rhsm_password,
+                    rhsm_activation_key,
+                    rhsm_org_id,
+                    rhsm_pool,
                     openshift_sdn,
                     lb_host,
                     nfs_registry_host,

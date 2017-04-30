@@ -4,10 +4,11 @@
   become: yes
   serial: 1
   roles:
-    - rhel_subscribe
+    - rhsm-subscription
 
 - hosts: new_nodes
   gather_facts: no
   become: yes
   roles:
+    - rhsm-repos
     - prerequisites
