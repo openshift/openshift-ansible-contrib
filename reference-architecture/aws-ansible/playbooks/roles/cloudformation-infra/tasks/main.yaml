@@ -22,18 +22,18 @@
       AmiId: "{{ ami }}"
       BastionInstanceType: "{{ bastion_instance_type }}"
       BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}"
-      MasterRootVolSize: 10
+      MasterRootVolSize: "10"
       BastionRootVolType: gp2
       MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterEmptyVolSize: 5
+      MasterEmptyVolSize: "5"
       MasterEmptyVolType: gp2
       MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}"
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: 15
+      InfraRootVolSize: "15"
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
@@ -41,7 +41,7 @@
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ app_instance_type }}"
-      NodeRootVolSize: 15
+      NodeRootVolSize: "15"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -77,18 +77,18 @@
       AmiId: "{{ ami }}"
       BastionInstanceType: "{{ bastion_instance_type }}"
       BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}"
-      MasterRootVolSize: 10
+      MasterRootVolSize: "10"
       BastionRootVolType: gp2
       MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterEmptyVolSize: 5
+      MasterEmptyVolSize: "5"
       MasterEmptyVolType: gp2
       MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}"
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: 15
+      InfraRootVolSize: "15"
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
@@ -96,7 +96,7 @@
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ app_instance_type }}"
-      NodeRootVolSize: 15
+      NodeRootVolSize: "15"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -131,17 +131,17 @@
       KeyName: "{{ keypair }}"
       MasterInstanceType: "{{ master_instance_type }}"
       AmiId: "{{ ami }}"
-      MasterRootVolSize: 10
+      MasterRootVolSize: "10"
       MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterEmptyVolSize: 5
+      MasterEmptyVolSize: "5"
       MasterEmptyVolType: gp2
       MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}"
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: 15
+      InfraRootVolSize: "15"
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
@@ -149,7 +149,7 @@
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ app_instance_type }}"
-      NodeRootVolSize: 15
+      NodeRootVolSize: "15"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -176,7 +176,7 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      NodeRootVolSize: 15
+      NodeRootVolSize: "15"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -204,7 +204,7 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      NodeRootVolSize: 15
+      NodeRootVolSize: "15"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -236,7 +236,7 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      NodeRootVolSize: 15
+      NodeRootVolSize: "15"
       NodeRootVolType: gp2
       GlusterVolSize: "{{ gluster_volume_size }}"
       GlusterVolType: "{{ gluster_volume_type }}"
@@ -270,7 +270,7 @@
       AmiId: "{{ ami }}"
       InstanceType: "{{ node_instance_type }}"
       NodeUserData: "{{ lookup('file', 'user_data_gluster.yml') | b64encode }}"
-      NodeRootVolSize: 15
+      NodeRootVolSize: "15"
       NodeRootVolType: gp2
       GlusterVolSize: "{{ gluster_volume_size }}"
       GlusterVolType: "{{ gluster_volume_type }}"
