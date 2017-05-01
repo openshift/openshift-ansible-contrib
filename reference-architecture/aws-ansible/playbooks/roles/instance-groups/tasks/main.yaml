@@ -46,7 +46,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_app'] }}"
   when:
-    - hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name 
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name
 
 - name: Add storage instances to host group
   add_host:
