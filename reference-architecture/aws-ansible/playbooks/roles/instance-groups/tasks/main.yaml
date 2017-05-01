@@ -15,7 +15,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_master'] }}"
   when:
-    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name
 
 - name: Add a master to the single master group
   add_host:
@@ -35,7 +35,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_infra'] }}"
   when:
-    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name
 
 - name: Add app instances to host group
   add_host:
@@ -46,7 +46,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_app'] }}"
   when:
-    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}"
+    - hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name 
 
 - name: Add storage instances to host group
   add_host:
@@ -57,7 +57,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_storage'] }}"
   when:
-    - hostvars[item]['ec2_tag_KubernetesCluster'] == "{{ stack_name }}" and "{{ groups['tag_openshift_role_storage'] }}" is defined
+    - groups.tag_openshift_role_storage is defined and hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name
 
 - name: Add new node instances to host group
   add_host:
@@ -68,7 +68,7 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups.tag_provision_node | default([]) }}"
   when:
-    - add_node is defined and add_node == "yes" and hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}-{{ shortname }}"
+    - add_node is defined and add_node == "yes" and hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == stack_name-shortname
 
 - name: Add new gluster node instances to host group
   add_host:
@@ -79,4 +79,4 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups.tag_provision_node | default([]) }}"
   when:
-    - add_node is defined and add_node == "yes" and hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}-{{ gluster_stack }}" and "{{ groups['tag_openshift_role_storage'] }}" is defined
+    - add_node is defined and add_node == "yes" and hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == stack_name-gluster_stack and groups.tag_openshift_role_storage is defined
