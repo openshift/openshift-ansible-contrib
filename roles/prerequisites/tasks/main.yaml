@@ -5,7 +5,7 @@
 
 - name: Set Origin fact
   set_fact:
-    openshift_release: 1.4.1
+    openshift_release: 1.5.0
   when: deployment_type == "origin"
 
 - block:
