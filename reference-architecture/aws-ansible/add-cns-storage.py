@@ -36,6 +36,8 @@ import sys
               show_default=True)
 @click.option('--gluster-volume-type', default='st1', help='Gluster volume type',
               show_default=True)
+@click.option('--iops', help='Specfify the IOPS for a volume (used only with IO1)',
+              show_default=True)
 
 ### DNS options
 @click.option('--public-hosted-zone', help='hosted zone for accessing the environment')
@@ -78,6 +80,7 @@ def launch_refarch_env(region=None,
                     private_subnet_id3=None,
                     gluster_volume_type=None,
                     gluster_volume_size=None,
+                    iops=None,
                     node_sg=None,
                     iam_role=None,
                     existing_stack=None,
@@ -132,6 +135,12 @@ def launch_refarch_env(region=None,
   elif private_subnet_id3 is None:
     private_subnet_id3 = click.prompt("Specify the third private subnet for the nodes?")
 
+  if gluster_volume_type in ['io1']:
+    iops = click.prompt('Specify a numeric value for iops')
+
+  if iops is None:
+    iops = "NA"
+
   # Hidden facts for infrastructure.yaml
   create_key = "no"
   create_vpc = "no"
@@ -147,6 +156,7 @@ def launch_refarch_env(region=None,
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
+      click.echo('\tiops: %s' % iops)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tdeployment_type: %s' % deployment_type)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
@@ -169,6 +179,8 @@ def launch_refarch_env(region=None,
       click.echo('\tprivate_subnet_id3: %s' % private_subnet_id3)
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
+      click.echo('\tiops: %s' % iops)
+      click.echo('\tkeypair: %s' % keypair)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tnode_sg: %s' % node_sg)
       click.echo('\tdeployment_type: %s' % deployment_type)
@@ -210,36 +222,38 @@ def launch_refarch_env(region=None,
         keypair=%s \
         gluster_stack=%s \
         add_node=yes \
-    	node_instance_type=%s \
-    	public_hosted_zone=%s \
-    	deployment_type=%s \
+    	  node_instance_type=%s \
+    	  public_hosted_zone=%s \
+    	  deployment_type=%s \
         console_port=%s \
-    	rhsm_user=%s \
-    	rhsm_password=%s \
-    	rhsm_pool="%s" \
-    	containerized=%s \
-    	node_type=gluster \
-    	key_path=/dev/null \
-    	create_key=%s \
-    	create_vpc=%s \
+    	  rhsm_user=%s \
+    	  rhsm_password=%s \
+    	  rhsm_pool="%s" \
+    	  containerized=%s \
+    	  node_type=gluster \
+    	  key_path=/dev/null \
+    	  create_key=%s \
+    	  create_vpc=%s \
         gluster_volume_type=%s \
         gluster_volume_size=%s \
-    	stack_name=%s \' %s' % (region,
+        iops=%s \
+    	  stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
-                        gluster_stack,
+                      gluster_stack,
                     	node_instance_type,
                     	public_hosted_zone,
                     	deployment_type,
-                        console_port,
+                      console_port,
                     	rhsm_user,
                     	rhsm_password,
                     	rhsm_pool,
                     	containerized,
                     	create_key,
                     	create_vpc,
-                        gluster_volume_type,
-                        gluster_volume_size,
+                      gluster_volume_type,
+                      gluster_volume_size,
+                      iops,
                     	existing_stack,
                     	playbook)
     else:
@@ -248,29 +262,30 @@ def launch_refarch_env(region=None,
         keypair=%s \
         gluster_stack=%s \
         add_node=yes \
-   	node_sg=%s \
-    	node_instance_type=%s \
-    	private_subnet_id1=%s \
-    	private_subnet_id2=%s \
-    	private_subnet_id3=%s \
-    	public_hosted_zone=%s \
-    	deployment_type=%s \
+   	    node_sg=%s \
+    	  node_instance_type=%s \
+    	  private_subnet_id1=%s \
+    	  private_subnet_id2=%s \
+    	  private_subnet_id3=%s \
+    	  public_hosted_zone=%s \
+    	  deployment_type=%s \
         console_port=%s \
-    	rhsm_user=%s \
-    	rhsm_password=%s \
-    	rhsm_pool="%s" \
-    	containerized=%s \
-    	node_type=gluster \
-    	iam_role=%s \
-    	key_path=/dev/null \
-    	create_key=%s \
-    	create_vpc=%s \
+    	  rhsm_user=%s \
+    	  rhsm_password=%s \
+    	  rhsm_pool="%s" \
+    	  containerized=%s \
+    	  node_type=gluster \
+    	  iam_role=%s \
+    	  key_path=/dev/null \
+    	  create_key=%s \
+    	  create_vpc=%s \
         gluster_volume_type=%s \
         gluster_volume_size=%s \
-    	stack_name=%s \' %s' % (region,
+        iops=%s \
+    	  stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
-                        gluster_stack,
+                      gluster_stack,
                     	node_sg,
                     	node_instance_type,
                     	private_subnet_id1,
@@ -278,7 +293,7 @@ def launch_refarch_env(region=None,
                     	private_subnet_id3,
                     	public_hosted_zone,
                     	deployment_type,
-                        console_port,
+                      console_port,
                     	rhsm_user,
                     	rhsm_password,
                     	rhsm_pool,
@@ -286,8 +301,9 @@ def launch_refarch_env(region=None,
                     	iam_role,
                     	create_key,
                     	create_vpc,
-                        gluster_volume_type,
-                        gluster_volume_size,
+                      gluster_volume_type,
+                      gluster_volume_size,
+                      iops,
                     	existing_stack,
                     	playbook)
 

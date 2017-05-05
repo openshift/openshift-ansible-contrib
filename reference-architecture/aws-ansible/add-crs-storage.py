@@ -36,6 +36,8 @@ import sys
               show_default=True)
 @click.option('--vpc', help='Specify the existing VPC',
               show_default=True)
+@click.option('--iops', help='Specify a numeric value for IOPS',
+              show_default=True)
 
 ### DNS options
 @click.option('--public-hosted-zone', help='hosted zone for accessing the environment')
@@ -69,6 +71,7 @@ def launch_refarch_env(region=None,
                     private_subnet_id3=None,
                     gluster_volume_type=None,
                     gluster_volume_size=None,
+                    iops=None,
                     bastion_sg=None,
                     node_sg=None,
                     vpc=None,
@@ -128,6 +131,12 @@ def launch_refarch_env(region=None,
   if rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
 
+  if gluster_volume_type in ['io1']:
+    iops = click.prompt('Specify a numeric value for iops')
+
+  if iops is None:
+    iops = "NA"
+
   # Hidden facts for infrastructure.yaml
   create_key = "no"
   create_vpc = "no"
@@ -142,6 +151,7 @@ def launch_refarch_env(region=None,
       click.echo('\tgluster_stack: %s' % gluster_stack)
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
+      click.echo('\tiops: %s' % iops)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
@@ -161,6 +171,7 @@ def launch_refarch_env(region=None,
       click.echo('\tprivate_subnet_id3: %s' % private_subnet_id3)
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
+      click.echo('\tiops: %s' % iops)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tbastion_sg: %s' % bastion_sg)
       click.echo('\tnode_sg: %s' % node_sg)
@@ -212,6 +223,7 @@ def launch_refarch_env(region=None,
     	create_vpc=%s \
         gluster_volume_type=%s \
         gluster_volume_size=%s \
+        iops=%s \
     	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
@@ -225,6 +237,7 @@ def launch_refarch_env(region=None,
                     	create_vpc,
                         gluster_volume_type,
                         gluster_volume_size,
+                      iops,
                     	existing_stack,
                     	playbook)
     else:
@@ -247,6 +260,7 @@ def launch_refarch_env(region=None,
     	create_vpc=%s \
         gluster_volume_type=%s \
         gluster_volume_size=%s \
+        iops=%s \
         bastion_sg=%s \
         node_sg=%s \
         vpc=%s \
@@ -266,6 +280,7 @@ def launch_refarch_env(region=None,
                     	create_vpc,
                         gluster_volume_type,
                         gluster_volume_size,
+                      iops,
                         bastion_sg,
                         node_sg,
                         vpc,
