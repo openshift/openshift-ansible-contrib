@@ -79,4 +79,4 @@
       KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups.tag_provision_node | default([]) }}"
   when:
-    - groups.tag_openshift_role_storage is defined and hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name and add_node is defined and add_node == "yes" 
+    - groups.tag_openshift_role_storage is defined and hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name and add_node is defined and add_node == "yes"

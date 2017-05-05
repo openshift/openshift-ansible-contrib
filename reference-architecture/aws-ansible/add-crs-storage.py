@@ -213,21 +213,21 @@ def launch_refarch_env(region=None,
         gluster_stack=%s \
         add_node=no \
         deploy_crs=yes \
-    	node_instance_type=%s \
-    	public_hosted_zone=%s \
-    	rhsm_user=%s \
-    	rhsm_password=%s \
-    	rhsm_pool="%s" \
-    	key_path=/dev/null \
-    	create_key=%s \
-    	create_vpc=%s \
+      	node_instance_type=%s \
+      	public_hosted_zone=%s \
+      	rhsm_user=%s \
+      	rhsm_password=%s \
+      	rhsm_pool="%s" \
+      	key_path=/dev/null \
+      	create_key=%s \
+      	create_vpc=%s \
         gluster_volume_type=%s \
         gluster_volume_size=%s \
         iops=%s \
-    	stack_name=%s \' %s' % (region,
+       	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
-                        gluster_stack,
+                      gluster_stack,
                     	node_instance_type,
                     	public_hosted_zone,
                     	rhsm_user,
@@ -235,8 +235,8 @@ def launch_refarch_env(region=None,
                     	rhsm_pool,
                     	create_key,
                     	create_vpc,
-                        gluster_volume_type,
-                        gluster_volume_size,
+                      gluster_volume_type,
+                      gluster_volume_size,
                       iops,
                     	existing_stack,
                     	playbook)
@@ -247,27 +247,27 @@ def launch_refarch_env(region=None,
         gluster_stack=%s \
         add_node=no \
         deploy_crs=yes \
-    	node_instance_type=%s \
-    	private_subnet_id1=%s \
-    	private_subnet_id2=%s \
-    	private_subnet_id3=%s \
-    	public_hosted_zone=%s \
-    	rhsm_user=%s \
-    	rhsm_password=%s \
-    	rhsm_pool="%s" \
-    	key_path=/dev/null \
-    	create_key=%s \
-    	create_vpc=%s \
+      	node_instance_type=%s \
+      	private_subnet_id1=%s \
+      	private_subnet_id2=%s \
+      	private_subnet_id3=%s \
+      	public_hosted_zone=%s \
+      	rhsm_user=%s \
+      	rhsm_password=%s \
+      	rhsm_pool="%s" \
+      	key_path=/dev/null \
+      	create_key=%s \
+      	create_vpc=%s \
         gluster_volume_type=%s \
         gluster_volume_size=%s \
         iops=%s \
         bastion_sg=%s \
         node_sg=%s \
         vpc=%s \
-    	stack_name=%s \' %s' % (region,
+      	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
-                        gluster_stack,
+                      gluster_stack,
                     	node_instance_type,
                     	private_subnet_id1,
                     	private_subnet_id2,
@@ -278,12 +278,12 @@ def launch_refarch_env(region=None,
                     	rhsm_pool,
                     	create_key,
                     	create_vpc,
-                        gluster_volume_type,
-                        gluster_volume_size,
+                      gluster_volume_type,
+                      gluster_volume_size,
                       iops,
-                        bastion_sg,
-                        node_sg,
-                        vpc,
+                      bastion_sg,
+                      node_sg,
+                      vpc,
                     	existing_stack,
                     	playbook)
 
