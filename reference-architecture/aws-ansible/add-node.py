@@ -128,6 +128,9 @@ def launch_refarch_env(region=None,
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
+  # calculate stack name
+  new_node_stack="%s-%s" % (existing_stack, shortname)
+
   # Calculate various DNS values
   fqdn="%s.%s" % (shortname, public_hosted_zone)
 
@@ -229,6 +232,7 @@ def launch_refarch_env(region=None,
         infra_elb_name=%s \
         create_key=%s \
         create_vpc=%s \
+        new_node_stack=%s \
         stack_name=%s \' %s' % (region,
                         ami,
                         keypair,
@@ -248,6 +252,7 @@ def launch_refarch_env(region=None,
                         infra_elb_name,
                         create_key,
                         create_vpc,
+                        new_node_stack,
                         existing_stack,
                         playbook)
 
@@ -276,6 +281,7 @@ def launch_refarch_env(region=None,
         infra_elb_name=%s \
         create_key=%s \
         create_vpc=%s \
+        new_node_stack=%s \
         stack_name=%s \' %s' % (region,
                         ami,
                         keypair,
@@ -298,6 +304,7 @@ def launch_refarch_env(region=None,
                         infra_elb_name,
                         create_key,
                         create_vpc,
+                        new_node_stack,
                         existing_stack,
                         playbook)
 

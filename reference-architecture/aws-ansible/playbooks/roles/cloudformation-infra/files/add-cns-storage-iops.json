@@ -171,7 +171,7 @@
               "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "GlusterVolSize"},
               "VolumeType": {"Ref": "GlusterVolType"},
-              "Iops" : {"Ref": "Iops"}
+              "Iops": {"Ref": "Iops"}
             }
           }
          ]
@@ -230,7 +230,7 @@
               "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "GlusterVolSize"},
               "VolumeType": {"Ref": "GlusterVolType"},
-              "Iops" : {"Ref": "Iops"}
+              "Iops": {"Ref": "Iops"}
             }
           }
          ]
@@ -288,7 +288,7 @@
               "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "GlusterVolSize"},
               "VolumeType": {"Ref": "GlusterVolType"},
-              "Iops" : {"Ref": "Iops"}
+              "Iops": {"Ref": "Iops"}
             }
           }
          ]

@@ -36,7 +36,7 @@
       "Type": "String",
       "Default": "gp2"
     },
-    "Iops": {
+    "StorageIops": {
       "Type": "Number"
     },
     "GlusterVolSize": {
@@ -272,7 +272,7 @@
               "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "GlusterVolSize"},
               "VolumeType": {"Ref": "GlusterVolType"},
-              "Iops" : {"Ref": "Iops"}
+              "Iops": {"Ref": "StorageIops"}
             }
           }
          ]
@@ -310,7 +310,7 @@
               "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "GlusterVolSize"},
               "VolumeType": {"Ref": "GlusterVolType"},
-              "Iops" : {"Ref": "Iops"}
+              "Iops": {"Ref": "StorageIops"}
             }
           }
          ]
@@ -348,7 +348,7 @@
               "DeleteOnTermination": "true",
               "VolumeSize": {"Ref": "GlusterVolSize"},
               "VolumeType": {"Ref": "GlusterVolType"},
-              "Iops" : {"Ref": "Iops"}
+              "Iops": {"Ref": "StorageIops"}
             }
           }
          ]
