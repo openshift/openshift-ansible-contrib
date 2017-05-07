@@ -46,9 +46,9 @@ class VMWareAddNode(object):
     ldap_fqdn=None
     deployment_type=None
     console_port=8443
-    rhel_subscription_user=None
-    rhel_subscription_pass=None
-    rhel_subscription_pool=None
+    rhsm_user=None
+    rhsm_pass=None
+    rhsm_pool=None
     public_hosted_zone=None
     app_dns_prefix=None
     wildcard_zone=None
@@ -105,10 +105,10 @@ class VMWareAddNode(object):
             'vm_gw':'',
             'vm_netmask':'',
             'vm_network':'VM Network',
-            'rhel_subscription_user':'',
-            'rhel_subscription_pass':'',
+            'rhsm_user':'',
+            'rhsm_pass':'',
             'rhel_subscription_server':'',
-            'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
+            'rhsm':'Red Hat OpenShift Container Platform, Premium*',
             'openshift_sdn':'openshift-ovs-subnet',
             'byo_lb':'no',
             'lb_host':'haproxy-',
@@ -159,10 +159,10 @@ class VMWareAddNode(object):
         self.vm_gw = config.get('vmware', 'vm_gw')
         self.vm_netmask = config.get('vmware', 'vm_netmask')
         self.vm_network = config.get('vmware', 'vm_network')
-        self.rhel_subscription_user = config.get('vmware', 'rhel_subscription_user')
-        self.rhel_subscription_pass = config.get('vmware', 'rhel_subscription_pass')
+        self.rhsm_user = config.get('vmware', 'rhsm_user')
+        self.rhsm_pass = config.get('vmware', 'rhsm_pass')
         self.rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
-        self.rhel_subscription_pool = config.get('vmware', 'rhel_subscription_pool')
+        self.rhsm_pool = config.get('vmware', 'rhsm_pool')
         self.openshift_sdn = config.get('vmware', 'openshift_sdn')
         self.byo_lb = config.get('vmware', 'byo_lb')
         self.lb_host = config.get('vmware', 'lb_host')
@@ -302,10 +302,10 @@ class VMWareAddNode(object):
             console_port=%s \
             deployment_type=%s \
             openshift_vers=%s \
-            rhel_subscription_user=%s \
-            rhel_subscription_pass=%s \
+            rhsm_user=%s \
+            rhsm_pass=%s \
             rhel_subscription_server=%s \
-            rhel_subscription_pool="%s" \
+            rhsm_pool="%s" \
             openshift_sdn=%s \
             lb_host=%s \
             nfs_registry_host=%s \
@@ -327,10 +327,10 @@ class VMWareAddNode(object):
                             self.console_port,
                             self.deployment_type,
                             self.openshift_vers,
-                            self.rhel_subscription_user,
-                            self.rhel_subscription_pass,
+                            self.rhsm_user,
+                            self.rhsm_pass,
                             self.rhel_subscription_server,
-                            self.rhel_subscription_pool,
+                            self.rhsm_pool,
                             self.openshift_sdn,
                             self.lb_host,
                             self.nfs_registry_host,
