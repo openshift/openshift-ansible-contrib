@@ -32,10 +32,10 @@ def launch_refarch_env(console_port=8443,
                     vm_gw=None,
                     vm_netmask=None,
                     vm_network=None,
-                    rhel_subscription_user=None,
-                    rhel_subscription_pass=None,
+                    rhsm_user=None,
+                    rhsm_password=None,
                     rhel_subscription_server=None,
-                    rhel_subscription_pool=None,
+                    rhsm_pool=None,
                     byo_lb=None,
                     lb_host=None,
                     byo_nfs=None,
@@ -81,10 +81,10 @@ def launch_refarch_env(console_port=8443,
     'vm_gw':'',
     'vm_netmask':'',
     'vm_network':'VM Network',
-    'rhel_subscription_user':'',
-    'rhel_subscription_pass':'',
+    'rhsm_user':'',
+    'rhsm_password':'',
     'rhel_subscription_server':'',
-    'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
+    'rhsm_pool':'Red Hat OpenShift Container Platform, Premium*',
     'openshift_sdn':'openshift-ovs-subnet',
     'byo_lb':'no',
     'lb_host':'haproxy-',
@@ -133,10 +133,10 @@ def launch_refarch_env(console_port=8443,
   vm_gw = config.get('vmware', 'vm_gw')
   vm_netmask = config.get('vmware', 'vm_netmask')
   vm_network = config.get('vmware', 'vm_network')
-  rhel_subscription_user = config.get('vmware', 'rhel_subscription_user')
-  rhel_subscription_pass = config.get('vmware', 'rhel_subscription_pass')
+  rhsm_user = config.get('vmware', 'rhsm_user')
+  rhsm_password = config.get('vmware', 'rhsm_password')
   rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
-  rhel_subscription_pool = config.get('vmware', 'rhel_subscription_pool')
+  rhsm_pool = config.get('vmware', 'rhsm_pool')
   openshift_sdn = config.get('vmware', 'openshift_sdn')
   byo_lb = config.get('vmware', 'byo_lb')
   lb_host = config.get('vmware', 'lb_host')
@@ -485,10 +485,10 @@ def launch_refarch_env(console_port=8443,
     console_port=%s \
     deployment_type=%s \
     openshift_vers=%s \
-    rhel_subscription_user=%s \
-    rhel_subscription_pass=%s \
+    rhsm_user=%s \
+    rhsm_password=%s \
     rhel_subscription_server=%s \
-    rhel_subscription_pool="%s" \
+    rhsm_pool="%s" \
     openshift_sdn=%s \
     lb_host=%s \
     nfs_registry_host=%s \
@@ -511,10 +511,10 @@ def launch_refarch_env(console_port=8443,
                     console_port,
                     deployment_type,
                     openshift_vers,
-                    rhel_subscription_user,
-                    rhel_subscription_pass,
+                    rhsm_user,
+                    rhsm_password,
                     rhel_subscription_server,
-                    rhel_subscription_pool,
+                    rhsm_pool,
                     openshift_sdn,
                     lb_host,
                     nfs_registry_host,

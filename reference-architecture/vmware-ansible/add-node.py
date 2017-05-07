@@ -47,7 +47,7 @@ class VMWareAddNode(object):
     deployment_type=None
     console_port=8443
     rhsm_user=None
-    rhsm_pass=None
+    rhsm_password=None
     rhsm_pool=None
     public_hosted_zone=None
     app_dns_prefix=None
@@ -106,7 +106,7 @@ class VMWareAddNode(object):
             'vm_netmask':'',
             'vm_network':'VM Network',
             'rhsm_user':'',
-            'rhsm_pass':'',
+            'rhsm_password':'',
             'rhel_subscription_server':'',
             'rhsm':'Red Hat OpenShift Container Platform, Premium*',
             'openshift_sdn':'openshift-ovs-subnet',
@@ -160,7 +160,7 @@ class VMWareAddNode(object):
         self.vm_netmask = config.get('vmware', 'vm_netmask')
         self.vm_network = config.get('vmware', 'vm_network')
         self.rhsm_user = config.get('vmware', 'rhsm_user')
-        self.rhsm_pass = config.get('vmware', 'rhsm_pass')
+        self.rhsm_password = config.get('vmware', 'rhsm_pass')
         self.rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
         self.rhsm_pool = config.get('vmware', 'rhsm_pool')
         self.openshift_sdn = config.get('vmware', 'openshift_sdn')
@@ -303,7 +303,7 @@ class VMWareAddNode(object):
             deployment_type=%s \
             openshift_vers=%s \
             rhsm_user=%s \
-            rhsm_pass=%s \
+            rhsm_password=%s \
             rhel_subscription_server=%s \
             rhsm_pool="%s" \
             openshift_sdn=%s \
@@ -328,7 +328,7 @@ class VMWareAddNode(object):
                             self.deployment_type,
                             self.openshift_vers,
                             self.rhsm_user,
-                            self.rhsm_pass,
+                            self.rhsm_password,
                             self.rhel_subscription_server,
                             self.rhsm_pool,
                             self.openshift_sdn,

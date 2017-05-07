@@ -16,7 +16,8 @@
   vars_files:
   - vars/main.yaml
   roles:
-  - rhel_subscribe
+  - rhsm-subscription
+  - rhsm-repos
   - vmware-guest-setup
 - include: ../../../playbooks/openshift-storage.yaml
 - include: ../../../playbooks/add-node-prerequisite.yaml
