@@ -214,7 +214,7 @@ envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.y
 # Run Ansible
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/prereq.yaml
-ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} playbooks/main.yaml
+ansible-playbook -e rhsm_user="${RH_USERNAME}" -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool="${RH_POOL_ID}" playbooks/main.yaml
 popd
 
 # Allow bastion to connect via SSH to other instances via external IP
