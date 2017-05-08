@@ -344,6 +344,8 @@ gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion
         --enable=\"rhel-7-server-extras-rpms\" \
         --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
 
+    rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
+
     yum install -y git python-libcloud atomic-openshift-utils;
 
     if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
