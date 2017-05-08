@@ -234,14 +234,14 @@ for i in $instances; do
     if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
         gcloud --project "$GCLOUD_PROJECT" compute disks create "$docker_disk" --zone "$instance_zone" --size "$NODE_DOCKER_DISK_SIZE" --type "pd-ssd"
         gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$docker_disk" --zone "$instance_zone"
-        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$docker_disk" --auto-delete
+        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$docker_disk" --auto-delete --zone "$instance_zone"
     else
         echo "Disk '${docker_disk}' already exists"
     fi
     if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
         gcloud --project "$GCLOUD_PROJECT" compute disks create "$openshift_disk" --zone "$instance_zone" --size "$NODE_OPENSHIFT_DISK_SIZE" --type "pd-ssd"
         gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
-        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$openshift_disk" --auto-delete
+        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$openshift_disk" --auto-delete --zone "$instance_zone"
     else
         echo "Disk '${openshift_disk}' already exists"
     fi
