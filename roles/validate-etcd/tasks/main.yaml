@@ -5,7 +5,7 @@
   register: etcd_result
 
 - name: Validate etcd
-  command: "etcdctl -C https://{{ ansible_fqdn }}:2379 --ca-file=/etc/origin/master/master.etcd-ca.crt --cert-file=/etc/origin/master/master.etcd-client.crt --key-file=/etc/origin/master/master.etcd-client.key cluster-health | grep 'cluster is'"
+  command: "etcdctl -C https://{{ ansible_hostname if validate_etcd_short_hostname else ansible_fqdn }}:2379 --ca-file=/etc/origin/master/master.etcd-ca.crt --cert-file=/etc/origin/master/master.etcd-client.crt --key-file=/etc/origin/master/master.etcd-client.key cluster-health | grep 'cluster is'"
   register: etcd_health
   when: etcd_result.stat.exists
 
