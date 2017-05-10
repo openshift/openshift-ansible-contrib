@@ -5,7 +5,7 @@
 
 - name: Set Origin fact
   set_fact:
-    openshift_release: 1.5.0
+    openshift_release: "{{ origin_release }}"
   when: deployment_type == "origin"
 
 - block:
@@ -17,10 +17,7 @@
     package:
       name: "{{ item }}"
       state: latest
-    with_items:
-    - iptables
-    - iptables-services
-    - NetworkManager
+    with_items: "{{ openshift_required_packages }}"
 
   - name: Start NetworkManager and network
     service:
