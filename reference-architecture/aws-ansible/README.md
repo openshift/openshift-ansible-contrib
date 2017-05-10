@@ -158,7 +158,7 @@ The same greenfield and brownfield deployment steps can be used to launch anothe
 Adding nodes can be done by performing the following. The configuration option --node-type allows for the creation of application or
 infrastructure nodes. If the deployment is for an application node --infra-sg and --infra-elb-name are not required.
 
-NOTE: If `--use-cloudformation-facts` is not used the `--iam-role` or `Specify the name of the existing IAM Instance Profile:`
+If `--use-cloudformation-facts` is not used the `--iam-role` or `Specify the name of the existing IAM Instance Profile:`
 is available visiting the IAM Dashboard and selecting the role sub-menu. Select the
 node role and record the information from the `Instance Profile ARN(s)` line. An
 example Instance Profile would be `OpenShift-Infra-NodeInstanceProfile-TNAGMYGY9W8K`.
