@@ -164,22 +164,21 @@ node role and record the information from the `Instance Profile ARN(s)` line. An
 example Instance Profile would be `OpenShift-Infra-NodeInstanceProfile-TNAGMYGY9W8K`.
 
 If the Reference Architecture deployment is >= 3.5
-[subs=+quotes]
-----
-$ *./add-node.py --existing-stack=dev --rhsm-user=rhsm-user --rhsm-password=password
+
+```
+$ ./add-node.py --existing-stack=dev --rhsm-user=rhsm-user --rhsm-password=password
 --public-hosted-zone=sysdeseng.com --keypair=OSE-key --rhsm-pool="Red Hat OpenShift Container Platform, Premium, 2-Core"
---use-cloudformation-facts --shortname=ose-infra-node04 --node-type=infra --subnet-id=subnet-0a962f4*
-----
+--use-cloudformation-facts --shortname=ose-infra-node04 --node-type=infra --subnet-id=subnet-0a962f4
+```
 
 If the Reference Architecture deployment was performed before 3.5.
 
-[subs=+quotes]
-----
-$ *./add-node.py --rhsm-user=user --rhsm-password=password --public-hosted-zone=sysdeseng.com
+```
+$ ./add-node.py --rhsm-user=user --rhsm-password=password --public-hosted-zone=sysdeseng.com
 --keypair=OSE-key --rhsm-pool="Red Hat OpenShift Container Platform, Premium, 2-Core" --node-type=infra
 --iam-role=OpenShift-Infra-NodeInstanceProfile-TNAGMYGY9W8K --node-sg=sg-309f9a4a --infra-sg=sg-289f9a52
---shortname=ose-infra-node04 --subnet-id=subnet-0a962f4 --infra-elb-name=OpenShift-InfraElb-1N0DZ3CFCAHLV*
-----
+--shortname=ose-infra-node04 --subnet-id=subnet-0a962f4 --infra-elb-name=OpenShift-InfraElb-1N0DZ3CFCAHLV
+```
 
 ## Gluster Storage
 If there is a desire to use CNS or Gluster storage for OpenShift visit the link below
