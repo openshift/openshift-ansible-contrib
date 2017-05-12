@@ -118,7 +118,7 @@ function revert {
     # Unregister systems
     gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
     pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
-    ansible-playbook playbooks/unregister.yaml;
+    ansible-playbook -e @~/ansible-config.yml playbooks/unregister.yaml;
     '";
 
     # Bucket for registry
