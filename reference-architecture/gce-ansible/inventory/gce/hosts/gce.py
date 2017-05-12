@@ -356,6 +356,7 @@ class GceInventory(object):
             else: groups[zone] = [name]
 
             tags = node.extra['tags']
+            tag_prefix = os.environ.get('OCP_PREFIX', 'ocp')
             for t in tags:
                 if t.startswith('group-'):
                     tag = t[6:]
@@ -363,6 +364,10 @@ class GceInventory(object):
                     tag = 'tag_%s' % t
                 if groups.has_key(tag): groups[tag].append(name)
                 else: groups[tag] = [name]
+                if tag_prefix != 'ocp' and t.startswith(tag_prefix):
+                    tag = 'tag_ocp-%s' % t[len(tag_prefix)+1:]
+                    if groups.has_key(tag): groups[tag].append(name)
+                    else: groups[tag] = [name]
 
             net = node.extra['networkInterfaces'][0]['network'].split('/')[-1]
             net = 'network_%s' % net
