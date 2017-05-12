@@ -65,6 +65,7 @@ NODE_OPENSHIFT_DISK_SIZE='50'
 
 NETWORK_DEPLOYMENT='network'
 CORE_DEPLOYMENT='deployment-core'
+ADD_DISKS_DEPLOYMENT='add-disks'
 
 OCP_NETWORK='network'
 

@@ -6,3 +6,14 @@
   roles:
   - ssl-certificate
   - { role: deployment-create, deployment_name: 'core' }
+  post_tasks:
+  - name: refresh gce inventory
+    command: '{{ inventory_dir }}/gce/hosts/gce.py --refresh-cache'
+  - meta: refresh_inventory
+
+- name: continue with the core infrastructure deployment, after the instances are created
+  hosts: localhost
+  vars_files:
+  - ../../ansible-main-config.yaml
+  roles:
+  - attach-disks

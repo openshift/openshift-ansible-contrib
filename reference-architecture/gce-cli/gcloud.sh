@@ -140,6 +140,11 @@ function revert {
         gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${CORE_DEPLOYMENT}"
     fi
 
+    # Additional disks
+    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${ADD_DISKS_DEPLOYMENT}" &>/dev/null; then
+        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${ADD_DISKS_DEPLOYMENT}"
+    fi
+
     # Master certificate
     if gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" &>/dev/null; then
         gcloud -q --project "$GCLOUD_PROJECT" compute ssl-certificates delete "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}"
@@ -208,7 +213,9 @@ export GCLOUD_PROJECT \
     NODE_MACHINE_TYPE \
     BASTION_DISK_SIZE \
     MASTER_BOOT_DISK_SIZE \
-    NODE_BOOT_DISK_SIZE
+    NODE_BOOT_DISK_SIZE \
+    NODE_DOCKER_DISK_SIZE \
+    NODE_OPENSHIFT_DISK_SIZE
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
 # Run Ansible
@@ -224,28 +231,6 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "${OCP_P
 else
     echo "Firewall rule '${OCP_PREFIX}-${BASTION_SSH_FW_RULE}' already exists"
 fi
-
-# Attach additional disks to node instances for docker and openshift storage
-instances=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="tags.items=${OCP_PREFIX}-node OR tags.items=${OCP_PREFIX}-infra-node" --format='value(name)')
-for i in $instances; do
-    docker_disk="${i}-docker"
-    openshift_disk="${i}-openshift"
-    instance_zone=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name=${i}" --format='value(zone)')
-    if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$docker_disk" --zone "$instance_zone" &>/dev/null; then
-        gcloud --project "$GCLOUD_PROJECT" compute disks create "$docker_disk" --zone "$instance_zone" --size "$NODE_DOCKER_DISK_SIZE" --type "pd-ssd"
-        gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$docker_disk" --zone "$instance_zone"
-        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$docker_disk" --auto-delete --zone "$instance_zone"
-    else
-        echo "Disk '${docker_disk}' already exists"
-    fi
-    if ! gcloud --project "$GCLOUD_PROJECT" compute disks describe "$openshift_disk" --zone "$instance_zone" &>/dev/null; then
-        gcloud --project "$GCLOUD_PROJECT" compute disks create "$openshift_disk" --zone "$instance_zone" --size "$NODE_OPENSHIFT_DISK_SIZE" --type "pd-ssd"
-        gcloud --project "$GCLOUD_PROJECT" compute instances attach-disk "${i}" --disk "$openshift_disk" --zone "$instance_zone"
-        gcloud --project "$GCLOUD_PROJECT" compute instances set-disk-auto-delete "${i}" --disk "$openshift_disk" --auto-delete --zone "$instance_zone"
-    else
-        echo "Disk '${openshift_disk}' already exists"
-    fi
-done
 
 # DNS record for master lb
 if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$MASTER_DNS_NAME" 2>/dev/null | grep -q "$MASTER_DNS_NAME"; then
