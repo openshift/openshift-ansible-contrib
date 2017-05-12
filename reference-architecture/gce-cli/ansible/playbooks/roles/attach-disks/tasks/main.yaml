@@ -4,7 +4,7 @@
     name: deployment-create
   vars:
     deployment_name: add-disks
-    instances: '{{ (groups["tag_ocp-infra-node"] + groups["tag_ocp-node"]) | map("extract", hostvars) | list | json_query("[].{name: gce_name, zone: gce_zone}") }}'
+    instances: '{{ (groups["tag_" + prefix + "-infra-node"] + groups["tag_" + prefix + "-node"]) | map("extract", hostvars) | list | json_query("[].{name: gce_name, zone: gce_zone}") }}'
 
 - name: attach additional docker disk to the instances
   gce_pd:
@@ -13,7 +13,7 @@
     zone: '{{ hostvars[item].gce_zone }}'
     mode: READ_WRITE
     state: active
-  with_items: '{{ groups["tag_ocp-infra-node"] + groups["tag_ocp-node"] }}'
+  with_items: '{{ groups["tag_" + prefix + "-infra-node"] + groups["tag_" + prefix + "-node"] }}'
 
 - name: attach additional openshift disk to the instances
   gce_pd:
@@ -22,4 +22,4 @@
     zone: '{{ hostvars[item].gce_zone }}'
     mode: READ_WRITE
     state: active
-  with_items: '{{ groups["tag_ocp-infra-node"] + groups["tag_ocp-node"] }}'
+  with_items: '{{ groups["tag_" + prefix + "-infra-node"] + groups["tag_" + prefix + "-node"] }}'

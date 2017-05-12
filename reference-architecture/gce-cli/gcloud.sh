@@ -307,7 +307,8 @@ export DNS_DOMAIN \
     REGISTRY_BUCKET \
     GCLOUD_PROJECT \
     OCP_NETWORK \
-    OCP_IDENTITY_PROVIDERS
+    OCP_IDENTITY_PROVIDERS \
+    OCP_PREFIX
 envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/ansible-config.yml"
 gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml" "cloud-user@${OCP_PREFIX}-bastion:" --zone "$GCLOUD_ZONE"
 
