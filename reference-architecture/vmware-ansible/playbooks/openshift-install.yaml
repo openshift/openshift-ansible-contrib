@@ -9,8 +9,6 @@
 
 - include: ../../../playbooks/prerequisite.yaml
 
-- include: ../../../playbooks/unexclude-atomic-docker.yaml
-
 - include: ../../../playbooks/openshift-storage.yaml
 
 - name: call openshift includes for installer
@@ -72,5 +70,3 @@
     openshift_hosted_registry_storage_volume_name: registry
     openshift_hosted_registry_storage_volume_size: 30Gi
 #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"
-
-- include: ../../../playbooks/exclude-atomic-docker.yaml

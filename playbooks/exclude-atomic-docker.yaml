@@ -1,6 +1,0 @@
----
-- hosts: cluster_hosts
-  gather_facts: no
-  become: yes
-  roles:
-    - exclude

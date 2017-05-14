@@ -21,8 +21,4 @@
 
 - include: ../../../playbooks/prerequisite.yaml
 
-- include: ../../../playbooks/unexclude-atomic-docker.yaml
-
 - include: openshift-setup.yaml
-
-- include: ../../../playbooks/exclude-atomic-docker.yaml
