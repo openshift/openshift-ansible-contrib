@@ -394,9 +394,10 @@ EOF
 
 # Loop to add Nodes
 
-for (( c=01; c<$NODECOUNT; c++ ))
+for (( c=01; c<$NODECOUNT+1; c++ ))
 do
-  echo "node${c} openshift_node_labels=\"{'role': 'app', 'zone': 'default'}\" openshift_hostname=node${c}" >> /etc/ansible/hosts
+  pnum=$(printf "%02d" $c)
+  echo "node${pnum} openshift_node_labels=\"{'role': 'app', 'zone': 'default'}\" openshift_hostname=node${pnum}" >> /etc/ansible/hosts
 done
 
 
