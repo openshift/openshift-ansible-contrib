@@ -4,14 +4,16 @@
   become: yes
   serial: 1
   roles:
-  - rhsm-subscription
+  - { role: rhel_subscribe, when rhel_subscription_user is defined and rhel_subscription_pass is defined and rhel_subscription_pool is defined }
+  - { role: rhsm-subscription, when rhel_subscription_user is not defined and rhel_subscription_pass is not defined and rhel_subscription_pool is not defined }
+
 
 - hosts: cluster_hosts
   gather_facts: no
   become: yes
   roles:
-  - rhsm-repos
   - prerequisites
+  - { role: rhsm-repos, when rhel_subscription_user is not defined and rhel_subscription_pass is not defined and rhel_subscription_pool is not defined }
 
 - hosts: master
   gather_facts: yes

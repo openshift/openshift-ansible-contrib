@@ -27,7 +27,6 @@ Currently, we are in a process of migrating away from shell to pure Ansible depl
 subscription-manager repos --enable rhel-7-server-optional-rpms
 subscription-manager repos --enable rhel-7-server-ose-3.5-rpms
 subscription-manager repos --enable rhel-7-fast-datapath-rpms
-
 yum -y install atomic-openshift-utils
 ```
 

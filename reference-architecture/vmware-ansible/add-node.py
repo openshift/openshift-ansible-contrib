@@ -28,8 +28,7 @@ class VMWareAddNode(object):
     vm_dns=None
     vm_gw=None
     vm_netmask=None
-    rhsm_activation_key=None
-    rhsm_org_id=None
+    rhel_subscription_server=None
     openshift_sdn=None
     byo_lb=None
     lb_host=None
@@ -108,9 +107,8 @@ class VMWareAddNode(object):
             'vm_network':'VM Network',
             'rhsm_user':'',
             'rhsm_password':'',
-            'rhsm_activation_key':'',
-            'rhsm_org_id':'',
-            'rhsm_pool':'OpenShift Enterprise, Premium',
+            'rhel_subscription_server':'',
+            'rhsm':'Red Hat OpenShift Container Platform, Premium*',
             'openshift_sdn':'openshift-ovs-subnet',
             'byo_lb':'no',
             'lb_host':'haproxy-',
@@ -162,9 +160,8 @@ class VMWareAddNode(object):
         self.vm_netmask = config.get('vmware', 'vm_netmask')
         self.vm_network = config.get('vmware', 'vm_network')
         self.rhsm_user = config.get('vmware', 'rhsm_user')
-        self.rhsm_password = config.get('vmware', 'rhsm_password')
-        self.rhsm_activation_key = config.get('vmware', 'rhsm_activation_key')
-        self.rhsm_org_id = config.get('vmware', 'rhsm_org_id')
+        self.rhsm_password = config.get('vmware', 'rhsm_pass')
+        self.rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
         self.rhsm_pool = config.get('vmware', 'rhsm_pool')
         self.openshift_sdn = config.get('vmware', 'openshift_sdn')
         self.byo_lb = config.get('vmware', 'byo_lb')
@@ -307,8 +304,7 @@ class VMWareAddNode(object):
             openshift_vers=%s \
             rhsm_user=%s \
             rhsm_password=%s \
-            rhsm_activation_key=%s \
-            rhsm_org_id=%s \
+            rhel_subscription_server=%s \
             rhsm_pool="%s" \
             openshift_sdn=%s \
             lb_host=%s \
@@ -333,8 +329,7 @@ class VMWareAddNode(object):
                             self.openshift_vers,
                             self.rhsm_user,
                             self.rhsm_password,
-                            self.rhsm_activation_key,
-                            self.rhsm_org_id,
+                            self.rhel_subscription_server,
                             self.rhsm_pool,
                             self.openshift_sdn,
                             self.lb_host,
