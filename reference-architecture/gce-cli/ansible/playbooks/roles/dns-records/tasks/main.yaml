@@ -1,0 +1,37 @@
+---
+- name: get master ssl lb ip
+  command: gcloud --project {{ gcloud_project }} compute addresses describe {{ prefix }}-master-ssl-lb-ip --global --format='value(address)'
+  register: master_ssl_lb_ip
+  changed_when: false
+
+- name: get master network lb ip
+  command: gcloud --project {{ gcloud_project }} compute addresses describe {{ prefix }}-master-network-lb-ip --region {{ gcloud_region }} --format='value(address)'
+  register: master_network_lb_ip
+  changed_when: false
+
+- name: get router network lb ip
+  command: gcloud --project {{ gcloud_project }} compute addresses describe {{ prefix }}-router-network-lb-ip --region {{ gcloud_region }} --format='value(address)'
+  register: router_network_lb_ip
+  changed_when: false
+
+- name: set ns records
+  gcdns_record:
+    record: '{{ item.record }}'
+    zone: '{{ dns_domain }}'
+    type: '{{ item.type }}'
+    value: '{{ item.value }}'
+    ttl: 3600
+    state: present
+  with_items:
+  - record: '{{ master_dns_name }}'
+    value: '{{ master_ssl_lb_ip.stdout }}'
+    type: A
+  - record: '{{ internal_master_dns_name }}'
+    value: '{{ master_network_lb_ip.stdout }}'
+    type: A
+  - record: '{{ ocp_apps_dns_name }}'
+    value: '{{ router_network_lb_ip.stdout }}'
+    type: A
+  - record: '*.{{ ocp_apps_dns_name }}'
+    value: '{{ ocp_apps_dns_name }}.'
+    type: CNAME

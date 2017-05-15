@@ -201,6 +201,8 @@ export GCLOUD_PROJECT \
     OCP_PREFIX \
     DNS_DOMAIN \
     MASTER_DNS_NAME \
+    INTERNAL_MASTER_DNS_NAME \
+    OCP_APPS_DNS_NAME \
     RHEL_IMAGE_PATH \
     CONSOLE_PORT \
     MASTER_HTTPS_KEY_FILE \
@@ -230,37 +232,6 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "${OCP_P
     gcloud --project "$GCLOUD_PROJECT" compute firewall-rules create "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}" --network "${OCP_PREFIX}-${OCP_NETWORK}" --allow tcp:22 --source-ranges "$bastion_ext_ip"
 else
     echo "Firewall rule '${OCP_PREFIX}-${BASTION_SSH_FW_RULE}' already exists"
-fi
-
-# DNS record for master lb
-if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$MASTER_DNS_NAME" 2>/dev/null | grep -q "$MASTER_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "${OCP_PREFIX}-master-ssl-lb-ip" --global --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${MASTER_DNS_NAME}." --type A "$IP"
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction execute -z "$DNS_MANAGED_ZONE"
-else
-    echo "DNS record for '${MASTER_DNS_NAME}' already exists"
-fi
-
-# DNS record for internal master lb
-if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$INTERNAL_MASTER_DNS_NAME" 2>/dev/null | grep -q "$INTERNAL_MASTER_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "${OCP_PREFIX}-master-network-lb-ip" --region "$GCLOUD_REGION" --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${INTERNAL_MASTER_DNS_NAME}." --type A "$IP"
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction execute -z "$DNS_MANAGED_ZONE"
-else
-    echo "DNS record for '${INTERNAL_MASTER_DNS_NAME}' already exists"
-fi
-
-# DNS record for router lb
-if ! gcloud --project "$GCLOUD_PROJECT" dns record-sets list -z "$DNS_MANAGED_ZONE" --name "$OCP_APPS_DNS_NAME" 2>/dev/null | grep -q "$OCP_APPS_DNS_NAME"; then
-    IP=$(gcloud --project "$GCLOUD_PROJECT" compute addresses describe "${OCP_PREFIX}-router-network-lb-ip" --region "$GCLOUD_REGION" --format='value(address)')
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction start -z "$DNS_MANAGED_ZONE"
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "${OCP_APPS_DNS_NAME}." --type A "$IP"
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction add -z "$DNS_MANAGED_ZONE" --ttl 3600 --name "*.${OCP_APPS_DNS_NAME}." --type CNAME "${OCP_APPS_DNS_NAME}."
-    gcloud --project "$GCLOUD_PROJECT" dns record-sets transaction execute -z "$DNS_MANAGED_ZONE"
-else
-    echo "DNS record for '${OCP_APPS_DNS_NAME}' already exists"
 fi
 
 # Create bucket for registry

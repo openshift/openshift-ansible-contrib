@@ -5,6 +5,8 @@ gcloud_zone: ${GCLOUD_ZONE}
 prefix: ${OCP_PREFIX}
 dns_domain: ${DNS_DOMAIN}
 master_dns_name: ${MASTER_DNS_NAME}
+internal_master_dns_name: ${INTERNAL_MASTER_DNS_NAME}
+ocp_apps_dns_name: ${OCP_APPS_DNS_NAME}
 rhel_image_path: ${RHEL_IMAGE_PATH}
 console_port: ${CONSOLE_PORT}
 master_https_key_file: ${MASTER_HTTPS_KEY_FILE}

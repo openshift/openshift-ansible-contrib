@@ -17,3 +17,4 @@
   - ../../ansible-main-config.yaml
   roles:
   - attach-disks
+  - dns-records
