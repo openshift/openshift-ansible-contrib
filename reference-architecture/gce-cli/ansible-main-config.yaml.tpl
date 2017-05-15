@@ -18,3 +18,5 @@ node_machine_type: ${NODE_MACHINE_TYPE}
 bastion_disk_size: ${BASTION_DISK_SIZE}
 master_boot_disk_size: ${MASTER_BOOT_DISK_SIZE}
 node_boot_disk_size: ${NODE_BOOT_DISK_SIZE}
+node_docker_disk_size: ${NODE_DOCKER_DISK_SIZE}
+node_openshift_disk_size: ${NODE_OPENSHIFT_DISK_SIZE}

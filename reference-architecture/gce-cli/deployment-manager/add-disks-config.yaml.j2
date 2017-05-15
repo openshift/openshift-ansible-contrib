@@ -1,0 +1,11 @@
+imports:
+- path: add-disks.jinja
+resources:
+- name: add-disks
+  type: add-disks.jinja
+  properties:
+    prefix: {{ prefix }}
+    node_docker_disk_size: {{ node_docker_disk_size }}
+    node_openshift_disk_size: {{ node_openshift_disk_size }}
+    instances:
+      {{ instances | to_yaml | indent(6) }}
