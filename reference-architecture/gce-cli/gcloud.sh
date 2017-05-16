@@ -179,7 +179,7 @@ function revert {
     fi
 
     # Remove configuration from local ~/.ssh/config file
-    sed -i '/^# OpenShift on GCP Section$/,/^# End of OpenShift on GCP Section$/d' "$SSH_CONFIG_FILE"
+    sed -i '/^# BEGIN OPENSHIFT ON GCP BLOCK$/,/^# END OPENSHIFT ON GCP BLOCK$/d' "$SSH_CONFIG_FILE"
 }
 
 # Support the revert option
@@ -234,31 +234,6 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "${OCP_P
 else
     echo "Firewall rule '${OCP_PREFIX}-${BASTION_SSH_FW_RULE}' already exists"
 fi
-
-# Configure local SSH so we can connect directly to all instances
-touch "$SSH_CONFIG_FILE"
-chmod 600 "$SSH_CONFIG_FILE"
-sed -i '/^# OpenShift on GCP Section$/,/^# End of OpenShift on GCP Section$/d' "$SSH_CONFIG_FILE"
-echo -e '# OpenShift on GCP Section\n' >> "$SSH_CONFIG_FILE"
-bastion_data=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name=${OCP_PREFIX}-bastion" --format='value(EXTERNAL_IP,id)')
-echo "Host ${OCP_PREFIX}-bastion
-    HostName $(echo ${bastion_data} | cut -d ' ' -f 1)
-    User cloud-user
-    IdentityFile ~/.ssh/google_compute_engine
-    UserKnownHostsFile ~/.ssh/google_compute_known_hosts
-    HostKeyAlias compute.$(echo ${bastion_data} | cut -d ' ' -f 2)
-    IdentitiesOnly yes
-    CheckHostIP no
-" >> "$SSH_CONFIG_FILE"
-instances=$(gcloud --project "${GCLOUD_PROJECT}" compute instances list --filter="tags.items=${OCP_PREFIX}" --format='value(name)')
-for i in $instances; do
-    echo "Host ${i}
-    User cloud-user
-    IdentityFile ~/.ssh/google_compute_engine
-    proxycommand ssh ${OCP_PREFIX}-bastion -W %h:%p
-" >> "$SSH_CONFIG_FILE"
-done
-echo -e '# End of OpenShift on GCP Section\n' >> "$SSH_CONFIG_FILE"
 
 # Prepare config file for ansible based on the configuration from this script
 export DNS_DOMAIN \

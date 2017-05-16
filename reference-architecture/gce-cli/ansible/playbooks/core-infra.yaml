@@ -18,3 +18,4 @@
   roles:
   - attach-disks
   - dns-records
+  - ssh-proxy
