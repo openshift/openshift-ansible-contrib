@@ -6,5 +6,3 @@
   roles:
   # Group systems
   - instance-groups
-
-- include: ../../../playbooks/empty-dir-quota.yaml
