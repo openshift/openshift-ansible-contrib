@@ -7,11 +7,7 @@
   package:
     name: "{{ item }}"
     state: latest
-  with_items:
-  - redhat-storage-server
-  - heketi-client
-  - iptables-services
-  - iptables
+  with_items: "{{ gluster_crs_required_packages }}"
 
 - name: Stop firewalld
   service:

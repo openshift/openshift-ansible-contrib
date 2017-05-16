@@ -5,11 +5,7 @@
 
     - name: ensure proper repos are assigned
       command: subscription-manager repos --enable={{ item }}
-      with_items:
-        - rhel-7-server-rpms
-        - rhel-7-server-extras-rpms
-        - rhel-7-server-ose-3.5-rpms
-        - rhel-7-fast-datapath-rpms
+      with_items: "{{ openshift_required_repos }}"
 
     - name: check to see if rhui exists
       stat:
