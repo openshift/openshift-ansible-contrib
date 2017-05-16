@@ -292,3 +292,7 @@ resources:
     region: {{ properties['region'] }}
     target: $(ref.{{ properties['prefix'] }}-router-network-lb-pool.selfLink)
   type: compute.v1.forwardingRule
+- name: {{ properties['gcs_registry_bucket'] }}
+  properties:
+    location: {{ properties['region'] }}
+  type: storage.v1.bucket

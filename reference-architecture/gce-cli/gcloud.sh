@@ -217,7 +217,8 @@ export GCLOUD_PROJECT \
     MASTER_BOOT_DISK_SIZE \
     NODE_BOOT_DISK_SIZE \
     NODE_DOCKER_DISK_SIZE \
-    NODE_OPENSHIFT_DISK_SIZE
+    NODE_OPENSHIFT_DISK_SIZE \
+    REGISTRY_BUCKET
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
 # Run Ansible
@@ -232,13 +233,6 @@ if ! gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "${OCP_P
     gcloud --project "$GCLOUD_PROJECT" compute firewall-rules create "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}" --network "${OCP_PREFIX}-${OCP_NETWORK}" --allow tcp:22 --source-ranges "$bastion_ext_ip"
 else
     echo "Firewall rule '${OCP_PREFIX}-${BASTION_SSH_FW_RULE}' already exists"
-fi
-
-# Create bucket for registry
-if ! gsutil ls -p "$GCLOUD_PROJECT" "gs://${REGISTRY_BUCKET}" &>/dev/null; then
-    gsutil mb -p "$GCLOUD_PROJECT" -l "$GCLOUD_REGION" "gs://${REGISTRY_BUCKET}"
-else
-    echo "Bucket '${REGISTRY_BUCKET}' already exists"
 fi
 
 # Configure local SSH so we can connect directly to all instances
