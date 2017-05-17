@@ -1,4 +1,10 @@
 ---
+- name: Include vars file
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: no
+  tasks:
+  - include_vars: vars/vmware_openshift.yaml
+
 - include: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/upgrades/{{ openshift_vers | default('v3_5') }}/upgrade.yml
-  vars_files:
-  - vars/vmware_openshift.yaml

@@ -1,4 +1,10 @@
 ---
+- name: Include vars file
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: no
+  tasks:
+  - include_vars: vars/aws_openshift.yaml
+
 - include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
-  vars_files:
-  - vars/aws_openshift.yaml

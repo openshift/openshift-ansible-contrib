@@ -11,7 +11,13 @@
 
 - include: ../../../playbooks/openshift-storage.yaml
 
+- name: Include vars file
+  hosts: localhost
+  connection: local
+  become: no
+  gather_facts: no
+  tasks:
+  - include_vars: vars/vmware_openshift.yaml
+
 - name: call openshift includes for installer
   include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
-  vars_files:
-  - vars/vmware_openshift.yaml
