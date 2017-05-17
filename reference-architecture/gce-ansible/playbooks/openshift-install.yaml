@@ -38,13 +38,9 @@
   roles:
     - restrict-gce-metadata
 
-- include: ../../../playbooks/empty-dir-quota.yaml
-
-
 - hosts: single_master
   gather_facts: no
   roles:
     - openshift-registry
-
 
 - include: validation.yaml
