@@ -12,6 +12,8 @@ import sys
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
               show_default=True)
+@click.option('--openshift-sdn', default='openshift-ovs-subnet', type=click.Choice(['openshift-ovs-subnet', 'openshift-ovs-multitenant']),  help='OpenShift SDN',
+              show_default=True)
 
 ### AWS/EC2 options
 @click.option('--gluster-stack', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
@@ -80,6 +82,7 @@ def launch_refarch_env(region=None,
                     private_subnet_id3=None,
                     gluster_volume_type=None,
                     gluster_volume_size=None,
+                    openshift_sdn=None,
                     iops=None,
                     node_sg=None,
                     iam_role=None,
@@ -157,6 +160,7 @@ def launch_refarch_env(region=None,
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
       click.echo('\tiops: %s' % iops)
+      click.echo('\topenshift_sdn: %s' % openshift_sdn)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tdeployment_type: %s' % deployment_type)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
@@ -180,6 +184,7 @@ def launch_refarch_env(region=None,
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
       click.echo('\tiops: %s' % iops)
+      click.echo('\openshift_sdn: %s' % openshift_sdn)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tnode_sg: %s' % node_sg)
@@ -237,6 +242,7 @@ def launch_refarch_env(region=None,
         gluster_volume_type=%s \
         gluster_volume_size=%s \
         iops=%s \
+        openshift_sdn=%s \
         stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
@@ -254,6 +260,7 @@ def launch_refarch_env(region=None,
                         gluster_volume_type,
                         gluster_volume_size,
                         iops,
+                        openshift_sdn,
                     	existing_stack,
                     	playbook)
     else:
@@ -282,6 +289,7 @@ def launch_refarch_env(region=None,
           gluster_volume_type=%s \
           gluster_volume_size=%s \
           iops=%s \
+          openshift_sdn=%s \
     	  stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
@@ -304,6 +312,7 @@ def launch_refarch_env(region=None,
                         gluster_volume_type,
                         gluster_volume_size,
                         iops,
+                        openshift_sdn,
                     	existing_stack,
                     	playbook)
 
