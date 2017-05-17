@@ -270,6 +270,7 @@ echo -e '# End of OpenShift on GCP Section\n' >> "$SSH_CONFIG_FILE"
 export DNS_DOMAIN \
     OCP_APPS_DNS_NAME \
     OPENSHIFT_SDN \
+    OPENSHIFT_METRICS \
     OCP_PREFIX \
     MASTER_DNS_NAME \
     INTERNAL_MASTER_DNS_NAME \

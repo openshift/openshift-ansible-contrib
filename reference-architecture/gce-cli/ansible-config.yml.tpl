@@ -14,3 +14,4 @@ gce_network_name: ${OCP_PREFIX}-${OCP_NETWORK}
 openshift_master_identity_providers: ${OCP_IDENTITY_PROVIDERS}
 openshift_sdn: ${OPENSHIFT_SDN}
 prefix: ${OCP_PREFIX}
+openshift_hosted_metrics_deploy: ${OPENSHIFT_METRICS}
