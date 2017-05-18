@@ -6,6 +6,9 @@
     - instance-groups
 
 - include: ../../../playbooks/prerequisite.yaml
+  vars:
+    openshift_deployment_type: openshift-enterprise
+    deployment_type: "{{ openshift_deployment_type }}"
 
 - include: ../../../playbooks/openshift-storage.yaml
 
@@ -20,7 +23,7 @@
   gather_facts: no
   roles:
     - role: master-http-proxy
-    - role: /usr/share/ansible/openshift-ansible/roles/os_firewall
+    - role: os_firewall
       os_firewall_allow:
         - service: master http proxy
           port: 8080/tcp
@@ -28,7 +31,7 @@
 - hosts: infra_nodes
   gather_facts: no
   roles:
-    - role: /usr/share/ansible/openshift-ansible/roles/os_firewall
+    - role: os_firewall
       os_firewall_allow:
         - service: router liveness probe
           port: 1936/tcp
@@ -48,3 +51,6 @@
 
 
 - include: validation.yaml
+  vars:
+    openshift_master_cluster_hostname: "internal-master.{{ public_hosted_zone }}"
+    openshift_master_cluster_public_hostname: "master.{{ public_hosted_zone }}"

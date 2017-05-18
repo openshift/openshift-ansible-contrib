@@ -1,5 +1,5 @@
 ---
-- name: ensure the /etc/origin/cloudprovider folder exists
+- name: ensure the cloudprovider folder exists
   file:
     name: "{{ openshift.common.config_base }}cloudprovider"
     state: directory
@@ -7,15 +7,15 @@
 
 - name: configure gce cloud config options
   ini_file:
-    dest: /etc/origin/cloudprovider/gce.conf
+    dest: "{{ openshift.common.config_base }}cloudprovider/gce.conf"
     section: global
     option: "{{ item.key }}"
     value: "{{ item.value }}"
     state: present
     create: yes
   with_items:
-    - { key: 'project-id', value: '{{ gce_project_id }}' }
-    - { key: 'network-name', value: '{{ gce_network_name }}' }
-    - { key: 'node-tags', value: 'ocp' }
-    - { key: 'node-instance-prefix', value: 'ocp-' }
+    - { key: 'project-id', value: '{{ gcloud_project }}' }
+    - { key: 'network-name', value: '{{ prefix }}-network' }
+    - { key: 'node-tags', value: '{{ prefix }}' }
+    - { key: 'node-instance-prefix', value: '{{ prefix }}-' }
     - { key: 'multizone', value: 'false' }

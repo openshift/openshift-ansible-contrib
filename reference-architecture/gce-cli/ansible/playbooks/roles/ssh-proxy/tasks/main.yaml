@@ -15,6 +15,7 @@
       HostKeyAlias compute.{{ hostvars[prefix + '-bastion']['gce_id'] }}
       IdentitiesOnly yes
       CheckHostIP no
+      StrictHostKeyChecking no
       {% for item in groups['tag_' + prefix] %}
       Host {{ item }}
         User cloud-user

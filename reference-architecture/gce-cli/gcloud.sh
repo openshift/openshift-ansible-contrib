@@ -116,10 +116,9 @@ GCLOUD_REGION=${GCLOUD_ZONE%-*}
 
 function revert {
     # Unregister systems
-    gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
-    pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
-    ansible-playbook -e @~/ansible-config.yml playbooks/unregister.yaml;
-    '";
+    pushd "${DIR}/ansible"
+    ansible-playbook -e @../ansible-main-config.yaml ../../gce-ansible/playbooks/unregister.yaml
+    popd
 
     # Bucket for registry
     if gsutil ls -p "$GCLOUD_PROJECT" "gs://${REGISTRY_BUCKET}" &>/dev/null; then
@@ -218,90 +217,17 @@ export GCLOUD_PROJECT \
     NODE_BOOT_DISK_SIZE \
     NODE_DOCKER_DISK_SIZE \
     NODE_OPENSHIFT_DISK_SIZE \
-    REGISTRY_BUCKET
+    REGISTRY_BUCKET \
+    OPENSHIFT_SDN \
+    OCP_IDENTITY_PROVIDERS
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
 
 # Run Ansible
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/prereq.yaml
 ansible-playbook -e rhsm_user="${RH_USERNAME}" -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool="${RH_POOL_ID}" playbooks/main.yaml
+ansible-playbook -v -e rhsm_user="${RH_USERNAME}" -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool="${RH_POOL_ID}" -e @../ansible-main-config.yaml ../../gce-ansible/playbooks/openshift-install.yaml
 popd
-
-# Allow bastion to connect via SSH to other instances via external IP
-bastion_ext_ip=$(gcloud --project "$GCLOUD_PROJECT" compute instances list --filter="name=${OCP_PREFIX}-bastion" --format='value(EXTERNAL_IP)')
-if ! gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}" &>/dev/null; then
-    gcloud --project "$GCLOUD_PROJECT" compute firewall-rules create "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}" --network "${OCP_PREFIX}-${OCP_NETWORK}" --allow tcp:22 --source-ranges "$bastion_ext_ip"
-else
-    echo "Firewall rule '${OCP_PREFIX}-${BASTION_SSH_FW_RULE}' already exists"
-fi
-
-# Prepare config file for ansible based on the configuration from this script
-export DNS_DOMAIN \
-    OCP_APPS_DNS_NAME \
-    OPENSHIFT_SDN \
-    OCP_PREFIX \
-    MASTER_DNS_NAME \
-    INTERNAL_MASTER_DNS_NAME \
-    CONSOLE_PORT \
-    INFRA_NODE_INSTANCE_GROUP_SIZE \
-    REGISTRY_BUCKET \
-    GCLOUD_PROJECT \
-    OCP_NETWORK \
-    OCP_IDENTITY_PROVIDERS \
-    OCP_PREFIX
-envsubst < "${DIR}/ansible-config.yml.tpl" > "${DIR}/ansible-config.yml"
-gcloud --project "$GCLOUD_PROJECT" compute copy-files "${DIR}/ansible-config.yml" "cloud-user@${OCP_PREFIX}-bastion:" --zone "$GCLOUD_ZONE"
-
-# Prepare bastion instance for openshift installation
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "sudo bash -euc '
-    if ! subscription-manager identity &>/dev/null; then
-        subscription-manager register --username=${RH_USERNAME} --password=\"${RH_PASSWORD}\";
-    fi
-    for i in {0..5}; do
-        if subscription-manager list --consumed | grep -q ${RH_POOL_ID}; then
-            break;
-        fi
-        sleep 10;
-        subscription-manager attach --pool=${RH_POOL_ID} || true;
-    done
-    subscription-manager repos --disable=\"*\";
-    subscription-manager repos \
-        --enable=\"rhel-7-server-rpms\" \
-        --enable=\"rhel-7-server-extras-rpms\" \
-        --enable=\"rhel-7-server-ose-${OCP_VERSION}-rpms\";
-
-    if ! rpm -q epel-release; then
-      yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    fi
-    yum install -y git python-libcloud atomic-openshift-utils;
-
-    if ! grep -q \"export GCE_PROJECT=${GCLOUD_PROJECT}\" /etc/profile.d/ocp.sh 2>/dev/null; then
-        echo \"export GCE_PROJECT=${GCLOUD_PROJECT}\" >> /etc/profile.d/ocp.sh;
-    fi
-    if ! grep -q \"export INVENTORY_IP_TYPE=internal\" /etc/profile.d/ocp.sh 2>/dev/null; then
-        echo \"export INVENTORY_IP_TYPE=internal\" >> /etc/profile.d/ocp.sh;
-    fi
-'"
-gcloud --project "$GCLOUD_PROJECT" compute ssh "cloud-user@${OCP_PREFIX}-bastion" --zone "$GCLOUD_ZONE" --ssh-flag="-t" --command "bash -euc '
-    if [ ! -d ~/google-cloud-sdk ]; then
-        curl -sSL https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-${GOOGLE_CLOUD_SDK_VERSION}-linux-x86_64.tar.gz | tar -xz;
-        ~/google-cloud-sdk/bin/gcloud -q components update;
-        ~/google-cloud-sdk/install.sh -q --usage-reporting false;
-    fi
-
-    if [ ! -f ~/.ssh/google_compute_engine ]; then
-        ssh-keygen -t rsa -f ~/.ssh/google_compute_engine -C cloud-user -N \"\";
-    fi
-
-    # This command will upload our public SSH key to the GCE project metadata
-    ~/google-cloud-sdk/bin/gcloud compute ssh cloud-user@${OCP_PREFIX}-bastion --zone ${GCLOUD_ZONE} --command echo;
-
-    if [ ! -d ~/openshift-ansible-contrib ]; then
-        git clone https://github.com/openshift/openshift-ansible-contrib.git ~/openshift-ansible-contrib;
-    fi
-    pushd ~/openshift-ansible-contrib/reference-architecture/gce-ansible;
-    ansible-playbook -e rhsm_user=${RH_USERNAME} -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool=${RH_POOL_ID} -e @~/ansible-config.yml playbooks/openshift-install.yaml;
-'"
 
 echo
 echo "Deployment is complete. OpenShift Console can be found at https://${MASTER_DNS_NAME}"
