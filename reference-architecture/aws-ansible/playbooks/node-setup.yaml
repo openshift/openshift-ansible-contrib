@@ -1,10 +1,10 @@
 ---
-- name: Including provider vars
+- name: Running the scaleup playbook
   hosts: localhost
   connection: local
   become: no
   gather_facts: no
+  vars_files:
+  -  vars/aws_openshift.yaml
   tasks:
-  - include_vars: vars/aws_openshift.yaml
-
-- include: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml
+  - include: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml

@@ -7,12 +7,12 @@
   # Group systems
   - instance-groups
 
-- name: Including provider vars
+- name: Running the uninstall playbook
   hosts: localhost
   connection: local
   become: no
   gather_facts: no
+  vars_files:
+  -  vars/aws_openshift.yaml
   tasks:
-  - include_vars: vars/vmware_openshift.yaml
-
-- include: /usr/share/ansible/openshift-ansible/playbooks/byo/adhoc/uninstall.yml
+  - include: /usr/share/ansible/openshift-ansible/playbooks/byo/adhoc/uninstall.yml
