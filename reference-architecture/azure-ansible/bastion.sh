@@ -445,13 +445,18 @@ cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
     retries: 10
     delay: 30
     ignore_errors: yes
-  - name: attach sub
-    shell: subscription-manager attach --pool=$RHNPOOLID
-    register: task_result
-    until: task_result.rc == 0
-    retries: 10
-    delay: 30
-    ignore_errors: yes
+EOF
+if [[ $RHSMMODE == "usernamepassword" ]]
+then
+    echo "  - name: attach sub" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    shell: subscription-manager attach --pool=$RHNPOOLID" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    register: task_result" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    until: task_result.rc == 0" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    retries: 10" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    delay: 30" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    ignore_errors: yes" >> /home/${AUSERNAME}/subscribe.yml
+fi
+cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
   - name: disable all repos
     shell: subscription-manager repos --disable="*"
   - name: enable rhel7 repo
