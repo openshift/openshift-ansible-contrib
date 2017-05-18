@@ -1,8 +1,8 @@
 ---
 - name: Create filesystem for /var/lib/origin/openshift.local.volumes
   filesystem:
-    fstype: {{ local_volumes_fstype }}
-    dev: {{ local_volumes_device }}
+    fstype: "{{ local_volumes_fstype }}"
+    dev: "{{ local_volumes_device }}"
 
 - name: Create local volumes directory
   file:
