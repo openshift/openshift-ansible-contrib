@@ -4,7 +4,7 @@
   become: yes
   serial: 1
   roles:
-    - rhsm-subscription
+    - aws-rhsm-subscription
 
 - hosts: new_nodes
   gather_facts: no

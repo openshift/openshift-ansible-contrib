@@ -1,0 +1,20 @@
+---
+- hosts: cluster_hosts
+  gather_facts: yes
+  become: yes
+  serial: 1
+  roles:
+  - aws-rhsm-subscription
+
+- hosts: cluster_hosts
+  gather_facts: no
+  become: yes
+  roles:
+  - rhsm-repos
+  - prerequisites
+
+- hosts: master
+  gather_facts: yes
+  become: yes
+  roles:
+  - master-prerequisites
