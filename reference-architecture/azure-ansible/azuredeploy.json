@@ -713,6 +713,9 @@
           },
           "aadclientsecret" : {
             "value" : "[parameters('aadClientSecret')]"
+          },
+          "rhsmmode" : {
+            "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
           }
         }
       }

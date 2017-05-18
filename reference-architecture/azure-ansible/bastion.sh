@@ -23,6 +23,7 @@ export SUBSCRIPTIONID=${array[17]}
 export TENANTID=${array[18]}
 export AADCLIENTID=${array[19]}
 export AADCLIENTSECRET=${array[20]}
+export RHSMMODE=${ARRAY[21]}
 export FULLDOMAIN=${THEHOSTNAME#*.*}
 export WILDCARDFQDN=${WILDCARDZONE}.${FULLDOMAIN}
 export WILDCARDIP=`dig +short ${WILDCARDFQDN}`
@@ -31,6 +32,7 @@ echo "Show wildcard info"
 echo $WILDCARDFQDN
 echo $WILDCARDIP
 echo $WILDCARDNIP
+echo $RHSMMODE
 
 echo 'Show Registry Values'
 echo $REGISTRYSTORAGENAME
@@ -138,7 +140,12 @@ rm -f /etc/yum.repos.d/rh-cloud.repo
 yum-config-manager --disable epel
 yum-config-manager --disable epel-testing
 sleep 30
-subscription-manager register --username $RHNUSERNAME --password ${RHNPASSWORD}
+if [[ $RHSMMODE == "usernamepassword" ]]
+then
+   subscription-manager register --username="${RHNUSERNAME}" --password="${RHNPASSWORD}"
+else
+   subscription-manager register --org="{RHNUSERNAME}" --activationkey="${RHNPASSWORD}"
+fi
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
 subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms rhel-7-fast-datapath-rpms"
@@ -425,7 +432,14 @@ cat <<EOF > /home/${AUSERNAME}/subscribe.yml
     shell: subscription-manager unregister
     ignore_errors: yes
   - name: register hosts
-    shell: subscription-manager register --username ${RHNUSERNAME} --password ${RHNPASSWORD}
+EOF
+if [[ $RHSMMODE == "usernamepassword" ]]
+then
+    echo "    shell: subscription-manager register --username=\"${RHNUSERNAME}\" --password=\"${RHNPASSWORD}\"" >> /home/${AUSERNAME}/subscribe.yml
+else
+    echo "    shell: subscription-manager register --org=\"{RHNUSERNAME}\" --activationkey=\"${RHNPASSWORD}\"" >> /home/${AUSERNAME}/subscribe.yml
+fi
+cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
     register: task_result
     until: task_result.rc == 0
     retries: 10
