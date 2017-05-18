@@ -11,11 +11,12 @@
 
 - include: ../../../playbooks/openshift-storage.yaml
 
-- name: Run the OCP installation playbook
+- name: Including provider vars
   hosts: localhost
   connection: local
   become: no
   gather_facts: no
   tasks:
   - include_vars: vars/vmware_openshift.yaml
-  - include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+
+- include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml

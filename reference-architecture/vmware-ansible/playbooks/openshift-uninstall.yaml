@@ -7,11 +7,12 @@
   # Group systems
   - instance-groups
 
-- name: Run the uninstall OCP playbook
+- name: Including provider vars
   hosts: localhost
   connection: local
   become: no
   gather_facts: no
   tasks:
   - include_vars: vars/vmware_openshift.yaml
-  - include: /usr/share/ansible/openshift-ansible/playbooks/byo/adhoc/uninstall.yml
+
+- include: /usr/share/ansible/openshift-ansible/playbooks/byo/adhoc/uninstall.yml
