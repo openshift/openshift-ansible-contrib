@@ -144,7 +144,7 @@ if [[ $RHSMMODE == "usernamepassword" ]]
 then
    subscription-manager register --username="${RHNUSERNAME}" --password="${RHNPASSWORD}"
 else
-   subscription-manager register --org="{RHNUSERNAME}" --activationkey="${RHNPASSWORD}"
+   subscription-manager register --org="${RHNUSERNAME}" --activationkey="${RHNPASSWORD}"
 fi
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
@@ -437,7 +437,7 @@ if [[ $RHSMMODE == "usernamepassword" ]]
 then
     echo "    shell: subscription-manager register --username=\"${RHNUSERNAME}\" --password=\"${RHNPASSWORD}\"" >> /home/${AUSERNAME}/subscribe.yml
 else
-    echo "    shell: subscription-manager register --org=\"{RHNUSERNAME}\" --activationkey=\"${RHNPASSWORD}\"" >> /home/${AUSERNAME}/subscribe.yml
+    echo "    shell: subscription-manager register --org=\"${RHNUSERNAME}\" --activationkey=\"${RHNPASSWORD}\"" >> /home/${AUSERNAME}/subscribe.yml
 fi
 cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
     register: task_result
