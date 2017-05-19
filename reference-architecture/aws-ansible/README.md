@@ -91,7 +91,7 @@ When installing into an new AWS environment perform the following.   This will c
 ./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --rhsm-user=rh-user --rhsm-password=password \
 --public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" \
 --github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
---github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
+--github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc --deploy-openshift-metrics=true
 
 ```
 **OpenShift Origin**
