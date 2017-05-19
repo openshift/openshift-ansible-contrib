@@ -10,6 +10,5 @@
   vars_files:
     - vars/main.yaml
   roles:
-    - rhsm-subscription
-    - rhsm-repos
+    - rhel_subscribe
     - vmware-guest-setup

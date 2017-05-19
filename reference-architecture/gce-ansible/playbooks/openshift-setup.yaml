@@ -1,5 +1,5 @@
 ---
-- include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+- include: ../../../../openshift-ansible/playbooks/byo/config.yml
   vars:
     debug_level: 2
     console_port: 443
@@ -16,8 +16,8 @@
     openshift_hosted_router_replicas: 2
     openshift_hosted_registry_replicas: 2
     openshift_master_cluster_method: native
-    openshift_master_cluster_hostname: "internal-openshift-master.{{ public_hosted_zone }}"
-    openshift_master_cluster_public_hostname: "openshift-master.{{ public_hosted_zone }}"
+    openshift_master_cluster_hostname: "internal-master.{{ public_hosted_zone }}"
+    openshift_master_cluster_public_hostname: "master.{{ public_hosted_zone }}"
     osm_default_subdomain: "{{ wildcard_zone }}"
     openshift_master_default_subdomain: "{{osm_default_subdomain}}"
     osm_default_node_selector: "role=app"

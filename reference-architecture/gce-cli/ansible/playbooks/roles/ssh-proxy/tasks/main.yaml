@@ -1,0 +1,24 @@
+---
+- name: configure ssh proxy via bastion host
+  blockinfile:
+    dest: '{{ ssh_config_file }}'
+    create: true
+    mode: 0600
+    marker: '# {mark} OPENSHIFT ON GCP BLOCK'
+    state: present
+    block: |
+      Host {{ prefix }}-bastion
+      HostName {{ hostvars[prefix + '-bastion']['gce_public_ip'] }}
+      User cloud-user
+      IdentityFile ~/.ssh/google_compute_engine
+      UserKnownHostsFile ~/.ssh/google_compute_known_hosts
+      HostKeyAlias compute.{{ hostvars[prefix + '-bastion']['gce_id'] }}
+      IdentitiesOnly yes
+      CheckHostIP no
+      StrictHostKeyChecking no
+      {% for item in groups['tag_' + prefix] %}
+      Host {{ item }}
+        User cloud-user
+        IdentityFile ~/.ssh/google_compute_engine
+        proxycommand ssh {{ prefix }}-bastion -W %h:%p
+      {% endfor %}

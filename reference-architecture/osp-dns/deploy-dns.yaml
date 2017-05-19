@@ -75,9 +75,15 @@
       port: 22
     with_items: "{{ groups['all'] }}"
 
+  # NOTE(shadower): This is necessary until we switch to Ansible 2.3,
+  # which has the `wait_for_connection` module for this exact purpose.
+  # https://docs.ansible.com/ansible/wait_for_connection_module.html
   - name: Verify the servers can be SSHd into
     command: >
       {{ansible_ssh_executable}} {{ansible_ssh_common_args}}
+      {% if ansible_ssh_private_key_file|default(None) %}
+          -i {{ ansible_ssh_private_key_file }}
+      {% endif %}
       -oBatchMode=yes
       -o 'StrictHostKeyChecking no' -o 'UserKnownHostsFile /dev/null'
       -p {{ansible_port|default(22)}} {{ssh_user}}@{{ item }} /bin/true

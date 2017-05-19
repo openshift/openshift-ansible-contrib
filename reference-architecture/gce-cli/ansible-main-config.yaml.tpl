@@ -7,6 +7,8 @@ dns_domain: ${DNS_DOMAIN}
 master_dns_name: ${MASTER_DNS_NAME}
 internal_master_dns_name: ${INTERNAL_MASTER_DNS_NAME}
 ocp_apps_dns_name: ${OCP_APPS_DNS_NAME}
+wildcard_zone: ${OCP_APPS_DNS_NAME}
+public_hosted_zone: ${DNS_DOMAIN}
 rhel_image_path: ${RHEL_IMAGE_PATH}
 console_port: ${CONSOLE_PORT}
 master_https_key_file: ${MASTER_HTTPS_KEY_FILE}
@@ -22,3 +24,6 @@ master_boot_disk_size: ${MASTER_BOOT_DISK_SIZE}
 node_boot_disk_size: ${NODE_BOOT_DISK_SIZE}
 node_docker_disk_size: ${NODE_DOCKER_DISK_SIZE}
 node_openshift_disk_size: ${NODE_OPENSHIFT_DISK_SIZE}
+gcs_registry_bucket: ${REGISTRY_BUCKET}
+openshift_sdn: ${OPENSHIFT_SDN}
+openshift_master_identity_providers: ${OCP_IDENTITY_PROVIDERS}

@@ -224,17 +224,29 @@
         "description" : "The size of the each Node Virtual Machine."
       }
     },
+    "rhsmUsernamePasswordOrActivationKey" : {
+      "type" : "string",
+      "minLength" : 1,
+      "defaultValue" : "usernamepassword",
+      "allowedValues" : [
+        "usernamepassword",
+        "activationkey"
+      ],
+      "metadata" : {
+        "description" : "Select whether you want to use your Red Hat Subscription Manager Username and Password or Organization ID and Activation Key to register the RHEL instance to your Red Hat Subscription."
+      }
+    },
     "RHNUserName" : {
       "type" : "string",
       "minLength" : 1,
       "metadata" : {
-        "description" : "Red Hat Subscription User Name or Email Address"
+        "description" : "Red Hat Subscription User Name or Email Address or Organization ID"
       }
     },
     "RHNPassword" : {
       "type" : "securestring",
       "metadata" : {
-        "description" : "Red Hat Subscription Password"
+        "description" : "Red Hat Subscription Password or Activation Key"
       }
     },
     "SubscriptionPoolId" : {
@@ -701,6 +713,9 @@
           },
           "aadclientsecret" : {
             "value" : "[parameters('aadClientSecret')]"
+          },
+          "rhsmmode" : {
+            "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
           }
         }
       }

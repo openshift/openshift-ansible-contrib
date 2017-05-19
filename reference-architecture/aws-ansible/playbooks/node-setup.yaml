@@ -34,3 +34,4 @@
     deployment_type: openshift-enterprise
     osm_use_cockpit: false
     containerized: false
+    os_sdn_network_plugin_name: "redhat/{{ openshift_sdn }}"

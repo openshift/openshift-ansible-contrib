@@ -1,4 +1,20 @@
 ---
+# create rhsm_user, rhsm_password, rhsm_subscription_pool and rhsm_server for functionality with older rhsm_user
+- name: Set deprecated fact for rhel_subscription_user
+  set_fact:
+    rhsm_user: "{{ rhel_subscription_user }}"
+  when: rhel_subscription_user is defined
+
+- name: Set deprecated fact for rhel_subscription_pass
+  set_fact:
+    rhsm_password: "{{ rhel_subscription_pass }}"
+  when: rhel_subscription_pass is defined
+
+- name: Set deprecated fact for rhel_subscription_pool
+  set_fact:
+    rhsm_pool: "{{ rhel_subscription_pool }}"
+  when: rhel_subscription_pool is defined
+
 - name: Add masters to requisite groups
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
