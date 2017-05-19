@@ -28,7 +28,6 @@
     openshift_master_api_port: "{{ console_port }}"
     openshift_master_console_port: "{{ console_port }}"
     openshift_master_logging_public_url: "https://kibana.{{ osm_default_subdomain }}"
-    openshift_master_metrics_public_url: "https://metrics.{{ osm_default_subdomain }}/hawkular/metrics"
     osm_cluster_network_cidr: 172.16.0.0/16
     osm_use_cockpit: false
     osm_default_node_selector: "role=app"
@@ -69,4 +68,11 @@
     openshift_hosted_registry_storage_nfs_directory:
     openshift_hosted_registry_storage_volume_name: registry
     openshift_hosted_registry_storage_volume_size: 30Gi
+    openshift_master_metrics_public_url: "https://metrics.{{ osm_default_subdomain }}/hawkular/metrics"
+    openshift_hosted_metrics_storage_kind: nfs
+    openshift_hosted_metrics_storage_access_modes: ['ReadWriteOnce']
+    openshift_hosted_metrics_storage_host:
+    openshift_hosted_metrics_storage_nfs_directory:
+    openshift_hosted_metrics_storage_volume_name: metrics
+    openshift_hosted_metrics_storage_volume_size: 10Gi
 #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"

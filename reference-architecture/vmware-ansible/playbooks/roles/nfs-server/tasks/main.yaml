@@ -58,6 +58,9 @@
 - name: Make directory and set ownership
   file: path=/exports/registry state=directory owner=nfsnobody group=nfsnobody mode=0775
 
+- name: Make directory and set ownership
+  file: path=/exports/metrics state=directory owner=nfsnobody group=nfsnobody mode=0775
+
 - name: Export the directories
   lineinfile:
     dest: "/etc/exports"
