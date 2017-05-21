@@ -64,7 +64,7 @@
     register: l_atomic_docker_version
 
   - assert:
-      msg: Installation on Atomic Host requires Docker 1.12 or later. Please upgrade and restart the Atomic Host.
+      msg: Installation on Atomic Host requires Docker 1.12 or later. Execute the following to upgrade the Atomic instances ansible-playbook playbooks/atomic-update.yaml and then re-run the OpenShift Deployment scripts.
       that:
       - l_atomic_docker_version.stdout | replace('"', '') | version_compare('1.12','>=')
 

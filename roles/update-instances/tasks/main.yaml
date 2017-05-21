@@ -14,3 +14,18 @@
       state: latest
 
   when: not openshift.common.is_atomic | bool
+
+# Fail as early as possible if Atomic and old version of Docker
+- block:
+  - name: Patch Atomic instances
+    shell: atomic host upgrade
+    register: patched
+
+  - name: Reboot when patched
+    shell: /sbin/shutdown -r +1
+    async: 0
+    poll: 0
+    ignore_errors: true
+    when: patched.changed
+
+  when: l_is_atomic | bool
