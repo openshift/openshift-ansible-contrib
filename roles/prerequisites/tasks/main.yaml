@@ -53,20 +53,31 @@
 
 # Fail as early as possible if Atomic and old version of Docker
 - block:
-
-  # See https://access.redhat.com/articles/2317361
-  # and https://github.com/ansible/ansible/issues/15892
-  # NOTE: the "'s can not be removed at this level else the docker command will fail
-  # NOTE: When ansible >2.2.1.x is used this can be updated per
-  # https://github.com/openshift/openshift-ansible/pull/3475#discussion_r103525121
   - name: Determine Atomic Host Docker Version
     shell: 'CURLY="{"; docker version --format "$CURLY{json .Server.Version}}"'
     register: l_atomic_docker_version
 
   - assert:
-      msg: Installation on Atomic Host requires Docker 1.12 or later. Execute the following to upgrade the Atomic instances ansible-playbook playbooks/atomic-update.yaml and then re-run the OpenShift Deployment scripts.
+      msg: Installation on Atomic Host requires Docker 1.12 or later. Attempting to patch.
       that:
       - l_atomic_docker_version.stdout | replace('"', '') | version_compare('1.12','>=')
 
-  when: l_is_atomic | bool
+  rescue:
+  - name: Patch Atomic instances
+    shell: atomic host upgrade
+    register: patched
+
+  - name: Reboot when patched
+    shell: /sbin/shutdown -r +1
+    async: 0
+    poll: 0
+    ignore_errors: true
+    when: patched.changed
+
+  - name: Wait for hosts to be back
+    setup:
+    retries: 15
+    delay: 10
+
+  when: openshift.common.is_atomic | bool
 
