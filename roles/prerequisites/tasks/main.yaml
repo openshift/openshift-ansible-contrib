@@ -76,7 +76,7 @@
 
   - name: Wait for hosts to be back
     pause:
-      seconds: "{{ host_up_time }}" 
+      seconds: 60
     delegate_to: 127.0.0.1
     when: patched.changed
 
