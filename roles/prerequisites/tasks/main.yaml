@@ -63,21 +63,22 @@
       - l_atomic_docker_version.stdout | replace('"', '') | version_compare('1.12','>=')
 
   rescue:
-  - name: Patch Atomic instances
+  - name: Patching Atomic instances
     shell: atomic host upgrade
     register: patched
 
   - name: Reboot when patched
-    shell: /sbin/shutdown -r +1
-    async: 0
+    shell: sleep 5 && shutdown -r now "Reboot due to Atomic Patching"
+    async: 1
     poll: 0
     ignore_errors: true
     when: patched.changed
 
   - name: Wait for hosts to be back
-    setup:
-    retries: 15
-    delay: 10
+    pause:
+      seconds: "{{ host_up_time }}" 
+    delegate_to: 127.0.0.1
+    when: patched.changed
 
   when: openshift.common.is_atomic | bool
 
