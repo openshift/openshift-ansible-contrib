@@ -27,3 +27,9 @@ node_openshift_disk_size: ${NODE_OPENSHIFT_DISK_SIZE}
 gcs_registry_bucket: ${REGISTRY_BUCKET}
 openshift_sdn: ${OPENSHIFT_SDN}
 openshift_master_identity_providers: ${OCP_IDENTITY_PROVIDERS}
+
+
+rhel_image: '{{ rhel_image_path | basename | regex_replace("^(.*)\.qcow2$", "\1") }}'
+rhel_image_gce: '{{ rhel_image | replace(".", "-") | replace("_", "-") }}'
+gold_image: '{{ rhel_image_gce }}-gold'
+gold_image_family: 'rhel-guest-gold'

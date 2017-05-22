@@ -1,0 +1,53 @@
+---
+- name: create instance groups
+  hosts: localhost
+  gather_facts: no
+  roles:
+  - instance-groups
+
+- include: ../../../../playbooks/prerequisite.yaml
+  vars:
+    openshift_deployment_type: openshift-enterprise
+    deployment_type: '{{ openshift_deployment_type }}'
+
+- include: ../../../../playbooks/openshift-storage.yaml
+
+- include: openshift-setup.yaml
+
+- name: post ocp deploy tasks for master nodes
+  hosts: masters
+  gather_facts: no
+  roles:
+  - master-http-proxy
+  - role: os_firewall
+    os_firewall_allow:
+    - service: master http proxy
+      port: 8080/tcp
+
+- name: post ocp deploy tasks for infra nodes
+  hosts: infra_nodes
+  gather_facts: no
+  roles:
+  - role: os_firewall
+    os_firewall_allow:
+    - service: router liveness probe
+      port: 1936/tcp
+
+- name: post ocp deploy tasks for app nodes
+  hosts: app_nodes
+  gather_facts: no
+  roles:
+  - restrict-gce-metadata
+
+- include: ../../../../playbooks/empty-dir-quota.yaml
+
+- name: deploy registry
+  hosts: single_master
+  gather_facts: no
+  roles:
+  - openshift-registry
+
+- include: validation.yaml
+  vars:
+    openshift_master_cluster_hostname: "internal-master.{{ public_hosted_zone }}"
+    openshift_master_cluster_public_hostname: "master.{{ public_hosted_zone }}"

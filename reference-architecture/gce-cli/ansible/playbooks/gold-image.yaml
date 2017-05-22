@@ -1,8 +1,6 @@
 ---
 - name: check if gold image exists
   hosts: localhost
-  vars_files:
-  - ../../ansible-main-config.yaml
   tasks:
   - name: check for gold image
     command: gcloud --project {{ gcloud_project }} compute images describe {{ gold_image }}

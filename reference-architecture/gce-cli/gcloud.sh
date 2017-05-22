@@ -117,7 +117,7 @@ GCLOUD_REGION=${GCLOUD_ZONE%-*}
 function revert {
     # Unregister systems
     pushd "${DIR}/ansible"
-    ansible-playbook -e @../ansible-main-config.yaml ../../gce-ansible/playbooks/unregister.yaml
+    ansible-playbook playbooks/unregister.yaml
     popd
 
     # Bucket for registry
@@ -227,7 +227,6 @@ envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.y
 pushd "${DIR}/ansible"
 ansible-playbook -i inventory/inventory playbooks/prereq.yaml
 ansible-playbook -e rhsm_user="${RH_USERNAME}" -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool="${RH_POOL_ID}" playbooks/main.yaml
-ansible-playbook -v -e rhsm_user="${RH_USERNAME}" -e rhsm_password="${RH_PASSWORD}" -e rhsm_pool="${RH_POOL_ID}" -e @../ansible-main-config.yaml ../../gce-ansible/playbooks/openshift-install.yaml
 popd
 
 echo

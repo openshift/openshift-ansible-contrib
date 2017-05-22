@@ -3,7 +3,7 @@
   command: >
     {{ openshift.common.client_binary }} project default
 
-- name: set the selector for the default namespace
+- name: Set the selector for the default namespace
   command: >
     {{ openshift.common.client_binary }} annotate --overwrite namespace default openshift.io/node-selector=role=infra
   ignore_errors: true

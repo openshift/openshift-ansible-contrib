@@ -1,5 +1,1 @@
----
-rhel_image: '{{ rhel_image_path | basename | regex_replace("^(.*)\.qcow2$", "\1") }}'
-rhel_image_gce: '{{ rhel_image | replace(".", "-") | replace("_", "-") }}'
-gold_image: '{{ rhel_image_gce }}-gold'
-gold_image_family: 'rhel-guest-gold'
+../../../ansible-main-config.yaml

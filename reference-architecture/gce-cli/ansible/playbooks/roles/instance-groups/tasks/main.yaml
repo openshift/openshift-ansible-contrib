@@ -1,0 +1,37 @@
+---
+- name: add bastion to group
+  add_host:
+    name: '{{ hostvars[prefix + "-bastion"].gce_name }}'
+    groups: bastion
+
+- name: add masters to requisite groups
+  add_host:
+    name: '{{ hostvars[item].gce_name }}'
+    groups: masters, etcd, nodes, cluster_hosts
+    openshift_node_labels:
+      role: master
+  with_items: '{{ groups["tag_" + prefix + "-master"] }}'
+
+- name: add a master to the single masters group
+  add_host:
+    name: '{{ hostvars[item].gce_name }}'
+    groups: single_master
+    openshift_node_labels:
+      role: master
+  with_items: '{{ groups["tag_" + prefix + "-master"].0 }}'
+
+- name: add infra instances to host group
+  add_host:
+    name: '{{ hostvars[item].gce_name }}'
+    groups: nodes, cluster_hosts, schedulable_nodes, infra_nodes
+    openshift_node_labels:
+      role: infra
+  with_items: '{{ groups["tag_" + prefix + "-infra-node"] }}'
+
+- name: add app instances to host group
+  add_host:
+    name: '{{ hostvars[item].gce_name }}'
+    groups: nodes, cluster_hosts, schedulable_nodes, app_nodes
+    openshift_node_labels:
+      role: app
+  with_items: '{{ groups["tag_" + prefix + "-node"] }}'

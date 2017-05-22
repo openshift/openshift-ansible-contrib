@@ -1,5 +1,5 @@
 ---
-- include: ../../../../openshift-ansible/playbooks/byo/config.yml
+- include: ../../../../../openshift-ansible/playbooks/byo/config.yml
   vars:
     debug_level: 2
     console_port: 443
@@ -24,15 +24,15 @@
     openshift_deployment_type: openshift-enterprise
     deployment_type: "{{ openshift_deployment_type }}"
     os_sdn_network_plugin_name: "redhat/{{ openshift_sdn }}"
-    openshift_master_identity_providers:
-    - name: google
-      kind: GoogleIdentityProvider
-      login: true
-      challenge: false
-      mapping_method: claim
-      clientID: xxx-yyy.apps.googleusercontent.com
-      clientSecret: zzz
-      hostedDomain: example.com
+    # openshift_master_identity_providers:
+    # - name: google
+    #   kind: GoogleIdentityProvider
+    #   login: true
+    #   challenge: false
+    #   mapping_method: claim
+    #   clientID: xxx-yyy.apps.googleusercontent.com
+    #   clientSecret: zzz
+    #   hostedDomain: example.com
     osm_use_cockpit: false
     containerized: false
     openshift_hosted_metrics_storage_kind: dynamic
