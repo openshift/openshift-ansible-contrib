@@ -81,4 +81,3 @@
     when: patched.changed
 
   when: openshift.common.is_atomic | bool
-
