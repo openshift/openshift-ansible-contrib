@@ -289,7 +289,7 @@ def launch_refarch_env(region=None,
         create_key=%s \
         create_vpc=%s \
         new_node_stack=%s \
-        stack_name=%s \,
+        stack_name=%s \
         openshift_sdn=%s \' %s' % (region,
                         ami,
                         keypair,
