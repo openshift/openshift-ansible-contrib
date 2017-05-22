@@ -19,6 +19,7 @@
     openshift_node_local_quota_per_fsgroup: 512Mi
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: vsphere
+    os_sdn_network_plugin_name: "{{ openshift_sdn }}"
     deployment_type:
     load_balancer_hostname:
     openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
