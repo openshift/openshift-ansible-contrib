@@ -16,7 +16,6 @@
 
 - name: Install and configure Glusterfs prerequisites
   hosts: hypervisors
-  gather_facts: yes
   become: yes
   tags:
     - install
@@ -29,7 +28,6 @@
 
 - name: Set up basic Glusterfs cluster
   hosts: head
-  gather_facts: yes
   become: yes
   tags:
     - configure
