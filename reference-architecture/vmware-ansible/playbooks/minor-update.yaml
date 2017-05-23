@@ -12,7 +12,7 @@
     osm_cluster_network_cidr: 172.16.0.0/16
     openshift_cloudprovider_kind: vsphere
     load_balancer_hostname:
-    deployment_type: 
+    deployment_type:
     openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"
     osm_default_node_selector: "role=app"
