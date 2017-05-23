@@ -11,8 +11,8 @@
     openshift_master_console_port: "{{ console_port }}"
     osm_cluster_network_cidr: 172.16.0.0/16
     openshift_cloudprovider_kind: vsphere
-    load_balancer_hostname:
-    deployment_type:
+    load_balancer_hostname: haproxy-0.ci.e2e.bos.redhat.com
+    deployment_type: openshift-enterprise
     openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"
     osm_default_node_selector: "role=app"
