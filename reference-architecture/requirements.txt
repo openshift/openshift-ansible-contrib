@@ -1,0 +1,2 @@
+python>=2.6
+ovirt-engine-sdk-python
