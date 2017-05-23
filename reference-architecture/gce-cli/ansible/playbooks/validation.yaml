@@ -1,0 +1,15 @@
+---
+- name: create instance groups
+  hosts: localhost
+  gather_facts: no
+  pre_tasks:
+  - name: set some facts
+    set_fact:
+      openshift_master_cluster_public_hostname: "{{ openshift_master_cluster_public_hostname }}"
+      openshift_master_cluster_hostname: "{{ openshift_master_cluster_hostname }}"
+  roles:
+  - instance-groups
+
+- include: ../../../../playbooks/post-validation.yaml
+  vars:
+    validate_etcd_short_hostname: true

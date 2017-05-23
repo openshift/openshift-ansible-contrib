@@ -35,6 +35,7 @@
       name: '{{ rhel_image_gce }}'
       family: '{{ rhel_image_gce_family }}'
       source: '{{ rhel_image_in_bucket }}'
+      state: present
 
   - name: delete bucket with uploaded archive
     command: gsutil -m rm -r {{ rhel_image_bucket }}

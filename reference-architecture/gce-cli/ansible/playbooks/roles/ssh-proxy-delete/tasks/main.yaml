@@ -1,0 +1,7 @@
+---
+- name: delete ssh proxy configuration
+  blockinfile:
+    dest: '{{ ssh_config_file }}'
+    mode: 0600
+    marker: '# {mark} OPENSHIFT ON GCP BLOCK'
+    state: absent

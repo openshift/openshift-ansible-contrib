@@ -551,6 +551,7 @@ ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml
 /home/${AUSERNAME}/createvhdcontainer.sh sapv1${RESOURCEGROUP}
 /home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
 oc create -f /home/${AUSERNAME}/scgeneric.yml
+oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 EOF
 

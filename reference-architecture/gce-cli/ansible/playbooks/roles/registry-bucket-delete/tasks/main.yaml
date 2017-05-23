@@ -1,0 +1,4 @@
+---
+- name: delete registry bucket with all content
+  command: gsutil -m rm -r gs://{{ gcs_registry_bucket }}
+  ignore_errors: true

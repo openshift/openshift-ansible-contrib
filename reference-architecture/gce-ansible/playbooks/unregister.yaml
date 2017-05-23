@@ -1,9 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  gather_facts: no
-  become: no
-  roles:
-  - instance-groups
-
-- include: ../../../playbooks/unregister.yaml

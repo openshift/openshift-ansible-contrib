@@ -1,17 +1,17 @@
 ---
 - name: create temp instance for gold image creation
   hosts: localhost
-  vars_files:
-  - ../../ansible-main-config.yaml
   roles:
-  - { role: deployment-create, deployment_name: 'tmp-instance' }
+  - role: deployment-create
+    deployment_name: tmp-instance
   post_tasks:
   - name: refresh gce inventory
     command: '{{ inventory_dir }}/gce/hosts/gce.py --refresh-cache'
+    changed_when: false
   - meta: refresh_inventory
   - name: wait for the temp instance to come up
     wait_for:
-      host: '{{ hostvars[prefix + "-tmp-instance"]["ansible_ssh_host"] }}'
+      host: '{{ hostvars[prefix + "-tmp-instance"]["gce_public_ip"] }}'
       port: 22
       state: started
 
@@ -24,8 +24,7 @@
 
 - name: create gold image from temp instance disk
   hosts: localhost
-  vars_files:
-  - ../../ansible-main-config.yaml
   roles:
-  - { role: deployment-delete, deployment_name: 'tmp-instance' }
+  - role: deployment-delete
+    deployment_name: tmp-instance
   - gold-image

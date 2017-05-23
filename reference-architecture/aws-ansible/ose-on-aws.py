@@ -14,7 +14,7 @@ import sys
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', type=click.Choice(['origin', 'openshift-enterprise']),  help='OpenShift deployment type',
               show_default=True)
-@click.option('--openshift-sdn', default='openshift-ovs-subnet', type=click.Choice(['openshift-ovs-subnet', 'openshift-ovs-multitenant']),  help='OpenShift SDN',
+@click.option('--openshift-sdn', default='redhat/openshift-ovs-subnet', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
               show_default=True)
 
 ### AWS/EC2 options

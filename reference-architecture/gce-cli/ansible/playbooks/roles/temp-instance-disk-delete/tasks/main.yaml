@@ -1,0 +1,7 @@
+---
+- name: delete temp instance disk
+  gce_pd:
+    name: '{{ prefix }}-tmp-instance'
+    zone: '{{ gcloud_zone }}'
+    state: absent
+  ignore_errors: true

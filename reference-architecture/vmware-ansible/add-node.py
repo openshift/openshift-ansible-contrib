@@ -109,7 +109,7 @@ class VMWareAddNode(object):
             'rhel_subscription_pass':'',
             'rhel_subscription_server':'',
             'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
-            'openshift_sdn':'openshift-ovs-subnet',
+            'openshift_sdn':'redhat/openshift-ovs-subnet',
             'byo_lb':'no',
             'lb_host':'haproxy-',
             'byo_nfs':'no',

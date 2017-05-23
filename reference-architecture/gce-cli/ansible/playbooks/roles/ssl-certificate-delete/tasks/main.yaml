@@ -1,0 +1,4 @@
+---
+- name: delete ssl certificate
+  command: gcloud --project {{ gcloud_project }} compute ssl-certificates delete {{ ssl_lb_cert_with_prefix }}
+  ignore_errors: true

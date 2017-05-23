@@ -1,0 +1,7 @@
+---
+- name: delete rhel gce image
+  gce_img:
+    name: '{{ rhel_image_gce }}'
+    family: '{{ rhel_image_gce_family }}'
+    state: absent
+  ignore_errors: true

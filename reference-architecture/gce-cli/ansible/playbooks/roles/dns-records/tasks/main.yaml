@@ -19,19 +19,19 @@
     record: '{{ item.record }}'
     zone: '{{ dns_domain }}'
     type: '{{ item.type }}'
-    value: '{{ item.value }}'
+    record_data: '{{ item.record_data }}'
     ttl: 3600
     state: present
   with_items:
   - record: '{{ master_dns_name }}'
-    value: '{{ master_ssl_lb_ip.stdout }}'
+    record_data: '{{ master_ssl_lb_ip.stdout }}'
     type: A
   - record: '{{ internal_master_dns_name }}'
-    value: '{{ master_network_lb_ip.stdout }}'
+    record_data: '{{ master_network_lb_ip.stdout }}'
     type: A
   - record: '{{ ocp_apps_dns_name }}'
-    value: '{{ router_network_lb_ip.stdout }}'
+    record_data: '{{ router_network_lb_ip.stdout }}'
     type: A
   - record: '*.{{ ocp_apps_dns_name }}'
-    value: '{{ ocp_apps_dns_name }}.'
+    record_data: '{{ ocp_apps_dns_name }}.'
     type: CNAME

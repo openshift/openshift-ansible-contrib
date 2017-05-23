@@ -12,6 +12,8 @@ import sys
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
               show_default=True)
+@click.option('--openshift-sdn', default='redhat/openshift-ovs-subnet', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
+              show_default=True)
 
 ### AWS/EC2 options
 @click.option('--region', default='us-east-1', help='ec2 region',
@@ -80,6 +82,7 @@ def launch_refarch_env(region=None,
                     iam_role=None,
                     infra_elb_name=None,
                     existing_stack=None,
+                    openshift_sdn=None,
                     use_cloudformation_facts=False,
                     verbose=0):
 
@@ -160,6 +163,7 @@ def launch_refarch_env(region=None,
       click.echo('\tcontainerized: %s' % containerized)
       click.echo('\tnode_type: %s' % node_type)
       click.echo('\texisting_stack: %s' % existing_stack)
+      click.echo('\topenshit_sdn: %s' % openshift_sdn)
       click.echo('\tSubnets, Security Groups, and IAM Roles will be gather from the CloudFormation')
       click.echo("")
   else:
@@ -186,6 +190,7 @@ def launch_refarch_env(region=None,
       click.echo('\tiam_role: %s' % iam_role)
       click.echo('\tinfra_elb_name: %s' % infra_elb_name)
       click.echo('\texisting_stack: %s' % existing_stack)
+      click.echo('\topenshift_sdn: %s' % openshift_sdn)
       click.echo("")
 
   if not no_confirm:
@@ -233,7 +238,8 @@ def launch_refarch_env(region=None,
         create_key=%s \
         create_vpc=%s \
         new_node_stack=%s \
-        stack_name=%s \' %s' % (region,
+        stack_name=%s \
+        openshift_sdn=%s \' %s' % (region,
                         ami,
                         keypair,
                         subnet_id,
@@ -254,6 +260,7 @@ def launch_refarch_env(region=None,
                         create_vpc,
                         new_node_stack,
                         existing_stack,
+                        openshift_sdn,
                         playbook)
 
     else:
@@ -282,7 +289,8 @@ def launch_refarch_env(region=None,
         create_key=%s \
         create_vpc=%s \
         new_node_stack=%s \
-        stack_name=%s \' %s' % (region,
+        stack_name=%s \
+        openshift_sdn=%s \' %s' % (region,
                         ami,
                         keypair,
                         subnet_id,
@@ -306,6 +314,7 @@ def launch_refarch_env(region=None,
                         create_vpc,
                         new_node_stack,
                         existing_stack,
+                        openshift_sdn,
                         playbook)
 
     if verbose > 0:

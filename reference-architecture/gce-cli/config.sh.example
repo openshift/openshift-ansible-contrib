@@ -41,8 +41,8 @@ OCP_PREFIX='ocp'
 # OpenShift Identity providers. This is Google oauth example (hosted_domain is optional and restricts login to users only from the specified domain)
 OCP_IDENTITY_PROVIDERS='[ {"name": "google", "kind": "GoogleIdentityProvider", "login": "true", "challenge": "false", "mapping_method": "claim", "client_id": "xxx-yyy.apps.googleusercontent.com", "client_secret": "zzz", "hosted_domain": "example.com"} ]'
 
-# OpenShift SDN selection (options are 'openshift-ovs-subnet', 'openshift-ovs-multitenant')
-OPENSHIFT_SDN='openshift-ovs-subnet'
+# OpenShift SDN selection (options are 'redhat/openshift-ovs-subnet', 'redhat/openshift-ovs-multitenant')
+OPENSHIFT_SDN='redhat/openshift-ovs-subnet'
 
 # Deploy OpenShift Metrics
 OPENSHIFT_METRICS='false'
@@ -56,7 +56,7 @@ MASTER_INSTANCE_GROUP_SIZE='3'
 INFRA_NODE_INSTANCE_GROUP_SIZE='3'
 NODE_INSTANCE_GROUP_SIZE='2'
 
-BASTION_MACHINE_TYPE='n1-standard-1'
+BASTION_MACHINE_TYPE='g1-small'
 MASTER_MACHINE_TYPE='n1-standard-2'
 NODE_MACHINE_TYPE='n1-standard-2'
 
