@@ -1,0 +1,3 @@
+---
+ssl_lb_cert: master-ssl-lb-cert
+ssl_lb_cert_with_prefix: '{{ prefix }}-{{ ssl_lb_cert }}'

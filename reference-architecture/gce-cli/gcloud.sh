@@ -114,81 +114,6 @@ fi
 
 GCLOUD_REGION=${GCLOUD_ZONE%-*}
 
-function revert {
-    # Unregister systems
-    pushd "${DIR}/ansible"
-    ansible-playbook playbooks/unregister.yaml
-    popd
-
-    # Bucket for registry
-    if gsutil ls -p "$GCLOUD_PROJECT" "gs://${REGISTRY_BUCKET}" &>/dev/null; then
-        gsutil -m rm -r "gs://${REGISTRY_BUCKET}"
-    fi
-
-    # DNS
-    if gcloud --project "$GCLOUD_PROJECT" dns managed-zones describe "$DNS_MANAGED_ZONE" &>/dev/null; then
-        # Easy way how to delete all records from a zone is to import empty file and specify '--delete-all-existing'
-        EMPTY_FILE=/tmp/ocp-dns-records-empty.yml
-        touch "$EMPTY_FILE"
-        gcloud --project "$GCLOUD_PROJECT" dns record-sets import "$EMPTY_FILE" -z "$DNS_MANAGED_ZONE" --delete-all-existing &>/dev/null
-        rm -f "$EMPTY_FILE"
-    fi
-
-    # Core deployment
-    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${CORE_DEPLOYMENT}" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${CORE_DEPLOYMENT}"
-    fi
-
-    # Additional disks
-    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${ADD_DISKS_DEPLOYMENT}" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${ADD_DISKS_DEPLOYMENT}"
-    fi
-
-    # Master certificate
-    if gcloud --project "$GCLOUD_PROJECT" compute ssl-certificates describe "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute ssl-certificates delete "${OCP_PREFIX}-${MASTER_SSL_LB_CERT}"
-    fi
-
-    # Temp instance (it shouldn't exist, just to be sure..)
-    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${TEMP_INSTANCE}" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${TEMP_INSTANCE}"
-    fi
-    if gcloud --project "$GCLOUD_PROJECT" compute disks describe "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute disks delete "${OCP_PREFIX}-${TEMP_INSTANCE}" --zone "$GCLOUD_ZONE"
-    fi
-
-    # Dynamic firewall rule
-    if gcloud --project "$GCLOUD_PROJECT" compute firewall-rules describe "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute firewall-rules delete "${OCP_PREFIX}-${BASTION_SSH_FW_RULE}"
-    fi
-
-    # Network deployment
-    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-${NETWORK_DEPLOYMENT}" &>/dev/null; then
-        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-${NETWORK_DEPLOYMENT}"
-    fi
-
-    # Gold image
-    if gcloud --project "$GCLOUD_PROJECT" deployment-manager deployments describe "${OCP_PREFIX}-gold-image" &>/dev/null && [ "$DELETE_GOLD_IMAGE" = 'true' ]; then
-        gcloud -q --project "$GCLOUD_PROJECT" deployment-manager deployments delete "${OCP_PREFIX}-gold-image"
-    fi
-
-    # RHEL image
-    if gcloud --project "$GCLOUD_PROJECT" compute images describe "$RHEL_IMAGE_GCE" &>/dev/null && [ "$DELETE_IMAGE" = 'true' ]; then
-        gcloud -q --project "$GCLOUD_PROJECT" compute images delete "$RHEL_IMAGE_GCE"
-    fi
-
-    # Remove configuration from local ~/.ssh/config file
-    sed -i '/^# BEGIN OPENSHIFT ON GCP BLOCK$/,/^# END OPENSHIFT ON GCP BLOCK$/d' "$SSH_CONFIG_FILE"
-}
-
-# Support the revert option
-if [ "${1:-}" = '--revert' ]; then
-    revert
-    exit 0
-fi
-
-### PROVISION THE INFRASTRUCTURE ###
-
 # Configure python path
 PYTHONPATH="${PYTHONPATH:-}:${DIR}/ansible/inventory/gce/hosts"
 export PYTHONPATH
@@ -220,8 +145,24 @@ export GCLOUD_PROJECT \
     REGISTRY_BUCKET \
     OPENSHIFT_SDN \
     OPENSHIFT_METRICS \
-    OCP_IDENTITY_PROVIDERS
+    OCP_IDENTITY_PROVIDERS \
+    DELETE_GOLD_IMAGE \
+    DELETE_IMAGE
 envsubst < "${DIR}/ansible-main-config.yaml.tpl" > "${DIR}/ansible-main-config.yaml"
+
+function revert {
+    pushd "${DIR}/ansible"
+    ansible-playbook playbooks/teardown.yaml
+    popd
+}
+
+# Support the revert option
+if [ "${1:-}" = '--revert' ]; then
+    revert
+    exit 0
+fi
+
+### PROVISION THE INFRASTRUCTURE ###
 
 # Run Ansible
 pushd "${DIR}/ansible"

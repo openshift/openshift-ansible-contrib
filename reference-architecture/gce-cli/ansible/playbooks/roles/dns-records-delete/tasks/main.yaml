@@ -1,0 +1,17 @@
+---
+- name: delete ns records
+  gcdns_record:
+    record: '{{ item.record }}'
+    zone: '{{ dns_domain }}'
+    type: '{{ item.type }}'
+    overwrite: true
+    state: absent
+  with_items:
+  - record: '{{ master_dns_name }}'
+    type: A
+  - record: '{{ internal_master_dns_name }}'
+    type: A
+  - record: '{{ ocp_apps_dns_name }}'
+    type: A
+  - record: '*.{{ ocp_apps_dns_name }}'
+    type: CNAME

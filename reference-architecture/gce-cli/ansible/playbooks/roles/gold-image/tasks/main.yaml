@@ -6,7 +6,7 @@
     vars:
       deployment_name: gold-image
 
-  - name: delete temp disk
+  - name: delete temp instance disk
     gce_pd:
       name: '{{ prefix }}-tmp-instance'
       zone: '{{ gcloud_zone }}'

@@ -1,0 +1,25 @@
+---
+- include: unregister.yaml
+  when: hostvars[prefix + '-bastion'] is defined
+
+- name: teardown the created infrastructure
+  hosts: localhost
+  roles:
+  - registry-bucket-delete
+  - dns-records-delete
+  - role: deployment-delete
+    deployment_name: core
+  - role: deployment-delete
+    deployment_name: add-disks
+  - ssl-certificate-delete
+  - role: deployment-delete
+    deployment_name: tmp-instance
+  - temp-instance-disk-delete
+  - role: deployment-delete
+    deployment_name: network
+  - ssh-proxy-delete
+  - role: deployment-delete
+    deployment_name: gold-image
+    when: delete_gold_image | bool
+  - role: rhel-image-delete
+    when: delete_image | bool

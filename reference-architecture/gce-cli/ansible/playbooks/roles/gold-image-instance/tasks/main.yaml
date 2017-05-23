@@ -58,7 +58,7 @@
       deployment_name: tmp-instance
     delegate_to: localhost
 
-  - name: delete temp disk
+  - name: delete temp instance disk
     gce_pd:
       name: '{{ prefix }}-tmp-instance'
       zone: '{{ gcloud_zone }}'
