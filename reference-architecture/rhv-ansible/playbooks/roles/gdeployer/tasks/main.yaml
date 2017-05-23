@@ -1,0 +1,10 @@
+---
+- name: Install gdeploy
+  package:
+    name: gdeploy
+    state: latest
+- name: Create gdeploy.conf from template
+  template:
+    src: gdeploy.conf
+    dest: /root/gdeploy.conf
+  notify: run gdeploy
