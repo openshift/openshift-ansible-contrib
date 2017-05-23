@@ -11,7 +11,7 @@
   - meta: refresh_inventory
   - name: wait for the temp instance to come up
     wait_for:
-      host: '{{ hostvars[prefix + "-tmp-instance"]["ansible_ssh_host"] }}'
+      host: '{{ hostvars[prefix + "-tmp-instance"]["gce_public_ip"] }}'
       port: 22
       state: started
 
