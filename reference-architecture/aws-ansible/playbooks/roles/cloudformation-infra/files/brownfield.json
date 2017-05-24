@@ -829,7 +829,7 @@
           "SubnetId" : {"Ref": "PublicSubnet1"},
           "Tags": [
             { "Key": "Name",
-              "Value": {"Fn::Join": [".", ["bastion",{"Ref": "Route53HostedZone"}]]}
+              "Value": {"Fn::Join": [".", ["bastion",{"Ref": "PublicHostedZone"}]]}
             }
           ],
           "BlockDeviceMappings" : [
