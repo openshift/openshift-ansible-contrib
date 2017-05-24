@@ -14,7 +14,7 @@
   file:
     path: /root/.ssh/known_hosts
     state: absent
-- name: Gather ssh keys 
+- name: Gather ssh keys
   shell: /usr/bin/ssh-keyscan -t ecdsa  {{ hostvars[ item ]['ansible_default_ipv4']['address'] }} >> /root/.ssh/known_hosts
   with_items:
     - "{{ groups['hypervisors'] }}"
