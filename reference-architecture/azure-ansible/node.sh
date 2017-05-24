@@ -22,6 +22,7 @@ echo "DEVS=${DOCKERVG}" >> /etc/sysconfig/docker-storage-setup
 cat <<EOF > /etc/sysconfig/docker-storage-setup
 DEVS=$DOCKERVG
 VG=docker-vg
+DATA_SIZE=95%VG
 EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
 EOF
 
