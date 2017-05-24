@@ -459,9 +459,14 @@ def launch_refarch_env(console_port=8443,
     if verbose > 0:
       devnull=''
 
+    # grab the default priv key from the user"
+    command='cp -f ~/.ssh/id_rsa ssh_key/ocp3-installer'
+    os.system(command)
     # make sure the ssh keys have the proper permissions
     command='chmod 600 ssh_key/ocp-installer'
     os.system(command)
+
+
 
     # remove any cached facts to prevent stale data during a re-run
     command='rm -rf .ansible/cached_facts'
