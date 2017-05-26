@@ -11,7 +11,7 @@ Described usage is for RHEL 7 based operating system.
 
 Installation of gcloud utility is interactive, usually you will want to answer positively to asked questions.
 ```
-sudo yum -y install curl python which tar qemu-img openssl gettext git ansible python-libcloud python2-jmespath
+sudo yum -y install curl python which tar qemu-img openssl git ansible python-libcloud python2-jmespath
 curl https://sdk.cloud.google.com | bash
 exec -l $SHELL
 gcloud components install beta

@@ -2,16 +2,16 @@
 - name: delete ns records
   gcdns_record:
     record: '{{ item.record }}'
-    zone: '{{ dns_domain }}'
+    zone: '{{ public_hosted_zone }}'
     type: '{{ item.type }}'
     overwrite: true
     state: absent
   with_items:
-  - record: '{{ master_dns_name }}'
+  - record: '{{ openshift_master_cluster_public_hostname }}'
     type: A
-  - record: '{{ internal_master_dns_name }}'
+  - record: '{{ openshift_master_cluster_hostname }}'
     type: A
-  - record: '{{ ocp_apps_dns_name }}'
+  - record: '{{ wildcard_zone }}'
     type: A
-  - record: '*.{{ ocp_apps_dns_name }}'
+  - record: '*.{{ wildcard_zone }}'
     type: CNAME

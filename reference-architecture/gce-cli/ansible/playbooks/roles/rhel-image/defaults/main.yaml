@@ -1,5 +1,4 @@
 ---
-rhel_image_path: '{{ ansible_env.HOME }}/Downloads/rhel-guest-image-7.3-35.x86_64.qcow2'
 rhel_image_dir: '{{ rhel_image_path | dirname }}'
 rhel_image_raw: '{{ rhel_image_dir }}/disk.raw'
 rhel_image_archive: '{{ rhel_image_dir }}/{{ rhel_image }}.tar.gz'

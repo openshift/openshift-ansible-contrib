@@ -52,7 +52,7 @@
         ssl_selfsigned: true
 
     - name: create self signed certificate
-      command: openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj '/C=US/L=Raleigh/O={{ dns_domain }}/CN={{ master_dns_name }}' -keyout '{{ ssl_key }}' -out '{{ ssl_cert }}' creates='{{ ssl_cert }}'
+      command: openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -subj '/C=US/L=Raleigh/O={{ public_hosted_zone }}/CN={{ openshift_master_cluster_public_hostname }}' -keyout '{{ ssl_key }}' -out '{{ ssl_cert }}' creates='{{ ssl_cert }}'
     when: master_https_key_file is not defined or master_https_key_file is none or master_https_key_file | trim == '' or
           master_https_cert_file is not defined or master_https_cert_file is none or master_https_cert_file | trim == ''
 

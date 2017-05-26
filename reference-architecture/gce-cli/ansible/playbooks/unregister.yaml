@@ -1,7 +1,6 @@
 ---
 - name: create instance groups
   hosts: localhost
-  gather_facts: no
   roles:
   - instance-groups
 

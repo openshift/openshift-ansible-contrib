@@ -1,17 +1,17 @@
 ---
 - name: create dns zone
   gcdns_zone:
-    zone: '{{ dns_domain }}'
-    description: '{{ dns_domain }} domain'
+    zone: '{{ public_hosted_zone }}'
+    description: '{{ public_hosted_zone }} domain'
     state: present
   register: dns_created
 
 - block:
   - name: get ns servers
-    command: gcloud --project {{ gcloud_project }} dns managed-zones describe {{ dns_domain | replace('.', '-') }} --format='value(nameServers)'
+    command: gcloud --project {{ gcloud_project }} dns managed-zones describe {{ public_hosted_zone | replace('.', '-') }} --format='value(nameServers)'
     register: ns_servers
 
   - name: print info about ns servers and fail
     fail:
-      msg: "DNS zone '{{ dns_domain }}' didn't exist. It was created, but before the deployment can continue, you have to configure the following NS servers in your domain provider, then run the deployment again: {{ ns_servers.stdout }}"
+      msg: "DNS zone '{{ public_hosted_zone }}' didn't exist. It was created, but before the deployment can continue, you have to configure the following NS servers in your domain provider, then run the deployment again: {{ ns_servers.stdout }}"
   when: dns_created | changed

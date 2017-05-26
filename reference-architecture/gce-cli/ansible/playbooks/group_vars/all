@@ -1,1 +1,20 @@
-../../../ansible-main-config.yaml
+---
+# Variables shared by multiple playbooks and roles, which are not interesting
+# to user
+
+openshift_vers: v3_5
+
+ssh_config_file: '~/.ssh/config'
+
+gcloud_region: '{{ gcloud_zone[:-2] }}'
+gcs_registry_bucket: '{{ gcloud_project }}-{{ prefix }}-registry-bucket'
+deployment_type: '{{ openshift_deployment_type }}'
+
+rhel_image: '{{ rhel_image_path | basename | regex_replace("^(.*)\.qcow2$", "\1") }}'
+rhel_image_gce: '{{ rhel_image | replace(".", "-") | replace("_", "-") }}'
+gold_image: '{{ rhel_image_gce }}-gold'
+gold_image_family: 'rhel-guest-gold'
+
+console_port: 443
+
+validate_etcd_short_hostname: true

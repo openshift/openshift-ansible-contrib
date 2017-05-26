@@ -2,9 +2,10 @@
 - name: configure ansible connection to the gcp and some basic stuff
   hosts: localhost
   roles:
+  - pre-flight-validation
   - ansible-gcp
   - dns-zone
   - gcp-ssh-key
   - rhel-image
   - role: deployment-create
-    deployment_name: 'network'
+    deployment_name: network

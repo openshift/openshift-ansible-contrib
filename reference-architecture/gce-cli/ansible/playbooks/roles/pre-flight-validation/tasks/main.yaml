@@ -1,0 +1,12 @@
+---
+- name: stat rhel image file
+  stat:
+    path: '{{ rhel_image_path }}'
+  register: rhel_image_path_stat
+
+- name: verify that the image is readable
+  assert:
+    that:
+    - 'rhel_image_path_stat.stat.exists'
+    - 'rhel_image_path_stat.stat.readable'
+    msg: RHEL image file must exist and it must be readable

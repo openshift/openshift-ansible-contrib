@@ -1,6 +1,4 @@
-config.sh
-ansible-config.yml
-ansible-main-config.yaml
+config.yaml
 project.json
 secrets.py
 .ansible

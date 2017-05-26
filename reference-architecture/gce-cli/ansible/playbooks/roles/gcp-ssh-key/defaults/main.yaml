@@ -1,2 +1,2 @@
 ---
-gcp_ssh_key: '{{ ansible_env.HOME }}/.ssh/google_compute_engine'
+gcp_ssh_key: '~/.ssh/google_compute_engine'

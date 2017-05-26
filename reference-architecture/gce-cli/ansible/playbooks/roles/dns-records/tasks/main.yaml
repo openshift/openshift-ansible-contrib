@@ -17,21 +17,21 @@
 - name: set ns records
   gcdns_record:
     record: '{{ item.record }}'
-    zone: '{{ dns_domain }}'
+    zone: '{{ public_hosted_zone }}'
     type: '{{ item.type }}'
     record_data: '{{ item.record_data }}'
     ttl: 3600
     state: present
   with_items:
-  - record: '{{ master_dns_name }}'
+  - record: '{{ openshift_master_cluster_public_hostname }}'
     record_data: '{{ master_ssl_lb_ip.stdout }}'
     type: A
-  - record: '{{ internal_master_dns_name }}'
+  - record: '{{ openshift_master_cluster_hostname }}'
     record_data: '{{ master_network_lb_ip.stdout }}'
     type: A
-  - record: '{{ ocp_apps_dns_name }}'
+  - record: '{{ wildcard_zone }}'
     record_data: '{{ router_network_lb_ip.stdout }}'
     type: A
-  - record: '*.{{ ocp_apps_dns_name }}'
-    record_data: '{{ ocp_apps_dns_name }}.'
+  - record: '*.{{ wildcard_zone }}'
+    record_data: '{{ wildcard_zone }}.'
     type: CNAME
