@@ -41,17 +41,17 @@ cd ..
 
 ### Clone this repository
 
-Now clone this repository to your local directory and copy the `config.sh.example` file to `config.sh`
+Now clone this repository to your local directory and copy the `config.yaml.example` file to `config.yaml`
 
 ```
 git clone https://github.com/openshift/openshift-ansible-contrib.git
 cd openshift-ansible-contrib/reference-architecture/gce-cli
-cp config.sh.example config.sh
+cp config.yaml.example config.yaml
 ```
 
 ### Setting variables
 
-Variables can be set to customize the OpenShift infrastructure. All available variables can be found in the `config.sh` file. In the first part of that file you can find essential variables which need to be modified (like credentials for Red Hat account and DNS). In the second part of the file all default values are available, which can be optionally tweaked.
+Variables can be set to customize the OpenShift infrastructure. All available variables can be found in the `config.yaml` file. In the first part of that file you can find essential variables which need to be modified (like credentials for Red Hat account and DNS). In the second part of the file all default values are available, which can be optionally tweaked.
 
 ### Launching the Bash script
 
