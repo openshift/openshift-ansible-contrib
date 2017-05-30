@@ -30,17 +30,3 @@
   add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group, new_nodes"
   with_dict: "{{host_inventory}}"
   when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
-
-- name: Get facts of additional prod VM
-  vsphere_guest:
-    vcenter_hostname: "{{ vcenter_host }}"
-    username: "{{ vcenter_username }}"
-    password: "{{ vcenter_password }}"
-    vmware_guest_facts: yes
-    guest: "{{ item.value.guestname }}"
-  with_dict: "{{host_inventory}}"
-  when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
-  register: actual_prod_host
-  until: actual_prod_host.ansible_facts.hw_eth0.ipaddresses[0] is defined
-  retries: 10
-  delay: 10

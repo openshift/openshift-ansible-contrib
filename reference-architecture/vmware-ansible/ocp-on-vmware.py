@@ -198,6 +198,17 @@ def launch_refarch_env(console_port=8443,
        lb_host = lb_host + '.' + public_hosted_zone
 
   if create_ocp_vars is True:
+
+    if ocp_hostname_prefix is not None:
+        lb_name=ocp_hostname_prefix+"haproxy-0"
+    else:
+        lb_name="haproxy-0"
+
+    if ocp_hostname_prefix is not None:
+        nfs_name=ocp_hostname_prefix+"nfs-0"
+    else:
+        nfs_name="nfs-0"
+
     click.echo('Configured OCP variables:')
     click.echo('\tauth_type: %s' % auth_type)
     click.echo('\tldap_fqdn: %s' % ldap_fqdn)
@@ -206,7 +217,7 @@ def launch_refarch_env(console_port=8443,
     click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
     click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
     click.echo('\tbyo_lb: %s' % byo_lb)
-    click.echo('\tlb_host: %s' % lb_host)
+    click.echo('\tlb_host: %s' % lb_name)
     click.echo('\tUsing values from: %s' % vmware_ini_path)
     if not no_confirm:
       click.confirm('Continue using these values?', abort=True)
@@ -250,15 +261,15 @@ def launch_refarch_env(console_port=8443,
             elif line.startswith("    wildcard_zone:"):
                 print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
             elif line.startswith("    load_balancer_hostname:"):
-                print "    load_balancer_hostname: " + lb_host
+                print "    load_balancer_hostname: " + lb_name
             elif line.startswith("    deployment_type:"):
                 print "    deployment_type: " + deployment_type
             elif line.startswith("    openshift_hosted_registry_storage_host:"):
-                print "    openshift_hosted_registry_storage_host: " + nfs_registry_host 
+                print "    openshift_hosted_registry_storage_host: " + nfs_name
             elif line.startswith("    openshift_hosted_registry_storage_nfs_directory:"):
                 print "    openshift_hosted_registry_storage_nfs_directory: " + nfs_registry_mountpoint
             elif line.startswith("    openshift_hosted_metrics_storage_host:"):
-                print "    openshift_hosted_metrics_storage_host: " + nfs_registry_host 
+                print "    openshift_hosted_metrics_storage_host: " + nfs_name
             elif line.startswith("    openshift_hosted_metrics_storage_nfs_directory:"):
                 print "    openshift_hosted_metrics_storage_nfs_directory: " + nfs_registry_mountpoint
             else:
@@ -270,7 +281,7 @@ def launch_refarch_env(console_port=8443,
             if line.startswith("    wildcard_zone:"):
                 print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
             elif line.startswith("    load_balancer_hostname:"):
-                print "    load_balancer_hostname: " + lb_host
+                print "    load_balancer_hostname: " + lb_name
             elif line.startswith("    deployment_type:"):
                 print "    deployment_type: " + deployment_type
             else:
@@ -300,10 +311,10 @@ def launch_refarch_env(console_port=8443,
     click.echo('\tocp_hostname_prefix: %s' % ocp_hostname_prefix)
     click.echo('\tbyo_nfs: %s' % byo_nfs)
     if byo_nfs == "no":
-       click.echo('\tnfs_host: %s' % nfs_host)
+       click.echo('\tnfs_host: %s' % nfs_name)
     click.echo('\tbyo_lb: %s' % byo_lb)
     if byo_lb == "no":
-       click.echo('\tlb_host: %s' % lb_host)
+       click.echo('\tlb_host: %s' % lb_name)
     click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
     click.echo('\tUsing values from: %s' % vmware_ini_path)
     click.echo("")
