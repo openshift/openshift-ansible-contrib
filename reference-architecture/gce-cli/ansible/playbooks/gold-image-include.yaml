@@ -11,12 +11,12 @@
   - meta: refresh_inventory
   - name: wait for the temp instance to come up
     wait_for:
-      host: '{{ hostvars[prefix + "-tmp-instance"]["gce_public_ip"] }}'
+      host: '{{ ocp_tmp_instance }}'
       port: 22
       state: started
 
 - name: modify temp instance
-  hosts: '{{ prefix }}-tmp-instance'
+  hosts: '{{ ocp_tmp_instance }}'
   vars_files:
   - ../../ansible-main-config.yaml
   roles:

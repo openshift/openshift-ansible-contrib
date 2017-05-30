@@ -9,4 +9,6 @@
     ignore_errors: true
 
 - include: gold-image-include.yaml
+  vars:
+    ocp_tmp_instance: "{{ hostvars[prefix + '-tmp-instance']['gce_public_ip'] }}"
   when: hostvars['localhost']['gold_image_exists'] | failed
