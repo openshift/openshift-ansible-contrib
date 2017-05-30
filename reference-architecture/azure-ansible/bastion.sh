@@ -216,13 +216,11 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
     copy:
       dest: "{{ azure_conf }}"
       content: |
-        {
-          "aadClientID" : "{{ g_aadClientId }}",
-          "aadClientSecret" : "{{ g_aadClientSecret }}",
-          "subscriptionID" : "{{ g_subscriptionId }}",
-          "tenantID" : "{{ g_tenantId }}",
-          "resourceGroup": "{{ g_resourceGroup }}",
-        }
+        aadClientID: "{{ g_aadClientId }}"
+        aadClientSecret: "{{ g_aadClientSecret }}"
+        subscriptionID: "{{ g_subscriptionId }}"
+        tenantID: "{{ g_tenantId }}"
+        resourceGroup: "{{ g_resourceGroup }}"
     notify:
     - restart atomic-openshift-master-api
     - restart atomic-openshift-master-controllers
@@ -287,13 +285,11 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
     copy:
       dest: "{{ azure_conf }}"
       content: |
-        {
-          "aadClientID" : "{{ g_aadClientId }}",
-          "aadClientSecret" : "{{ g_aadClientSecret }}",
-          "subscriptionID" : "{{ g_subscriptionId }}",
-          "tenantID" : "{{ g_tenantId }}",
-          "resourceGroup": "{{ g_resourceGroup }}",
-        }
+        aadClientID: "{{ g_aadClientId }}"
+        aadClientSecret: "{{ g_aadClientSecret }}"
+        subscriptionID: "{{ g_subscriptionId }}"
+        tenantID: "{{ g_tenantId }}"
+        resourceGroup: "{{ g_resourceGroup }}"
     notify:
     - restart atomic-openshift-node
   - name: insert the azure disk config into the node
