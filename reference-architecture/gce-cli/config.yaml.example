@@ -10,7 +10,7 @@ prefix: 'ocp'
 # Username and password for Red Hat Customer Portal
 rhsm_user: 'user@example.com'
 rhsm_password: 'xxx'
-# Pool ID which shall be used to register the instances
+# Pool which shall be used to register the instances
 rhsm_pool: 'yyy'
 
 # Path to a RHEL image on local machine, downloaded from Red Hat Customer Portal

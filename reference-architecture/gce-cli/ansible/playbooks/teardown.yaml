@@ -15,6 +15,7 @@
   - role: deployment-delete
     deployment_name: tmp-instance
   - temp-instance-disk-delete
+  - ssh-config-tmp-instance-delete
   - role: deployment-delete
     deployment_name: network
   - ssh-proxy-delete
