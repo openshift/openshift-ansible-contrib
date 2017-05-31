@@ -41,7 +41,6 @@ openshift_hosted_registry_pullthrough=true
 openshift_hosted_registry_acceptschema2=true
 openshift_hosted_registry_enforcequota=true
 
-
 [masters]
 
 [etcd]
