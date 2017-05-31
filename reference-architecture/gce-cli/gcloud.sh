@@ -28,7 +28,6 @@
 
 set -euo pipefail
 
-SETTING=${1:-""}
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Configure python path
@@ -48,14 +47,14 @@ function main {
   popd
 }
 
-case $SETTING in
---teardown | --revert )
-  shift
-  teardown "$@"
-  exit 0
-  ;;
-* )
-  main "$@"
-  exit 0
-  ;;
+case ${1:-} in
+  --teardown | --revert )
+    shift
+    teardown "$@"
+    exit 0
+    ;;
+  * )
+    main "$@"
+    exit 0
+    ;;
 esac

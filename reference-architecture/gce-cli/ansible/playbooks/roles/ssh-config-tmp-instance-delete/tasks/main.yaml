@@ -1,0 +1,8 @@
+---
+- name: delete ssh config for ocp temp instance
+  blockinfile:
+    dest: '{{ ssh_config_file }}'
+    create: true
+    mode: 0600
+    marker: '# {mark} OPENSHIFT ON GCP TEMP INSTANCE BLOCK'
+    state: absent

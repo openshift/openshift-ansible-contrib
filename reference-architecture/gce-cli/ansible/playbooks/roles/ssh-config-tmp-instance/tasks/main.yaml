@@ -1,0 +1,18 @@
+---
+- name: configure ssh for ocp temp instance
+  blockinfile:
+    dest: '{{ ssh_config_file }}'
+    create: true
+    mode: 0600
+    marker: '# {mark} OPENSHIFT ON GCP TEMP INSTANCE BLOCK'
+    state: present
+    block: |
+      Host {{ prefix }}-tmp-instance
+      HostName {{ hostvars[prefix + '-tmp-instance']['gce_public_ip'] }}
+      User cloud-user
+      IdentityFile ~/.ssh/google_compute_engine
+      UserKnownHostsFile ~/.ssh/google_compute_known_hosts
+      HostKeyAlias compute.{{ hostvars[prefix + '-tmp-instance']['gce_id'] }}
+      IdentitiesOnly yes
+      CheckHostIP no
+      StrictHostKeyChecking no
