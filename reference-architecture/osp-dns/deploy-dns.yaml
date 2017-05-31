@@ -69,6 +69,13 @@
       ansible_user: "{{ ssh_user }}"
     with_items: "{{ stack_output.slaves }}"
 
+  - name: Clear saved SSH keys
+    known_hosts:
+      name: "{{ item }}"
+      state: absent
+    with_items: "{{ groups['all'] }}"
+    when: stack_check.rc != 0
+
   - name: Wait for the deployed servers
     wait_for:
       host: "{{ item }}"
