@@ -4,6 +4,7 @@
   become: yes
   serial: 1
   roles:
+    - instance-groups
     - aws-rhsm-subscription
 
 - hosts: new_nodes

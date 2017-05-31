@@ -242,9 +242,13 @@ class VMWareAddNode(object):
 
         print 'Inventory file created: %s' % self.inventory_file
 
+        if self.ocp_hostname_prefix:
+            self.lb_host = self.ocp_hostname_prefix + self.lb_host
+
         if self.byo_lb == "no":
             lb_host_fqdn = "%s.%s" % (self.lb_host, self.public_hosted_zone)
             self.lb_host = lb_host_fqdn
+
         # Provide values for update and add node playbooks       
         update_file = ["playbooks/node-setup.yaml"]
         for line in fileinput.input(update_file, inplace=True):
@@ -306,6 +310,7 @@ class VMWareAddNode(object):
             rhel_subscription_pass=%s \
             rhel_subscription_server=%s \
             rhel_subscription_pool="%s" \
+            node_type=%s \
             openshift_sdn=%s \
             lb_host=%s \
             nfs_registry_host=%s \
@@ -331,6 +336,7 @@ class VMWareAddNode(object):
                             self.rhel_subscription_pass,
                             self.rhel_subscription_server,
                             self.rhel_subscription_pool,
+                            self.node_type,
                             self.openshift_sdn,
                             self.lb_host,
                             self.nfs_registry_host,
