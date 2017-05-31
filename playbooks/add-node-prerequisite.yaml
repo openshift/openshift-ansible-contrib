@@ -11,5 +11,5 @@
   gather_facts: no
   become: yes
   roles:
-    - rhsm-repos
-    - prerequisites
+  - { role: rhsm-repos, when rhel_subscription_user is not defined and rhel_subscription_pass is not defined and rhel_subscription_pool is not defined }
+  - prerequisites
