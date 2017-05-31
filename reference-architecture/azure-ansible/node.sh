@@ -26,9 +26,4 @@ DATA_SIZE=95%VG
 EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
 EOF
 
-# Disable swap
-sed -i -e 's/ResourceDisk.EnableSwap=y/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf
-swapoff -a
-systemctl restart waagent.service
-
 touch /root/.updateok
