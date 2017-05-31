@@ -43,10 +43,13 @@ import sys
 @click.option('--public-hosted-zone', help='hosted zone for accessing the environment')
 
 ### Subscription and Software options
-@click.option('--rhsm-user', help='Red Hat Subscription Management User')
-@click.option('--rhsm-password', help='Red Hat Subscription Management Password',
+@click.option('--rhel-subscription-user', help='Red Hat Subscription Management User')
+@click.option('--rhel-subscription-pass', help='Red Hat Subscription Management Password',
                 hide_input=True,)
-@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name for OpenShift')
+@click.option('--rhel-subscription-pool', help='Red Hat Subscription Management Pool ID or Subscription Name for OpenShift')
+@click.option('--rhsm-user', help='DEPRECATED!! Use rhel-subscription-user')
+@click.option('--rhsm-password', help='DEPRECATED!! Use rhel-subscription-pass')
+@click.option('--rhsm-pool', help='DEPRECATED!! Use rhel-subscription-pool')
 
 ### Miscellaneous options
 @click.option('--existing-stack', help='Specify the name of the existing CloudFormation stack')
@@ -62,6 +65,9 @@ def launch_refarch_env(region=None,
                     gluster_stack=None,
                     keypair=None,
                     public_hosted_zone=None,
+                    rhel_subscription_user=None,
+                    rhel_subscription_pass=None,
+                    rhel_subscription_pool=None,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_pool=None,
@@ -78,6 +84,18 @@ def launch_refarch_env(region=None,
                     existing_stack=None,
                     use_cloudformation_facts=False,
                     verbose=0):
+
+  if rhsm_user is not None:
+    rhel_subscription_user = rhsm_user
+    click.echo('\n\nrhsm_user is deprecated and will be removed in the future in favor of rhel_subscription_user\n\n')
+
+  if rhsm_user is not None:
+    rhel_subscription_pass = rhsm_password
+    click.echo('\n\nrhsm_password is deprecated and will be removed in the future in favor of rhel_subscription_pass\n\n')
+
+  if rhsm_pool is not None:
+    rhel_subscription_pool = rhsm_pool
+    click.echo('\n\nrhsm_pool is deprecated and will be removed in the future in favor of rhel_subscription_pool\n\n')
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
@@ -124,12 +142,12 @@ def launch_refarch_env(region=None,
     private_subnet_id3 = click.prompt("Specify the third private subnet for the nodes?")
 
   # If the user already provided values, don't bother asking again
-  if rhsm_user is None:
-    rhsm_user = click.prompt("RHSM username?")
-  if rhsm_password is None:
-    rhsm_password = click.prompt("RHSM password?", hide_input=True)
-  if rhsm_pool is None:
-    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
+  if rhel_subscription_user is None:
+    rhel_subscription_user = click.prompt("RHSM username?")
+  if rhel_subscription_pass is None:
+    rhel_subscription_pass = click.prompt("RHSM password?", hide_input=True)
+  if rhel_subscription_pool is None:
+    rhel_subscription_pool = click.prompt("RHSM Pool ID or Subscription Name?")
 
   if gluster_volume_type in ['io1']:
     iops = click.prompt('Specify a numeric value for iops')
@@ -155,9 +173,9 @@ def launch_refarch_env(region=None,
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
-      click.echo('\trhsm_user: %s' % rhsm_user)
-      click.echo('\trhsm_password: *******')
-      click.echo('\trhsm_pool: %s' % rhsm_pool)
+      click.echo('\trhel_subscription_user: %s' % rhel_subscription_user)
+      click.echo('\trhel_subscription_pass: *******')
+      click.echo('\trhel_subscription_pool: %s' % rhel_subscription_pool)
       click.echo('\texisting_stack: %s' % existing_stack)
       click.echo('\tSubnets and Security Groups will be gather from the CloudFormation')
       click.echo("")
@@ -178,9 +196,9 @@ def launch_refarch_env(region=None,
       click.echo('\tvpc: %s' % vpc)
       click.echo('\tkeypair: %s' % keypair)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
-      click.echo('\trhsm_user: %s' % rhsm_user)
-      click.echo('\trhsm_password: *******')
-      click.echo('\trhsm_pool: %s' % rhsm_pool)
+      click.echo('\trhel_subscription_user: %s' % rhel_subscription_user)
+      click.echo('\trhel_subscription_pass: *******')
+      click.echo('\trhel_subscription_pool: %s' % rhel_subscription_pool)
       click.echo('\texisting_stack: %s' % existing_stack)
       click.echo("")
 
@@ -215,9 +233,9 @@ def launch_refarch_env(region=None,
         deploy_crs=yes \
       	node_instance_type=%s \
       	public_hosted_zone=%s \
-      	rhsm_user=%s \
-      	rhsm_password=%s \
-      	rhsm_pool="%s" \
+      	rhel_subscription_user=%s \
+      	rhel_subscription_pass=%s \
+      	rhel_subscription_pool="%s" \
       	key_path=/dev/null \
       	create_key=%s \
       	create_vpc=%s \
@@ -230,9 +248,9 @@ def launch_refarch_env(region=None,
                         gluster_stack,
                     	node_instance_type,
                     	public_hosted_zone,
-                    	rhsm_user,
-                    	rhsm_password,
-                    	rhsm_pool,
+                    	rhel_subscription_user,
+                    	rhel_subscription_pass,
+                    	rhel_subscription_pool,
                     	create_key,
                     	create_vpc,
                         gluster_volume_type,
@@ -252,9 +270,9 @@ def launch_refarch_env(region=None,
       	private_subnet_id2=%s \
       	private_subnet_id3=%s \
       	public_hosted_zone=%s \
-      	rhsm_user=%s \
-      	rhsm_password=%s \
-      	rhsm_pool="%s" \
+      	rhel_subscription_user=%s \
+      	rhel_subscription_pass=%s \
+      	rhel_subscription_pool="%s" \
       	key_path=/dev/null \
       	create_key=%s \
       	create_vpc=%s \
@@ -273,9 +291,9 @@ def launch_refarch_env(region=None,
                     	private_subnet_id2,
                     	private_subnet_id3,
                     	public_hosted_zone,
-                    	rhsm_user,
-                    	rhsm_password,
-                    	rhsm_pool,
+                    	rhel_subscription_user,
+                    	rhel_subscription_pass,
+                    	rhel_subscription_pool,
                     	create_key,
                     	create_vpc,
                         gluster_volume_type,
