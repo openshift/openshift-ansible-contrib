@@ -325,6 +325,11 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
   - name: make sure its set to unsceduable
     command: oadm manage-node {{inventory_hostname}} --schedulable=false
     delegate_to: master1
+- hosts: infranodes
+  tasks:
+  - name: make sure its set to unsceduable
+    command: oadm manage-node {{inventory_hostname}} --schedulable=false
+    delegate_to: master1
 EOF
 
 
@@ -384,6 +389,11 @@ openshift_master_cluster_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 master1 openshift_hostname=master1 openshift_node_labels="{'role': 'master'}"
 master2 openshift_hostname=master2 openshift_node_labels="{'role': 'master'}"
 master3 openshift_hostname=master3 openshift_node_labels="{'role': 'master'}"
+
+[infranodes]
+infranode1
+infranode2
+infranode3
 
 [etcd]
 master1
