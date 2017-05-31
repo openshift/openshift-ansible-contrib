@@ -1,0 +1,39 @@
+deployment_type: openshift-enterprise
+openshift_master_default_subdomain: apps.ocp3.example.com # <1>
+
+# Developer access to WebUI and API
+openshift_master_cluster_hostname: devs.ocp3.example.com # <2>
+openshift_master_cluster_public_hostname: devs.ocp3.example.com # <2>
+openshift_master_cluster_method: native
+
+openshift_override_hostname_check: true
+openshift_set_node_ip: true
+openshift_use_dnsmasq: false
+
+# Enable Flannel and set interface
+openshift_use_openshift_sdn: false
+openshift_use_flannel: true
+flannel_interface: eth1
+
+openshift_cloudprovider_kind: openstack
+openshift_cloudprovider_openstack_auth_url: http://10.0.0.1:5000/v2.0 # <3>
+openshift_cloudprovider_openstack_username: <username> # <4>
+openshift_cloudprovider_openstack_password: <password> # <5>
+openshift_cloudprovider_openstack_tenant_name: <tenant name> # <6>
+
+
+openshift_master_identity_providers:
+  - name: ldap_auth
+    kind: LDAPPasswordIdentityProvider
+    challenge: true
+    login: true
+    bindDN: cn=openshift,cn=users,dc=example,dc=com # <7>
+    bindPassword: password # <8>
+    url: ldap://ad1.example.com:389/cn=users,dc=example,dc=com?sAMAccountName # <9>
+    attributes:
+      id: ['dn']
+      email: ['mail']
+      name: ['cn']
+      preferredUsername: ['sAMAccountName']
+    ca: ''
+    insecure: True
