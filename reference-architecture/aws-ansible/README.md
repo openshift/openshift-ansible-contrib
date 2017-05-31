@@ -13,17 +13,21 @@ A registered domain must be added to Route53 as a Hosted Zone before installatio
 The code in this repository handles all of the AWS specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-aws.py. Do not perform the following within a container as errors have been found when attempting to run subscription-manager. It is advised to use a VM or bare metal installation of RHEL.
 
 ```
+$ rpm -q python-2.7
+$ subscription-manager repos --disable=\*
+$ subscription-manager repos --enable rhel-7-server-rpms
 $ subscription-manager repos --enable rhel-7-server-optional-rpms
 $ subscription-manager repos --enable rhel-7-server-ose-3.5-rpms
 $ subscription-manager repos --enable rhel-7-fast-datapath-rpms
-$ yum -y install atomic-openshift-utils ansible
-$ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-$ yum -y install python2-boto \
+$ yum install -y ansible atomic-openshift-utils yum-utils
+$ yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+$ yum-config-manager --disable epel
+$ yum install -y --enablerepo=epel \
+                 python2-boto \
+                 python2-boto3 \
                  pyOpenSSL \
                  git \
                  python-netaddr \
-                 python-six \
-                 python2-boto3 \
                  python-click \
                  python-httplib2
 ```
@@ -154,7 +158,7 @@ The same greenfield and brownfield deployment steps can be used to launch anothe
 ```
 
 
-## Adding nodes 
+## Adding nodes
 Adding nodes can be done by performing the following. The configuration option --node-type allows for the creation of application or
 infrastructure nodes. If the deployment is for an application node --infra-sg and --infra-elb-name are not required.
 
