@@ -39,6 +39,9 @@ import sys
 @click.option('--rhel-subscription-pass', help='Red Hat Subscription Management Password',
                 hide_input=True,)
 @click.option('--rhel-subscription-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
+@click.option('--rhsm-user', help='DEPRECATED!! Use rhel-subscription-user')
+@click.option('--rhsm-password', help='DEPRECATED!! Use rhel-subscription-pass')
+@click.option('--rhsm-pool', help='DEPRECATED!! Use rhel-subscription-pool')
 
 ### Miscellaneous options
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',
@@ -77,6 +80,9 @@ def launch_refarch_env(region=None,
                     rhel_subscription_user=None,
                     rhel_subscription_pass=None,
                     rhel_subscription_pool=None,
+                    rhsm_user=None,
+                    rhsm_password=None,
+                    rhsm_pool=None,
                     containerized=None,
                     node_type=None,
                     iam_role=None,
@@ -85,6 +91,18 @@ def launch_refarch_env(region=None,
                     openshift_sdn=None,
                     use_cloudformation_facts=False,
                     verbose=0):
+
+  if rhsm_user is not None:
+    rhel_subscription_user = rhsm_user
+    click.echo('\n\nrhsm_user is deprecated and will be removed in the future in favor of rhel_subscription_user\n\n')
+
+  if rhsm_user is not None:
+    rhel_subscription_pass = rhsm_password
+    click.echo('\n\nrhsm_password is deprecated and will be removed in the future in favor of rhel_subscription_pass\n\n')
+
+  if rhsm_pool is not None:
+    rhel_subscription_pool = rhsm_pool
+    click.echo('\n\nrhsm_pool is deprecated and will be removed in the future in favor of rhel_subscription_pool\n\n')
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
