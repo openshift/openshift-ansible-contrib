@@ -3,7 +3,7 @@
   gather_facts: yes
   become: yes
   roles:
-  - pre-installation-facts
+  - rhsm-timeout
   - role: atomic-update
     when: openshift.common.is_atomic
 

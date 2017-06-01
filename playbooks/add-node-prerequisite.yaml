@@ -2,6 +2,14 @@
 - hosts: new_nodes
   gather_facts: yes
   become: yes
+  roles:
+  - rhsm-timeout
+  - role: atomic-update
+    when: openshift.common.is_atomic
+
+- hosts: new_nodes
+  gather_facts: no
+  become: yes
   serial: 1
   roles:
   - role: rhel_subscribe
