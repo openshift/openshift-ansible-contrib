@@ -4,8 +4,12 @@
   become: yes
   serial: 1
   roles:
-  - { role: rhel_subscribe, when rhel_subscription_user is defined and rhel_subscription_pass is defined and rhel_subscription_pool is defined }
-  - { role: rhsm-subscription, when rhel_subscription_user is not defined and rhel_subscription_pass is not defined and rhel_subscription_pool is not defined }
+  - role: rhel_subscribe
+    when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and rhel_subscription_user is defined
+  - role: rhsm-subscription
+    when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and rhel_subscription_user is not defined
 
 - hosts: new_nodes
   gather_facts: no
