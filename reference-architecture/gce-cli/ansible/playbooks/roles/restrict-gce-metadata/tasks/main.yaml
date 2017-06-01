@@ -13,3 +13,6 @@
 
 - name: block containers from access to the GCP metadata server
   command: iptables --wait -4 --insert FORWARD -d 169.254.169.254 -m comment --comment "Prevent containers from reaching GCP API server" -j REJECT --reject-with icmp-host-prohibited
+
+- name: save iptables rules
+  command: /usr/libexec/iptables/iptables.init save
