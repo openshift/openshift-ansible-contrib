@@ -1,0 +1,4 @@
+---
+- name: Gather facts
+  openshift_facts:
+    role: common

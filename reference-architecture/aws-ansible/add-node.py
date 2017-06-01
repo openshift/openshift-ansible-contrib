@@ -94,15 +94,15 @@ def launch_refarch_env(region=None,
 
   if rhsm_user is not None:
     rhel_subscription_user = rhsm_user
-    click.echo('\n\nrhsm_user is deprecated and will be removed in the future in favor of rhel_subscription_user\n\n')
+    click.echo('\nrhsm_user is deprecated and will be removed in the future in favor of rhel_subscription_user\n')
 
   if rhsm_user is not None:
     rhel_subscription_pass = rhsm_password
-    click.echo('\n\nrhsm_password is deprecated and will be removed in the future in favor of rhel_subscription_pass\n\n')
+    click.echo('\nrhsm_password is deprecated and will be removed in the future in favor of rhel_subscription_pass\n')
 
   if rhsm_pool is not None:
     rhel_subscription_pool = rhsm_pool
-    click.echo('\n\nrhsm_pool is deprecated and will be removed in the future in favor of rhel_subscription_pool\n\n')
+    click.echo('\nrhsm_pool is deprecated and will be removed in the future in favor of rhel_subscription_pool\n')
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:

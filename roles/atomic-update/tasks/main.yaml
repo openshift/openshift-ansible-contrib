@@ -1,8 +1,4 @@
 ---
-- name: Gather facts
-  openshift_facts:
-    role: common
-
 # Fail as early as possible if Atomic and old version of Docker
 - block:
   - name: Determine Atomic Host Docker Version
@@ -15,6 +11,39 @@
       - l_atomic_docker_version.stdout | replace('"', '') | version_compare('1.12','>=')
 
   rescue:
+  - name: Is the host already registered?
+    command: "subscription-manager status"
+    register: subscribed
+    changed_when: no
+    ignore_errors: yes
+    when: ansible_distribution == "RedHat"
+
+  - name: RedHat subscriptions
+    redhat_subscription:
+      username: "{{ rhel_subscription_user }}"
+      password: "{{ rhel_subscription_pass }}"
+    when: "'Current' not in subscribed.stdout and rhel_subscription_user is defined and rhel_subscription_user"
+
+  - name: Retrieve the OpenShift Pool ID
+    command: subscription-manager list --available --matches="{{ rhel_subscription_pool }}" --pool-only
+    register: openshift_pool_id
+    changed_when: False
+    when: ansible_distribution == "RedHat"
+
+  - name: Determine if OpenShift Pool Already Attached
+    command: subscription-manager list --consumed --matches="{{ rhel_subscription_pool }}" --pool-only
+    register: openshift_pool_attached
+    changed_when: False
+    when: openshift_pool_id.stdout == '' and ansible_distribution == "RedHat"
+
+  - fail:
+      msg: "Unable to find pool matching {{ rhel_subscription_pool }} in available or consumed pools"
+    when: openshift_pool_id.stdout == '' and openshift_pool_attached is defined and openshift_pool_attached.stdout == ''
+
+  - name: Attach to OpenShift Pool
+    command: subscription-manager subscribe --pool {{ openshift_pool_id.stdout_lines[0] }}
+    when: openshift_pool_id.stdout != '' and ansible_distribution == "RedHat"
+
   - name: Patching Atomic instances
     shell: atomic host upgrade
     register: patched
