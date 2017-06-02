@@ -62,7 +62,7 @@ import sys
 @click.option('--rhsm-user', help='Red Hat Subscription Management User')
 @click.option('--rhsm-password', help='Red Hat Subscription Management Password',
                 hide_input=True,)
-@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
+@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool Name')
 
 ### Miscellaneous options
 @click.option('--byo-bastion', default='no', help='skip bastion install when one exists within the cloud provider',

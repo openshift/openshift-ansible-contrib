@@ -38,7 +38,7 @@ import sys
 @click.option('--rhsm-user', help='Red Hat Subscription Management User')
 @click.option('--rhsm-password', help='Red Hat Subscription Management Password',
                 hide_input=True,)
-@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
+@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool Name')
 
 ### Miscellaneous options
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',
