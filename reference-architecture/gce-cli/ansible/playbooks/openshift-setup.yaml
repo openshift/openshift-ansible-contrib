@@ -10,14 +10,19 @@
     openshift_master_api_port: '{{ console_port }}'
     openshift_master_console_port: '{{ console_port }}'
     osm_cluster_network_cidr: 172.16.0.0/16
-    openshift_registry_selector: 'role=infra'
-    openshift_router_selector: 'role=infra'
-    openshift_hosted_router_replicas: 3
-    openshift_hosted_registry_replicas: 3
     openshift_master_cluster_method: native
     osm_default_subdomain: '{{ wildcard_zone }}'
     openshift_master_default_subdomain: '{{ osm_default_subdomain }}'
     osm_default_node_selector: 'role=app'
     osm_use_cockpit: true
+    openshift_hosted_router_selector: 'role=infra'
+    openshift_hosted_registry_selector: 'role=infra'
+    openshift_hosted_registry_storage_kind: object
+    openshift_hosted_registry_storage_provider: gcs
+    openshift_hosted_registry_storage_gcs_bucket: '{{ gcs_registry_bucket }}'
+    openshift_hosted_registry_storage_gcs_rootdirectory: /registry
+    openshift_hosted_registry_pullthrough: true
+    openshift_hosted_registry_acceptschema2: true
+    openshift_hosted_registry_enforcequota: true
     openshift_hosted_metrics_storage_kind: dynamic
     openshift_master_metrics_public_url: 'https://metrics.{{ osm_default_subdomain }}/hawkular/metrics'

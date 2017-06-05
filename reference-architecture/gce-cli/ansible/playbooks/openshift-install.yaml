@@ -31,11 +31,6 @@
   roles:
   - restrict-gce-metadata
 
-- name: deploy registry
-  hosts: single_master
-  roles:
-  - openshift-registry
-
 - include: validation.yaml
 
 - name: print message about the ocp console
