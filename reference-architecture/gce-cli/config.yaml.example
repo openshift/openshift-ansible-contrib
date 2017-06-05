@@ -61,7 +61,7 @@ openshift_master_identity_providers:
   hostedDomain: 'example.com'
 
 # Deploy OpenShift Metrics
-deploy_openshift_metrics: false
+openshift_hosted_metrics_deploy: false
 openshift_hosted_metrics_storage_volume_size: 20Gi
 
 # OpenShift SDN selection (options are 'redhat/openshift-ovs-subnet', 'redhat/openshift-ovs-multitenant')
