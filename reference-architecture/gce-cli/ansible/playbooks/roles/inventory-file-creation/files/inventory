@@ -27,7 +27,8 @@ osm_default_node_selector="role=app"
 openshift_deployment_type=openshift-enterprise
 deployment_type="{{ openshift_deployment_type }}"
 osm_use_cockpit=false
-containerized=false
+containerized={{ containerized | default('false') }}
+os_sdn_network_plugin_name={{ openshift_sdn | default('redhat/openshift-ovs-subnet') }}
 
 [masters]
 

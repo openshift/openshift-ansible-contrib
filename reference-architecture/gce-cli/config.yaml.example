@@ -82,3 +82,4 @@ node_openshift_disk_size: 50
 
 # OpenShift deployment type
 openshift_deployment_type: openshift-enterprise
+containerized: false

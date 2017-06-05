@@ -56,6 +56,7 @@ def launch_refarch_env(console_port=8443,
                     ldap_user_password=None,
                     ldap_fqdn=None,
                     openshift_sdn=None,
+                    containerized=None,
                     container_storage=None,
                     openshift_hosted_metrics_deploy=None,
                     clean=None):
@@ -87,7 +88,8 @@ def launch_refarch_env(console_port=8443,
     'rhel_subscription_pass':'',
     'rhel_subscription_server':'',
     'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
-    'openshift_sdn':'openshift-ovs-subnet',
+    'openshift_sdn':'redhat/openshift-ovs-subnet',
+    'containerized':'containerized',
     'container_storage':'none',
     'openshift_hosted_metrics_deploy':'false',
     'byo_lb':'no',
@@ -142,6 +144,7 @@ def launch_refarch_env(console_port=8443,
   rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
   rhel_subscription_pool = config.get('vmware', 'rhel_subscription_pool')
   openshift_sdn = config.get('vmware', 'openshift_sdn')
+  containerized = config.get('vmware', 'containerized')
   container_storage = config.get('vmware', 'container_storage')
   openshift_hosted_metrics_deploy = config.get('vmware', 'openshift_hosted_metrics_deploy')
   byo_lb = config.get('vmware', 'byo_lb')
@@ -516,6 +519,7 @@ def launch_refarch_env(console_port=8443,
     rhel_subscription_server=%s \
     rhel_subscription_pool="%s" \
     openshift_sdn=%s \
+    containerized=%s \
     container_storage=%s \
     openshift_hosted_metrics_deploy=%s \
     lb_host=%s \
@@ -544,6 +548,7 @@ def launch_refarch_env(console_port=8443,
                     rhel_subscription_server,
                     rhel_subscription_pool,
                     openshift_sdn,
+                    containerized,
                     container_storage,
                     openshift_hosted_metrics_deploy,
                     lb_host,
