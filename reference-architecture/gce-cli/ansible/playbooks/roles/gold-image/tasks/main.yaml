@@ -1,15 +1,12 @@
 ---
-- block:
-  - name: create gold image
-    include_role:
-      name: deployment-create
-    vars:
-      deployment_name: gold-image
+- name: create gold image
+  include_role:
+    name: deployment-create
+  vars:
+    deployment_name: gold-image
 
-  - name: delete temp instance disk
-    gce_pd:
-      name: '{{ prefix }}-tmp-instance'
-      zone: '{{ gcloud_zone }}'
-      state: absent
-  when: hostvars[prefix + '-tmp-instance']['tmp_instance_failed'] is not defined or
-        not hostvars[prefix + '-tmp-instance']['tmp_instance_failed']
+- name: delete temp instance disk
+  gce_pd:
+    name: '{{ prefix }}-tmp-instance'
+    zone: '{{ gcloud_zone }}'
+    state: absent

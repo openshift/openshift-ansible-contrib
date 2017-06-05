@@ -65,6 +65,11 @@
       state: absent
     delegate_to: localhost
 
-  - name: set fact indicating that the temp instance failed
-    set_fact:
-      tmp_instance_failed: true
+  - name: delete local ssh config for temp instance
+    include_role:
+      name: ssh-config-tmp-instance-delete
+    delegate_to: localhost
+
+  - name: fail after cleanup
+    fail:
+      msg: Failed to create gold image. Please look for an error in the output above.
