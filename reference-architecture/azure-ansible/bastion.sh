@@ -195,16 +195,19 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
     systemd:
       state: restarted
       name: atomic-openshift-master-api
+      ignore_errors: yes
 
   - name: restart atomic-openshift-master-controllers
     systemd:
       state: restarted
       name: atomic-openshift-master-controllers
+      ignore_errors: yes
 
   - name: restart atomic-openshift-node
     systemd:
       state: restarted
       name: atomic-openshift-node
+      ignore_errors: yes
 
   post_tasks:
   - name: make sure /etc/azure exists
@@ -277,6 +280,7 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
     systemd:
       state: restarted
       name: atomic-openshift-node
+      ignore_errors: yes
   post_tasks:
   - name: make sure /etc/azure exists
     file:
@@ -553,6 +557,7 @@ ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml
 oc create -f /home/${AUSERNAME}/scgeneric.yml
 oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
+touch /root/.openshiftcomplete
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/.ansible.cfg
