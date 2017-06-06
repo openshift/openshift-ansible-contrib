@@ -1,0 +1,138 @@
+---
+- hosts: localhost
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    federation_dns_zone: "{{ lookup('env', 'FEDERATION_DNS_ZONE') }}"
+  tasks:
+  - assert:
+      that:
+      - federation_id != ''
+      - federation_dns_zone != ''
+  - add_host:
+      name: "{{ item }}"
+      groups: federation
+    with_items:
+    - "{{ groups['tag_' ~ federation_id] }}"
+
+- hosts: federation[0]
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    admin_default_context: "default/{{ inventory_hostname }}:8443/system:admin"
+    federation_context: "{{ federation_id }}"
+  tasks:
+  - name: create federated namespace for app
+    shell: >
+      echo {{ lookup('file', 'pacman-namespace.yaml') | quote }} | oc create
+      --context={{ federation_context }} -f -
+    register: app_namespace
+    changed_when: app_namespace.rc == 0
+    failed_when: app_namespace.rc != 0 and 'already exists' not in app_namespace.stderr
+  - pause:
+      minutes: 1
+    when: app_namespace | changed
+
+- hosts: federation
+  vars:
+    admin_default_context: "default/{{ inventory_hostname }}:8443/system:admin"
+  tasks:
+  - name: create pvcs for mongodb
+    shell: >
+      echo {{ lookup('file', 'mongo-pvc.yaml') | quote }} | oc create
+      --context={{ admin_default_context }} -n pacman -f -
+    register: mongo_pvc
+    changed_when: mongo_pvc.rc == 0
+    failed_when: mongo_pvc.rc != 0 and 'already exists' not in mongo_pvc.stderr
+
+- hosts: federation[0]
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    admin_default_context: "default/{{ inventory_hostname }}:8443/system:admin"
+    federation_context: "{{ federation_id }}"
+    federation_dns_zone: "{{ lookup('env', 'FEDERATION_DNS_ZONE') }}"
+  tasks:
+  - name: create federated service for mongo
+    shell: >
+      echo {{ lookup('file', 'mongo-service.yaml') | quote }} | oc create
+      --context={{ federation_context }} -n pacman -f -
+    register: mongo_service
+    changed_when: mongo_service.rc == 0
+    failed_when: mongo_service.rc != 0 and 'already exists' not in mongo_service.stderr
+
+  - name: create federated deployment for mongodb
+    shell: >
+      echo {{ lookup('file', 'mongo-deployment-rs.yaml') | quote }} | oc create
+      --context={{ federation_context }} -n pacman -f -
+    register: mongo_deployment
+    changed_when: mongo_deployment.rc == 0
+    failed_when: mongo_deployment.rc != 0 and 'already exists' not in mongo_deployment.stderr
+
+  - name: create scale deployment for mongodb
+    command: >
+      oc scale deploy mongo --replicas=3 --context={{ federation_context }} -n pacman
+
+  # TODO: replace this with a proper loop to verify that the mongo pods are deployed
+  - pause:
+      minutes: 4
+    when: mongo_deployment | changed
+
+  - name: Get mongo pod name
+    command: >
+      oc get pods -n pacman -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+    register: pod_list
+    changed_when: false
+
+  - name: Test mongo replset status
+    command: oc exec {{ item }} -n pacman -- mongo --quiet --eval 'rs.status()'
+    when: item.startswith('mongo')
+    register: mongo_replset_status
+    with_items:
+    - "{{ pod_list.stdout_lines }}"
+
+  - name: Initialize replica set
+    expect:
+      command: oc exec {{ item }} -n pacman -i -t -- mongo
+      responses:
+        '>':
+        - "rs.initiate({_id: 'rs0', members: [{ _id: 0, host: 'mongo.pacman.{{ federation_id }}.svc.{{ gce_zone[:-2] }}.{{ federation_dns_zone }}'}]})"
+        - sleep(5000)
+        - exit
+    when:
+    - item.startswith('mongo')
+    - "'no replset config has been received' in mongo_replset_status.results.0.stdout"
+    with_items:
+    - "{{ pod_list.stdout_lines }}"
+
+  - name: Test mongo replset status
+    command: oc exec {{ item }} -n pacman -- mongo --quiet --eval 'rs.status()'
+    when: item.startswith('mongo')
+    register: mongo_replset_status
+    with_items:
+    - "{{ pod_list.stdout_lines }}"
+
+  - name: Run replicaset config
+    expect:
+      command: oc exec {{ item.0 }} -n pacman -i -t -- mongo
+      responses:
+        'rs0:PRIMARY>':
+        - "rs.add('mongo.pacman.{{ federation_id }}.svc.{{ hostvars[item.1].gce_zone[:-2] }}.{{ federation_dns_zone }}:27017')"
+        - exit
+    when:
+    - item.0.startswith('mongo')
+    - "'mongo.pacman.' ~ federation_id ~ '.svc.' ~ hostvars[item.1].gce_zone[:-2] ~ '.' ~ federation_dns_zone ~ ':27017' not in mongo_replset_status.results.0.stdout"
+    with_nested:
+    - "{{ pod_list.stdout_lines }}"
+    - "{{ groups.federation[1:] }}"
+
+  - name: create federated service for pacman
+    shell: >
+      echo {{ lookup('file', 'pacman-service.yaml') | quote }} | oc create
+      --context={{ federation_context }} -n pacman -f -
+
+  - name: create federated deployment for pacman
+    shell: >
+      echo {{ lookup('file', 'pacman-deployment-rs.yaml') | quote }} | oc create
+      --context={{ federation_context }} -n pacman -f -
+
+  - name: create scale deployment for pacman
+    command: >
+      oc scale deploy pacman --replicas=3 --context={{ federation_context }} -n pacman

@@ -1,0 +1,48 @@
+---
+- hosts: localhost
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+  tasks:
+  - assert:
+      that:
+      - federation_id != ''
+  - add_host:
+      name: "{{ item }}"
+      groups: federation
+    with_items:
+    - "{{ groups['tag_' ~ federation_id] }}"
+
+- hosts: federation
+  tasks:
+  - name: Install required packages
+    package:
+      name: "{{ item }}"
+      state: present
+    with_items:
+    - ansible
+    - git
+    - python-pip
+
+  - name: Install pexpect from pip
+    pip:
+      name: pexpect
+      state: present
+
+  - name: Pull openshift-ansible from git
+    git:
+      repo: https://github.com/openshift/openshift-ansible.git
+      dest: /tmp/openshift-ansible
+
+  - name: Create the remote inventory file
+    template:
+      src: inventory.yaml.j2
+      dest: /tmp/inventory.yaml
+
+  - name: Run openshift-ansible
+    command: >
+      ansible-playbook -i /tmp/inventory.yaml playbooks/byo/openshift-cluster/config.yml
+    args:
+      chdir: /tmp/openshift-ansible
+    register: openshift_install
+
+  - debug: var=openshift_install.stdout

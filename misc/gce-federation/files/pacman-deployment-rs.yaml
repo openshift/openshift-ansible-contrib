@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    name: pacman
+  name: pacman
+spec:
+  replicas: 0
+  template:
+    metadata:
+      labels:
+        name: pacman
+    spec:
+      containers:
+      - image: detiber/pacman:latest
+        name: pacman
+        env:
+        - name: MONGO_REPLICA_SET
+          value: rs0
+        ports:
+        - containerPort: 8080
+          name: http-server
