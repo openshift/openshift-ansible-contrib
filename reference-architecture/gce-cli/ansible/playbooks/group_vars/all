@@ -11,7 +11,7 @@ gcs_registry_bucket: '{{ gcloud_project }}-{{ prefix }}-registry-bucket'
 deployment_type: '{{ openshift_deployment_type }}'
 
 rhel_image: '{{ rhel_image_path | basename | regex_replace("^(.*)\.qcow2$", "\1") }}'
-rhel_image_gce: '{{ rhel_image | replace(".", "-") | replace("_", "-") }}'
+rhel_image_gce: '{{ rhel_image | replace(".", "-") | replace("_", "-") | lower }}'
 gold_image: '{{ rhel_image_gce }}-gold'
 gold_image_family: 'rhel-guest-gold'
 
