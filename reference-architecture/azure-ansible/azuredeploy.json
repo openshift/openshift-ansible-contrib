@@ -278,7 +278,7 @@
   "variables" : {
     "gituser" : "openshift",
     "branch" : "master",
-    "baseTemplateUrl" : "https://raw.githubusercontent.com/cooktheryan/openshift-ansible-contrib/tree/azure-storage-fix/reference-architecture/azure-ansible/",
+    "baseTemplateUrl" : "https://raw.githubusercontent.com/cooktheryan/openshift-ansible-contrib/azure-storage-fix/reference-architecture/azure-ansible/",
     "baseVMachineTemplateUriInfranode" : "[concat(variables('baseTemplateUrl'), 'infranode.json')]",
     "baseVMachineTemplateUriNode" : "[concat(variables('baseTemplateUrl'), 'node.json')]",
     "baseVMachineTemplateUriMaster" : "[concat(variables('baseTemplateUrl'), 'master.json')]",
