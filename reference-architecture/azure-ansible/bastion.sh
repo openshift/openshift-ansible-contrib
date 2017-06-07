@@ -192,33 +192,27 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
     master_conf: /etc/origin/master/master-config.yaml
   handlers:
   - name: restart atomic-openshift-master-api
-    systemd:
-      state: restarted
-      name: atomic-openshift-master-api
+    shell: systemctl restart atomic-openshift-master-api
       register: task_result
       until: task_result.rc == 0
       retries: 10
-      delay: 5
+      delay: 30
       ignore_errors: yes
 
   - name: restart atomic-openshift-master-controllers
-    systemd:
-      state: restarted
-      name: atomic-openshift-master-controllers
+    shell: systemctl restart atomic-openshift-master-controllers
       register: task_result
       until: task_result.rc == 0
       retries: 10
-      delay: 5
+      delay: 30
       ignore_errors: yes
 
   - name: restart atomic-openshift-node
-    systemd:
-      state: restarted
-      name: atomic-openshift-node
+    shell: systemctl restart atomic-openshift-node
       register: task_result
       until: task_result.rc == 0
       retries: 10
-      delay: 5
+      delay: 30
       ignore_errors: yes
 
   post_tasks:
@@ -289,13 +283,11 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
     node_conf: /etc/origin/node/node-config.yaml
   handlers:
   - name: restart atomic-openshift-node
-    systemd:
-      state: restarted
-      name: atomic-openshift-node
+    shell: systemctl restart atomic-openshift-node
       register: task_result
       until: task_result.rc == 0
       retries: 10
-      delay: 5
+      delay: 30
       ignore_errors: yes
 
   post_tasks:
