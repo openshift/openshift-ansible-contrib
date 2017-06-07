@@ -195,18 +195,30 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
     systemd:
       state: restarted
       name: atomic-openshift-master-api
+      register: task_result
+      until: task_result.rc == 0
+      retries: 10
+      delay: 5
       ignore_errors: yes
 
   - name: restart atomic-openshift-master-controllers
     systemd:
       state: restarted
       name: atomic-openshift-master-controllers
+      register: task_result
+      until: task_result.rc == 0
+      retries: 10
+      delay: 5
       ignore_errors: yes
 
   - name: restart atomic-openshift-node
     systemd:
       state: restarted
       name: atomic-openshift-node
+      register: task_result
+      until: task_result.rc == 0
+      retries: 10
+      delay: 5
       ignore_errors: yes
 
   post_tasks:
@@ -280,7 +292,12 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
     systemd:
       state: restarted
       name: atomic-openshift-node
+      register: task_result
+      until: task_result.rc == 0
+      retries: 10
+      delay: 5
       ignore_errors: yes
+
   post_tasks:
   - name: make sure /etc/azure exists
     file:
