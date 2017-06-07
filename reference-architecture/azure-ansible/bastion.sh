@@ -193,27 +193,27 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
   handlers:
   - name: restart atomic-openshift-master-api
     shell: systemctl restart atomic-openshift-master-api
-      register: task_result
-      until: task_result.rc == 0
-      retries: 10
-      delay: 30
-      ignore_errors: yes
+    register: task_result
+    until: task_result.rc == 0
+    retries: 10
+    delay: 30
+    ignore_errors: yes
 
   - name: restart atomic-openshift-master-controllers
     shell: systemctl restart atomic-openshift-master-controllers
-      register: task_result
-      until: task_result.rc == 0
-      retries: 10
-      delay: 30
-      ignore_errors: yes
+    register: task_result
+    until: task_result.rc == 0
+    retries: 10
+    delay: 30
+    ignore_errors: yes
 
   - name: restart atomic-openshift-node
     shell: systemctl restart atomic-openshift-node
-      register: task_result
-      until: task_result.rc == 0
-      retries: 10
-      delay: 30
-      ignore_errors: yes
+    register: task_result
+    until: task_result.rc == 0
+    retries: 10
+    delay: 30
+    ignore_errors: yes
 
   post_tasks:
   - name: make sure /etc/azure exists
@@ -284,11 +284,11 @@ cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
   handlers:
   - name: restart atomic-openshift-node
     shell: systemctl restart atomic-openshift-node
-      register: task_result
-      until: task_result.rc == 0
-      retries: 10
-      delay: 30
-      ignore_errors: yes
+    register: task_result
+    until: task_result.rc == 0
+    retries: 10
+    delay: 30
+    ignore_errors: yes
 
   post_tasks:
   - name: make sure /etc/azure exists
