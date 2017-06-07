@@ -4,5 +4,6 @@ resources:
 - name: tmp-instance
   type: tmp-instance.jinja
   properties:
+    tmp_instance_sourceimage: {{ tmp_instance_sourceimage }}
     prefix: {{ prefix }}
     zone: {{ gcloud_zone }}

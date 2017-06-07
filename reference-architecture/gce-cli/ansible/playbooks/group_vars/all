@@ -12,8 +12,12 @@ deployment_type: '{{ openshift_deployment_type }}'
 
 rhel_image: '{{ rhel_image_path | basename | regex_replace("^(.*)\.qcow2$", "\1") }}'
 rhel_image_gce: '{{ rhel_image | replace(".", "-") | replace("_", "-") | lower }}'
-gold_image: '{{ rhel_image_gce }}-gold'
+tmp_instance_sourceimage: '{{ temp_instance_imagesource | default("global/images/family/rhel-guest-clean") }}'
+gold_image: '{{ gold_image | default(rhel_image_gce ~ "-gold" }}'
 gold_image_family: 'rhel-guest-gold'
+#Something like this might make more sense but will break backward compatibility
+#gold_image_family: '{{ prefix }}-base-gold'
+
 
 console_port: 443
 
