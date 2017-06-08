@@ -35,7 +35,7 @@
     - vars/main.yaml
   tasks:
     - name: Delete production VMs
-      vsphere_guest:
+      vmware_guest:
         vcenter_hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
@@ -45,7 +45,7 @@
       with_dict: "{{production_hosts}}"
 
     - name: Delete infrastructure VMs on vCenter
-      vsphere_guest:
+      vmware_guest:
         vcenter_hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
