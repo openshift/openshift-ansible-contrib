@@ -483,7 +483,10 @@ def launch_refarch_env(console_port=8443,
     os.system(command)
     tags = ",".join(tags)
     if clean is True:
+        # recreate inventory with added nodes to clean up
         tags = 'clean'
+        command='./ocp-on-vmware --create_inventory --no-confirm'
+        os.system(command)
     if tag:
         tags = tag
 
