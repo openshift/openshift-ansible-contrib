@@ -36,20 +36,20 @@
   tasks:
     - name: Delete production VMs
       vmware_guest:
-        vcenter_hostname: "{{ vcenter_host }}"
+        hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
-        guest: "{{ item.value.guestname }}"
+        name: "{{ item.value.guestname }}"
         state: absent
         force: true
       with_dict: "{{production_hosts}}"
 
     - name: Delete infrastructure VMs on vCenter
       vmware_guest:
-        vcenter_hostname: "{{ vcenter_host }}"
+        hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
-        guest: "{{ item.value.guestname }}"
+        name: "{{ item.value.guestname }}"
         state: absent
         force: true
       with_dict: "{{infrastructure_hosts}}"
