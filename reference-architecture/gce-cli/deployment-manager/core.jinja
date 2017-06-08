@@ -167,8 +167,8 @@ resources:
     targetPools:
     - $(ref.{{ properties['prefix'] }}-master-network-lb-pool.selfLink)
     targetSize: {{ properties['master_instance_group_size'] }}
-    zone: {{ properties['zone'] }}
-  type: compute.v1.instanceGroupManager
+    region: {{ properties['region'] }}
+  type: compute.v1.regionInstanceGroupManager
 - name: {{ properties['prefix'] }}-infra-node
   properties:
     baseInstanceName: {{ properties['prefix'] }}-infra-node
@@ -176,15 +176,15 @@ resources:
     targetPools:
     - $(ref.{{ properties['prefix'] }}-router-network-lb-pool.selfLink)
     targetSize: {{ properties['infra_node_instance_group_size'] }}
-    zone: {{ properties['zone'] }}
-  type: compute.v1.instanceGroupManager
+    region: {{ properties['region'] }}
+  type: compute.v1.regionInstanceGroupManager
 - name: {{ properties['prefix'] }}-node
   properties:
     baseInstanceName: {{ properties['prefix'] }}-node
     instanceTemplate: $(ref.{{ properties['prefix'] }}-node-template.selfLink)
     targetSize: {{ properties['node_instance_group_size'] }}
-    zone: {{ properties['zone'] }}
-  type: compute.v1.instanceGroupManager
+    region: {{ properties['region'] }}
+  type: compute.v1.regionInstanceGroupManager
 - name: {{ properties['prefix'] }}-master-ssl-lb-health-check
   properties:
     checkIntervalSec: 5
