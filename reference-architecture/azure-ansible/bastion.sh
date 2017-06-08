@@ -434,6 +434,7 @@ echo "Setup Azure PVC"
 oc create -f /home/${AUSERNAME}/scgeneric.yml
 oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
+/root/.openshiftcomplete
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/.ansible.cfg
