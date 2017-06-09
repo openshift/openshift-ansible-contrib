@@ -178,9 +178,9 @@ EOF
 
 # Create Azure Cloud Provider configuration Playbook
 
-cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
+cat > /home/${AUSERNAME}/azure-config.yml <<EOF
 #!/usr/bin/ansible-playbook
-- hosts: masters
+- hosts: all
   gather_facts: no
   serial: 1
   vars_files:
@@ -190,144 +190,24 @@ cat > /home/${AUSERNAME}/setup-azure-master.yml <<EOF
     azure_conf_dir: /etc/azure
     azure_conf: "{{ azure_conf_dir }}/azure.conf"
     master_conf: /etc/origin/master/master-config.yaml
-  handlers:
-  - name: restart atomic-openshift-master-api
-    systemd:
-      state: restarted
-      name: atomic-openshift-master-api
-
-  - name: restart atomic-openshift-master-controllers
-    systemd:
-      state: restarted
-      name: atomic-openshift-master-controllers
-
-  - name: restart atomic-openshift-node
-    systemd:
-      state: restarted
-      name: atomic-openshift-node
-
-  post_tasks:
-  - name: make sure /etc/azure exists
-    file:
-      state: directory
-      path: "{{ azure_conf_dir }}"
-
-  - name: populate /etc/azure/azure.conf
-    copy:
-      dest: "{{ azure_conf }}"
-      content: |
-        {
-          "aadClientID" : "{{ g_aadClientId }}",
-          "aadClientSecret" : "{{ g_aadClientSecret }}",
-          "subscriptionID" : "{{ g_subscriptionId }}",
-          "tenantID" : "{{ g_tenantId }}",
-          "resourceGroup": "{{ g_resourceGroup }}",
-        }
-    notify:
-    - restart atomic-openshift-master-api
-    - restart atomic-openshift-master-controllers
-    - restart atomic-openshift-node
-
-  - name: insert the azure disk config into the master
-    modify_yaml:
-      dest: "{{ master_conf }}"
-      yaml_key: "{{ item.key }}"
-      yaml_value: "{{ item.value }}"
-    with_items:
-    - key: kubernetesMasterConfig.apiServerArguments.cloud-config
-      value:
-      - "{{ azure_conf }}"
-
-    - key: kubernetesMasterConfig.apiServerArguments.cloud-provider
-      value:
-      - azure
-
-    - key: kubernetesMasterConfig.controllerArguments.cloud-config
-      value:
-      - "{{ azure_conf }}"
-
-    - key: kubernetesMasterConfig.controllerArguments.cloud-provider
-      value:
-      - azure
-    notify:
-    - restart atomic-openshift-master-api
-    - restart atomic-openshift-master-controllers
-  - name: delete the node so it can recreate itself
-    command: oc delete node {{inventory_hostname}}
-    delegate_to: bastion
-  - name: sleep to let node come back to life
-    pause:
-       minutes: 1
-EOF
-
-cat > /home/${AUSERNAME}/setup-azure-node.yml <<EOF
-#!/usr/bin/ansible-playbook
-- hosts: all
-  serial: 1
-  gather_facts: no
-  vars_files:
-  - vars.yml
-  become: yes
-  vars:
-    azure_conf_dir: /etc/azure
-    azure_conf: "{{ azure_conf_dir }}/azure.conf"
-    node_conf: /etc/origin/node/node-config.yaml
-  handlers:
-  - name: restart atomic-openshift-node
-    systemd:
-      state: restarted
-      name: atomic-openshift-node
-  post_tasks:
-  - name: make sure /etc/azure exists
-    file:
-      state: directory
-      path: "{{ azure_conf_dir }}"
-
-  - name: populate /etc/azure/azure.conf
-    copy:
-      dest: "{{ azure_conf }}"
-      content: |
-        {
-          "aadClientID" : "{{ g_aadClientId }}",
-          "aadClientSecret" : "{{ g_aadClientSecret }}",
-          "subscriptionID" : "{{ g_subscriptionId }}",
-          "tenantID" : "{{ g_tenantId }}",
-          "resourceGroup": "{{ g_resourceGroup }}",
-        }
-    notify:
-    - restart atomic-openshift-node
-  - name: insert the azure disk config into the node
-    modify_yaml:
-      dest: "{{ node_conf }}"
-      yaml_key: "{{ item.key }}"
-      yaml_value: "{{ item.value }}"
-    with_items:
-    - key: kubeletArguments.cloud-config
-      value:
-      - "{{ azure_conf }}"
-
-    - key: kubeletArguments.cloud-provider
-      value:
-      - azure
-    notify:
-    - restart atomic-openshift-node
-  - name: delete the node so it can recreate itself
-    command: oc delete node {{inventory_hostname}}
-    delegate_to: bastion
-  - name: sleep to let node come back to life
-    pause:
-       minutes: 1
-- hosts: masters
   tasks:
-  - name: sleep to make sure everything up
-    pause:
-       minutes: 3
-  - name: make sure its set to unsceduable
-    command: oadm manage-node {{inventory_hostname}} --schedulable=false
-    delegate_to: master1
+  - name: make sure /etc/azure exists
+    file:
+      state: directory
+      path: "{{ azure_conf_dir }}"
+
+  - name: populate /etc/azure/azure.conf
+    copy:
+      dest: "{{ azure_conf }}"
+      content: |
+        {
+          "aadClientID" : "{{ g_aadClientId }}",
+          "aadClientSecret" : "{{ g_aadClientSecret }}",
+          "subscriptionID" : "{{ g_subscriptionId }}",
+          "tenantID" : "{{ g_tenantId }}",
+          "resourceGroup": "{{ g_resourceGroup }}",
+        }
 EOF
-
-
 
 cat <<EOF > /etc/ansible/hosts
 [OSEv3:children]
@@ -336,6 +216,9 @@ nodes
 etcd
 
 [OSEv3:vars]
+osm_controller_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
+osm_api_server_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
+openshift_node_kubelet_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
 debug_level=2
 console_port=8443
 docker_udev_workaround=True
@@ -527,6 +410,7 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 sleep 120
 ansible all --module-name=ping > ansible-preinstall-ping.out || true
 ansible-playbook  /home/${AUSERNAME}/subscribe.yml
+ansible-playbook  /home/${AUSERNAME}/azure-config.yml
 echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Bastion BYO Install" ${RHNUSERNAME} || true
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null
 
@@ -545,14 +429,12 @@ echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 sleep 30
 echo "Setup Azure PVC"
-echo "Azure Setup masters"
-ansible-playbook /home/${AUSERNAME}/setup-azure-master.yml
-ansible-playbook /home/${AUSERNAME}/setup-azure-node.yml
 /home/${AUSERNAME}/createvhdcontainer.sh sapv1${RESOURCEGROUP}
 /home/${AUSERNAME}/createvhdcontainer.sh sapv2${RESOURCEGROUP}
 oc create -f /home/${AUSERNAME}/scgeneric.yml
 oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
+touch /root/.openshiftcomplete
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/.ansible.cfg
@@ -590,3 +472,4 @@ chmod 755 /home/${AUSERNAME}/openshift-install.sh
 echo "${RESOURCEGROUP} Bastion Host is starting OpenShift Install" | mail -s "${RESOURCEGROUP} Bastion OpenShift Install Starting" ${RHNUSERNAME} || true
 /home/${AUSERNAME}/openshift-install.sh &> /home/${AUSERNAME}/openshift-install.out &
 exit 0
+
