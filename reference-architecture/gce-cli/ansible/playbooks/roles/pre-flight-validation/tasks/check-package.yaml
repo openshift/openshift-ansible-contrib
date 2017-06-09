@@ -1,0 +1,12 @@
+---
+- name: check if package {{ item }} is installed
+  command: rpm -q --whatprovides {{ item }}
+  register: package_result
+  ignore_errors: true
+  changed_when: false
+
+- name: assert that package {{ item }} exists
+  assert:
+    that:
+    - package_result | succeeded
+    msg: Package '{{ item }}' is required. Please install it with your package manager, e.g. 'sudo yum install {{ item }}'
