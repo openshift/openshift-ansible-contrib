@@ -148,8 +148,8 @@ else
 fi
 subscription-manager attach --pool=$RHNPOOLID
 subscription-manager repos --disable="*"
-subscription-manager repos     --enable="rhel-7-server-rpms"     --enable="rhel-7-server-extras-rpms rhel-7-fast-datapath-rpms"
-subscription-manager repos     --enable="rhel-7-server-ose-3.5-rpms"
+subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-fast-datapath-rpms"
+subscription-manager repos --enable="rhel-7-server-ose-3.5-rpms"
 yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs
 touch /root/.updateok
 
@@ -182,14 +182,12 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
 #!/usr/bin/ansible-playbook
 - hosts: all
   gather_facts: no
-  serial: 1
   vars_files:
   - vars.yml
   become: yes
   vars:
     azure_conf_dir: /etc/azure
     azure_conf: "{{ azure_conf_dir }}/azure.conf"
-    master_conf: /etc/origin/master/master-config.yaml
   tasks:
   - name: make sure /etc/azure exists
     file:
