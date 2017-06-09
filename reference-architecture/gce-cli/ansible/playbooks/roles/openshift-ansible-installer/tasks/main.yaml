@@ -1,0 +1,6 @@
+---
+- name: download openshift ansible installer from github
+  git:
+    repo: https://github.com/openshift/openshift-ansible.git
+    dest: '{{ playbook_dir }}/../../../../../openshift-ansible'
+    version: '{{ openshift_ansible_branch }}'

@@ -3,6 +3,7 @@
   hosts: localhost
   roles:
   - pre-flight-validation
+  - openshift-ansible-installer
   - ansible-gcp
   - dns-zone
   - gcp-ssh-key

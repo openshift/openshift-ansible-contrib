@@ -2,7 +2,9 @@
 # Variables shared by multiple playbooks and roles, which are not interesting
 # to user
 
-openshift_vers: v3_5
+openshift_major_version: 5
+openshift_vers: v3_{{ openshift_major_version }}
+openshift_ansible_branch: release-1.{{ openshift_major_version }}
 
 ssh_config_file: '~/.ssh/config'
 
