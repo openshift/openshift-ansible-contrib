@@ -1,6 +1,29 @@
 ---
+- block:
+  - name: check if openshift ansible installer rpm is available
+    command: yum list atomic-openshift-utils
+    register: aoi_available
+    ignore_errors: true
+
+  - block:
+    - name: check if the openshift ansible installer is installed
+      command: rpm -q atomic-openshift-utils
+      register: aoi_installed
+      ignore_errors: true
+
+    - name: assert that the openshift installer is installed
+      assert:
+        that:
+        - aoi_installed | succeeded
+        msg: Please install the atomic-openshift-utils package on the deployer machine.
+    when: aoi_available | succeeded
+  when:
+  - ansible_distribution == 'RedHat'
+  - ansible_distribution_major_version == '7'
+
 - name: download openshift ansible installer from github
   git:
     repo: https://github.com/openshift/openshift-ansible.git
     dest: '{{ playbook_dir }}/../../../../../openshift-ansible'
     version: '{{ openshift_ansible_branch }}'
+  when: aoi_available is not defined or aoi_available | failed

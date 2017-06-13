@@ -1,5 +1,13 @@
 ---
-- include: ../../../../../openshift-ansible/playbooks/byo/config.yml
+- name: get openshift ansible installer path
+  hosts: localhost
+  tasks:
+  - name: set openshift ansible installer path fact
+    include_role:
+      name: openshift-ansible-installer
+      tasks_from: installer-path
+
+- include: '{{ openshift_ansible_installer_dir }}/playbooks/byo/config.yml'
   vars:
     debug_level: 2
     openshift_debug_level: '{{ debug_level }}'

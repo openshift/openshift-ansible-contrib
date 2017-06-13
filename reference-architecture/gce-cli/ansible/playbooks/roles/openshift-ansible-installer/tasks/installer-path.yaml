@@ -1,0 +1,22 @@
+---
+- name: is openshift ansible installer available as rpm
+  stat:
+    path: /usr/share/ansible/openshift-ansible
+  register: oai_rpm_path
+
+- name: is openshift ansible installer available as git repo
+  stat:
+    path: ../../../../../openshift-ansible
+  register: oai_git_path
+
+- name: set fact with openshift ansible installer path from rpm
+  set_fact:
+    openshift_ansible_installer_dir: /usr/share/ansible/openshift-ansible
+  when: oai_rpm_path.stat.exists
+
+- name: set fact with openshift ansible installer path from github
+  set_fact:
+    openshift_ansible_installer_dir: ../../../../../openshift-ansible
+  when:
+  - not oai_rpm_path.stat.exists
+  - oai_git_path.stat.exists
