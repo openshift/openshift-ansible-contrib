@@ -4,9 +4,9 @@
   - include: roles/common/pre_tasks/pre_tasks.yml
   roles:
   - role: openstack-stack
-    stack_name: "{{ env_id }}.{{ openstack_dns_domain }}"
-    dns_domain: "{{ openstack_dns_domain }}"
-    dns_nameservers: "{{ openstack_nameservers }}"
+    stack_name: "{{ env_id }}.{{ public_dns_domain }}"
+    dns_domain: "{{ public_dns_domain }}"
+    dns_nameservers: "{{ public_dns_nameservers }}"
     subnet_prefix: "{{ openstack_subnet_prefix }}"
     ssh_public_key: "{{ openstack_ssh_public_key }}"
     openstack_image: "{{ openstack_default_image_name }}"
@@ -21,7 +21,7 @@
     num_masters: "{{ openstack_num_masters }}"
     num_nodes: "{{ openstack_num_nodes }}"
     num_infra: "{{ openstack_num_infra }}"
-    num_dns: 1
+    num_dns: "{{ openstack_num_dns | default(1) }}"
     master_volume_size: "{{ docker_volume_size }}"
     app_volume_size: "{{ docker_volume_size }}"
     infra_volume_size: "{{ docker_volume_size }}"
@@ -44,3 +44,5 @@
   - name: waiting for server to come back
     local_action: wait_for host={{ hostvars[inventory_hostname]['ansible_ssh_host'] }} port=22 delay=30 timeout=300
     become: false
+
+- include: post-provision-openstack.yml
