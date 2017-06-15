@@ -1,0 +1,11 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: crs-slow-st1
+provisioner: kubernetes.io/glusterfs
+parameters:
+  resturl: "http://{{ansible_default_ipv4.address }}:8080"
+  restauthenabled: "true"
+  restuser: "admin"
+  secretNamespace: "default"
+  secretName: "heketi-secret"

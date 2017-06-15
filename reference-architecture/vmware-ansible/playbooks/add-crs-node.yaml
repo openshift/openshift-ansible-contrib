@@ -1,7 +1,7 @@
 ---
 - hosts: localhost
   connection: local
-  gather_facts: no
+  gather_facts: yes
   become: no
   vars_files:
   - vars/main.yaml
@@ -9,16 +9,48 @@
   # Group systems
   - create-vm-crs-prod-ose
   - instance-groups
-
-- hosts: new_nodes
+  tags: [ 'vms' ]
+      
+- hosts: crs
   gather_facts: yes
   become: no
   vars_files:
   - vars/main.yaml
   roles:
-  - rhel_subscribe
+  # rhel_subscribe attempts to use ose repos
+  - instance-groups
+  - rhsm-subscription 
+  - gluster-rhsm-repos
   - vmware-guest-setup
-- include: ../../../playbooks/openshift-storage.yaml
-- include: ../../../playbooks/add-node-prerequisite.yaml
+  - gluster-crs-prerequisites
+  - gluster-ports
+  tags: [ 'crs-node-setup' ]
 
-- include: node-setup.yaml
+- hosts: localhost
+  gather_facts: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - instance-groups
+  - rhsm-subscription
+  - gluster-rhsm-repos
+  - heketi-install
+  - heketi-configure
+  tags: [ 'heketi-setup' ]
+  
+- hosts: master
+  gather_facts: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - instance-groups
+  tags: [ 'heketi-ocp' ]
+
+- hosts: single_master
+  gather_facts: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - instance-groups
+  - heketi-ocp
+  tags: [ 'heketi-ocp' ]

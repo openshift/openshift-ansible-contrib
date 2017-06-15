@@ -1,5 +1,5 @@
 ---
-- name: Create additional production VMs on vCenter
+- name: Create CRS production VMs on vCenter
   vmware_guest:
     hostname: "{{ vcenter_host }}"
     username: "{{ vcenter_username }}"
@@ -11,7 +11,20 @@
     template: "{{vcenter_template_name}}"
     state: poweredon
     folder: "/{{ vcenter_folder }}"
-    annotation: "{{ item.value.tag }}"
+    annotation: "crs"
+    disk:
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
+    - size_gb: 100
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
     hardware:
       memory_mb: 32768
     networks:
@@ -26,9 +39,9 @@
       dns_suffix: "{{public_hosted_zone}}"
       hostname: "{{ item.value.guestname}}"
   with_dict: "{{host_inventory}}"
-  when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
+  when: "'crs' in item.value.guestname"
 
-- name: Add additional production VMs to inventory
-  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group, new_nodes"
+- name: Add CRS production VMs to inventory
+  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="crs, production_group"
   with_dict: "{{host_inventory}}"
-  when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
+  when: "'crs' in item.value.guestname"
