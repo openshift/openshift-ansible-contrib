@@ -1,0 +1,62 @@
+[OSEv3:children]
+masters
+etcd
+nodes
+
+[OSEv3:vars]
+debug_level=2
+openshift_debug_level=2
+openshift_node_debug_level=2
+openshift_master_debug_level=2
+openshift_cloudprovider_kind=gce
+openshift_master_access_token_max_seconds=2419200
+console_port={{ console_port }}
+openshift_master_api_port={{ console_port }}
+openshift_master_console_port={{ console_port }}
+osm_cluster_network_cidr=172.16.0.0/16
+openshift_master_cluster_method=native
+openshift_master_cluster_hostname={{ openshift_master_cluster_hostname }}
+openshift_master_cluster_public_hostname={{ openshift_master_cluster_public_hostname }}
+osm_default_subdomain={{ wildcard_zone }}
+openshift_master_default_subdomain={{ wildcard_zone }}
+osm_default_node_selector='role=app'
+openshift_deployment_type={{ openshift_deployment_type }}
+deployment_type={{ openshift_deployment_type }}
+containerized={{ containerized }}
+osm_use_cockpit=true
+os_sdn_network_plugin_name={{ os_sdn_network_plugin_name }}
+openshift_hosted_router_selector='role=infra'
+openshift_hosted_registry_selector='role=infra'
+openshift_hosted_registry_storage_kind=object
+openshift_hosted_registry_storage_provider=gcs
+openshift_hosted_registry_storage_gcs_bucket={{ gcs_registry_bucket }}
+openshift_hosted_registry_storage_gcs_rootdirectory='/registry'
+openshift_hosted_registry_pullthrough=true
+openshift_hosted_registry_acceptschema2=true
+openshift_hosted_registry_enforcequota=true
+openshift_hosted_metrics_deploy={{ openshift_hosted_metrics_deploy }}
+openshift_hosted_metrics_storage_volume_size={{ openshift_hosted_metrics_storage_volume_size }}
+openshift_hosted_metrics_storage_kind=dynamic
+openshift_master_metrics_public_url='https://metrics.{{ wildcard_zone }}/hawkular/metrics'
+openshift_master_identity_providers={{ openshift_master_identity_providers | to_json }}
+
+[masters]
+{% for i in groups['tag_' + prefix + '-master'] %}
+{{ hostvars[i].gce_name }}
+{% endfor %}
+
+[etcd]
+{% for i in groups['tag_' + prefix + '-master'] %}
+{{ hostvars[i].gce_name }}
+{% endfor %}
+
+[nodes]
+{% for i in groups['tag_' + prefix + '-master'] %}
+{{ hostvars[i].gce_name }} openshift_node_labels="{'role': 'master'}"
+{% endfor %}
+{% for i in groups['tag_' + prefix + '-infra-node'] %}
+{{ hostvars[i].gce_name }} openshift_node_labels="{'role': 'infra'}"
+{% endfor %}
+{% for i in groups['tag_' + prefix + '-node'] %}
+{{ hostvars[i].gce_name }} openshift_node_labels="{'role': 'app'}"
+{% endfor %}

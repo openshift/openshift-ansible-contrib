@@ -40,6 +40,12 @@ function teardown {
   popd
 }
 
+function static_inventory {
+  pushd "${DIR}/ansible"
+  ansible-playbook -e @../config.yaml $@ playbooks/create-inventory-file.yaml
+  popd
+}
+
 function main {
   pushd "${DIR}/ansible"
   ansible-playbook -i inventory/inventory -e @../config.yaml $@ playbooks/prereq.yaml
@@ -51,6 +57,11 @@ case ${1:-} in
   --teardown | --revert )
     shift
     teardown "$@"
+    exit 0
+    ;;
+  --static-inventory )
+    shift
+    static_inventory "$@"
     exit 0
     ;;
   * )
