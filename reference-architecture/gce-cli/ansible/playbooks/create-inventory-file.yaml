@@ -1,6 +1,5 @@
 ---
 - name: create static inventory file
   hosts: localhost
-  gather_facts: no
   roles:
   - inventory-file-creation
