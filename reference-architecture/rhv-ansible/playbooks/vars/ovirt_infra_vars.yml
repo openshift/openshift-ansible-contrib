@@ -1,0 +1,222 @@
+---
+###########################
+# REST API variables
+###########################
+engine_url: https://engine.example.com/ovirt-engine/api
+engine_user: admin@internal
+engine_password: changeme
+#engine_cafile: /etc/pki/ovirt-engine/ca.pem
+engine_cafile: ca.pem
+
+###########################
+# Common
+###########################
+compatibility_version: 4.1
+
+# Data center
+data_center_name: Default
+
+###########################
+# Clusters
+###########################
+clusters:
+ - name: Default
+   cpu_type: Intel Conroe Family
+   profile: Default
+
+###########################
+# Hosts
+###########################
+hosts:
+ - name: hypervisor8
+   address: 192.168.155.13
+   cluster: Default
+   password: changeme
+ - name: hypervisor9
+   address: 192.168.155.14
+   cluster: Default
+   password: changeme
+ - name: hypervisor10
+   address: 192.168.155.15
+   cluster: Default
+   password: changeme
+
+###########################
+# Storage
+###########################
+storages:
+ my_data_storage:
+  master: true
+  state: present
+  nfs:
+   address: 192.168.155.10
+   path: /var/lib/exports/vms
+# myiscsistorage:
+#  iscsi:
+#   target: iqn.2014-07.org.ovirt:storage
+#   port: 3260
+#   address: 192.168.200.3
+#   username: username
+#   password: password
+#   lun_id: 3600140551fcc8348ea74a99b6760fbb4
+ my_export_storage:
+  domain_function: export
+  nfs:
+   address: 192.168.155.10
+   path: /var/lib/exports/exports
+# myisostorage:
+#  domain_function: iso
+#  nfs:
+#   address: 192.168.155.10
+#   path: /var/lib/exports/iso
+
+###########################
+# Networks
+###########################
+#logical_networks:
+# - name: mynetwork
+#   clusters:
+#    - name: development
+#      assigned: false
+#      required: true
+#      display: false
+#      migration: true
+#      gluster: false
+
+#host_networks:
+# - name: myhost1
+#   check: true
+#   save: true
+#   bond:
+#    name: bond0
+#    mode: 2
+#    interfaces:
+#     - eth2
+#     - eth3
+#   networks:
+#    - name: mynetwork
+#      boot_protocol: dhcp
+
+###########################
+# Users & Groups
+###########################
+#users:
+# - name: user1
+#   authz_name: internal-authz
+#   password: changeme8
+#   valid_to: "2018-01-01 00:00:00Z"
+# - name: user2
+#   authz_name: internal-authz
+#   password: changeme8
+#   valid_to: "2018-01-01 00:00:00Z"
+
+#user_groups:
+# - name: group1
+#   authz_name: internal-authz
+#   users:
+#    - user1
+
+#permissions:
+# - state: present
+#   user_name: user1
+#   authz_name: internal-authz
+#   role: UserRole
+#   object_type: cluster
+#   object_name: Default
+
+# - state: present
+#   group_name: group1
+#   authz_name: internal-authz
+#   role: UserRole
+#   object_type: cluster
+#   object_name: Default
+
+
+##########################
+# VM infra
+##########################
+#qcow_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+qcow_url: https://access.cdn.redhat.com//content/origin/files/sha256/55/55a581618199240c5d6ce332653c3e506cb05da863ad2e4a50d5e068e9790d88/rhel-guest-image-7.3-35.x86_64.qcow2?_auth_=1497414698_fc8feb200e9d748344d5b259f3a1d0e8
+template_cluster: Default
+template_name: rhel7
+template_memory: 1GiB
+template_cpu: 1
+template_disk_size: 20GiB
+template_nics:
+ - name: nic1
+   profile_name: ovirtmgmt
+   interface: virtio
+
+
+master_vm:
+ cluster: Default
+ root_password: changeme
+ domain: example.com
+ template: rhel7
+ memory: 1GiB
+ cores: 1
+ disks:
+  - size: 5GiB
+    storage_domain: my_data_storage
+    interface: virtio
+    name: etcd_disk
+
+node_vm:
+ cluster: Default
+ root_password: changeme
+ domain: example.com
+ template: rhel7
+ memory: 1GiB
+ cores: 1
+ disks:
+  - size: 10GiB
+    name: origin_disk
+    storage_domain: my_data_storage
+    interface: virtio
+  - size: 10GiB
+    name: data_disk
+    storage_domain: my_data_storage
+    interface: virtio
+
+lb_vm:
+ cluster: Default
+ root_password: changeme
+ domain: example.com
+ template: rhel7
+ memory: 1GiB
+ cores: 1
+ disks: []
+
+vms:
+ # Node VMs
+ - name: openshift-node-0
+   tag: openshift_node
+   profile: "{{ node_vm }}"
+ - name: openshift-node-1
+   tag: openshift_node
+   profile: "{{ node_vm }}"
+ # Infra VMs
+ - name: openshift-infra-0
+   tag: openshift_infra
+   profile: "{{ node_vm }}"
+ - name: openshift-infra-1
+   tag: openshift_infra
+   profile: "{{ node_vm }}"
+
+
+ # Master VMs
+ - name: openshift-master-0
+   profile: "{{ master_vm }}"
+   tag: openshift_master
+ - name: openshift-master-1
+   tag: openshift_master
+   profile: "{{ master_vm }}"
+ - name: openshift-master-2
+   tag: openshift_master
+   profile: "{{ master_vm }}"
+
+ # Load balancer
+ - name: openshift-lb
+   tag: openshift_lb
+   profile: "{{ lb_vm }}"
+
