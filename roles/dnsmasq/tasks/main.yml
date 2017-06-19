@@ -1,0 +1,9 @@
+---
+- name: Provide additional dnsmasq config
+  template:
+    src: openstack-dns.conf.j2
+    dest: /tmp/openstack-dnsmasq.conf
+
+- name: Define the custom dnsmasq config var for openshift-ansible
+  set_fact:
+    openshift_node_dnsmasq_additional_config_file: /tmp/openstack-dnsmasq.conf
