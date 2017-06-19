@@ -18,8 +18,8 @@ ssh_config_file: '~/.ssh/config'
 
 rhel_image: '{{ rhel_image_path | basename | regex_replace("^(.*)\.qcow2$", "\1") }}'
 rhel_image_gce: '{{ rhel_image | replace(".", "-") | replace("_", "-") | lower }}'
-gold_image: '{{ rhel_image_gce }}-gold'
-gold_image_family: 'rhel-guest-gold'
+gold_image: '{{ rhel_image_gce + "-gold" if openshift_deployment_type == "openshift-enterprise" else "centos-7-ocp-gold-image" }}'
+gold_image_family: '{{ "rhel-guest-gold" if openshift_deployment_type == "openshift-enterprise" else "centos-7-ocp-gold" }}'
 
 console_port: 443
 

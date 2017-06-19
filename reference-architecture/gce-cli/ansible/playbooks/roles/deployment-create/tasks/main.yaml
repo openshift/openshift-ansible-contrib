@@ -17,4 +17,6 @@
 
 - name: update deployment {{ deployment_name_with_prefix }}
   command: gcloud --project {{ gcloud_project }} deployment-manager deployments update {{ deployment_name_with_prefix }} --config '{{ deployment_config }}'
-  when: (deployment_exists | succeeded and deployment_config_from_template.changed)
+  when:
+  - deployment_exists | succeeded
+  - deployment_config_from_template | changed

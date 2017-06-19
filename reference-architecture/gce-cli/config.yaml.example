@@ -48,6 +48,18 @@ bastion_machine_type: g1-small
 master_machine_type: n1-standard-2
 node_machine_type: n1-standard-2
 
+# OpenShift deployment type
+openshift_deployment_type: openshift-enterprise
+containerized: false
+
+# OpenShift SDN selection
+# options are 'redhat/openshift-ovs-subnet', 'redhat/openshift-ovs-multitenant'
+os_sdn_network_plugin_name: 'redhat/openshift-ovs-subnet'
+
+# Deploy OpenShift Metrics
+openshift_hosted_metrics_deploy: false
+openshift_hosted_metrics_storage_volume_size: 20Gi
+
 # OpenShift Identity providers. This is Google oauth example (hosted_domain is
 # optional and restricts login to users only from the specified domain)
 openshift_master_identity_providers:
@@ -59,13 +71,6 @@ openshift_master_identity_providers:
   clientID: 'xxx-yyy.apps.googleusercontent.com'
   clientSecret: 'zzz'
   hostedDomain: 'example.com'
-
-# Deploy OpenShift Metrics
-openshift_hosted_metrics_deploy: false
-openshift_hosted_metrics_storage_volume_size: 20Gi
-
-# OpenShift SDN selection (options are 'redhat/openshift-ovs-subnet', 'redhat/openshift-ovs-multitenant')
-os_sdn_network_plugin_name: 'redhat/openshift-ovs-subnet'
 
 
 ###
@@ -79,7 +84,3 @@ master_boot_disk_size: 35
 node_boot_disk_size: 25
 node_docker_disk_size: 25
 node_openshift_disk_size: 50
-
-# OpenShift deployment type
-openshift_deployment_type: openshift-enterprise
-containerized: false

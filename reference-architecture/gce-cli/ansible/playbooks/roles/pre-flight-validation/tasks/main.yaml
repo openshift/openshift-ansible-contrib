@@ -5,12 +5,17 @@
   - curl
   - python
   - which
-  - tar
-  - qemu-img
   - openssl
   - git
   - python-libcloud
   - python2-jmespath
+
+- name: check required packages for enterprise deployments
+  include: check-package.yaml
+  with_items:
+  - tar
+  - qemu-img
+  when: openshift_deployment_type == 'openshift-enterprise'
 
 - name: check required packages for metrics
   include: check-package.yaml
@@ -32,14 +37,16 @@
     - gcloud_state | succeeded
     msg: gcloud utility seems to be missing. For installation information, see https://cloud.google.com/sdk/downloads
 
-- name: stat rhel image file
-  stat:
-    path: '{{ rhel_image_path }}'
-  register: rhel_image_path_stat
+- block:
+  - name: stat rhel image file
+    stat:
+      path: '{{ rhel_image_path }}'
+    register: rhel_image_path_stat
 
-- name: verify that the image is readable
-  assert:
-    that:
-    - 'rhel_image_path_stat.stat.exists'
-    - 'rhel_image_path_stat.stat.readable'
-    msg: RHEL image file must exist and it must be readable
+  - name: verify that the image is readable
+    assert:
+      that:
+      - 'rhel_image_path_stat.stat.exists'
+      - 'rhel_image_path_stat.stat.readable'
+      msg: RHEL image file must exist and it must be readable
+  when: openshift_deployment_type == 'openshift-enterprise'

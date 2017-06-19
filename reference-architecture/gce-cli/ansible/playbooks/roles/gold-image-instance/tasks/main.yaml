@@ -8,23 +8,37 @@
     include_role:
       name: rhsm-repos
 
+  - name: install centos-release-openshift-origin repo
+    package:
+      name: centos-release-openshift-origin
+      state: present
+    when: openshift_deployment_type == 'origin'
+
   - name: check subscription. if this task fails, please check your username, password and pool id
     command: yum list atomic-openshift-utils
+    changed_when: false
 
-  - name: add google repo
-    yum_repository:
-      name: google-cloud-compute
-      description: Google Cloud Compute
-      baseurl: https://packages.cloud.google.com/yum/repos/google-cloud-compute-el7-x86_64
-      enabled: true
-      gpgcheck: true
-      repo_gpgcheck: true
-      gpgkey: "https://packages.cloud.google.com/yum/doc/yum-key.gpg\n https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+  - block:
+    - name: add google repo
+      yum_repository:
+        name: google-cloud-compute
+        description: Google Cloud Compute
+        baseurl: https://packages.cloud.google.com/yum/repos/google-cloud-compute-el7-x86_64
+        enabled: true
+        gpgcheck: true
+        repo_gpgcheck: true
+        gpgkey: "https://packages.cloud.google.com/yum/doc/yum-key.gpg\n https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
 
-  - name: remove irqbalance package
+    - name: remove irqbalance package
+      package:
+        name: irqbalance
+        state: absent
+    when: openshift_deployment_type == 'openshift-enterprise'
+
+  - name: install PyYAML for update-instances
     package:
-      name: irqbalance
-      state: absent
+      name: PyYAML
+      state: present
 
   - name: update instance
     include_role:
@@ -38,6 +52,7 @@
     - google-config
     - google-compute-engine
     - google-compute-engine-init
+    when: openshift_deployment_type == 'openshift-enterprise'
 
   - name: clear yum cache
     command: yum clean all

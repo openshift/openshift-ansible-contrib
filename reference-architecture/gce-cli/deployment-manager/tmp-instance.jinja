@@ -10,7 +10,7 @@ resources:
       mode: READ_WRITE
       type: PERSISTENT
       initializeParams:
-        sourceImage: global/images/family/rhel-guest-clean
+        sourceImage: {{ properties['source_family'] }}
         diskSizeGb: 10
         diskType: zones/{{ properties['zone'] }}/diskTypes/pd-ssd
     machineType: zones/{{ properties['zone'] }}/machineTypes/n1-standard-1
