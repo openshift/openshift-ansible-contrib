@@ -1,4 +1,9 @@
 ---
+- name: Install prerequisites
+  package:
+    name: python-dns
+  become: true
+
 - name: "Remove any deleted DNS A records"
   nsupdate:
     key_name: "{{ item.0.key_name }}"
