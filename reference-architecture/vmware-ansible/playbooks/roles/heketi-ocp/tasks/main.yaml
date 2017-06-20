@@ -10,12 +10,16 @@
     dest: ~/storage-crs.json
 
 - name: Check to see if storage class is already created
+  command: "oc get secrets"
+  register: oc_secrets
+
+- name: Check to see if storage class is already created
   command: "oc get storageclass"
   register: storage_class
 
 - name: Add heketi secret
   command: "oc create -f ~/heketi-secret.yaml"
-  when: "'crs-slow-st1' not in storage_class.stdout"
+  when: "'heketi-secret' not in oc_secrets.stdout"
 
 - name: Create storage class
   command: "oc create -f ~/storage-crs.json"

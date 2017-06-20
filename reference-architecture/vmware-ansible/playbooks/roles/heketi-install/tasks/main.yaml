@@ -26,6 +26,9 @@
   notify: restart heketi
   when: heketi_cfg.stat.exists == True
 
+- name: restart heketi
+  service: name=heketi state=restarted
+
 - name: Verify heketi is started and configured properly
   uri:
     url: http://{{ ansible_default_ipv4.address }}:8080/hello

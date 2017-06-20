@@ -314,10 +314,10 @@ class VMWareAddNode(object):
         with open(self.inventory_file, 'w') as outfile:
             json.dump(d, outfile)
 
-        if 'storage' in node_type:
+        if 'storage' in self.node_type:
         # create the topology file
             with open('topology.json', 'w') as topfile:
-                json.dump(ndata, topfile)
+                json.dump(data, topfile)
 
             for line in fileinput.input('topology.json', inplace=True):
                 if line.endswith('"'):
@@ -372,7 +372,7 @@ class VMWareAddNode(object):
             if self.verbose > 0:
                 devnull=''
 
-            if self.tag is None:
+            if 'None' in self.tag:
                 self.tag = 'all'
             # refresh the inventory cache to prevent stale hosts from
             # interferring with re-running

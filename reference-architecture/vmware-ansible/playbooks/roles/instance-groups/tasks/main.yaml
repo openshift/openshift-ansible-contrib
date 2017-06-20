@@ -56,3 +56,9 @@
   with_items: "{{ groups.tag_provision_node | default([]) }}"
   when:
     - add_node is defined
+
+- name: Add a crs node to the single crs group
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: single_crs
+  with_items: "{{ groups['crs'][0] }}"

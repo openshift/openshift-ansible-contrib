@@ -26,7 +26,7 @@
   - gluster-ports
   tags: [ 'crs-node-setup' ]
 
-- hosts: localhost
+- hosts: single_crs
   gather_facts: yes
   vars_files:
   - vars/main.yaml

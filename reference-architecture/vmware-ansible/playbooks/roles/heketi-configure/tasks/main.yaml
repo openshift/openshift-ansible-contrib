@@ -20,8 +20,13 @@
 - name: source bashrc
   action: shell source ~/.bashrc
 
+- name: Copy topology config file to single_crs
+  template:
+    src: ../topology.json
+    dest: ~/topology.json
+ 
 - name: load topology file
-  command: "heketi-cli topology load --json=../topology.json"
+  command: "heketi-cli topology load --json=topology.json"
   register: load_top
 
 - name: store heketi secret

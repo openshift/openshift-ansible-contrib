@@ -22,7 +22,7 @@
     - size_gb: 40
       datastore: "{{ vcenter_datastore }}"
       type: thin
-    - size_gb: 100
+    - size_gb: 500
       datastore: "{{ vcenter_datastore }}"
       type: thin
     hardware:
