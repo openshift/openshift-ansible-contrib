@@ -10,7 +10,7 @@
   - create-vm-crs-prod-ose
   - instance-groups
   tags: [ 'vms' ]
- 
+
 - hosts: crs
   gather_facts: yes
   become: no
@@ -37,7 +37,7 @@
   - heketi-install
   - heketi-configure
   tags: [ 'heketi-setup' ]
- 
+
 - hosts: master
   gather_facts: yes
   vars_files:
