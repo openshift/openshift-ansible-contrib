@@ -5,7 +5,7 @@
 - name: Add heketi_cli_server ENV var
   lineinfile:
     dest: ~/.bashrc
-    line: "export HEKETI_CLI_SERVER=http://{{ ansible_default_ipv4.address }}:8080" 
+    line: "export HEKETI_CLI_SERVER=http://{{ ansible_default_ipv4.address }}:8080"
 
 - name: Add heketi_cli_user ENV var
   lineinfile:

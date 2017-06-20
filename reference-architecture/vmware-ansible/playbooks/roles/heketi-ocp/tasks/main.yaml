@@ -20,6 +20,3 @@
 - name: Create storage class
   command: "oc create -f ~/storage-crs.json"
   when: "'crs-slow-st1' not in storage_class.stdout"
-
-
-
