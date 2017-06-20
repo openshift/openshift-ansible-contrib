@@ -14,6 +14,5 @@
 - name: continue with the core infrastructure deployment, after the instances are created
   hosts: localhost
   roles:
-  - attach-disks
   - dns-records
   - ssh-proxy

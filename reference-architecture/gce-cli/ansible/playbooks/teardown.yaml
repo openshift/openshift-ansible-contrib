@@ -9,8 +9,6 @@
   - dns-records-delete
   - role: deployment-delete
     deployment_name: core
-  - role: deployment-delete
-    deployment_name: add-disks
   - ssl-certificate-delete
   - role: deployment-delete
     deployment_name: tmp-instance
