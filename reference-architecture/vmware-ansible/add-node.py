@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # vim: sw=4 ts=4 et
 
-import argparse, click, fileinput, iptools, os, six, sys, yaml
-
+import argparse, click, fileinput, iptools, os, six, sys, yaml, textwrap
+from argparse import RawTextHelpFormatter
 from collections import defaultdict
 from six.moves import configparser
 from time import time
@@ -117,13 +117,17 @@ class VMWareAddNode(object):
     def parse_cli_args(self):
 
         ''' Command line argument processing '''
-
+        tag_help = '''Skip to various parts of install valid tags include:
+                      - vms (create storage vms)
+                      - crs-node-setup (install the proper packages on the crs nodes)
+                      - heketi-setup (install heketi and config on the crs master)
+                      - heketi-ocp (install the heketi secret and storage class on OCP) '''
         parser = argparse.ArgumentParser(description='Add new nodes to an existing OCP deployment')
-        parser.add_argument('--node_type', action='store', default='app', help='Specify the node label')
+        parser.add_argument('--node_type', action='store', default='app', help='Specify the node label: app, infra, storage')
         parser.add_argument('--node_number', action='store', default='1', help='Specify the number of nodes to add')
         parser.add_argument('--create_inventory', action='store_true', help='Helper script to create json inventory file and exit')
         parser.add_argument('--no_confirm', default=None, help='Skip confirmation prompt')
-        parser.add_argument('--tag', default=None, help='Skip to various parts of install valid tags include: vms, crs-node-setup, heketi-setup, heketi-ocp')
+        parser.add_argument('--tag', default=None, help=tag_help)
         parser.add_argument('--verbose', default=None, action='store_true', help='Verbosely display commands')
         self.args = parser.parse_args()
         self.verbose = self.args.verbose

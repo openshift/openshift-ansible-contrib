@@ -62,3 +62,5 @@
     name: "{{ hostvars[item].inventory_hostname }}"
     groups: single_crs
   with_items: "{{ groups['crs'][0] }}"
+  when:
+    - "'crs' in container_storage"
