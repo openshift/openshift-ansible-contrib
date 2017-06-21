@@ -24,7 +24,7 @@
   template:
     src: ../topology.json
     dest: ~/topology.json
- 
+
 - name: load topology file
   command: "heketi-cli topology load --json=topology.json"
   register: load_top
