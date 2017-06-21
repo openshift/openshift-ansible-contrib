@@ -3,10 +3,18 @@
   - name: register host
     include_role:
       name: rhsm-subscription
+    when: openshift_deployment_type != "origin"
 
   - name: enable repos
     include_role:
       name: rhsm-repos
+    when: openshift_deployment_type != "origin"
+
+  - name: install centos-release-openshift-origin repo
+    package:
+      name: centos-release-openshift-origin
+      state: present
+    when: openshift_deployment_type == "origin"
 
   - name: check subscription. if this task fails, please check your username, password and pool id
     command: yum list atomic-openshift-utils
@@ -26,6 +34,11 @@
       name: irqbalance
       state: absent
 
+  - name: install PyYAML for update-instances
+    package:
+      name: PyYAML
+      state: present
+
   - name: update instance
     include_role:
       name: update-instances
@@ -35,9 +48,18 @@
       name: '{{ item }}'
       state: present
     with_items:
+    - bash-completion
+    - bind-utils
+    - bridge-utils
+    - docker
+    - iptables-services
     - google-config
     - google-compute-engine
     - google-compute-engine-init
+    - git
+    - net-tools
+    - python-httplib2
+    - wget
 
   - name: clear yum cache
     command: yum clean all
@@ -50,6 +72,7 @@
   - name: unregister the system
     include_role:
       name: rhsm-unregister
+    when: openshift_deployment_type != "origin"
 
   - name: delete temp instance
     include_role:

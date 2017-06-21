@@ -15,6 +15,10 @@ rhsm_pool: 'yyy'
 
 # Path to a RHEL image on local machine, downloaded from Red Hat Customer Portal
 rhel_image_path: '~/Downloads/rhel-guest-image-7.3-35.x86_64.qcow2'
+#Alternatively define choose an existing image and gold_image name
+#currently requires openshift_deployment_type: origin
+#tmp_instance_sourceimage: 'projects/centos-cloud/global/images/centos-7-v20170523'
+#gold_image: '{{ prefix }}-centos-7-v20170523-base'
 # Choose to delete or retain the clean image during teardown
 delete_image: false
 # Choose to delete or retain the gold image during teardown

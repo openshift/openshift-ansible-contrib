@@ -36,6 +36,7 @@
   stat:
     path: '{{ rhel_image_path }}'
   register: rhel_image_path_stat
+  when: openshift_deployment_type != "origin"
 
 - name: verify that the image is readable
   assert:
@@ -43,3 +44,4 @@
     - 'rhel_image_path_stat.stat.exists'
     - 'rhel_image_path_stat.stat.readable'
     msg: RHEL image file must exist and it must be readable
+  when: openshift_deployment_type != "origin"
