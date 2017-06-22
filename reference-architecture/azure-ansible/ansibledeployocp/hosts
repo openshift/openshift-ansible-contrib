@@ -1,0 +1,6 @@
+[bastions]
+<myresourcegroup>b.<region>.cloudapp.azure.com
+
+[bastions:vars]
+ansible_ssh_user=<myuser>
+remote_password=<mypassword>
