@@ -142,6 +142,16 @@
     owner: named
     group: named
     mode: 0660
+  register: result
+  with_subelements:
+  - "{{ named_config_views }}"
+  - zone
+
+- name: Purge journal files
+  file:
+    path: /var/named/static/{{ item.0.name }}-{{ item.1.dns_domain }}.db.jnl
+    state: absent
+  when: result|changed
   with_subelements:
   - "{{ named_config_views }}"
   - zone

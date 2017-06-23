@@ -35,6 +35,13 @@
   roles:
   - role: dns-server
 
+- name: Refresh facts for nsupdate keys
+  hosts: dns
+  tasks:
+  - setup:
+      gather_subset: 'facter'
+      filter: nsupdate_keys
+
 - name: Build and process DNS Records
   hosts: localhost
   gather_facts: False
