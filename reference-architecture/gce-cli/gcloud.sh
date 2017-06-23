@@ -49,7 +49,7 @@ function static_inventory {
 function main {
   pushd "${DIR}/ansible"
   ansible-playbook -i inventory/inventory -e @../config.yaml $@ playbooks/prereq.yaml
-  ansible-playbook -e @../config.yaml $@ playbooks/main.yaml
+  ansible-playbook -e @../config.yaml -e @openshift-installer-common-vars.yaml $@ playbooks/main.yaml
   popd
 }
 
