@@ -46,6 +46,16 @@ function static_inventory {
   popd
 }
 
+function scale_up {
+  pushd "${DIR}/ansible"
+  ansible-playbook -i inventory/inventory -e @../config.yaml $@ playbooks/prereq.yaml
+  ansible-playbook -e @../config.yaml $@ playbooks/core-infra.yaml
+  ansible-playbook -e @../config.yaml -e @openshift-installer-common-vars.yaml $@ playbooks/openshift-scaleup.yaml
+  echo "If you want fluentd logging you should probably run this command:"
+  echo "  oc label node --all logging-infra-fluentd=true"
+  popd
+}
+
 function main {
   pushd "${DIR}/ansible"
   ansible-playbook -i inventory/inventory -e @../config.yaml $@ playbooks/prereq.yaml
@@ -62,6 +72,11 @@ case ${1:-} in
   --static-inventory )
     shift
     static_inventory "$@"
+    exit 0
+    ;;
+  --scale_up | --scaleup )
+    shift
+    scale_up "$@"
     exit 0
     ;;
   * )

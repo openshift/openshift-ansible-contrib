@@ -1,0 +1,9 @@
+---
+- name: create instance groups
+  hosts: localhost
+  roles:
+  - instance-groups
+
+- include: ../../../../../openshift-ansible/playbooks/byo/openshift_facts.yml
+- include: ../../../../../openshift-ansible/playbooks/byo/openshift-master/scaleup.yml
+- include: ../../../../../openshift-ansible/playbooks/byo/openshift-node/scaleup.yml
