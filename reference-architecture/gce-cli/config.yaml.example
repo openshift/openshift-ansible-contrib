@@ -24,6 +24,10 @@ delete_gold_image: false
 gcloud_project: 'project-1'
 gcloud_zone: 'us-central1-a'
 
+# Custom Subnet
+# If not set will use default subnets in custom VPC
+gce_vpc_custom_subnet_cidr: 10.160.0.0/20
+
 # Public DNS domain which will be configured in Google Cloud DNS
 public_hosted_zone: 'ocp.example.com'
 # Public DNS name for the Master service

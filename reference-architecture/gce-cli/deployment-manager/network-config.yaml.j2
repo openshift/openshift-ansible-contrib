@@ -5,4 +5,6 @@ resources:
   type: network.jinja
   properties:
     prefix: {{ prefix }}
+    region: {{ gcloud_region }}
+    gce_vpc_custom_subnet_cidr: {{ gce_vpc_custom_subnet_cidr|default('') }}
     console_port: {{ console_port }}

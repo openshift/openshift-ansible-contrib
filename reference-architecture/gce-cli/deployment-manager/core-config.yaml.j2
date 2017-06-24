@@ -8,6 +8,7 @@ resources:
     project: {{ gcloud_project }}
     region: {{ gcloud_region }}
     zone: {{ gcloud_zone }}
+    gce_vpc_custom_subnet_cidr: {{ gce_vpc_custom_subnet_cidr|default('') }}
     gold_image: {{ gold_image_family }}
     console_port: {{ console_port }}
     bastion_machine_type: {{ bastion_machine_type }}
