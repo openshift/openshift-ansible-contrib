@@ -24,3 +24,5 @@
     when: delete_gold_image | bool
   - role: rhel-image-delete
     when: delete_image | bool
+  - role: empty-image-delete
+    when: delete_image | bool
