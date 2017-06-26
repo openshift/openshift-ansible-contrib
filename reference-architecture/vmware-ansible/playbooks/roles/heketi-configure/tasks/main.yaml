@@ -46,7 +46,7 @@
   fetch:
     src: ~/heketi-secret.yaml
     dest: ~/heketi-secret.yaml
-    flat: yes 
+    flat: yes
 
 - name: Copy storage-crs config file
   template:
