@@ -65,7 +65,7 @@ resources:
         type: PERSISTENT
         initializeParams:
           sourceImage: global/images/empty-1g
-          diskSizeGb: {{ properties['node_docker_disk_size'] }}
+          diskSizeGb: {{ properties['master_docker_disk_size'] }}
           diskType: pd-ssd
 {% endif %}                  
       machineType: {{ properties['master_machine_type'] }}
@@ -117,7 +117,7 @@ resources:
         boot: true
         index: 0
         initializeParams:
-          diskSizeGb: {{ properties['node_boot_disk_size'] }}
+          diskSizeGb: {{ properties['infra_boot_disk_size'] }}
           diskType: pd-ssd
           sourceImage: global/images/family/{{ properties['gold_image'] }}
         mode: READ_WRITE
@@ -131,7 +131,7 @@ resources:
         type: PERSISTENT
         initializeParams:
           sourceImage: global/images/empty-1g
-          diskSizeGb: {{ properties['node_docker_disk_size'] }}
+          diskSizeGb: {{ properties['infra_docker_disk_size'] }}
           diskType: pd-ssd
       - autoDelete: true
         boot: false
@@ -142,9 +142,9 @@ resources:
         type: PERSISTENT
         initializeParams:
           sourceImage: global/images/empty-1g
-          diskSizeGb: {{ properties['node_openshift_disk_size'] }}
+          diskSizeGb: {{ properties['infra_openshift_disk_size'] }}
           diskType: pd-ssd        
-      machineType: {{ properties['node_machine_type'] }}
+      machineType: {{ properties['infra_machine_type'] }}
       metadata:
         items:
         - key: user-data
