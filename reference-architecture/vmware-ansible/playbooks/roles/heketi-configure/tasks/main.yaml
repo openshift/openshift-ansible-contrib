@@ -42,7 +42,19 @@
     src: heketi-secret.yaml.j2
     dest: ~/heketi-secret.yaml
 
+- name: Fetch heketi secret to copy to master
+  fetch:
+    src: ~/heketi-secret.yaml
+    dest: ~/heketi-secret.yaml
+    flat: yes 
+
 - name: Copy storage-crs config file
   template:
     src: storage-crs.json.j2
     dest: ~/storage-crs.json
+    
+- name: Fetch storage-crs to copy to master
+  fetch:
+    src: ~/storage-crs.json
+    dest: ~/storage-crs.json
+    flat: yes

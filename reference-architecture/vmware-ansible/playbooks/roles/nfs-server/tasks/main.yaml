@@ -38,19 +38,25 @@
   lvg: vg=openshift pvs=/dev/sdb
 
 - name: Create lvm volumes
-  lvol: vg=openshift lv=nfs size=95%FREE force=yes
+  lvol: vg=openshift lv=nfs size=95%FREE state=present shrink=no
 
 - name: Create local partition on lvm lv
   filesystem:
     fstype: xfs
     dev: /dev/openshift/nfs
 
+- name: Make mounts owned by nfsnobody
+  file: path=/exports state=directory owner=nfsnobody group=nfsnobody mode=6775
+
 - name: Mount the partition
   mount:
     name: /exports
     src: /dev/openshift/nfs
     fstype: xfs
-    state: mounted
+    state: present
+
+- name: Remount new partition
+  command: "mount -a"
 
 - name: Make mounts owned by nfsnobody
   file: path=/exports owner=nfsnobody group=nfsnobody mode=6775

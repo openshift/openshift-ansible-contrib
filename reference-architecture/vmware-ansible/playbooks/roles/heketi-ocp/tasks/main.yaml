@@ -1,15 +1,15 @@
 ---
 - name: Copy heketi secret config file to master
-  template:
+  copy:
     src: ~/heketi-secret.yaml
     dest: ~/heketi-secret.yaml
 
-- name: Copy storage-crs config file to master
-  template:
+- name: Copy heketi secret config file to master
+  copy:
     src: ~/storage-crs.json
     dest: ~/storage-crs.json
 
-- name: Check to see if storage class is already created
+- name: Check to see if heketi secret is already created
   command: "oc get secrets"
   register: oc_secrets
 

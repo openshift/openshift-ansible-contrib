@@ -19,10 +19,10 @@
     - restart chronyd
 
 - name: be sure chronyd is running and enabled
-  service: name=chronyd state=running enabled=yes
+  service: name=chronyd state=started enabled=yes
 
 - name: be sure openvmtools is running and enabled
-  service: name=vmtoolsd state=running enabled=yes
+  service: name=vmtoolsd state=started enabled=yes
 
 - name: set link to localtime
   command: timedatectl set-timezone {{timezone}}

@@ -63,4 +63,12 @@
     groups: single_crs
   with_items: "{{ groups['crs'][0] }}"
   when:
-    - "'crs' in container_storage"
+    - "'crs' in container_storage and add_node is defined and 'storage' in node_type"
+
+- name: Add crs nodes to the storage group
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: storage
+  with_items: "{{ groups['crs'] }}"
+  when:
+    - "'crs' in container_storage and add_node is defined and 'storage' in node_type"

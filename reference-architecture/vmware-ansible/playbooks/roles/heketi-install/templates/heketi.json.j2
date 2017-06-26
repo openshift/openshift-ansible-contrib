@@ -28,14 +28,14 @@
       "kubernetes: Communicate with GlusterFS containers over",
       "            Kubernetes exec api."
     ],
-    "executor": "mock",
+    "executor": "ssh",
 
     "_sshexec_comment": "SSH username and private key file information",
     "sshexec": {
-      "keyfile": "/etc/heketi/hekiti_key",
+      "keyfile": "/etc/heketi/heketi_key",
       "user": "root",
-      "port": "Optional: ssh port.  Default is 22",
-      "fstab": "Optional: Specify fstab file on node.  Default is /etc/fstab"
+      "port": "22",
+      "fstab": "/etc/fstab"
     },
 
     "_kubeexec_comment": "Kubernetes configuration",

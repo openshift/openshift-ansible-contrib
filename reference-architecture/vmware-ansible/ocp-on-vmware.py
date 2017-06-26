@@ -268,7 +268,7 @@ def launch_refarch_env(console_port=8443,
             elif line.startswith("    openshift_hosted_registry_storage_host:"):
                 print "    openshift_hosted_registry_storage_host: " + nfs_host + "." + public_hosted_zone
             elif line.startswith("    openshift_hosted_registry_storage_nfs_directory:"):
-                print "    openshift_hosted_registry_storage_nfs_directory: " + nfs_host + "." + public_hosted_zone
+                print "    openshift_hosted_registry_storage_nfs_directory: " + nfs_registry_mountpoint
             elif line.startswith("    openshift_hosted_metrics_storage_host:"):
                 print "    openshift_hosted_metrics_storage_host: " + nfs_host + "." + public_hosted_zone
             elif line.startswith("    openshift_hosted_metrics_storage_nfs_directory:"):

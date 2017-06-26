@@ -7,14 +7,19 @@
   - heketi
   - heketi-client
 
-- stat: path=~/.ssh/id_rsa
-  register: ssh_key
-
-- name: Copy ssh key in place
-  copy:
+- name: Copy ssh private key in place
+  template:
     src: ~/.ssh/id_rsa
     dest: /etc/heketi/heketi_key
-  when: ssh_key.stat.exists == True
+    owner: heketi
+    group: heketi
+
+- name: Copy ssh private key in place
+  template:
+    src: ~/.ssh/id_rsa.pub
+    dest: /etc/heketi/heketi_key.pub
+    owner: heketi
+    group: heketi
 
 - stat: path=/etc/heketi/heketi.json
   register: heketi_cfg
