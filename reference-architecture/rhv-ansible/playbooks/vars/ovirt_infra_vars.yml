@@ -141,6 +141,7 @@ template_cluster: Default
 template_name: rhel7
 template_memory: 1GiB
 template_cpu: 1
+template_ssh_key: "{{ root_ssh_key }}"
 template_disk_size: 20GiB
 template_nics:
   - name: nic1
