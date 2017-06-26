@@ -26,7 +26,8 @@ DATA_SIZE=95%VG
 EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
 EOF
 
-sed -i -e 's/ResourceDisk.EnableSwap=y/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf
+sed -i -e 's/ResourceDisk.EnableSwap.*/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf
+sed -i -e 's/ResourceDisk.SwapSizeMB.*/ResourceDisk.SwapSizeMB=0/g' /etc/waagent.conf
 swapoff -a
 # Do not restart waagent as it will make the installation fail
 #systemctl restart waagent.service
