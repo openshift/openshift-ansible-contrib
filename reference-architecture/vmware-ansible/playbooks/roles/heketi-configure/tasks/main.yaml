@@ -52,7 +52,7 @@
   template:
     src: storage-crs.json.j2
     dest: ~/storage-crs.json
-    
+
 - name: Fetch storage-crs to copy to master
   fetch:
     src: ~/storage-crs.json
