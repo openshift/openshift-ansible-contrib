@@ -14,7 +14,21 @@ resources:
         diskSizeGb: {{ properties['bastion_disk_size'] }}
         diskType: zones/{{ properties['zone'] }}/diskTypes/pd-ssd
     machineType: zones/{{ properties['zone'] }}/machineTypes/{{ properties['bastion_machine_type'] }}
-    metadata: {}
+    metadata:
+      items:
+      - key: user-data
+        value: |
+          #cloud-config
+          bootcmd:
+          - [ /usr/bin/firewall-offline-cmd, --add-masquerade ]
+          write_files:
+          - path: "/etc/sysctl.d/98-enable-nat-gateway.conf"
+            permissions: "0644"
+            owner: "root:root"
+            content: |
+              #Configure IP Forwarding
+              net.ipv4.ip_forward=1
+    canIpForward: true
     networkInterfaces:
     - accessConfigs:
       - name: external-nat
@@ -38,8 +52,29 @@ resources:
       items:
       - {{ properties['prefix'] }}-bastion
       - {{ properties['prefix'] }}-ssh-external
+      - {{ properties['prefix'] }}-nat-gateway
     zone: {{ properties['zone'] }}
   type: compute.v1.instance
+- name: {{ properties['prefix'] }}-nat-route
+  properties:
+      network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
+      nextHopInstance: $(ref.{{ properties['prefix'] }}-bastion.selfLink)
+      priority: 1000
+      destRange: '0.0.0.0/0'
+      tags:
+        - {{ properties['prefix'] }}-nat-client
+  type: compute.v1.route
+- name: {{ properties['prefix'] }}-nat-egress
+  properties:
+    allowed:
+    - IPProtocol: all
+    description: ''
+    network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
+    sourceTags:
+    - {{ properties['prefix'] }}-nat-client
+    targetTags:
+    - {{ properties['prefix'] }}-nat-gateway
+  type: compute.v1.firewall
 - name: {{ properties['prefix'] }}-master-template
   properties:
     description: ''
@@ -85,9 +120,7 @@ resources:
               permissions: '0644'
 {% endif %}
       networkInterfaces:
-      - accessConfigs:
-        - name: external-nat
-          type: ONE_TO_ONE_NAT
+      - accessConfigs: []
         network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
       scheduling:
         automaticRestart: true
@@ -106,6 +139,7 @@ resources:
         items:
         - {{ properties['prefix'] }}
         - {{ properties['prefix'] }}-master
+        - {{ properties['prefix'] }}-nat-client
   type: compute.v1.instanceTemplate
 - name: {{ properties['prefix'] }}-infra-node-template
   properties:
@@ -168,9 +202,7 @@ resources:
             mounts:
               - [ '/dev/disk/by-id/google-openshift', '/var/lib/origin/openshift.local.volumes', 'xfs', 'gquota', '0', '0' ]
       networkInterfaces:
-      - accessConfigs:
-        - name: external-nat
-          type: ONE_TO_ONE_NAT
+      - accessConfigs: []
         network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
       scheduling:
         automaticRestart: true
@@ -189,6 +221,7 @@ resources:
         items:
         - {{ properties['prefix'] }}
         - {{ properties['prefix'] }}-infra-node
+        - {{ properties['prefix'] }}-nat-client
   type: compute.v1.instanceTemplate
 - name: {{ properties['prefix'] }}-node-template
   properties:
@@ -251,9 +284,7 @@ resources:
             mounts:
               - [ '/dev/disk/by-id/google-openshift', '/var/lib/origin/openshift.local.volumes', 'xfs', 'gquota', '0', '0' ]
       networkInterfaces:
-      - accessConfigs:
-        - name: external-nat
-          type: ONE_TO_ONE_NAT
+      - accessConfigs: []
         network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
       scheduling:
         automaticRestart: true
@@ -272,6 +303,7 @@ resources:
         items:
         - {{ properties['prefix'] }}
         - {{ properties['prefix'] }}-node
+        - {{ properties['prefix'] }}-nat-client
   type: compute.v1.instanceTemplate
 - name: {{ properties['prefix'] }}-master
   properties:
