@@ -21,6 +21,8 @@ resources:
           #cloud-config
           bootcmd:
           - [ /usr/bin/firewall-offline-cmd, --add-masquerade ]
+          runcmd:
+          - [ /usr/bin/firewall-cmd, --reload ]
           write_files:
           - path: "/etc/sysctl.d/98-enable-nat-gateway.conf"
             permissions: "0644"
