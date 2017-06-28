@@ -26,7 +26,7 @@ openshift_master_default_subdomain={{ wildcard_zone }}
 osm_default_node_selector="role=app"
 deployment_type={{ deployment_type | default('openshift-enterprise') }}
 os_sdn_network_plugin_name={{ openshift_sdn | default('redhat/openshift-ovs-subnet') }}
-#openshift_master_identity_providers=[{'name': 'github', 'challenge': 'false', 'login': 'true', 'kind': 'GitHubIdentityProvider', 'mapping_method': 'true', 'clientID': '{{ github_client_id }}', 'clientSecret': '{{ github_client_secret }}', 'organizations': {'['{{ github_organization }}']'}}]
+openshift_master_identity_providers=[{'name': 'github', 'challenge': 'false', 'login': 'true', 'kind': 'GitHubIdentityProvider', 'mapping_method': 'true', 'clientID': '{{ github_client_id }}', 'clientSecret': '{{ github_client_secret }}', 'organizations': {'['{{ github_organization }}']'}}]
 osm_use_cockpit=true
 containerized={{ containerized | default('false') }}
 openshift_hosted_registry_storage_kind=object
