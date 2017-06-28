@@ -9,8 +9,7 @@
     register: ansible_result
   - name: Check Ansible version
     assert:
-      that:
-        - '{{ ansible_result.stdout }} >= 2.3'
+      that: '{{ ansible_result.stdout }} >= 2.3'
       msg: "Ansible version must be at least 2.3"
 
   # Check shade
@@ -20,19 +19,16 @@
     register: shade_result
   - name: Check if shade is installed
     assert:
-      that:
-        - '{{ shade_result.rc }} == 0'
+      that: '{{ shade_result.rc }} == 0'
       msg: "Python module shade is not installed"
 
   # Check python-dns
   - name: Try to import python DNS module
     command: python -c "import dns"
-    fail: msg: "Python module python-dns is not installed"
     register: pythondns_result
   - name: Check if python-dns is installed
     assert:
-      that:
-        - '{{ pythondns_result.rc }} == 0'
+      that: '{{ pythondns_result.rc }} == 0'
       msg: "Python module python-dns is not installed"
 
   # Check jinja2
@@ -42,8 +38,7 @@
     register: jinja_result
   - name: Check if jinja2 is installed
     assert:
-      that:
-        - '{{ jinja_result.rc }} == 0'
+      that: '{{ jinja_result.rc }} == 0'
       msg: "Python module jinja2 is not installed"
 
   # Check Glance image
@@ -53,8 +48,7 @@
     register: image_result
   - name: Check that image is available
     assert:
-      that:
-        - '{{ image_result.rc }} == 0'
+      that: '{{ image_result.rc }} == 0'
       msg: "Image {{ openstack_default_image_name }} is not available"
 
   # Check keypair
@@ -64,8 +58,7 @@
     register: key_result
   - name: Check that keypair is available
     assert:
-      that:
-        - '{{ key_result.rc }} == 0'
+      that: '{{ key_result.rc }} == 0'
       msg: "Keypair {{ openstack_ssh_public_key }} is not available"
 
   # Check network name
@@ -75,6 +68,5 @@
     register: network_result
   - name: Check that network is available
     assert:
-      that:
-        - '{{ network_result.rc }} == 0'
+      that: '{{ network_result.rc }} == 0'
       msg: "Network {{ openstack_external_network_name }} is not available"
