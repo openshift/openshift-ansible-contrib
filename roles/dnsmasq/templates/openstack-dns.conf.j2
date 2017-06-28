@@ -1,0 +1,12 @@
+strict-order
+no-resolv
+bogus-priv
+no-negcache
+cache-size=1000
+dns-forward-max=150
+max-cache-ttl=10
+max-ttl=20
+
+server=/{{ public_dns_domain }}/{{ private_dns_server }}
+# Reply NXDOMAIN to bogus domains requests like com.{{ public_dns_domain }}.{{ public_dns_domain }}
+local=/{% for d in [ public_dns_domain, full_dns_domain, openshift_master_default_subdomain ] %}{{public_dns_domain}}.{{d}}./{{d}}.{{d}}./com.{{d}}./{% endfor %}
