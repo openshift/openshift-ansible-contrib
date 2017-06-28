@@ -1,0 +1,80 @@
+---
+- hosts: localhost
+  tasks:
+  # Check ansible
+  - name: Get Ansible version
+    shell: >
+      ansible --version | head -n 1 |
+      while read a b; do echo $b; done | head -c 3
+    register: ansible_result
+  - name: Check Ansible version
+    assert:
+      that:
+        - '{{ ansible_result.stdout }} >= 2.3'
+      msg: "Ansible version must be at least 2.3"
+
+  # Check shade
+  - name: Try to import python module shade
+    command: python -c "import shade"
+    ignore_errors: yes
+    register: shade_result
+  - name: Check if shade is installed
+    assert:
+      that:
+        - '{{ shade_result.rc }} == 0'
+      msg: "Python module shade is not installed"
+
+  # Check python-dns
+  - name: Try to import python DNS module
+    command: python -c "import dns"
+    fail: msg: "Python module python-dns is not installed"
+    register: pythondns_result
+  - name: Check if python-dns is installed
+    assert:
+      that:
+        - '{{ pythondns_result.rc }} == 0'
+      msg: "Python module python-dns is not installed"
+
+  # Check jinja2
+  - name: Try to import jinja2 module
+    command: python -c "import jinja2"
+    ignore_errors: yes
+    register: jinja_result
+  - name: Check if jinja2 is installed
+    assert:
+      that:
+        - '{{ jinja_result.rc }} == 0'
+      msg: "Python module jinja2 is not installed"
+
+  # Check Glance image
+  - name: Try to show image
+    shell: openstack image show {{ openstack_default_image_name }}
+    ignore_errors: yes
+    register: image_result
+  - name: Check that image is available
+    assert:
+      that:
+        - '{{ image_result.rc }} == 0'
+      msg: "Image {{ openstack_default_image_name }} is not available"
+
+  # Check keypair
+  - name: Try to show keypair
+    shell: openstack keypair show {{ openstack_ssh_public_key }}
+    ignore_errors: yes
+    register: key_result
+  - name: Check that keypair is available
+    assert:
+      that:
+        - '{{ key_result.rc }} == 0'
+      msg: "Keypair {{ openstack_ssh_public_key }} is not available"
+
+  # Check network name
+  - name: Try to show network
+    shell: openstack network show {{ openstack_external_network_name }}
+    ignore_errors: yes
+    register: network_result
+  - name: Check that network is available
+    assert:
+      that:
+        - '{{ network_result.rc }} == 0'
+      msg: "Network {{ openstack_external_network_name }} is not available"
