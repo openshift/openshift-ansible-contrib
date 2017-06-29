@@ -54,3 +54,5 @@ wildcardzone: "myapps"
 # nodevmsize: "Standard_DS12_v2"
 # Azure location:
 # location: "westus"
+# Deploy metrics
+# metrics: true

@@ -54,7 +54,7 @@ cat <<EOF > /home/${USERNAME}/.ansible.cfg
 host_key_checking = False
 EOF
 chown ${USERNAME} /home/${USERNAME}/.ansible.cfg
-  
+
 cat <<EOF > /root/.ansible.cfg
 [defaults]
 host_key_checking = False

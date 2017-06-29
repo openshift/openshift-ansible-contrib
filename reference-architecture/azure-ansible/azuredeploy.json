@@ -273,6 +273,13 @@
       "metadata" : {
         "description" : "Azure AD Client Secret"
       }
+    },
+    "metrics" : {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata" :{
+        "description" : "Enable OCP metrics"
+      }
     }
   },
   "variables" : {
@@ -716,6 +723,9 @@
           },
           "rhsmmode" : {
             "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
+          },
+          "metrics" : {
+            "value" : "[parameters('metrics')]"
           }
         }
       }

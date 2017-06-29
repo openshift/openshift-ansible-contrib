@@ -38,6 +38,8 @@
         value: "{{ aadclientsecret }}"
       rhsmUsernamePasswordOrActivationKey:
         value: "{{ rhsmusernamepasswordoractivationkey }}"
+      metrics:
+        value: "{{ metrics }}"
 
   register: azuredeploy
 

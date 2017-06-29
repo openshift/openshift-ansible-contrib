@@ -24,6 +24,7 @@ export TENANTID=${array[18]}
 export AADCLIENTID=${array[19]}
 export AADCLIENTSECRET=${array[20]}
 export RHSMMODE=${array[21]}
+export METRICS=${array[22]}
 export FULLDOMAIN=${THEHOSTNAME#*.*}
 export WILDCARDFQDN=${WILDCARDZONE}.${FULLDOMAIN}
 export WILDCARDIP=`dig +short ${WILDCARDFQDN}`
@@ -261,6 +262,11 @@ openshift_master_cluster_method=native
 openshift_master_cluster_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 openshift_master_cluster_public_hostname=${RESOURCEGROUP}.${FULLDOMAIN}
 
+openshift_hosted_metrics_deploy=${METRICS}
+openshift_metrics_cassandra_storage_type=dynamic
+openshift_metrics_hawkular_nodeselector={"role":"infra"}
+openshift_metrics_cassandra_nodeselector={"role":"infra"}
+openshift_metrics_heapster_nodeselector={"role":"infra"}
 
 [masters]
 master1 openshift_hostname=master1 openshift_node_labels="{'role': 'master'}"

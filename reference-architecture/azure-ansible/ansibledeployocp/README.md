@@ -101,6 +101,7 @@ Optional (default values are set in [playbooks/roles/azure-deploy/default/main.y
 * infranodesize: Infrastructure nodes VM size
 * nodevmsize: Application nodes VM size
 * location: westus by default
+* metrics: true to enable cluster metrics, false to not enable (note, do not quote as those variables are boolean values, not strings)
 
 ## Running the deploy
 

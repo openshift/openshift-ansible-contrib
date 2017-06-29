@@ -6,3 +6,4 @@ mastervmsize: "Standard_DS3_v2"
 infranodesize: "Standard_DS3_v2"
 nodevmsize: "Standard_DS12_v2"
 location: "westus"
+metrics: true
