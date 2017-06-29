@@ -61,11 +61,11 @@
       msg: "Network {{ openstack_external_network_name }} is not available"
 
   # Check keypair
-  - name: Try to get keypair facts
-    os_keypair:
-      name: "{{ openstack_ssh_public_key }}"
+  - name: Try to show keypair
+    command: openstack keypair show {{ openstack_ssh_public_key }}
+    ignore_errors: yes
     register: key_result
   - name: Check that keypair is available
     assert:
-      that: 'not(key_result.changed)'
+      that: 'key_result.rc == 0'
       msg: "Keypair {{ openstack_ssh_public_key }} is not available"
