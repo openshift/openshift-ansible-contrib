@@ -68,3 +68,9 @@
   when:
   - groups.tag_openshift_role_storage is defined and hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name
   ignore_errors: true
+  
+- name: copy generated inventory file to users $HOME directory
+  template:
+    src: ../static-inventory
+    dest: /home/ec2-user/inventory
+    remote_src: false
