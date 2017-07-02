@@ -14,7 +14,23 @@ resources:
         diskSizeGb: {{ properties['bastion_disk_size'] }}
         diskType: zones/{{ properties['zone'] }}/diskTypes/pd-ssd
     machineType: zones/{{ properties['zone'] }}/machineTypes/{{ properties['bastion_machine_type'] }}
-    metadata: {}
+    metadata:
+      items:
+      - key: user-data
+        value: |
+          #cloud-config
+          bootcmd:
+          - [ /usr/bin/firewall-offline-cmd, --add-masquerade ]
+          runcmd:
+          - [ /usr/bin/firewall-cmd, --reload ]
+          write_files:
+          - path: "/etc/sysctl.d/98-enable-nat-gateway.conf"
+            permissions: "0644"
+            owner: "root:root"
+            content: |
+              #Configure IP Forwarding
+              net.ipv4.ip_forward=1
+    canIpForward: true
     networkInterfaces:
     - accessConfigs:
       - name: external-nat
@@ -38,8 +54,29 @@ resources:
       items:
       - {{ properties['prefix'] }}-bastion
       - {{ properties['prefix'] }}-ssh-external
+      - {{ properties['prefix'] }}-nat-gateway
     zone: {{ properties['zone'] }}
   type: compute.v1.instance
+- name: {{ properties['prefix'] }}-nat-route
+  properties:
+      network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
+      nextHopInstance: $(ref.{{ properties['prefix'] }}-bastion.selfLink)
+      priority: 1000
+      destRange: '0.0.0.0/0'
+      tags:
+        - {{ properties['prefix'] }}-nat-client
+  type: compute.v1.route
+- name: {{ properties['prefix'] }}-nat-egress
+  properties:
+    allowed:
+    - IPProtocol: all
+    description: ''
+    network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
+    sourceTags:
+    - {{ properties['prefix'] }}-nat-client
+    targetTags:
+    - {{ properties['prefix'] }}-nat-gateway
+  type: compute.v1.firewall
 - name: {{ properties['prefix'] }}-master-template
   properties:
     description: ''
@@ -48,18 +85,44 @@ resources:
       disks:
       - autoDelete: true
         boot: true
+        index: 0
         initializeParams:
           diskSizeGb: {{ properties['master_boot_disk_size'] }}
           diskType: pd-ssd
           sourceImage: global/images/family/{{ properties['gold_image'] }}
         mode: READ_WRITE
         type: PERSISTENT
+{% if properties['containerized'] %}
+      - autoDelete: true
+        boot: false
+        deviceName: docker
+        index: 1
+        interface: SCSI
+        mode: READ_WRITE
+        type: PERSISTENT
+        initializeParams:
+          sourceImage: global/images/empty-1g
+          diskSizeGb: {{ properties['master_docker_disk_size'] }}
+          diskType: pd-ssd
+{% endif %}                  
       machineType: {{ properties['master_machine_type'] }}
-      metadata: {}
+      metadata:
+        items:
+        - key: user-data
+          value: |
+            #cloud-config
+{% if properties['containerized'] %}
+            write_files:
+            - content: |
+                DEVS="/dev/disk/by-id/google-docker"
+                VG="docker-vol"
+                DATA_SIZE="95%VG"
+                EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
+              path: /etc/sysconfig/docker-storage-setup
+              permissions: '0644'
+{% endif %}
       networkInterfaces:
-      - accessConfigs:
-        - name: external-nat
-          type: ONE_TO_ONE_NAT
+      - accessConfigs: []
         network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
       scheduling:
         automaticRestart: true
@@ -78,6 +141,7 @@ resources:
         items:
         - {{ properties['prefix'] }}
         - {{ properties['prefix'] }}-master
+        - {{ properties['prefix'] }}-nat-client
   type: compute.v1.instanceTemplate
 - name: {{ properties['prefix'] }}-infra-node-template
   properties:
@@ -87,18 +151,60 @@ resources:
       disks:
       - autoDelete: true
         boot: true
+        index: 0
         initializeParams:
-          diskSizeGb: {{ properties['node_boot_disk_size'] }}
+          diskSizeGb: {{ properties['infra_boot_disk_size'] }}
           diskType: pd-ssd
           sourceImage: global/images/family/{{ properties['gold_image'] }}
         mode: READ_WRITE
         type: PERSISTENT
-      machineType: {{ properties['node_machine_type'] }}
-      metadata: {}
+      - autoDelete: true
+        boot: false
+        deviceName: docker
+        index: 1
+        interface: SCSI
+        mode: READ_WRITE
+        type: PERSISTENT
+        initializeParams:
+          sourceImage: global/images/empty-1g
+          diskSizeGb: {{ properties['infra_docker_disk_size'] }}
+          diskType: pd-ssd
+      - autoDelete: true
+        boot: false
+        deviceName: openshift
+        index: 2
+        interface: SCSI
+        mode: READ_WRITE
+        type: PERSISTENT
+        initializeParams:
+          sourceImage: global/images/empty-1g
+          diskSizeGb: {{ properties['infra_openshift_disk_size'] }}
+          diskType: pd-ssd        
+      machineType: {{ properties['infra_machine_type'] }}
+      metadata:
+        items:
+        - key: user-data
+          value: |
+            #cloud-config
+            write_files:
+            - content: |
+                DEVS="/dev/disk/by-id/google-docker"
+                VG="docker-vol"
+                DATA_SIZE="95%VG"
+                EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
+              path: /etc/sysconfig/docker-storage-setup
+              permissions: '0644'
+
+            fs_setup:
+               - label: osl
+                 filesystem: xfs
+                 device: /dev/disk/by-id/google-openshift
+                 partition: none
+
+            mounts:
+              - [ '/dev/disk/by-id/google-openshift', '/var/lib/origin/openshift.local.volumes', 'xfs', 'gquota', '0', '0' ]
       networkInterfaces:
-      - accessConfigs:
-        - name: external-nat
-          type: ONE_TO_ONE_NAT
+      - accessConfigs: []
         network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
       scheduling:
         automaticRestart: true
@@ -117,6 +223,7 @@ resources:
         items:
         - {{ properties['prefix'] }}
         - {{ properties['prefix'] }}-infra-node
+        - {{ properties['prefix'] }}-nat-client
   type: compute.v1.instanceTemplate
 - name: {{ properties['prefix'] }}-node-template
   properties:
@@ -126,18 +233,60 @@ resources:
       disks:
       - autoDelete: true
         boot: true
+        index: 0
         initializeParams:
           diskSizeGb: {{ properties['node_boot_disk_size'] }}
           diskType: pd-ssd
           sourceImage: global/images/family/{{ properties['gold_image'] }}
         mode: READ_WRITE
         type: PERSISTENT
+      - autoDelete: true
+        boot: false
+        deviceName: docker
+        index: 1
+        interface: SCSI
+        mode: READ_WRITE
+        type: PERSISTENT
+        initializeParams:
+          sourceImage: global/images/empty-1g
+          diskSizeGb: {{ properties['node_docker_disk_size'] }}
+          diskType: pd-ssd
+      - autoDelete: true
+        boot: false
+        deviceName: openshift
+        index: 2
+        interface: SCSI
+        mode: READ_WRITE
+        type: PERSISTENT
+        initializeParams:
+          sourceImage: global/images/empty-1g
+          diskSizeGb: {{ properties['node_openshift_disk_size'] }}
+          diskType: pd-ssd        
       machineType: {{ properties['node_machine_type'] }}
-      metadata: {}
+      metadata:
+        items:
+        - key: user-data
+          value: |
+            #cloud-config
+            write_files:
+            - content: |
+                DEVS="/dev/disk/by-id/google-docker"
+                VG="docker-vol"
+                DATA_SIZE="95%VG"
+                EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
+              path: /etc/sysconfig/docker-storage-setup
+              permissions: '0644'
+
+            fs_setup:
+               - label: osl
+                 filesystem: xfs
+                 device: /dev/disk/by-id/google-openshift
+                 partition: none
+
+            mounts:
+              - [ '/dev/disk/by-id/google-openshift', '/var/lib/origin/openshift.local.volumes', 'xfs', 'gquota', '0', '0' ]
       networkInterfaces:
-      - accessConfigs:
-        - name: external-nat
-          type: ONE_TO_ONE_NAT
+      - accessConfigs: []
         network: projects/{{env['project']}}/global/networks/{{ properties['prefix'] }}-network
       scheduling:
         automaticRestart: true
@@ -156,6 +305,7 @@ resources:
         items:
         - {{ properties['prefix'] }}
         - {{ properties['prefix'] }}-node
+        - {{ properties['prefix'] }}-nat-client
   type: compute.v1.instanceTemplate
 - name: {{ properties['prefix'] }}-master
   properties:
