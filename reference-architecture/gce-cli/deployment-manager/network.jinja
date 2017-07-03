@@ -14,7 +14,7 @@ resources:
     privateIpGoogleAccess: true
     network: $(ref.{{ properties['prefix'] }}-network.selfLink)
     region: {{ properties['region'] }}
-  type: compute.beta.subnetwork
+  type: compute.v1.subnetwork
 {% endif %}
 - name: {{ properties['prefix'] }}-icmp
   properties:
