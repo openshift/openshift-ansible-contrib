@@ -1,5 +1,0 @@
-{% for view in named_config_views %}
-{% for zone in view.zone %}
-include "{{ view.name }}-{{ zone.dns_domain }}.key";
-{% endfor %}
-{% endfor %}
