@@ -86,4 +86,5 @@ node_docker_disk_size: 25
 node_openshift_disk_size: 50
 
 # Custom VPC Subnet, example value: '10.160.0.0/20'
+# Default value is empty, when random subnet in form of 10.x.0.0/20 will be used
 gce_vpc_custom_subnet_cidr: ''
