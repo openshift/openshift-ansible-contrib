@@ -1,11 +1,36 @@
 ---
 - block:
+    - name: get enabled repos
+      shell: >
+        subscription-manager repos --list-enabled |
+        grep "Repo ID" |
+        awk '{print $NF}'
+      register: result
+      changed_when: false
+
+    - set_fact:
+        current_repos: []
+      when: result.stdout == ""
+
+    - set_fact:
+        current_repos: "{{ result.stdout.split('\n') }}"
+      when: result.stdout != ""
+
+    - set_fact:
+        repos_to_disable: "{{ current_repos | difference(openshift_required_repos) }}"
+        repos_to_enable: "{{ openshift_required_repos | difference(current_repos) }}"
+
     - name: disable unneeded repos
-      command: subscription-manager repos --disable='*'
+      command: >
+        subscription-manager repos
+        --disable={{ repos_to_disable | join(" --disable=") }}
+      when: repos_to_disable | length > 0
 
     - name: ensure proper repos are assigned
-      command: subscription-manager repos --enable={{ item }}
-      with_items: "{{ openshift_required_repos }}"
+      command: >
+        subscription-manager repos
+        --enable={{ repos_to_enable | join(" --enable=") }}
+      when: repos_to_enable | length > 0
 
     - name: check to see if rhui exists
       stat:
