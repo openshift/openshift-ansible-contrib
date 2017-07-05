@@ -141,7 +141,6 @@ template_cluster: Default
 template_name: rhel7
 template_memory: 1GiB
 template_cpu: 1
-template_ssh_key: "{{ root_ssh_key }}"
 template_disk_size: 20GiB
 template_nics:
   - name: nic1
@@ -151,6 +150,7 @@ template_nics:
 master_vm:
   cluster: Default
   root_password: changeme
+  ssh_key: "{{ root_ssh_key }}"
   domain: example.com
   template: rhel7
   memory: 1GiB
@@ -164,6 +164,7 @@ master_vm:
 node_vm:
   cluster: Default
   root_password: changeme
+  ssh_key: "{{ root_ssh_key }}"
   domain: example.com
   template: rhel7
   memory: 1GiB
@@ -181,6 +182,7 @@ node_vm:
 lb_vm:
   cluster: Default
   root_password: changeme
+  ssh_key: "{{ root_ssh_key }}"
   domain: example.com
   template: rhel7
   memory: 1GiB
