@@ -25,3 +25,10 @@
     openshift_node_labels:
       role: app
   with_items: "{{ groups['tag_openshift_node'] }}"
+- name: Add load balancer node to lb group
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: lb, cluster_hosts, nodes
+    openshift_node_labels:
+      role: lb
+  with_items: "{{ groups['tag_openshift_lb'] }}"
