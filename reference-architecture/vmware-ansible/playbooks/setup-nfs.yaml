@@ -13,3 +13,4 @@
     - rhel_subscribe
     - vmware-guest-setup
     - nfs-server
+  ignore_errors: yes

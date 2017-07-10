@@ -12,3 +12,4 @@
   roles:
     - rhel_subscribe
     - vmware-guest-setup
+  ignore_errors: yes

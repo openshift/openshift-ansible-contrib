@@ -22,9 +22,9 @@
     - size_gb: 40
       datastore: "{{ vcenter_datastore }}"
       type: thin
-    - size_gb: 500
+    - size_gb: 300
       datastore: "{{ vcenter_datastore }}"
-      type: thin
+      type: eagerZeroedThick
     hardware:
       memory_mb: 32768
     networks:

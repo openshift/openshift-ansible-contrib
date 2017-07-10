@@ -1,7 +1,7 @@
 apiVersion: storage.k8s.io/v1beta1
 kind: StorageClass
 metadata:
-  name: crs-slow-st1
+  name: crs-gluster
 provisioner: kubernetes.io/glusterfs
 parameters:
   resturl: "http://{{ansible_default_ipv4.address }}:8080"

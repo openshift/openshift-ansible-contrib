@@ -111,6 +111,8 @@ class VMWareAddNode(object):
 
         if 'storage' in self.node_type and 'crs' in self.container_storage:
             self.storage_nodes = int(self.storage_nodes) + int(self.node_number)
+            if 'crs-clean' in self.tag:
+                self.storage_nodes = 0
             config.set('vmware', 'storage_nodes', str(self.storage_nodes))
             print "Updating %s file with %s storage_nodes for storage" % (vmware_ini_path, str(self.storage_nodes))
 
@@ -334,16 +336,19 @@ class VMWareAddNode(object):
             backup_file = "%s-inventory.json" % self.container_storage
             copyfile(self.inventory_file, backup_file)
 
-            with open('topology.json', 'w') as topfile:
+            with open('topology-raw.json', 'w') as topfile:
                 json.dump(data, topfile)
 
-            for line in fileinput.input('topology.json', inplace=True):
+            for line in fileinput.input('topology-raw.json', inplace=True):
                 if line.endswith('"'):
                     line = line[:-1]
                 if line.startswith('"'):
                     line = line[1:]
                 line = line.replace("\\", "")
                 print line
+            cmd = "cat topology-raw.json  | python -m json.tool >> topology.json"
+            os.system(cmd)
+            os.remove('topology-raw.json')
             print "Gluster topology file created using /dev/sdd: topology.json"
 
         print 'Inventory file created: %s' % self.inventory_file
