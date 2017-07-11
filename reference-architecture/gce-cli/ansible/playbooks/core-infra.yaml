@@ -6,13 +6,15 @@
   - role: deployment-create
     deployment_name: core
   post_tasks:
-  - name: pause for deployment to complete
-    pause:
-      seconds: 10
-  #refersh gce inventory fails if the instance groups haven't finished
-  #spinning up instances; unfortuantely the puase above isn't a good
-  #way to deal with this.  We should probably find a way to poll the
-  #status of those instance groups.
+  - name: wait for instance groups to be ready
+    include_role:
+      name: wait-for-instance-group
+    with_items:
+    - '{{ prefix }}-master'
+    - '{{ prefix }}-node'
+    - '{{ prefix }}-infra-node'
+    loop_control:
+      loop_var: instance_group
   - name: refresh gce inventory
     command: '{{ inventory_dir }}/gce/hosts/gce.py --refresh-cache'
     changed_when: false
@@ -24,22 +26,21 @@
   - dns-records
   - ssh-proxy
 
-#Ansible bug keeps this from working through the bastion host
-#https://github.com/ansible/ansible/issues/23774
+# Ansible bug keeps this from working through the bastion host
+# https://github.com/ansible/ansible/issues/23774
 #- hosts: all
-#  gather_facts: no
 #  tasks:
 #  - name: wait for instances to become available
 #    wait_for_connection:
 #      timeout: 900
 - name: wait for instances to become available for ssh
-  hosts: 'tag_{{ prefix}}-bastion:tag_{{ prefix }}'
-  gather_facts: no
+  hosts: 'tag_{{ prefix }}-bastion:tag_{{ prefix }}'
   tasks:
   - name: ping hosts
     action: ping
     register: ping_result
     until: ping_result.ping == 'pong'
-    retries: 120
-    delay: 1
-    ignore_errors: yes
+    retries: 50
+    delay: 3
+    changed_when: false
+    ignore_errors: true
