@@ -33,7 +33,7 @@
     ignore_errors: true
 
   - name: upload image to the bucket
-    command: gsutil -o GSUtil:parallel_composite_upload_threshold=150M cp '{{ temp_image_directory.path }}/{{ empty_image_archive }}' {{ empty_image_bucket }}
+    command: gsutil cp '{{ temp_image_directory.path }}/{{ empty_image_archive }}' {{ empty_image_bucket }}
     when: image_in_bucket_exists | failed
 
   - name: create gce image from the uploaded archive
