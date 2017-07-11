@@ -2,6 +2,5 @@
 - name: delete empty gce image
   gce_img:
     name: '{{ empty_image_gce }}'
-    #family: '{{ empty_image_gce_family }}'
     state: absent
   ignore_errors: true
