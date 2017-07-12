@@ -6,11 +6,15 @@
     openshift_node_labels:
       role: master
   with_items: "{{ groups['tag_openshift_master'] }}"
+
 - name: Add one master to the single_master group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
     groups: single_master
+    openshift_node_labels:
+      role: master
   with_items: "{{ groups['tag_openshift_master'][0] }}"
+
 - name: Add infrastructure nodes to requisite groups
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
@@ -18,6 +22,7 @@
     openshift_node_labels:
       role: infra
   with_items: "{{ groups['tag_openshift_infra'] }}"
+
 - name: Add app nodes to requisite groups
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
@@ -25,6 +30,7 @@
     openshift_node_labels:
       role: app
   with_items: "{{ groups['tag_openshift_node'] }}"
+
 - name: Add load balancer node to lb group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
