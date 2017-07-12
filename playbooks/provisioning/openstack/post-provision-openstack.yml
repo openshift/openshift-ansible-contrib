@@ -59,12 +59,20 @@
 
 - name: OpenShift Pre-Requisites
   hosts: OSEv3
-  gather_facts: False
+  gather_facts: true
   become: true
-  tasks:
+  pre_tasks:
   - name: "Include DNS configuration to ensure proper name resolution"
     lineinfile:
       state: present
       dest: /etc/sysconfig/network
       regexp: "IP4_NAMESERVERS={{ hostvars['localhost'].private_dns_server }}"
       line: "IP4_NAMESERVERS={{ hostvars['localhost'].private_dns_server }}"
+  roles:
+  # CentOS isn't using NetworkManager by default. Make sure it's installed:
+  - role: node-network-manager
+    when: ansible_distribution == "CentOS"
+  tasks:
+  - name: Restart NetworkManager to pick up the DNS changes
+    service: name=NetworkManager state=restarted
+    when: ansible_distribution == 'Red Hat Enterprise Linux'
