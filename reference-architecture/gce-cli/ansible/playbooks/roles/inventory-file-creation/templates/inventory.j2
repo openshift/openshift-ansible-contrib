@@ -4,40 +4,40 @@ etcd
 nodes
 
 [OSEv3:vars]
-debug_level=2
-openshift_debug_level=2
-openshift_node_debug_level=2
-openshift_master_debug_level=2
-openshift_cloudprovider_kind=gce
-openshift_master_access_token_max_seconds=2419200
+debug_level={{ debug_level }}
+openshift_debug_level={{ debug_level }}
+openshift_node_debug_level={{ debug_level }}
+openshift_master_debug_level={{ debug_level }}
+openshift_cloudprovider_kind={{ openshift_cloudprovider_kind }}
+openshift_master_access_token_max_seconds={{ openshift_master_access_token_max_seconds }}
 console_port={{ console_port }}
 openshift_master_api_port={{ console_port }}
 openshift_master_console_port={{ console_port }}
-osm_cluster_network_cidr=172.16.0.0/16
-openshift_master_cluster_method=native
+osm_cluster_network_cidr={{ osm_cluster_network_cidr }}
+openshift_master_cluster_method={{ openshift_master_cluster_method }}
 openshift_master_cluster_hostname={{ openshift_master_cluster_hostname }}
 openshift_master_cluster_public_hostname={{ openshift_master_cluster_public_hostname }}
 osm_default_subdomain={{ wildcard_zone }}
 openshift_master_default_subdomain={{ wildcard_zone }}
-osm_default_node_selector='role=app'
+osm_default_node_selector='{{ osm_default_node_selector }}'
 openshift_deployment_type={{ openshift_deployment_type }}
 deployment_type={{ openshift_deployment_type }}
 containerized={{ containerized }}
-osm_use_cockpit=true
+osm_use_cockpit={{ osm_use_cockpit }}
 os_sdn_network_plugin_name={{ os_sdn_network_plugin_name }}
-openshift_hosted_router_selector='role=infra'
-openshift_hosted_registry_selector='role=infra'
-openshift_hosted_registry_storage_kind=object
-openshift_hosted_registry_storage_provider=gcs
+openshift_hosted_router_selector='{{ openshift_hosted_router_selector }}'
+openshift_hosted_registry_selector='{{ openshift_hosted_registry_selector }}'
+openshift_hosted_registry_storage_kind={{ openshift_hosted_registry_storage_kind }}
+openshift_hosted_registry_storage_provider={{ openshift_hosted_registry_storage_provider }}
 openshift_hosted_registry_storage_gcs_bucket={{ gcs_registry_bucket }}
-openshift_hosted_registry_storage_gcs_rootdirectory='/registry'
-openshift_hosted_registry_pullthrough=true
-openshift_hosted_registry_acceptschema2=true
-openshift_hosted_registry_enforcequota=true
+openshift_hosted_registry_storage_gcs_rootdirectory='{{ openshift_hosted_registry_storage_gcs_rootdirectory }}'
+openshift_hosted_registry_pullthrough={{ openshift_hosted_registry_pullthrough }}
+openshift_hosted_registry_acceptschema2={{ openshift_hosted_registry_acceptschema2 }}
+openshift_hosted_registry_enforcequota={{ openshift_hosted_registry_enforcequota }}
 openshift_hosted_metrics_deploy={{ openshift_hosted_metrics_deploy }}
 openshift_hosted_metrics_storage_volume_size={{ openshift_hosted_metrics_storage_volume_size }}
-openshift_hosted_metrics_storage_kind=dynamic
-openshift_master_metrics_public_url='https://metrics.{{ wildcard_zone }}/hawkular/metrics'
+openshift_hosted_metrics_storage_kind={{ openshift_hosted_metrics_storage_kind }}
+openshift_master_metrics_public_url='{{ openshift_master_metrics_public_url }}'
 openshift_master_identity_providers={{ openshift_master_identity_providers | to_json }}
 
 [masters]

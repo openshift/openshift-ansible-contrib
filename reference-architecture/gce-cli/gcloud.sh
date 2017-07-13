@@ -41,7 +41,7 @@ function run_playbook {
   playbook="$1"
   shift
   pushd "${DIR}/ansible"
-  ansible-playbook -e @../config.yaml $@ "$playbook"
+  ansible-playbook -e @playbooks/openshift-installer-common-vars.yaml -e @../config.yaml $@ "$playbook"
   popd
 }
 
