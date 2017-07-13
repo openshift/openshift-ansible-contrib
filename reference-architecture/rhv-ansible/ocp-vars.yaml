@@ -1,4 +1,20 @@
 ---
+### Red Hat Virtualization Engine Connection
+engine_url:
+engine_user: admin@internal
+engine_password:
+# CA file copied from engine:/etc/pki/ovirt-engine/ca.pem; path is relative to playbook directory
+engine_cafile: ../ca.pem
+
+### Red Hat Virtualization VM Image
+## For CentOS 7:
+#qcow_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+## For RHEL: Find KVM Guest Image in Downloads -> RHEL on https://access.redhat.com/ and use before the link expires:
+#qcow_url:https://access.cdn.redhat.com//content/origin/files/<removed>/rhel-guest-image-7.3-35.x86_64.qcow2?_auth_=<removed>
+## Alternatively, download the above KVM image, and re-host it on a local satellite:
+#qcow_url: https://satellite.example.com/pub/rhel-guest-image-7.3-35.x86_64.qcow2
+qcow_url:
+
 ### Choose a subscription method:
 ## For subscriptions to Satellite:
 #
