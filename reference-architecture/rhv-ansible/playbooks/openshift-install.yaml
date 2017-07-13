@@ -12,9 +12,6 @@
     docker_dev: "/dev/vdb"
     local_volumes_device: "/dev/vdc"
 
-# Requires variables set before run:
-# - public_hosted_zone  :  e.g. example.com
-# - 
 - name: call openshift includes for installer
   include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
   vars:
@@ -26,12 +23,6 @@
     osm_use_cockpit: false
     osm_default_node_selector: "role=app"
     osm_default_subdomain: "{{ wildcard_zone }}"
-#    openshift_hosted_metrics_storage_access_modes: ['ReadWriteOnce']
-#    openshift_hosted_metrics_storage_host:
-#    openshift_hosted_metrics_storage_kind: nfs
-#    openshift_hosted_metrics_storage_nfs_directory:
-#    openshift_hosted_metrics_storage_volume_name: metrics
-#    openshift_hosted_metrics_storage_volume_size: 10Gi
     openshift_hosted_registry_replicas: 1
     openshift_hosted_registry_storage_access_modes: ['ReadWriteMany']
     openshift_hosted_registry_storage_volume_name: registry
@@ -51,7 +42,6 @@
     openshift_node_kubelet_args:
       node-labels:
       - "role={{ openshift_node_labels.role }}"
-#    openshift_override_hostname_check: true
     openshift_registry_selector: "role=infra"
     openshift_router_selector: "role=infra"
 ...
