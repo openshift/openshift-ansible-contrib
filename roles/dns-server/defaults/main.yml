@@ -1,8 +1,0 @@
----
-
-default_dnssec_keygen_size: 256
-default_dnssec_keygen_algorithm: HMAC-SHA256
-
-named_config_views: []
-named_config_allow_query: []
-named_config_allow_transfer: []

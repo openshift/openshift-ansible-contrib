@@ -26,3 +26,4 @@ ansible.log
 .tox
 static-inventory
 *.retry
+roles/infra-ansible/

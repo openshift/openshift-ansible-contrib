@@ -1,4 +1,0 @@
-key {{ item.item.0.name }}-{{ item.item.1.dns_domain }} {
-  algorithm {{ dnssec_keygen_algorithm | default(default_dnssec_keygen_algorithm) }};
-  secret "{{ item.stdout }}";
-};
