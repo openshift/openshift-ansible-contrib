@@ -27,19 +27,19 @@ clusters:
 ###########################
 # Hosts
 ###########################
-hosts:
-  - name: hypervisor0
-    address: 192.168.155.13
-    cluster: Default
-    password: changeme
-  - name: hypervisor1
-    address: 192.168.155.14
-    cluster: Default
-    password: changeme
-  - name: hypervisor2
-    address: 192.168.155.15
-    cluster: Default
-    password: changeme
+#hosts:
+#  - name: hypervisor200
+#    address: 192.168.155.200
+#    cluster: Default
+#    password: changeme
+#  - name: hypervisor201
+#    address: 192.168.155.201
+#    cluster: Default
+#    password: changeme
+#  - name: hypervisor202
+#    address: 192.168.155.202
+#    cluster: Default
+#    password: changeme
 
 ###########################
 # Storage
