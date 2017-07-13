@@ -28,29 +28,37 @@
 
 set -euo pipefail
 
+# Directory of this script
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Configure python path
 PYTHONPATH="${PYTHONPATH:-}:${DIR}/ansible/inventory/gce/hosts"
 export PYTHONPATH
 
+# Run given playbook (1. param). All other parameters
+# are passed directly to Ansible.
+function run_playbook {
+  playbook="$1"
+  shift
+  pushd "${DIR}/ansible"
+  ansible-playbook -e @playbooks/openshift-installer-common-vars.yaml -e @../config.yaml $@ "$playbook"
+  popd
+}
+
+# Teardown infrastructure
 function teardown {
-  pushd "${DIR}/ansible"
-  ansible-playbook -e @../config.yaml $@ playbooks/teardown.yaml
-  popd
+  run_playbook playbooks/teardown.yaml "$@"
 }
 
+# Create static inventory file
 function static_inventory {
-  pushd "${DIR}/ansible"
-  ansible-playbook -e @../config.yaml $@ playbooks/create-inventory-file.yaml
-  popd
+  run_playbook playbooks/create-inventory-file.yaml "$@"
 }
 
+# Main function which creates infrastructure and deploys OCP
 function main {
-  pushd "${DIR}/ansible"
-  ansible-playbook -i inventory/inventory -e @../config.yaml $@ playbooks/prereq.yaml
-  ansible-playbook -e @../config.yaml $@ playbooks/main.yaml
-  popd
+  run_playbook playbooks/prereq.yaml -i inventory/inventory "$@"
+  run_playbook playbooks/main.yaml "$@"
 }
 
 case ${1:-} in
