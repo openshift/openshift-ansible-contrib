@@ -18,5 +18,5 @@
 - name: enable and start NetworkManager
   service:
     name: NetworkManager
-    state: started
+    state: restarted
     enabled: yes
