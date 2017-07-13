@@ -37,7 +37,7 @@ Check variables listed in `playbooks/vars/ovirt_infra_vars.yml`
 From the `reference-architecture/rhv-ansible` directory, run
 
 ```
-ansible-playbook playbooks/ovirt-infra.yml -e@ocp-vars.yaml
+ansible-playbook playbooks/ovirt-vm-infra.yaml -e@ocp-vars.yaml
 ```
 
 ### Set up OpenShift Container Platform on the VMs from the previoius step
