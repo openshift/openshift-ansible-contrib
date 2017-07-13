@@ -1,0 +1,8 @@
+---
+# Ansible bug keeps wait_for_connection module from working through the bastion host
+# https://github.com/ansible/ansible/issues/23774
+- name: wait for the instance {{ instance }} to come up
+  wait_for:
+    host: '{{ instance }}'
+    port: 22
+    state: started

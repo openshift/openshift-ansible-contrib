@@ -25,22 +25,15 @@
   roles:
   - dns-records
   - ssh-proxy
+  - role: wait-for-instance
+    instance: '{{ hostvars[prefix + "-bastion"]["gce_public_ip"] }}'
 
-# Ansible bug keeps this from working through the bastion host
-# https://github.com/ansible/ansible/issues/23774
-#- hosts: all
-#  tasks:
-#  - name: wait for instances to become available
-#    wait_for_connection:
-#      timeout: 900
-- name: wait for instances to become available for ssh
-  hosts: 'tag_{{ prefix }}-bastion:tag_{{ prefix }}'
+- name: wait for all instances to accept ssh connections
+  hosts: '{{ prefix }}-bastion'
   tasks:
-  - name: ping hosts
-    action: ping
-    register: ping_result
-    until: ping_result.ping == 'pong'
-    retries: 50
-    delay: 3
-    changed_when: false
-    ignore_errors: true
+  - name: wait for all instances
+    include_role:
+      name: wait-for-instance
+    with_items: '{{ groups["tag_" + prefix] }}'
+    loop_control:
+      loop_var: instance
