@@ -73,7 +73,7 @@
     - rhsm_satellite is defined
     - rhsm_satellite is not none
     - rhsm_satellite|trim != ''
-  regster: register_key_result
+  register: register_key_result
   until: register_key_result.rc == 0
   retries: 10
   delay: 1
