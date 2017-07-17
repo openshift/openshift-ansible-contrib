@@ -23,6 +23,7 @@ clusters:
   - name: Default
     cpu_type: Intel Conroe Family
     profile: Default
+    ha_reservation: true
 
 ###########################
 # Hosts
