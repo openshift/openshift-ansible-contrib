@@ -12,9 +12,27 @@ python:
   - "2.7"
   - "3.5"
 
+env:
+  global:
+    secure: beou1oAwaKJ1TTMJB4rTB7M3+wYGe8nRpiEhuexch4fY+ptwlG6mSqOry3SgeKWYC7wSkFXRUEprfNoltpIgWzkVLc6L3FIGXnpk0yAdIjK8mDoYo+Zua9UuorCTP1SJ5547G65PyS9iRm6FcA834jGH5op0/r26IAVlwSlj9Y8qSMoEj9ufIhtq0qbWjs5cLvxPmjWkfYRBIO1EjkR7b67i7536IXsyddK5XNOFuBVU2ZofEo1BiUY6uQQPfca56C5m2ohgJzYWTSCPFg/42d1J0PFcMJzkmgNLJoDOICmsmoCwJVf7RLS+FCfaej4pTFvb2ByPQo4B102/hOMCSYqRzRwkURGbI1iCPoF6a1jZorwd3pU1avXjwPVpRwOr4jVWBKmmM4REnm54DtbY6o8SPSvZlOvk8vISvKHg4mISgo1CERNUCSUam30/H4/0DOi/J5qJxsuxOU150OFkmlUmGSYrH/ANb//IkmgfY6SIdemyN5QHIZUrTFyzBdHMR1dFImgTGBhDeYcJu9BFiBfT4BIfbTlcqj2kneao96kfKMEXMXB9zL5xEeFLSPm6eHx8VS/qvUpCizU5d8tVNikAoym+ZExdBhbx1K7yrb4dIe8jn/CtYl6NLF/ZO4OFV2EUcLKk+AIUycvLf0groYtl9UL3lgy+B/fxMO6iqCA=
+  matrix:
+    - RUN_OPENSTACK_CI=false
+    - RUN_OPENSTACK_CI=true
+
+matrix:
+  exclude:
+    - python: "3.5"
+      env: RUN_OPENSTACK_CI=true
+
 install:
-  - pip install -r requirements.txt
-  - pip install tox-travis
+  - ci/install-tox.sh
+  - ci/openstack/install.sh
 
 script:
-  - tox
+  - ci/run-tox.sh
+  - ci/openstack/provision.sh
+  - travis_wait 40 ci/openstack/install-openshift.sh
+  - ci/openstack/validate.sh
+
+after_script:
+  - ci/openstack/teardown.sh
