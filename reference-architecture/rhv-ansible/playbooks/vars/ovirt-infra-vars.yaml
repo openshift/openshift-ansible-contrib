@@ -2,7 +2,7 @@
 ###########################
 # REST API variables
 ###########################
-#engine_url: https://engine.example.com/ovirt-engine/api
+#engine_url: https://engine."{{ public_hosted_zone }}"/ovirt-engine/api
 #engine_user: admin@internal
 #engine_password: changeme
 #engine_cafile: /etc/pki/ovirt-engine/ca.pem
@@ -137,7 +137,7 @@ clusters:
 # VM infra
 ##########################
 #qcow_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
-#qcow_url: https://satellite.example.com/pub/rhel-guest-image-7.3-35.x86_64.qcow2
+#qcow_url: https://satellite."{{ public_hosted_zone }}"/pub/rhel-guest-image-7.3-35.x86_64.qcow2
 template_cluster: Default
 template_name: rhel7
 template_memory: 1GiB
@@ -151,10 +151,11 @@ template_nics:
 master_vm:
   cluster: Default
   ssh_key: "{{ root_ssh_key }}"
-  domain: example.com
+  domain: "{{ public_hosted_zone }}"
   template: rhel7
   memory: 1GiB
   cores: 1
+  high_availability: true
   disks:
     - size: 5GiB
       storage_domain: my_data_storage
@@ -164,7 +165,7 @@ master_vm:
 node_vm:
   cluster: Default
   ssh_key: "{{ root_ssh_key }}"
-  domain: example.com
+  domain: "{{ public_hosted_zone }}"
   template: rhel7
   memory: 1GiB
   cores: 1
@@ -178,13 +179,32 @@ node_vm:
       storage_domain: my_data_storage
       interface: virtio
 
-lb_vm:
+infra_vm:
   cluster: Default
   ssh_key: "{{ root_ssh_key }}"
-  domain: example.com
+  domain: "{{ public_hosted_zone }}"
   template: rhel7
   memory: 1GiB
   cores: 1
+  high_availability: true
+  disks:
+    - size: 10GiB
+      name: origin_disk
+      storage_domain: my_data_storage
+      interface: virtio
+    - size: 10GiB
+      name: data_disk
+      storage_domain: my_data_storage
+      interface: virtio
+
+lb_vm:
+  cluster: Default
+  ssh_key: "{{ root_ssh_key }}"
+  domain: "{{ public_hosted_zone }}"
+  template: rhel7
+  memory: 1GiB
+  cores: 1
+  high_availability: true
   disks: []
 
 vms:
@@ -199,10 +219,10 @@ vms:
   # Infra VMs
   - name: openshift-infra-0
     tag: openshift_infra
-    profile: "{{ node_vm }}"
+    profile: "{{ infra_vm }}"
   - name: openshift-infra-1
     tag: openshift_infra
-    profile: "{{ node_vm }}"
+    profile: "{{ infra_vm }}"
 
   # Master VMs
   - name: openshift-master-0
