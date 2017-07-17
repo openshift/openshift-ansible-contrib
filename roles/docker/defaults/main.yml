@@ -1,0 +1,3 @@
+---
+default_docker_storage_block_device: "/dev/vdb"
+default_docker_storage_volume_group: "docker_vg"

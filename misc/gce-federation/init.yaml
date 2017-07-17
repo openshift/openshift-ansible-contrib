@@ -1,0 +1,98 @@
+---
+- hosts: localhost
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    gce_cluster_count: "{{ lookup('env', 'GCE_CLUSTER_COUNT') | default(3, true) }}"
+    gce_creds_file: "{{ lookup('env', 'GCE_CREDS_FILE') }}"
+    gce_service_account: "{{ lookup('env', 'GCE_SERVICE_ACCOUNT') }}"
+    gce_project_id: "{{ lookup('env', 'GCE_PROJECT_ID') }}"
+    gce_regions: "{{ lookup('env', 'GCE_REGIONS') | default('us-east1,us-east4,us-west1', true) }}"
+    gce_regions_zones:
+      us-east1:
+        - us-east1-b
+        - us-east1-c
+        - us-east1-d
+      us-east4:
+        - us-east4-a
+        - us-east4-b
+        - us-east4-c
+      us-central1:
+        - us-central1-a
+        - us-central1-b
+        - us-central1-c
+        - us-central1-f
+      us-west1:
+        - us-west1-a
+        - us-west1-b
+        - us-west1-c
+      europe-west1:
+        - europe-west1-b
+        - europe-west1-c
+        - europe-west1-d
+      asia-east1:
+        - asia-east1-a
+        - asia-east1-b
+        - asia-east1-c
+      asia-northeast1:
+        - asia-northeast1-a
+        - asia-northeast1-b
+        - asia-northeast1-c
+      asia-southeast1:
+        - asia-southeast1-a
+        - asia-southeast1-b
+  tasks:
+    - debug: var=federation_id
+    - debug: var=gce_cluster_count
+    - debug: var=gce_creds_file
+    - debug: var=gce_service_account
+    - debug: var=gce_project_id
+    - debug: var=gce_regions
+
+    - assert:
+        that:
+          - federation_id != ''
+          - gce_cluster_count > 0  # this will need to be updated when other cloud providers are supported
+          - gce_creds_file != ''
+          - gce_service_account != ''
+          - gce_project_id != ''
+          - gce_regions.split(',') | difference(gce_regions_zones.keys()) | length == 0
+
+    - name: Create firewall config for federation clusters
+      gce_net:
+        name: default
+        credentials_file: "{{ gce_creds_file }}"
+        service_account_email: "{{ gce_service_account }}"
+        project_id: "{{ gce_project_id }}"
+        fwname: "{{ federation_id }}"
+        allowed: 'tcp:22,10250,8443,30000-32767;udp:4789,30000-32767;icmp'
+        src_range: ['0.0.0.0/0']
+        target_tags: "{{ federation_id }}"
+        state: present
+
+    - name: Create GCE cluster hosts
+      gce:
+        name: "{{ federation_id }}-gce-cluster{{ item }}"
+        credentials_file: "{{ gce_creds_file }}"
+        service_account_email: "{{ gce_service_account }}"
+        project_id: "{{ gce_project_id }}"
+        service_account_permissions:
+          - storage-ro
+          - compute-rw
+          - monitoring
+          - logging-write
+          - 'https://www.googleapis.com/auth/ndev.clouddns.readwrite'
+        image: centos-7
+        state: present
+        zone: "{{ gce_regions_zones[(gce_regions.split(','))[(item | int % (gce_regions.split(',') | length)) - 1]] | random }}"
+        tags: "{{ federation_id }},{{ federation_id }}-gce-cluster{{ item }}"
+      with_sequence: count={{ gce_cluster_count }}
+      register: gce
+
+    - name: Wait for SSH for instances
+      wait_for:
+        delay: 1
+        host: "{{ item.instance_data.0.public_ip }}"
+        port: 22
+        state: started
+        timeout: 30
+      with_items: "{{ gce.results }}"

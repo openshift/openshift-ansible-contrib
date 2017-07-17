@@ -1,0 +1,172 @@
+---
+- hosts: localhost
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    federation_dns_zone: "{{ lookup('env', 'FEDERATION_DNS_ZONE') }}"
+  tasks:
+  - assert:
+      that:
+      - federation_id != ''
+      - federation_dns_zone != ''
+  - add_host:
+      name: "{{ item }}"
+      groups: federation
+    with_items:
+    - "{{ groups['tag_' ~ federation_id] }}"
+
+
+- hosts: federation
+  tasks:
+  # Need to skip if a default storage class is already defined
+  #  - name: Add default storage class
+  #    shell: >
+  #      echo {{ lookup('file', 'default_storage_class.yml') | quote }} | oc create -f -
+  #    register: default_storage_class
+  #    changed_when: default_storage_class.rc == 0
+  #    failed_when: default_storage_class.rc != 0 and 'already exists' not in default_storage_class.stderr
+
+  - name: Update the gce cloud provider config
+    copy:
+      dest: /etc/origin/cloudprovider/gce.conf
+      content: |
+        [Global]
+        multizone = false
+        node-tags = {{ inventory_hostname }}
+    register: fix_cloud_config
+
+  - name: Determine registry deployment version
+    shell: >
+      oc get --no-headers dc/docker-registry | awk '{print $2}'
+    register: registry_version_out
+
+  - name: Wait for registry to be running
+    shell: >
+      oc get pod | grep -v deploy | awk '/docker-registry-{{ registry_version_out.stdout }}/{ print $3 }' | head -1
+    register: deployer_output
+    until: deployer_output.stdout | search("Running")
+    retries: 30
+    delay: 30
+
+  - name: Restart services to pick up the updated cloud provider config
+    systemd:
+      name: "{{ item }}"
+      state: restarted
+    when: fix_cloud_config | changed
+    with_items:
+    - origin-master
+    - origin-node
+
+  - name: Retrieve the openshift ca cert
+    slurp:
+      src: /etc/origin/master/ca.crt
+    register: server_cert
+
+  - name: Retrieve the openshift admin key
+    slurp:
+      src: /etc/origin/master/admin.key
+    become: yes
+    register: admin_key
+
+  - name: Retrieve the openshift admin cert
+    slurp:
+      src: /etc/origin/master/admin.crt
+    become: yes
+    register: admin_cert
+
+- hosts: federation[0]
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    admin_default_context: "default/{{ inventory_hostname }}:8443/system:admin"
+    federation_dns_zone: "{{ lookup('env', 'FEDERATION_DNS_ZONE') }}"
+  tasks:
+  - name: Create directories for the remote certs
+    file:
+      path: remote_certs/{{ item }}
+      state: directory
+    with_items:
+    - "{{ groups['federation'] }}"
+
+  - name: Copy the cluster ca certs
+    copy:
+      dest: remote_certs/{{ item }}/ca.crt
+      content: "{{ hostvars[item].server_cert.content | b64decode }}"
+    with_items:
+    - "{{ groups['federation'] }}"
+
+  - name: Copy the cluster admin certs
+    copy:
+      dest: remote_certs/{{ item }}/admin.crt
+      content: "{{ hostvars[item].admin_cert.content | b64decode }}"
+    with_items:
+    - "{{ groups['federation'] }}"
+
+  - name: Copy the cluster admin keys
+    copy:
+      dest: remote_certs/{{ item }}/admin.key
+      content: "{{ hostvars[item].admin_key.content | b64decode }}"
+    with_items:
+    - "{{ groups['federation'] }}"
+
+  - name: Add the clusters to the client config
+    command: >
+      oc config set-cluster {{ item }} --embed-certs=true
+      --server=https://{{ hostvars[item].gce_private_ip }}:8443
+      --certificate-authority=remote_certs/{{ item }}/ca.crt
+    with_items:
+    - "{{ groups['federation'] }}"
+
+  - name: Add the cluster credentials to the client config
+    command: >
+      oc config set-credentials {{ item }}-admin --embed-certs=true
+      --client-certificate=remote_certs/{{ item }}/admin.crt
+      --client-key=remote_certs/{{ item }}/admin.key
+    with_items:
+    - "{{ groups['federation'] }}"
+
+  - name: Add the cluster contexts to the client config
+    command: >
+      oc config set-context {{ item }}-admin
+      --cluster={{ item }}
+      --namespace=default
+      --user={{ item }}-admin
+    with_items:
+    - "{{ groups['federation'] }}"
+
+  - name: Ensure we are using the default admin context for the cluster
+    command: oc config use-context {{ admin_default_context }}
+
+  - name: Initialize the federation
+    command: >
+      kubefed init {{ federation_id }} --host-cluster-context={{ admin_default_context }}
+      --dns-provider='google-clouddns' --dns-zone-name='{{ federation_dns_zone }}.'
+      --image='detiber/origin-federation:latest'
+    register: kubefed_init
+    failed_when: kubefed_init.rc != 0 and 'already exists' not in kubefed_init.stderr
+
+  - name: Ensure we are using the default admin context for the cluster
+    command: oc config use-context {{ admin_default_context }}
+
+  - name: Add the project admin role to the federation service account
+    command: >
+      oc adm policy add-role-to-user admin
+      system:serviceaccount:federation-system:federation-controller-manager
+      -n federation-system
+
+  # Workaround federation bug where default namespace is not created
+  - name: Get the list of federated namespaces
+    command: >
+      oc get namespaces --context={{ federation_id }} -o jsonpath='{range .items[*]}{.metadata.name}{"\n"}{end}'
+    register: namespaces
+
+  - name: Create the default namespace in the federation if missing
+    command: oc create namespace default --context={{ federation_id }}
+    when: "'default' not in namespaces.stdout_lines"
+
+  - name: Add the clusters to the federation
+    command: >
+      kubefed join {{ item }}
+      --cluster-context={{ item }}-admin
+      --host-cluster-context={{ admin_default_context }}
+      --context={{ federation_id }}
+    with_items:
+    - "{{ groups['federation'] }}"

@@ -6,9 +6,7 @@
   vars_files:
   - vars/main.yaml
   roles:
-  # Group systems
   - create-vm-add-prod-ose
-  - instance-groups
 
 - hosts: new_nodes
   gather_facts: yes
@@ -16,6 +14,7 @@
   vars_files:
   - vars/main.yaml
   roles:
+  - instance-groups
   - rhel_subscribe
   - vmware-guest-setup
 - include: ../../../playbooks/openshift-storage.yaml

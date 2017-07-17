@@ -12,7 +12,7 @@ from six.moves import configparser
 @click.option('-v', '--verbose', count=True)
 @click.option('--create_inventory', is_flag=True, help='Helper script to create json inventory file and exit')
 @click.option('--create_ocp_vars', is_flag=True, help='Helper script to modify OpenShift ansible install variables and exit')
-@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are nfs, prod, haproxy, ocp-install, ocp-configure, ocp-demo, ocp-update or clean')
+@click.option('-t', '--tag', help='Ansible playbook tag for specific parts of playbook: valid targets are setup, nfs, prod, haproxy, all-vms, ocp-install, ocp-configure, ocp-demo, ocp-update or clean')
 @click.option('--clean', is_flag=True, help='Delete all nodes and unregister from RHN')
 
 def launch_refarch_env(console_port=8443,
@@ -39,7 +39,7 @@ def launch_refarch_env(console_port=8443,
                     byo_lb=None,
                     lb_host=None,
                     byo_nfs=None,
-                    nfs_registry_host=None,
+                    nfs_host=None,
                     nfs_registry_mountpoint=None,
                     no_confirm=False,
                     tag=None,
@@ -56,6 +56,7 @@ def launch_refarch_env(console_port=8443,
                     ldap_user_password=None,
                     ldap_fqdn=None,
                     openshift_sdn=None,
+                    containerized=None,
                     container_storage=None,
                     openshift_hosted_metrics_deploy=None,
                     clean=None):
@@ -87,13 +88,14 @@ def launch_refarch_env(console_port=8443,
     'rhel_subscription_pass':'',
     'rhel_subscription_server':'',
     'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
-    'openshift_sdn':'openshift-ovs-subnet',
+    'openshift_sdn':'redhat/openshift-ovs-subnet',
+    'containerized':'containerized',
     'container_storage':'none',
     'openshift_hosted_metrics_deploy':'false',
     'byo_lb':'no',
     'lb_host':'haproxy-',
     'byo_nfs':'no',
-    'nfs_registry_host':'nfs-0',
+    'nfs_host':'nfs-0',
     'nfs_registry_mountpoint':'/exports',
     'master_nodes':'3',
     'infra_nodes':'2',
@@ -142,12 +144,13 @@ def launch_refarch_env(console_port=8443,
   rhel_subscription_server = config.get('vmware', 'rhel_subscription_server')
   rhel_subscription_pool = config.get('vmware', 'rhel_subscription_pool')
   openshift_sdn = config.get('vmware', 'openshift_sdn')
+  containerized = config.get('vmware', 'containerized')
   container_storage = config.get('vmware', 'container_storage')
   openshift_hosted_metrics_deploy = config.get('vmware', 'openshift_hosted_metrics_deploy')
   byo_lb = config.get('vmware', 'byo_lb')
   lb_host = config.get('vmware', 'lb_host')
   byo_nfs = config.get('vmware', 'byo_nfs')
-  nfs_registry_host = config.get('vmware', 'nfs_registry_host')
+  nfs_host = config.get('vmware', 'nfs_host')
   nfs_registry_mountpoint = config.get('vmware', 'nfs_registry_mountpoint')
   master_nodes = config.get('vmware', 'master_nodes')
   infra_nodes = config.get('vmware', 'infra_nodes')
@@ -170,6 +173,19 @@ def launch_refarch_env(console_port=8443,
     exit (1)
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
+  # fix nfs_host and lb_host vars with nfs_ocp_hostname_prefix
+  if 'no' in byo_lb:
+      if ocp_hostname_prefix is not None:
+        lb_host=ocp_hostname_prefix+"haproxy-0"
+      else:
+        lb_host="haproxy-0"
+
+  if 'no' in byo_nfs:
+    if ocp_hostname_prefix is not None:
+        nfs_host=ocp_hostname_prefix+"nfs-0"
+    else:
+        nfs_host="nfs-0"
+
   tags = []
   tags.append('setup')
 
@@ -177,20 +193,16 @@ def launch_refarch_env(console_port=8443,
   support_nodes=1
   if byo_nfs == "no":
       support_nodes=support_nodes+1
-      nfs_host = nfs_registry_host
-      nfs_registry_host = nfs_host + '.' + public_hosted_zone
-      nfs_registry_mountpoint ='/exports'
       tags.append('nfs')
   else:
-    if nfs_registry_host == '':
-        nfs_registry_host = click.prompt("Please enter the NFS Server fqdn for persistent registry:")
+    if nfs_host == '':
+        nfs_host = click.prompt("Please enter the NFS Server fqdn for persistent registry:")
     if nfs_registry_mountpoint is '':
        nfs_registry_mountpoint = click.prompt("Please enter NFS share name for persistent registry:")
 
   tags.append('prod')
 
   if byo_lb == "no":
-      lb_host = lb_host + '.' + public_hosted_zone
       tags.append('haproxy')
   else:
     if lb_host == '':
@@ -198,17 +210,6 @@ def launch_refarch_env(console_port=8443,
        lb_host = lb_host + '.' + public_hosted_zone
 
   if create_ocp_vars is True:
-
-    if ocp_hostname_prefix is not None:
-        lb_name=ocp_hostname_prefix+"haproxy-0"
-    else:
-        lb_name="haproxy-0"
-
-    if ocp_hostname_prefix is not None:
-        nfs_name=ocp_hostname_prefix+"nfs-0"
-    else:
-        nfs_name="nfs-0"
-
     click.echo('Configured OCP variables:')
     click.echo('\tauth_type: %s' % auth_type)
     click.echo('\tldap_fqdn: %s' % ldap_fqdn)
@@ -217,7 +218,7 @@ def launch_refarch_env(console_port=8443,
     click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
     click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
     click.echo('\tbyo_lb: %s' % byo_lb)
-    click.echo('\tlb_host: %s' % lb_name)
+    click.echo('\tlb_host: %s' % lb_host)
     click.echo('\tUsing values from: %s' % vmware_ini_path)
     if not no_confirm:
       click.confirm('Continue using these values?', abort=True)
@@ -261,15 +262,15 @@ def launch_refarch_env(console_port=8443,
             elif line.startswith("    wildcard_zone:"):
                 print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
             elif line.startswith("    load_balancer_hostname:"):
-                print "    load_balancer_hostname: " + lb_name
+                print "    load_balancer_hostname: " + lb_host + "." + public_hosted_zone
             elif line.startswith("    deployment_type:"):
                 print "    deployment_type: " + deployment_type
             elif line.startswith("    openshift_hosted_registry_storage_host:"):
-                print "    openshift_hosted_registry_storage_host: " + nfs_name
+                print "    openshift_hosted_registry_storage_host: " + nfs_host + "." + public_hosted_zone
             elif line.startswith("    openshift_hosted_registry_storage_nfs_directory:"):
                 print "    openshift_hosted_registry_storage_nfs_directory: " + nfs_registry_mountpoint
             elif line.startswith("    openshift_hosted_metrics_storage_host:"):
-                print "    openshift_hosted_metrics_storage_host: " + nfs_name
+                print "    openshift_hosted_metrics_storage_host: " + nfs_host + "." + public_hosted_zone
             elif line.startswith("    openshift_hosted_metrics_storage_nfs_directory:"):
                 print "    openshift_hosted_metrics_storage_nfs_directory: " + nfs_registry_mountpoint
             else:
@@ -281,7 +282,7 @@ def launch_refarch_env(console_port=8443,
             if line.startswith("    wildcard_zone:"):
                 print "    wildcard_zone: " + app_dns_prefix + "." + public_hosted_zone
             elif line.startswith("    load_balancer_hostname:"):
-                print "    load_balancer_hostname: " + lb_name
+                print "    load_balancer_hostname: " + lb_host + "." + public_hosted_zone
             elif line.startswith("    deployment_type:"):
                 print "    deployment_type: " + deployment_type
             else:
@@ -311,10 +312,10 @@ def launch_refarch_env(console_port=8443,
     click.echo('\tocp_hostname_prefix: %s' % ocp_hostname_prefix)
     click.echo('\tbyo_nfs: %s' % byo_nfs)
     if byo_nfs == "no":
-       click.echo('\tnfs_host: %s' % nfs_name)
+       click.echo('\tnfs_host: %s' % nfs_host)
     click.echo('\tbyo_lb: %s' % byo_lb)
     if byo_lb == "no":
-       click.echo('\tlb_host: %s' % lb_name)
+       click.echo('\tlb_host: %s' % lb_host)
     click.echo('\tvm_ipaddr_start: %s' % vm_ipaddr_start)
     click.echo('\tUsing values from: %s' % vmware_ini_path)
     click.echo("")
@@ -343,35 +344,31 @@ def launch_refarch_env(console_port=8443,
 
     support_list = []
     if byo_nfs == "no":
-        if ocp_hostname_prefix is not None:
-            nfs_name=ocp_hostname_prefix+"nfs-0"
-        else:
-            nfs_name="nfs-0"
-        d['host_inventory'][nfs_name] = {}
-        d['host_inventory'][nfs_name]['guestname'] = nfs_name
-        d['host_inventory'][nfs_name]['ip4addr'] = ip4addr[0]
-        d['host_inventory'][nfs_name]['tag'] = "infra-nfs"
+        if ocp_hostname_prefix not in nfs_host:
+            nfs_host=ocp_hostname_prefix+"nfs-0"
+        d['host_inventory'][nfs_host] = {}
+        d['host_inventory'][nfs_host]['guestname'] = nfs_host
+        d['host_inventory'][nfs_host]['ip4addr'] = ip4addr[0]
+        d['host_inventory'][nfs_host]['tag'] = "infra-nfs"
         d['infrastructure_hosts']["nfs_server"] = {}
-        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_name
+        d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_host
         d['infrastructure_hosts']["nfs_server"]['tag'] = "infra-nfs"
-        support_list.append(nfs_name)
-        bind_entry.append(nfs_name + "\tA\t" + ip4addr[0])
+        support_list.append(nfs_host)
+        bind_entry.append(nfs_host + "\tA\t" + ip4addr[0])
         del ip4addr[0]
 
     if byo_lb == "no":
-        if ocp_hostname_prefix is not None:
-            lb_name=ocp_hostname_prefix+"haproxy-0"
-        else:
-            lb_name="haproxy-0"
-        d['host_inventory'][lb_name] = {}
-        d['host_inventory'][lb_name]['guestname'] = lb_name
-        d['host_inventory'][lb_name]['ip4addr'] = wild_ip
-        d['host_inventory'][lb_name]['tag'] = "loadbalancer"
+        if ocp_hostname_prefix not in lb_host:
+            lb_host=ocp_hostname_prefix+"haproxy-0"
+        d['host_inventory'][lb_host] = {}
+        d['host_inventory'][lb_host]['guestname'] = lb_host
+        d['host_inventory'][lb_host]['ip4addr'] = wild_ip
+        d['host_inventory'][lb_host]['tag'] = "loadbalancer"
         d['infrastructure_hosts']["haproxy"] = {}
-        d['infrastructure_hosts']["haproxy"]['guestname'] = lb_name
+        d['infrastructure_hosts']["haproxy"]['guestname'] = lb_host
         d['infrastructure_hosts']["haproxy"]['tag'] = "loadbalancer"
-        support_list.append(lb_name)
-        bind_entry.append(lb_name + "\tA\t" + wild_ip)
+        support_list.append(lb_host)
+        bind_entry.append(lb_host + "\tA\t" + wild_ip)
 
     master_list = []
     d['production_hosts'] = {}
@@ -473,6 +470,8 @@ def launch_refarch_env(console_port=8443,
     # grab the default priv key from the user"
     command='cp -f ~/.ssh/id_rsa ssh_key/ocp3-installer'
     os.system(command)
+    command='cp -f ~/.ssh/id_rsa ssh_key/ocp-installer'
+    os.system(command)
     # make sure the ssh keys have the proper permissions
     command='chmod 600 ssh_key/ocp-installer'
     os.system(command)
@@ -484,7 +483,10 @@ def launch_refarch_env(console_port=8443,
     os.system(command)
     tags = ",".join(tags)
     if clean is True:
+        # recreate inventory with added nodes to clean up
         tags = 'clean'
+        command='./ocp-on-vmware --create_inventory --no-confirm'
+        os.system(command)
     if tag:
         tags = tag
 
@@ -516,10 +518,11 @@ def launch_refarch_env(console_port=8443,
     rhel_subscription_server=%s \
     rhel_subscription_pool="%s" \
     openshift_sdn=%s \
+    containerized=%s \
     container_storage=%s \
     openshift_hosted_metrics_deploy=%s \
     lb_host=%s \
-    nfs_registry_host=%s \
+    nfs_host=%s \
     nfs_registry_mountpoint=%s \' %s' % ( tags,
                     vcenter_host,
                     vcenter_username,
@@ -544,10 +547,11 @@ def launch_refarch_env(console_port=8443,
                     rhel_subscription_server,
                     rhel_subscription_pool,
                     openshift_sdn,
+                    containerized,
                     container_storage,
                     openshift_hosted_metrics_deploy,
                     lb_host,
-                    nfs_registry_host,
+                    nfs_host,
                     nfs_registry_mountpoint,
                     playbook)
     if verbose > 0:

@@ -167,6 +167,15 @@ Configured values:
 Continue using these values? [y/N]:
 
 ```
+### Adding a node to an existing OCP cluster
+
+### Container Storage
+
+#### Using CNS - Container native storage
+docs go here
+
+#### Using CRS - Container ready storage
+docs go here
 
 ### TLDR: Steps to install Red Hat OpenShift Cluster Platform
 

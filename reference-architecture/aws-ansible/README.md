@@ -16,7 +16,7 @@ The code in this repository handles all of the AWS specific components except fo
 $ subscription-manager repos --enable rhel-7-server-optional-rpms
 $ subscription-manager repos --enable rhel-7-server-ose-3.5-rpms
 $ subscription-manager repos --enable rhel-7-fast-datapath-rpms
-$ yum -y install atomic-openshift-utils ansible
+$ yum -y install atomic-openshift-utils ansible openshift-ansible-playbooks
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 $ yum -y install python2-boto \
                  pyOpenSSL \

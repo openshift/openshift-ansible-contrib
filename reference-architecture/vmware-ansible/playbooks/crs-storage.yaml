@@ -1,0 +1,15 @@
+---
+- include: prod-ose-crs.yaml
+  tags: ['vms']
+
+- include: crs-node-setup.yaml
+  tags: [ 'crs-node-setup' ]
+
+- include: heketi-setup.yaml
+  tags: [ 'heketi-setup']
+
+- include: heketi-ocp.yaml
+  tags: ['heketi-ocp']
+
+- include: cleanup-crs.yaml
+  tags: ['crs-clean']

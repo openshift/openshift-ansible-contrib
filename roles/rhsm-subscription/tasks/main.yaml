@@ -26,6 +26,12 @@
       changed_when: no
       ignore_errors: yes
 
+    - name: Install Katello RPM if set
+      yum:
+        name: "{{ rhsm_katello_url }}"
+        state: present
+      when: rhsm_katello_url is defined and rhsm_katello_url
+
     - name: Register host via Activation key
       redhat_subscription:
         activationkey: "{{ rhsm_activation_key }}"
@@ -47,6 +53,7 @@
     - name: Check if subscription is attached
       command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"
       register: subscription_attached
+      when: rhsm_pool is defined and rhsm_pool
       changed_when: no
 
     - block:
@@ -63,6 +70,12 @@
         - name: Attach subscription
           command: subscription-manager attach --pool="{{ pool_id.stdout }}"
 
-      when: subscription_attached.stdout == ""
+      when: rhsm_pool is defined and rhsm_pool and subscription_attached.stdout == ""
+
+    - name: Install katello-agent RPM if we are using satellite
+      yum:
+        name: katello-agent
+        state: present
+      when: rhsm_katello_url is defined and rhsm_katello_url
 
   when: ansible_distribution == "RedHat"

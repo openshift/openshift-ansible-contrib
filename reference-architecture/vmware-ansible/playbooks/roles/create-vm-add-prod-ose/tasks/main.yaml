@@ -1,4 +1,14 @@
 ---
+- name: Assign app memory for container_storage
+  set_fact:
+    app_memory: 32768
+  when: "'cns' in container_storage"
+
+- name: Assign app memory for container_storage
+  set_fact:
+    app_memory: 8192
+  when: "'cns' not in container_storage"
+
 - name: Create additional production VMs on vCenter
   vmware_guest:
     hostname: "{{ vcenter_host }}"
@@ -12,6 +22,8 @@
     state: poweredon
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
+    hardware:
+      memory_mb: "{{ app_memory }}"
     networks:
     - name: "{{ vm_network }}"
       ip: "{{ item.value.ip4addr }}"

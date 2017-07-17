@@ -1,0 +1,35 @@
+---
+- hosts: localhost
+  gather_facts: True
+  become: False
+  vars_files:
+    - stack_params.yaml
+  pre_tasks:
+    - include: pre_tasks.yml
+  roles:
+    - role: openstack-stack
+
+- name: Refresh Server inventory
+  hosts: localhost
+  connection: local
+  become: False
+  gather_facts: False
+  tasks:
+    - meta: refresh_inventory
+
+- hosts: cluster_hosts
+  name: Wait for the the nodes to come up
+  become: False
+  gather_facts: False
+  tasks:
+    - wait_for_connection:
+
+- hosts: cluster_hosts
+  gather_facts: True
+  tasks:
+    - name: Debug hostvar
+      debug:
+        msg: "{{ hostvars[inventory_hostname] }}"
+        verbosity: 2
+
+- include: post-provision-openstack.yml

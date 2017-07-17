@@ -1,0 +1,60 @@
+---
+- stat: path=~/.bashrc
+  register: bashrc_file
+
+- name: Add heketi_cli_server ENV var
+  lineinfile:
+    dest: ~/.bashrc
+    line: "export HEKETI_CLI_SERVER=http://{{ ansible_default_ipv4.address }}:8080"
+
+- name: Add heketi_cli_user ENV var
+  lineinfile:
+    dest: ~/.bashrc
+    line: "export HEKETI_CLI_USER=admin"
+
+- name: Add heketi_cli_password ENV var
+  lineinfile:
+    dest: ~/.bashrc
+    line: "export HEKETI_CLI_KEY={{ admin_key }}"
+
+- name: source bashrc
+  action: shell source ~/.bashrc
+
+- name: Copy topology config file to single_crs
+  template:
+    src: ../topology.json
+    dest: ~/topology.json
+
+- name: load topology file
+  command: "heketi-cli topology load --json=topology.json"
+  register: load_top
+
+- name: store heketi secret
+  shell: "echo -n {{ admin_key }} | base64"
+  register: stored_secret
+
+- name: assign secret to a variable for use in template
+  set_fact:
+    heketi_secret: "{{ stored_secret.stdout }}"
+
+- name: Copy heketi secret config file
+  template:
+    src: heketi-secret.yaml.j2
+    dest: ~/heketi-secret.yaml
+
+- name: Fetch heketi secret to copy to master
+  fetch:
+    src: ~/heketi-secret.yaml
+    dest: ~/heketi-secret.yaml
+    flat: yes
+
+- name: Copy storage-crs config file
+  template:
+    src: storage-crs.json.j2
+    dest: ~/storage-crs.json
+
+- name: Fetch storage-crs to copy to master
+  fetch:
+    src: ~/storage-crs.json
+    dest: ~/storage-crs.json
+    flat: yes

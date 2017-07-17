@@ -273,6 +273,27 @@
       "metadata" : {
         "description" : "Azure AD Client Secret"
       }
+    },
+    "metrics" : {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata" :{
+        "description" : "Enable OCP metrics"
+      }
+    },
+    "logging" : {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata" :{
+        "description" : "Enable OCP aggregated logging"
+      }
+    },
+    "opslogging" : {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata" :{
+        "description" : "Enable OCP aggregated logging for ops"
+      }
     }
   },
   "variables" : {
@@ -491,12 +512,11 @@
     "infraLbHttpProbeId" : "[concat(variables('infraLbId'),'/probes/httpProbe')]",
     "infraLbHttpsProbeId" : "[concat(variables('infraLbId'),'/probes/httpsProbe')]",
     "infraLbCockpitProbeId" : "[concat(variables('infraLbId'),'/probes/cockpitProbe')]",
-    "persistentVolume1Type" : "Standard_LRS",
-    "newStorageAccountPersistentVolume1" : "[concat('sapv1', resourceGroup().name)]",
-    "newStorageAccountPersistentVolume2" : "[concat('sapv2', resourceGroup().name)]",
+    "StorageAccountPersistentVolume" : "[concat('sapv', resourceGroup().name)]",
+    "StorageAccountLoggingMetricsVolumes" : "[concat('sapvlm', resourceGroup().name)]",
     "registryStorageName" : "[concat('sareg', resourceGroup().name)]",
     "subscriptionId" : "[subscription().subscriptionId]",
-    "persistentVolume2Type" : "Standard_LRS",
+    "StorageAccountLoggingMetricsVolumesVolumeType" : "Premium_LRS",
     "apiVersion" : "2015-06-15",
     "apiVersionCompute" : "2015-06-15",
     "apiVersionNetwork" : "2016-03-30",
@@ -716,6 +736,15 @@
           },
           "rhsmmode" : {
             "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
+          },
+          "metrics" : {
+            "value" : "[parameters('metrics')]"
+          },
+          "logging" : {
+            "value" : "[parameters('logging')]"
+          },
+          "opslogging" : {
+            "value" : "[parameters('opslogging')]"
           }
         }
       }
@@ -1103,11 +1132,11 @@
     },
     {
       "type" : "Microsoft.Storage/storageAccounts",
-      "name" : "[variables('newStorageAccountPersistentVolume1')]",
+      "name" : "[variables('StorageAccountPersistentVolume')]",
       "apiVersion" : "[variables('apiVersion')]",
       "location" : "[variables('location')]",
       "tags" : {
-        "displayName" : "PersistentVolume1StorageAccount"
+        "displayName" : "StorageAccountPersistentVolume"
       },
       "properties" : {
         "accountType" : "[variables('vmSizesMap')[parameters('nodeVmSize')].storageAccountType]"
@@ -1115,14 +1144,14 @@
     },
     {
       "type" : "Microsoft.Storage/storageAccounts",
-      "name" : "[variables('newStorageAccountPersistentVolume2')]",
+      "name" : "[variables('StorageAccountLoggingMetricsVolumes')]",
       "apiVersion" : "[variables('apiVersion')]",
       "location" : "[variables('location')]",
       "tags" : {
-        "displayName" : "PersistentVolume2StorageAccount"
+        "displayName" : "StorageAccountLoggingMetricsVolumes"
       },
       "properties" : {
-        "accountType" : "[variables('persistentVolume2Type')]"
+        "accountType" : "[variables('StorageAccountLoggingMetricsVolumesVolumeType')]"
       }
     },
     {
@@ -1222,25 +1251,6 @@
                 "id" : "[variables('masterLb8443ProbeId')]"
               }
             }
-          },
-          {
-            "name" : "CockpitConsole",
-            "properties" : {
-              "frontendIPConfiguration" : {
-                "id" : "[variables('masterLbFrontEndConfigId')]"
-              },
-              "backendAddressPool" : {
-                "id" : "[variables('masterLbBackendPoolId')]"
-              },
-              "protocol" : "Tcp",
-              "loadDistribution" : "SourceIP",
-              "idleTimeoutInMinutes" : 30,
-              "frontendPort" : 9090,
-              "backendPort" : 9090,
-              "probe" : {
-                "id" : "[variables('masterLbCockpitProbeId')]"
-              }
-            }
           }
         ],
         "probes" : [
@@ -1249,15 +1259,6 @@
             "properties" : {
               "protocol" : "Tcp",
               "port" : 8443,
-              "intervalInSeconds" : 5,
-              "numberOfProbes" : 2
-            }
-          },
-          {
-            "name" : "cockpitProbe",
-            "properties" : {
-              "protocol" : "Tcp",
-              "port" : 9090,
               "intervalInSeconds" : 5,
               "numberOfProbes" : 2
             }
@@ -1326,23 +1327,6 @@
                 "id" : "[variables('infraLbHttpsProbeId')]"
               }
             }
-          },
-          {
-            "name" : "CockpitConsole",
-            "properties" : {
-              "frontendIPConfiguration" : {
-                "id" : "[variables('infraLbFrontEndConfigId')]"
-              },
-              "backendAddressPool" : {
-                "id" : "[variables('infraLbBackendPoolId')]"
-              },
-              "protocol" : "Tcp",
-              "frontendPort" : 9090,
-              "backendPort" : 9090,
-              "probe" : {
-                "id" : "[variables('infraLbCockpitProbeId')]"
-              }
-            }
           }
         ],
         "probes" : [
@@ -1363,15 +1347,6 @@
               "intervalInSeconds" : 5,
               "numberOfProbes" : 2
             }
-          },
-          {
-            "name" : "cockpitProbe",
-            "properties" : {
-              "protocol" : "Tcp",
-              "port" : 9090,
-              "intervalInSeconds" : 5,
-              "numberOfProbes" : 2
-            }
           }
         ]
       }
@@ -1382,9 +1357,9 @@
       "type" : "string",
       "value" : "[concat('https://', reference(resourceGroup().name).dnsSettings.fqdn, ':8443/console')]"
     },
-    "Openshift Master ssh" : {
+    "Bastion ssh" : {
       "type" : "string",
-      "value" : "[concat('ssh -A ', reference('bastion').outputs.pip.value)]"
+      "value" : "[concat('ssh -A ', reference('bastion').outputs.fqdn.value)]"
     },
     "Openshift Router Public IP" : {
       "type" : "string",

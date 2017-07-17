@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: ReplicaSet
+metadata:
+  labels:
+    name: pacman
+  name: pacman
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        name: pacman
+    spec:
+      containers:
+      - image: detiber/pacman:latest
+        name: pacman
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http-server

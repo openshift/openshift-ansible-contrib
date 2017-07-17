@@ -67,7 +67,7 @@
     openshift_hosted_registry_storage_host:
     openshift_hosted_registry_storage_nfs_directory:
     openshift_hosted_registry_storage_volume_name: registry
-    openshift_hosted_registry_storage_volume_size: 30Gi
+    openshift_hosted_registry_storage_volume_size: 20Gi
     openshift_master_metrics_public_url: "https://metrics.{{ osm_default_subdomain }}/hawkular/metrics"
     openshift_hosted_metrics_storage_kind: nfs
     openshift_hosted_metrics_storage_access_modes: ['ReadWriteOnce']

@@ -1,10 +1,5 @@
 #!/bin/bash
 
-domain=$(grep search /etc/resolv.conf | awk '{print $2}')
-
-systemctl enable dnsmasq.service
-systemctl start dnsmasq.service
-
 #yum -y update
 yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion
 
@@ -26,9 +21,10 @@ DATA_SIZE=95%VG
 EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
 EOF
 
-# Disable swap
-sed -i -e 's/ResourceDisk.EnableSwap=y/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf
+sed -i -e 's/ResourceDisk.EnableSwap.*/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf
+sed -i -e 's/ResourceDisk.SwapSizeMB.*/ResourceDisk.SwapSizeMB=0/g' /etc/waagent.conf
 swapoff -a
-systemctl restart waagent.service
+# Do not restart waagent as it will make the installation fail
+#systemctl restart waagent.service
 
 touch /root/.updateok

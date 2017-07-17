@@ -1,0 +1,67 @@
+---
+- hosts: localhost
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    gce_creds_file: "{{ lookup('env', 'GCE_CREDS_FILE') }}"
+    gce_service_account: "{{ lookup('env', 'GCE_SERVICE_ACCOUNT') }}"
+    gce_project_id: "{{ lookup('env', 'GCE_PROJECT_ID') }}"
+  tasks:
+  - debug: var=federation_id
+  - debug: var=gce_creds_file
+  - debug: var=gce_service_account
+  - debug: var=gce_project_id
+
+  - assert:
+      that:
+      - federation_id != ''
+      - gce_creds_file != ''
+      - gce_service_account != ''
+      - gce_project_id != ''
+
+  - add_host:
+      name: "{{ item }}"
+      groups: federation
+    with_items:
+    - "{{ groups['tag_' ~ federation_id] | default([]) }}"
+
+- hosts: federation[0]
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    admin_default_context: "default/{{ inventory_hostname }}:8443/system:admin"
+    federation_context: "{{ federation_id }}"
+  tasks:
+  - name: delete federated namespace
+    command:
+      oc delete namespace pacman --context={{ federation_context }}
+    register: delete_namespace
+    failed_when: false
+
+  - pause:
+      minutes: 5
+
+- hosts: localhost
+  vars:
+    federation_id: "{{ lookup('env', 'FEDERATION_ID') }}"
+    gce_creds_file: "{{ lookup('env', 'GCE_CREDS_FILE') }}"
+    gce_service_account: "{{ lookup('env', 'GCE_SERVICE_ACCOUNT') }}"
+    gce_project_id: "{{ lookup('env', 'GCE_PROJECT_ID') }}"
+  tasks:
+  - gce:
+      name: "{{ item }}"
+      credentials_file: "{{ gce_creds_file }}"
+      service_account_email: "{{ gce_service_account }}"
+      project_id: "{{ gce_project_id }}"
+      zone: "{{ hostvars[item].gce_zone }}"
+      state: absent
+    with_items:
+    - "{{ groups.federation }}"
+    register: gce
+
+  - name: Remove firewall config
+    gce_net:
+      name: default
+      credentials_file: "{{ gce_creds_file }}"
+      service_account_email: "{{ gce_service_account }}"
+      project_id: "{{ gce_project_id }}"
+      fwname: "{{ federation_id }}"
+      state: absent

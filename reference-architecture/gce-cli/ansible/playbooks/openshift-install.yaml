@@ -6,7 +6,7 @@
 
 - include: ../../../../playbooks/prerequisite.yaml
 - include: ../../../../playbooks/openshift-storage.yaml
-- include: openshift-setup.yaml
+- include: ../../../../../openshift-ansible/playbooks/byo/config.yml
 - include: ../../../../playbooks/empty-dir-quota.yaml
 
 - name: post ocp deploy tasks for master nodes
@@ -30,11 +30,6 @@
   hosts: app_nodes
   roles:
   - restrict-gce-metadata
-
-- name: deploy registry
-  hosts: single_master
-  roles:
-  - openshift-registry
 
 - include: validation.yaml
 

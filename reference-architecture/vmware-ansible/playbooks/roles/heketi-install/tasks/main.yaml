@@ -1,0 +1,41 @@
+---
+- name: Install heketi RPMS
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+  - heketi
+  - heketi-client
+
+- name: Copy ssh private key in place
+  template:
+    src: ~/.ssh/id_rsa
+    dest: /etc/heketi/heketi_key
+    owner: heketi
+    group: heketi
+
+- name: Copy ssh private key in place
+  template:
+    src: ~/.ssh/id_rsa.pub
+    dest: /etc/heketi/heketi_key.pub
+    owner: heketi
+    group: heketi
+
+- stat: path=/etc/heketi/heketi.json
+  register: heketi_cfg
+
+- name: Copy heketi configuration in place.
+  template:
+    src: heketi.json.j2
+    dest: /etc/heketi/heketi.json
+  notify: restart heketi
+  when: heketi_cfg.stat.exists == True
+
+- name: restart heketi
+  service: name=heketi state=restarted enabled=yes
+
+- name: Verify heketi is started and configured properly
+  uri:
+    url: http://{{ ansible_default_ipv4.address }}:8080/hello
+    status_code: 200
+    method: GET

@@ -1,0 +1,13 @@
+---
+- hosts: crs
+  gather_facts: yes
+  become: no
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - instance-groups
+  - rhsm-subscription
+  - gluster-rhsm-repos
+  - vmware-guest-setup
+  - gluster-crs-prerequisites
+  - gluster-ports

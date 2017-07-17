@@ -52,6 +52,7 @@ import sys
 @click.option('--rhsm-user', help='DEPRECATED!! Use rhel-subscription-user')
 @click.option('--rhsm-password', help='DEPRECATED!! Use rhel-subscription-pass')
 @click.option('--rhsm-pool', help='DEPRECATED!! Use rhel-subscription-pool')
+@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool Name')
 
 ### Miscellaneous options
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',

@@ -1,0 +1,47 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  roles:
+  # Group systems
+  - instance-groups
+
+- include: ../../../playbooks/prerequisite.yaml
+
+- include: ../../../playbooks/openshift-storage.yaml
+  vars:
+    docker_dev: "/dev/vdb"
+    local_volumes_device: "/dev/vdc"
+
+- name: call openshift includes for installer
+  include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+  vars:
+    debug_level: 2
+    console_port: 8443
+    openshift_debug_level: "{{ debug_level }}"
+    wildcard_zone: "{{app_dns_prefix}}.{{public_hosted_zone}}"
+    osm_cluster_network_cidr: 172.16.0.0/16
+    osm_use_cockpit: false
+    osm_default_node_selector: "role=app"
+    osm_default_subdomain: "{{ wildcard_zone }}"
+    openshift_hosted_registry_replicas: 1
+    openshift_hosted_registry_storage_access_modes: ['ReadWriteMany']
+    openshift_hosted_registry_storage_volume_name: registry
+    openshift_hosted_registry_storage_volume_size: 30Gi
+    openshift_hosted_router_replicas: 2
+    openshift_master_access_token_max_seconds: 2419200
+    openshift_master_api_port: "{{ console_port }}"
+    openshift_master_cluster_method: native
+    openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
+    openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"
+    openshift_master_console_port: "{{ console_port }}"
+    openshift_master_debug_level: "{{ master_debug_level | default(debug_level, true) }}"
+    openshift_master_default_subdomain: "{{osm_default_subdomain}}"
+    openshift_master_logging_public_url: "https://kibana.{{ osm_default_subdomain }}"
+    openshift_master_metrics_public_url: "https://metrics.{{ osm_default_subdomain }}/hawkular/metrics"
+    openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
+    openshift_node_kubelet_args:
+      node-labels:
+      - "role={{ openshift_node_labels.role }}"
+    openshift_registry_selector: "role=infra"
+    openshift_router_selector: "role=infra"
+...

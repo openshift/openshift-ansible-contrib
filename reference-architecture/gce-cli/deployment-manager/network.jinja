@@ -1,8 +1,21 @@
 resources:
 - name: {{ properties['prefix'] }}-network
   properties:
+  {% if properties['gce_vpc_custom_subnet_cidr'] %}
+    autoCreateSubnetworks: false
+  {% else %}
     autoCreateSubnetworks: true
+  {% endif %}
   type: compute.v1.network
+{% if properties['gce_vpc_custom_subnet_cidr'] %}
+- name: {{ properties['prefix'] }}-{{ properties['region'] }}-subnet
+  properties:
+    ipCidrRange: {{ properties['gce_vpc_custom_subnet_cidr'] }}
+    privateIpGoogleAccess: true
+    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    region: {{ properties['region'] }}
+  type: compute.v1.subnetwork
+{% endif %}
 - name: {{ properties['prefix'] }}-icmp
   properties:
     allowed:

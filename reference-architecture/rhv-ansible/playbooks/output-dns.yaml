@@ -1,0 +1,34 @@
+---
+- name: Pull host entries from dynamic inventory
+  hosts: localhost
+  tasks:
+    - name: Clear existing file
+      file:
+        path: ../vm-dns.txt
+        state: absent
+    - name: Recreate file
+      file:
+        path: ../vm-dns.txt
+        state: touch
+    - name: Create NSUpdate style entries for public hosted zone
+      lineinfile:
+        path: ../vm-dns.txt
+        line: "zone {{public_hosted_zone}}"
+        state: present
+    - name: Create wildcard A entry
+      lineinfile:
+        path: ../vm-dns.txt
+        line: "update add *.{{app_dns_prefix}}.{{public_hosted_zone}} 86400 A {{hostvars[item]['ansible_host']}}"
+        state: present
+      with_items:
+        - "{{ groups['tag_openshift_lb'].0 }}"
+    - name: Create host A entries
+      lineinfile:
+        path: ../vm-dns.txt
+        line: "update add {{ item }}.{{public_hosted_zone}} 86400 A {{hostvars[item]['ansible_host']}}"
+        state: present
+      with_items:
+        - "{{ groups['tag_openshift_master'] }}"
+        - "{{ groups['tag_openshift_infra'] }}"
+        - "{{ groups['tag_openshift_node'] }}"
+        - "{{ groups['tag_openshift_lb'] }}"

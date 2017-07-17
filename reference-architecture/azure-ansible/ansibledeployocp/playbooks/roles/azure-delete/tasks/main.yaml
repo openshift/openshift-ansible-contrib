@@ -1,0 +1,6 @@
+---
+- name: Destroy Azure Deploy
+  azure_rm_deployment:
+    state: absent
+    location: "{{ location }}"
+    resource_group_name: "{{ resourcegroupname }}"
