@@ -140,7 +140,7 @@ clusters:
 #qcow_url: https://satellite."{{ public_hosted_zone }}"/pub/rhel-guest-image-7.3-35.x86_64.qcow2
 template_cluster: Default
 template_name: rhel7
-template_memory: 1GiB
+template_memory: 4GiB
 template_cpu: 1
 template_disk_size: 20GiB
 template_nics:
@@ -153,29 +153,29 @@ master_vm:
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 1GiB
-  cores: 1
+  memory: 4GiB
+  cores: 2
   high_availability: true
   disks:
-    - size: 5GiB
+    - size: 20GiB
+      name: docker_disk
       storage_domain: my_data_storage
       interface: virtio
-      name: etcd_disk
 
 node_vm:
   cluster: Default
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 1GiB
-  cores: 1
+  memory: 4GiB
+  cores: 2
   disks:
-    - size: 10GiB
-      name: origin_disk
+    - size: 20GiB
+      name: docker_disk
       storage_domain: my_data_storage
       interface: virtio
     - size: 10GiB
-      name: data_disk
+      name: localvol_disk
       storage_domain: my_data_storage
       interface: virtio
 
@@ -184,16 +184,16 @@ infra_vm:
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 1GiB
-  cores: 1
+  memory: 4GiB
+  cores: 2
   high_availability: true
   disks:
-    - size: 10GiB
-      name: origin_disk
+    - size: 20GiB
+      name: docker_disk
       storage_domain: my_data_storage
       interface: virtio
     - size: 10GiB
-      name: data_disk
+      name: localvol_disk
       storage_domain: my_data_storage
       interface: virtio
 
@@ -239,3 +239,27 @@ vms:
   - name: openshift-lb
     tag: openshift_lb
     profile: "{{ lb_vm }}"
+
+affinity_groups:
+  - name: masters_ag
+    vm_enforcing: false
+    vm_rule: negative
+    vms:
+      - openshift-master-0
+      - openshift-master-1
+      - openshift-master-2
+  - name: infra_ag
+    vm_enforcing: false
+    vm_rule: negative
+    vms:
+      - openshift-infra-0
+      - openshift-infra-1
+      - openshift-lb
+
+  - name: app_ag
+    vm_enforcing: false
+    vm_rule: negative
+    vms:
+      - openshift-node-0
+      - openshift-node-1
+...
