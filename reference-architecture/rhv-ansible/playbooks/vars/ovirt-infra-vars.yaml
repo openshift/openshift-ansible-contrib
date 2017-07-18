@@ -20,7 +20,7 @@ data_center_name: Default
 # Clusters
 ###########################
 clusters:
-  - name: Default
+  - name: "{{ rhv_cluster }}"
     cpu_type: Intel Conroe Family
     profile: Default
     ha_reservation: true
@@ -31,15 +31,15 @@ clusters:
 #hosts:
 #  - name: hypervisor200
 #    address: 192.168.155.200
-#    cluster: Default
+#    cluster: "{{ rhv_cluster }}"
 #    password: changeme
 #  - name: hypervisor201
 #    address: 192.168.155.201
-#    cluster: Default
+#    cluster: "{{ rhv_cluster }}"
 #    password: changeme
 #  - name: hypervisor202
 #    address: 192.168.155.202
-#    cluster: Default
+#    cluster: "{{ rhv_cluster }}"
 #    password: changeme
 
 ###########################
@@ -138,7 +138,7 @@ clusters:
 ##########################
 #qcow_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
 #qcow_url: https://satellite."{{ public_hosted_zone }}"/pub/rhel-guest-image-7.3-35.x86_64.qcow2
-template_cluster: Default
+template_cluster: "{{ rhv_cluster }}"
 template_name: rhel7
 template_memory: 4GiB
 template_cpu: 1
@@ -149,7 +149,7 @@ template_nics:
     interface: virtio
 
 master_vm:
-  cluster: Default
+  cluster: "{{ rhv_cluster }}"
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
@@ -163,7 +163,7 @@ master_vm:
       interface: virtio
 
 node_vm:
-  cluster: Default
+  cluster: "{{ rhv_cluster }}"
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
@@ -180,7 +180,7 @@ node_vm:
       interface: virtio
 
 infra_vm:
-  cluster: Default
+  cluster: "{{ rhv_cluster }}"
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
@@ -198,7 +198,7 @@ infra_vm:
       interface: virtio
 
 lb_vm:
-  cluster: Default
+  cluster: "{{ rhv_cluster }}"
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
@@ -242,6 +242,7 @@ vms:
 
 affinity_groups:
   - name: masters_ag
+    cluster: "{{ rhv_cluster }}"
     vm_enforcing: false
     vm_rule: negative
     vms:
@@ -249,6 +250,7 @@ affinity_groups:
       - openshift-master-1
       - openshift-master-2
   - name: infra_ag
+    cluster: "{{ rhv_cluster }}"
     vm_enforcing: false
     vm_rule: negative
     vms:
@@ -257,6 +259,7 @@ affinity_groups:
       - openshift-lb
 
   - name: app_ag
+    cluster: "{{ rhv_cluster }}"
     vm_enforcing: false
     vm_rule: negative
     vms:
