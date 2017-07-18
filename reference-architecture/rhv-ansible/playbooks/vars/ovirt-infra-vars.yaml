@@ -243,7 +243,7 @@ vms:
 affinity_groups:
   - name: masters_ag
     cluster: "{{ rhv_cluster }}"
-    vm_enforcing: false
+    vm_enforcing: true
     vm_rule: negative
     vms:
       - openshift-master-0
@@ -251,7 +251,7 @@ affinity_groups:
       - openshift-master-2
   - name: infra_ag
     cluster: "{{ rhv_cluster }}"
-    vm_enforcing: false
+    vm_enforcing: true
     vm_rule: negative
     vms:
       - openshift-infra-0
