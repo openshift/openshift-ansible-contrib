@@ -42,6 +42,7 @@
     openshift_node_kubelet_args:
       node-labels:
       - "role={{ openshift_node_labels.role }}"
+    openshift_node_local_quota_per_fsgroup: 512Mi
     openshift_registry_selector: "role=infra"
     openshift_router_selector: "role=infra"
 ...
