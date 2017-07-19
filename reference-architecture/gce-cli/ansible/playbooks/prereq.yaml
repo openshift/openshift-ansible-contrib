@@ -9,5 +9,6 @@
   - gcp-ssh-key
   - role: rhel-image
     when: openshift_deployment_type == 'openshift-enterprise'
+  - role: empty-image
   - role: deployment-create
     deployment_name: network

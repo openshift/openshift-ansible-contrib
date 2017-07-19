@@ -1,0 +1,7 @@
+---
+empty_image: empty-1g
+empty_image_raw: disk.raw
+empty_image_archive: '{{ empty_image }}.tar.gz'
+empty_image_bucket: gs://{{ gcloud_project }}-empty-raw-image
+empty_image_in_bucket: '{{ empty_image_bucket }}/{{ empty_image_archive }}'
+empty_image_gce: '{{ empty_image }}'

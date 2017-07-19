@@ -9,8 +9,6 @@
   - dns-records-delete
   - role: deployment-delete
     deployment_name: core
-  - role: deployment-delete
-    deployment_name: add-disks
   - ssl-certificate-delete
   - role: deployment-delete
     deployment_name: tmp-instance
@@ -24,4 +22,6 @@
     deployment_name_with_prefix: '{{ prefix }}-{{ deployment_name }}{{ "-origin" if openshift_deployment_type == "origin" }}'
     when: delete_gold_image | bool
   - role: rhel-image-delete
+    when: delete_image | bool
+  - role: empty-image-delete
     when: delete_image | bool

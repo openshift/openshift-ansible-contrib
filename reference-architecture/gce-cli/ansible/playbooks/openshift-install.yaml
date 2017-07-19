@@ -5,7 +5,6 @@
   - instance-groups
 
 - include: ../../../../playbooks/prerequisite.yaml
-- include: ../../../../playbooks/openshift-storage.yaml
 - include: ../../../../../openshift-ansible/playbooks/byo/config.yml
 - include: ../../../../playbooks/empty-dir-quota.yaml
 

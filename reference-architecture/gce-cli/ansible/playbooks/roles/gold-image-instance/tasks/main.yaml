@@ -54,6 +54,18 @@
     - google-compute-engine-init
     when: openshift_deployment_type == 'openshift-enterprise'
 
+  - name: install cloud-init
+    package:
+      name: cloud-init
+      state: present
+
+  - name: add disk_setup to cloud_config_modules
+    lineinfile:
+      dest: /etc/cloud/cloud.cfg
+      insertafter: '^cloud_config_modules:$'
+      line: ' - disk_setup'
+      state: present
+
   - name: clear yum cache
     command: yum clean all
 

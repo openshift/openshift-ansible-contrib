@@ -1,0 +1,6 @@
+---
+- name: delete empty gce image
+  gce_img:
+    name: '{{ empty_image_gce }}'
+    state: absent
+  ignore_errors: true
