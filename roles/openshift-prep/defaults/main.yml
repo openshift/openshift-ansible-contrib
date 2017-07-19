@@ -8,7 +8,6 @@ required_packages:
   - net-tools
   - bind-utils
   - bridge-utils
-
 debug_packages:
   - bash-completion
   - vim-enhanced
