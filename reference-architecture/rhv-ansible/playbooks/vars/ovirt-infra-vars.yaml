@@ -261,6 +261,7 @@ affinity_groups:
       - openshift-master-0
       - openshift-master-1
       - openshift-master-2
+    wait: true
   - name: infra_ag
     cluster: "{{ rhv_cluster }}"
     vm_enforcing: true
@@ -269,6 +270,7 @@ affinity_groups:
       - openshift-infra-0
       - openshift-infra-1
       - openshift-lb
+    wait: true
 
   - name: app_ag
     cluster: "{{ rhv_cluster }}"
