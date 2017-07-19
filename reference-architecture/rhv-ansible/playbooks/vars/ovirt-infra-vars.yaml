@@ -153,12 +153,16 @@ master_vm:
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 4GiB
+  memory: 16GiB
   cores: 2
   high_availability: true
   disks:
-    - size: 20GiB
+    - size: 40GiB
       name: docker_disk
+      storage_domain: my_data_storage
+      interface: virtio
+    - size: 40GiB
+      name: etcd_disk
       storage_domain: my_data_storage
       interface: virtio
 
@@ -167,14 +171,14 @@ node_vm:
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 4GiB
-  cores: 2
+  memory: 8GiB
+  cores: 1
   disks:
     - size: 20GiB
       name: docker_disk
       storage_domain: my_data_storage
       interface: virtio
-    - size: 10GiB
+    - size: 15GiB
       name: localvol_disk
       storage_domain: my_data_storage
       interface: virtio
@@ -184,7 +188,7 @@ infra_vm:
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 4GiB
+  memory: 8GiB
   cores: 2
   high_availability: true
   disks:
@@ -192,7 +196,7 @@ infra_vm:
       name: docker_disk
       storage_domain: my_data_storage
       interface: virtio
-    - size: 10GiB
+    - size: 15GiB
       name: localvol_disk
       storage_domain: my_data_storage
       interface: virtio
@@ -202,10 +206,18 @@ lb_vm:
   ssh_key: "{{ root_ssh_key }}"
   domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 1GiB
+  memory: 8GiB
   cores: 1
   high_availability: true
-  disks: []
+  disks:
+    - size: 20GiB
+      name: docker_disk
+      storage_domain: my_data_storage
+      interface: virtio
+    - size: 15GiB
+      name: localvol_disk
+      storage_domain: my_data_storage
+      interface: virtio
 
 vms:
   # Node VMs
