@@ -14,7 +14,7 @@ import sys
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', type=click.Choice(['origin', 'openshift-enterprise']),  help='OpenShift deployment type',
               show_default=True)
-@click.option('--openshift-sdn', default='redhat/openshift-ovs-subnet', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
+@click.option('--openshift-sdn', default='redhat/openshift-ovs-multitenant', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
               show_default=True)
 
 ### AWS/EC2 options
@@ -27,6 +27,8 @@ import sys
 @click.option('--node-instance-type', default='t2.large', help='ec2 instance type',
               show_default=True)
 @click.option('--app-instance-type', default='t2.large', help='ec2 instance type',
+              show_default=True)
+@click.option('--app-instance-count', default='2', help='Deploy x number of Application nodes',
               show_default=True)
 @click.option('--bastion-instance-type', default='t2.micro', help='ec2 instance type',
               show_default=True)
