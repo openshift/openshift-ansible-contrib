@@ -12,7 +12,7 @@ import sys
               show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', help='OpenShift deployment type',
               show_default=True)
-@click.option('--openshift-sdn', default='redhat/openshift-ovs-subnet', type=click.Choice(['redhat/openshift-ovs-subnet', 'redhat/openshift-ovs-multitenant']),  help='OpenShift SDN',
+@click.option('--openshift-sdn', default='redhat/openshift-ovs-multitenant', type=click.Choice(['redhat/openshift-ovs-subnet', 'redhat/openshift-ovs-multitenant']),  help='OpenShift SDN',
               show_default=True)
 
 ### AWS/EC2 options
@@ -45,9 +45,13 @@ import sys
 @click.option('--public-hosted-zone', help='hosted zone for accessing the environment')
 
 ### Subscription and Software options
-@click.option('--rhsm-user', help='Red Hat Subscription Management User')
-@click.option('--rhsm-password', help='Red Hat Subscription Management Password',
+@click.option('--rhel-subscription-user', help='Red Hat Subscription Management User')
+@click.option('--rhel-subscription-pass', help='Red Hat Subscription Management Password',
                 hide_input=True,)
+@click.option('--rhel-subscription-pool', help='Red Hat Subscription Management Pool ID or Subscription Name for OpenShift')
+@click.option('--rhsm-user', help='DEPRECATED!! Use rhel-subscription-user')
+@click.option('--rhsm-password', help='DEPRECATED!! Use rhel-subscription-pass')
+@click.option('--rhsm-pool', help='DEPRECATED!! Use rhel-subscription-pool')
 @click.option('--rhsm-pool', help='Red Hat Subscription Management Pool Name')
 
 ### Miscellaneous options
@@ -72,6 +76,9 @@ def launch_refarch_env(region=None,
                     public_hosted_zone=None,
                     deployment_type=None,
                     console_port=443,
+                    rhel_subscription_user=None,
+                    rhel_subscription_pass=None,
+                    rhel_subscription_pool=None,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_pool=None,
@@ -90,6 +97,18 @@ def launch_refarch_env(region=None,
                     use_cloudformation_facts=False,
                     verbose=0):
 
+  if rhsm_user is not None:
+    rhel_subscription_user = rhsm_user
+    click.echo('\nrhsm_user is deprecated and will be removed in the future in favor of rhel_subscription_user\n')
+
+  if rhsm_user is not None:
+    rhel_subscription_pass = rhsm_password
+    click.echo('\nrhsm_password is deprecated and will be removed in the future in favor of rhel_subscription_pass\n')
+
+  if rhsm_pool is not None:
+    rhel_subscription_pool = rhsm_pool
+    click.echo('\nrhsm_pool is deprecated and will be removed in the future in favor of rhel_subscription_pool\n')
+
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
@@ -105,12 +124,12 @@ def launch_refarch_env(region=None,
     keypair = click.prompt('A SSH keypair must be specified or created')
 
   # If the user already provided values, don't bother asking again
-  if deployment_type in ['openshift-enterprise'] and rhsm_user is None:
-    rhsm_user = click.prompt("RHSM username?")
-  if deployment_type in ['openshift-enterprise'] and rhsm_password is None:
-    rhsm_password = click.prompt("RHSM password?", hide_input=True)
-  if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
-    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name for OpenShift?")
+  if deployment_type in ['openshift-enterprise'] and rhel_subscription_user is None:
+    rhel_subscription_user = click.prompt("RHSM username?")
+  if deployment_type in ['openshift-enterprise'] and rhel_subscription_pass is None:
+    rhel_subscription_pass = click.prompt("RHSM password?", hide_input=True)
+  if deployment_type in ['openshift-enterprise'] and rhel_subscription_pool is None:
+    rhel_subscription_pool = click.prompt("RHSM Pool ID or Subscription Name for OpenShift?")
 
   # Prompt for vars if they are not defined
   if use_cloudformation_facts and iam_role is None:
@@ -165,9 +184,9 @@ def launch_refarch_env(region=None,
       click.echo('\tdeployment_type: %s' % deployment_type)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
       click.echo('\tconsole port: %s' % console_port)
-      click.echo('\trhsm_user: %s' % rhsm_user)
-      click.echo('\trhsm_password: *******')
-      click.echo('\trhsm_pool: %s' % rhsm_pool)
+      click.echo('\trhel_subscription_user: %s' % rhel_subscription_user)
+      click.echo('\trhel_subscription_pass: *******')
+      click.echo('\trhel_subscription_pool: %s' % rhel_subscription_pool)
       click.echo('\tcontainerized: %s' % containerized)
       click.echo('\texisting_stack: %s' % existing_stack)
       click.echo('\tSubnets, Security Groups, and IAM Roles will be gather from the CloudFormation')
@@ -191,9 +210,9 @@ def launch_refarch_env(region=None,
       click.echo('\tdeployment_type: %s' % deployment_type)
       click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
       click.echo('\tconsole port: %s' % console_port)
-      click.echo('\trhsm_user: %s' % rhsm_user)
-      click.echo('\trhsm_password: *******')
-      click.echo('\trhsm_pool: %s' % rhsm_pool)
+      click.echo('\trhel_subscription_user: %s' % rhel_subscription_user)
+      click.echo('\trhel_subscription_pass: *******')
+      click.echo('\trhel_subscription_pool: %s' % rhel_subscription_pool)
       click.echo('\tcontainerized: %s' % containerized)
       click.echo('\tiam_role: %s' % iam_role)
       click.echo('\texisting_stack: %s' % existing_stack)
@@ -231,9 +250,9 @@ def launch_refarch_env(region=None,
     	public_hosted_zone=%s \
         deployment_type=%s \
         console_port=%s \
-        rhsm_user=%s \
-        rhsm_password=%s \
-        rhsm_pool="%s" \
+        rhel_subscription_user=%s \
+        rhel_subscription_pass=%s \
+        rhel_subscription_pool="%s" \
         containerized=%s \
         node_type=gluster \
         key_path=/dev/null \
@@ -251,9 +270,9 @@ def launch_refarch_env(region=None,
                     	public_hosted_zone,
                     	deployment_type,
                         console_port,
-                    	rhsm_user,
-                    	rhsm_password,
-                    	rhsm_pool,
+                    	rhel_subscription_user,
+                    	rhel_subscription_pass,
+                    	rhel_subscription_pool,
                     	containerized,
                     	create_key,
                     	create_vpc,
@@ -277,9 +296,9 @@ def launch_refarch_env(region=None,
     	  public_hosted_zone=%s \
     	  deployment_type=%s \
           console_port=%s \
-    	  rhsm_user=%s \
-    	  rhsm_password=%s \
-    	  rhsm_pool="%s" \
+    	  rhel_subscription_user=%s \
+    	  rhel_subscription_pass=%s \
+    	  rhel_subscription_pool="%s" \
     	  containerized=%s \
     	  node_type=gluster \
     	  iam_role=%s \
@@ -302,9 +321,9 @@ def launch_refarch_env(region=None,
                     	public_hosted_zone,
                     	deployment_type,
                         console_port,
-                    	rhsm_user,
-                    	rhsm_password,
-                    	rhsm_pool,
+                    	rhel_subscription_user,
+                    	rhel_subscription_pass,
+                    	rhel_subscription_pool,
                     	containerized,
                     	iam_role,
                     	create_key,

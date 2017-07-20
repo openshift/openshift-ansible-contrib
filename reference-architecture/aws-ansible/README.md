@@ -88,8 +88,8 @@ When installing into an new AWS environment perform the following.   This will c
 
 **OpenShift Container Platform**
 ```
-./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --rhsm-user=rh-user --rhsm-password=password \
---public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" \
+./ose-on-aws.py --keypair=OSE-key --create-key=yes --key-path=/path/to/ssh/key.pub --rhel-subscription-user=rh-user --rhel-subscription-password=password \
+--public-hosted-zone=sysdeseng.com --rhel-subscription-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" \
 --github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
 --github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc --deploy-openshift-metrics=true
 
@@ -105,7 +105,7 @@ If the SSH key that you plan on using in AWS already exists then perform the fol
 
 **OpenShift Container Platform**
 ```
-./ose-on-aws.py --keypair=OSE-key --rhsm-user=rh-user --rhsm-password=password --public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core"
+./ose-on-aws.py --keypair=OSE-key --rhel-subscription-user=rh-user --rhel-subscription-password=password --public-hosted-zone=sysdeseng.com --rhel-subscription-pool="Red Hat OpenShift Container Platform, Standard, 2-Core"
 
 ```
 
@@ -121,8 +121,8 @@ If installing OpenShift Container Platform or OpenShift Origin into an existing 
 
 **OpenShift Container Platform**
 ```
-./ose-on-aws.py --create-vpc=no --byo-bastion=yes --keypair=OSE-key --rhsm-user=rh-user --rhsm-password=password \
---public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --bastion-sg=sg-a32fa3 \
+./ose-on-aws.py --create-vpc=no --byo-bastion=yes --keypair=OSE-key --rhel-subscription-user=rh-user --rhel-subscription-password=password \
+--public-hosted-zone=sysdeseng.com --rhel-subscription-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --bastion-sg=sg-a32fa3 \
 --github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
 --github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
@@ -140,8 +140,8 @@ The same greenfield and brownfield deployment steps can be used to launch anothe
 
 **OpenShift Container Platform**
 ```
-./ose-on-aws.py --rhsm-user=rh-user --public-hosted-zone=rcook-aws.sysdeseng.com --keypair=OSE-key \
---rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --keypair=OSE-key --rhsm-password=password \
+./ose-on-aws.py --rhel-subscription-user=rh-user --public-hosted-zone=rcook-aws.sysdeseng.com --keypair=OSE-key \
+--rhel-subscription-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" --keypair=OSE-key --rhel-subscription-password=password \
 --stack-name=prod --github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
 --github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
@@ -166,16 +166,16 @@ example Instance Profile would be `OpenShift-Infra-NodeInstanceProfile-TNAGMYGY9
 If the Reference Architecture deployment is >= 3.5
 
 ```
-$ ./add-node.py --existing-stack=dev --rhsm-user=rhsm-user --rhsm-password=password
---public-hosted-zone=sysdeseng.com --keypair=OSE-key --rhsm-pool="Red Hat OpenShift Container Platform, Premium, 2-Core"
+$ ./add-node.py --existing-stack=dev --rhel-subscription-user=rhel-subscription-user --rhel-subscription-password=password
+--public-hosted-zone=sysdeseng.com --keypair=OSE-key --rhel-subscription-pool="Red Hat OpenShift Container Platform, Premium, 2-Core"
 --use-cloudformation-facts --shortname=ose-infra-node04 --node-type=infra --subnet-id=subnet-0a962f4
 ```
 
 If the Reference Architecture deployment was performed before 3.5.
 
 ```
-$ ./add-node.py --rhsm-user=user --rhsm-password=password --public-hosted-zone=sysdeseng.com
---keypair=OSE-key --rhsm-pool="Red Hat OpenShift Container Platform, Premium, 2-Core" --node-type=infra
+$ ./add-node.py --rhel-subscription-user=user --rhel-subscription-password=password --public-hosted-zone=sysdeseng.com
+--keypair=OSE-key --rhel-subscription-pool="Red Hat OpenShift Container Platform, Premium, 2-Core" --node-type=infra
 --iam-role=OpenShift-Infra-NodeInstanceProfile-TNAGMYGY9W8K --node-sg=sg-309f9a4a --infra-sg=sg-289f9a52
 --shortname=ose-infra-node04 --subnet-id=subnet-0a962f4 --infra-elb-name=OpenShift-InfraElb-1N0DZ3CFCAHLV
 ```
