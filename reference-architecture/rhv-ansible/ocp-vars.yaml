@@ -51,7 +51,7 @@ containerized: false
 public_hosted_zone: example.com
 app_dns_prefix: apps
 load_balancer_hostname: openshift-lb.example.com
-openshift_master_cluster_hostname: openshift.example.com
+openshift_master_cluster_hostname: openshift-lb.example.com
 openshift_master_cluster_public_hostname: openshift.example.com
 
 # NFS for registry storage
