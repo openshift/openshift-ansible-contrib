@@ -2,18 +2,34 @@
 - hosts: localhost
   gather_facts: yes
   roles:
-  # Group systems
-  - instance-groups
+    - instance-groups
+  tags:
+    - always
 
 - include: ../../../playbooks/prerequisite.yaml
+  tags:
+    - pre
+    - rhsm
 
 - include: ../../../playbooks/openshift-storage.yaml
   vars:
     docker_dev: "/dev/vdb"
     local_volumes_device: "/dev/vdc"
+  tags:
+    - pre
+    - storage
+
+- hosts: masters
+  roles:
+    - {"role": docker-storage-setup, "docker_dev": "/dev/vdb"}
+  tags:
+    - pre
+    - storage
 
 - name: call openshift includes for installer
   include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+  tags:
+    - byo
   vars:
     debug_level: 2
     console_port: 8443
@@ -41,7 +57,7 @@
     openshift_node_debug_level: "{{ node_debug_level | default(debug_level, true) }}"
     openshift_node_kubelet_args:
       node-labels:
-      - "role={{ openshift_node_labels.role }}"
+        - "role={{ openshift_node_labels.role }}"
     openshift_registry_selector: "role=infra"
     openshift_router_selector: "role=infra"
 ...

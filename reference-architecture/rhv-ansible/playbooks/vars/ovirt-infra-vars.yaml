@@ -2,7 +2,7 @@
 ###########################
 # REST API variables
 ###########################
-#engine_url: https://engine.example.com/ovirt-engine/api
+#engine_url: https://engine."{{ public_hosted_zone }}"/ovirt-engine/api
 #engine_user: admin@internal
 #engine_password: changeme
 #engine_cafile: /etc/pki/ovirt-engine/ca.pem
@@ -20,9 +20,10 @@ data_center_name: Default
 # Clusters
 ###########################
 clusters:
-  - name: Default
+  - name: "{{ rhv_cluster }}"
     cpu_type: Intel Conroe Family
     profile: Default
+    ha_reservation: true
 
 ###########################
 # Hosts
@@ -30,15 +31,15 @@ clusters:
 #hosts:
 #  - name: hypervisor200
 #    address: 192.168.155.200
-#    cluster: Default
+#    cluster: "{{ rhv_cluster }}"
 #    password: changeme
 #  - name: hypervisor201
 #    address: 192.168.155.201
-#    cluster: Default
+#    cluster: "{{ rhv_cluster }}"
 #    password: changeme
 #  - name: hypervisor202
 #    address: 192.168.155.202
-#    cluster: Default
+#    cluster: "{{ rhv_cluster }}"
 #    password: changeme
 
 ###########################
@@ -136,10 +137,10 @@ clusters:
 # VM infra
 ##########################
 #qcow_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
-#qcow_url: https://satellite.example.com/pub/rhel-guest-image-7.3-35.x86_64.qcow2
-template_cluster: Default
+#qcow_url: https://satellite."{{ public_hosted_zone }}"/pub/rhel-guest-image-7.3-35.x86_64.qcow2
+template_cluster: "{{ rhv_cluster }}"
 template_name: rhel7
-template_memory: 1GiB
+template_memory: 4GiB
 template_cpu: 1
 template_disk_size: 20GiB
 template_nics:
@@ -148,43 +149,75 @@ template_nics:
     interface: virtio
 
 master_vm:
-  cluster: Default
+  cluster: "{{ rhv_cluster }}"
   ssh_key: "{{ root_ssh_key }}"
-  domain: example.com
+  domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 1GiB
-  cores: 1
+  memory: 16GiB
+  cores: 2
+  high_availability: true
   disks:
-    - size: 5GiB
+    - size: 40GiB
+      name: docker_disk
       storage_domain: my_data_storage
       interface: virtio
+    - size: 40GiB
       name: etcd_disk
+      storage_domain: my_data_storage
+      interface: virtio
 
 node_vm:
-  cluster: Default
+  cluster: "{{ rhv_cluster }}"
   ssh_key: "{{ root_ssh_key }}"
-  domain: example.com
+  domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 1GiB
+  memory: 8GiB
   cores: 1
   disks:
-    - size: 10GiB
-      name: origin_disk
+    - size: 20GiB
+      name: docker_disk
       storage_domain: my_data_storage
       interface: virtio
-    - size: 10GiB
-      name: data_disk
+    - size: 15GiB
+      name: localvol_disk
+      storage_domain: my_data_storage
+      interface: virtio
+
+infra_vm:
+  cluster: "{{ rhv_cluster }}"
+  ssh_key: "{{ root_ssh_key }}"
+  domain: "{{ public_hosted_zone }}"
+  template: rhel7
+  memory: 8GiB
+  cores: 2
+  high_availability: true
+  disks:
+    - size: 20GiB
+      name: docker_disk
+      storage_domain: my_data_storage
+      interface: virtio
+    - size: 15GiB
+      name: localvol_disk
       storage_domain: my_data_storage
       interface: virtio
 
 lb_vm:
-  cluster: Default
+  cluster: "{{ rhv_cluster }}"
   ssh_key: "{{ root_ssh_key }}"
-  domain: example.com
+  domain: "{{ public_hosted_zone }}"
   template: rhel7
-  memory: 1GiB
+  memory: 8GiB
   cores: 1
-  disks: []
+  high_availability: true
+  disks:
+    - size: 20GiB
+      name: docker_disk
+      storage_domain: my_data_storage
+      interface: virtio
+    - size: 15GiB
+      name: localvol_disk
+      storage_domain: my_data_storage
+      interface: virtio
 
 vms:
   # Node VMs
@@ -198,10 +231,10 @@ vms:
   # Infra VMs
   - name: openshift-infra-0
     tag: openshift_infra
-    profile: "{{ node_vm }}"
+    profile: "{{ infra_vm }}"
   - name: openshift-infra-1
     tag: openshift_infra
-    profile: "{{ node_vm }}"
+    profile: "{{ infra_vm }}"
 
   # Master VMs
   - name: openshift-master-0
@@ -218,3 +251,32 @@ vms:
   - name: openshift-lb
     tag: openshift_lb
     profile: "{{ lb_vm }}"
+
+affinity_groups:
+  - name: masters_ag
+    cluster: "{{ rhv_cluster }}"
+    vm_enforcing: true
+    vm_rule: negative
+    vms:
+      - openshift-master-0
+      - openshift-master-1
+      - openshift-master-2
+    wait: true
+  - name: infra_ag
+    cluster: "{{ rhv_cluster }}"
+    vm_enforcing: true
+    vm_rule: negative
+    vms:
+      - openshift-infra-0
+      - openshift-infra-1
+      - openshift-lb
+    wait: true
+
+  - name: app_ag
+    cluster: "{{ rhv_cluster }}"
+    vm_enforcing: false
+    vm_rule: negative
+    vms:
+      - openshift-node-0
+      - openshift-node-1
+...

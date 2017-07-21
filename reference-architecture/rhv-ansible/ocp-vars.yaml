@@ -15,6 +15,9 @@ engine_cafile: ../ca.pem
 #qcow_url: https://satellite.example.com/pub/rhel-guest-image-7.3-35.x86_64.qcow2
 qcow_url:
 
+# Name of cluster to install on
+rhv_cluster: Default
+
 ### Choose a subscription method:
 ## For subscriptions to Satellite:
 #
@@ -48,7 +51,7 @@ containerized: false
 public_hosted_zone: example.com
 app_dns_prefix: apps
 load_balancer_hostname: openshift-lb.example.com
-openshift_master_cluster_hostname: openshift.example.com
+openshift_master_cluster_hostname: openshift-lb.example.com
 openshift_master_cluster_public_hostname: openshift.example.com
 
 # NFS for registry storage

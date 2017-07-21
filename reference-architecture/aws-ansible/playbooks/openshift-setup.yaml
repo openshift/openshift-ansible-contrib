@@ -58,4 +58,7 @@
     openshift_hosted_registry_enforcequota: true
     openshift_hosted_metrics_storage_kind: dynamic
     openshift_metrics_hawkular_hostname: "hawkular-metrics.apps.{{ public_hosted_zone }}"
-    openshift_hosted_metrics_storage_volume_size: 20Gi
+    openshift_hosted_metrics_storage_volume_size: "{{ openshift_hosted_metrics_storage_volume_size }}"
+    openshift_metrics_hawkular_nodeselector: {"role":"infra"}
+    openshift_metrics_cassandra_nodeselector: {"role":"infra"}
+    openshift_metrics_heapster_nodeselector: {"role":"infra"}

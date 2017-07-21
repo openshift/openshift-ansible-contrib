@@ -184,7 +184,7 @@ def get_dict_of_struct(connection, vm):
         'devices': dict(
             (device.name, [ip.address for ip in device.ips]) for device in devices if device.ips
         ),
-        'ansible_host': next((device.ips[0].address for device in devices if device.ips), None)
+        'ansible_host': next((device.ips[0].address for device in devices if device.ips and device.name == "eth0"), None)
     }
 
 
