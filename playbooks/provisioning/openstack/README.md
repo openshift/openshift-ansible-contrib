@@ -42,7 +42,7 @@ Alternatively you can install directly from github:
 Notes:
 * this assumes we're in the directory that contains the clonned 
 openshift-ansible-contrib repo in its root path
-* when trying to install a different version, the previous one must be removed
+* when trying to install a different version, the previous one must be removed first
 (`infra-ansible` directory from [roles](https://github.com/openshift/openshift-ansible-contrib/tree/master/roles))
 because currently, even if there are differences between the two versions, the installation is skipped if
 any version exists
