@@ -160,6 +160,7 @@ subscription-manager repos --disable="*"
 subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-fast-datapath-rpms"
 subscription-manager repos --enable="rhel-7-server-ose-3.5-rpms"
 yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs qemu-img
+yum -y install --enablerepo="epel" jq
 touch /root/.updateok
 
 # Create azure.conf file
@@ -396,11 +397,9 @@ cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
   - name: Install the OCP client
     yum: name=atomic-openshift-clients state=latest
   - name: Update all hosts
-    command: yum -y update
-    async: 1200
-    poll: 10
+    yum: name="*" state=latest
   - name: Wait for Things to Settle
-    pause:  minutes=5
+    pause: minutes=2
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/postinstall.yml
@@ -483,6 +482,9 @@ echo "Setup Azure PV for metrics & logging"
 /home/${AUSERNAME}/create_azure_storage_container.sh sapvlm${RESOURCEGROUP} "loggingmetricspv"
 
 oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
+# Workaround for BZ1469358
+ansible master1 -b -m fetch -a "src=/etc/origin/master/ca.serial.txt dest=/tmp/ca.serial.txt flat=true"
+ansible masters -b -m copy -a "src=/tmp/ca.serial.txt dest=/etc/origin/master/ca.serial.txt mode=644 owner=root"
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 touch /root/.openshiftcomplete
 touch /home/${AUSERNAME}/.openshiftcomplete

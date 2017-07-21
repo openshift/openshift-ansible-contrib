@@ -20,22 +20,13 @@
     "adminUsername" : {
       "type" : "string"
     },
-    "adminPassword" : {
-      "type" : "securestring"
-    },
     "sshKeyData" : {
       "type" : "string",
       "metadata" : {
         "description" : "SSH RSA public key file as a string."
       }
     },
-    "numberOfNodes" : {
-      "type" : "int"
-    },
     "baseTemplateUrl" : {
-      "type" : "string"
-    },
-    "routerExtIP" : {
       "type" : "string"
     },
     "imageReference" : {
@@ -43,15 +34,6 @@
       "metadata" : {
         "description" : "imageReference object that should be used to create the virtual machine"
       }
-    },
-    "RHNUserName" : {
-      "type" : "string"
-    },
-    "RHNPassword" : {
-      "type" : "securestring"
-    },
-    "SubscriptionPoolId" : {
-      "type" : "string"
     },
     "sshPrivateData" : {
       "type" : "securestring",
@@ -74,8 +56,7 @@
   },
   "variables" : {
     "apiVersion" : "2015-06-15",
-    "sshKeyPath" : "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
-    "sQuote" : "\""
+    "sshKeyPath" : "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]"
   },
   "resources" : [
     {
@@ -208,7 +189,7 @@
           ]
         },
         "protectedSettings" : {
-          "commandToExecute" : "[ concat('sh master.sh ', parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', parameters('vmName'), ' ', padLeft(parameters('numberOfNodes'), 2, '0'), ' ', parameters('routerExtIP'),' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote')  ) ]"
+          "commandToExecute" : "[ concat('sh master.sh ', parameters('adminUsername'), ' ', parameters('sshPrivateData'),  ' ', parameters('sshKeyData')) ]"
         }
       }
     },

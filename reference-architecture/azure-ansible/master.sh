@@ -1,22 +1,15 @@
 #!/bin/bash
 
 USERNAME=$1
-PASSWORD=$2
-HOSTNAME=$3
-NODECOUNT=$4
-ROUTEREXTIP=$5
-RHNUSERNAME=$6
-RHNPASSWORD=$7
-RHNPOOLID=$8
-SSHPRIVATEDATA=$9
-SSHPUBLICDATA=${10}
-SSHPUBLICDATA2=${11}
-SSHPUBLICDATA3=${12}
+SSHPRIVATEDATA=$2
+SSHPUBLICDATA=$3
 
 ps -ef | grep master.sh > cmdline.out
 
+yum -y install wget git net-tools bind-utils iptables-services bridge-utils bash-completion
+
 mkdir -p /home/$USERNAME/.ssh
-echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3 >  /home/$USERNAME/.ssh/id_rsa.pub
+echo $SSHPUBLICDATA > /home/$USERNAME/.ssh/id_rsa.pub
 echo $SSHPRIVATEDATA | base64 --d > /home/$USERNAME/.ssh/id_rsa
 chown $USERNAME /home/$USERNAME/.ssh/id_rsa.pub
 chmod 600 /home/$USERNAME/.ssh/id_rsa.pub
@@ -24,8 +17,8 @@ chown $USERNAME /home/$USERNAME/.ssh/id_rsa
 chmod 600 /home/$USERNAME/.ssh/id_rsa
 
 mkdir -p /root/.ssh
+echo $SSHPUBLICDATA > /root/.ssh/id_rsa.pub
 echo $SSHPRIVATEDATA | base64 --d > /root/.ssh/id_rsa
-echo $SSHPUBLICDATA $SSHPUBLICDATA2 $SSHPUBLICDATA3   >  /root/.ssh/id_rsa.pub
 chown root /root/.ssh/id_rsa.pub
 chmod 600 /root/.ssh/id_rsa.pub
 chown root /root/.ssh/id_rsa
