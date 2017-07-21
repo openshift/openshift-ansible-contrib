@@ -9,6 +9,12 @@ then
         TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
     fi
 
+    echo Travis commit range: \"$TRAVIS_COMMIT_RANGE\"
+
+    echo Modified files:
+    git diff --name-only $TRAVIS_COMMIT_RANGE
+    echo ==========
+
     WHITELIST_REGEX='^(.travis.yml|ci|roles|playbooks\/provisioning)'
 
     if git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qE "$WHITELIST_REGEX"; then
