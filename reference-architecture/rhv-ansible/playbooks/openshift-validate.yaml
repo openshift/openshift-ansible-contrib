@@ -1,0 +1,18 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  pre_tasks:
+  - name: set fact
+    set_fact:
+      openshift_master_cluster_public_hostname: "{{ openshift_master_cluster_public_hostname }}"
+  - name: set fact
+    set_fact:
+      openshift_master_cluster_hostname: "{{ openshift_master_cluster_hostname }}"
+  - name: set fact
+    set_fact:
+      console_port: "8443"
+  roles:
+  # Group systems
+  - instance-groups
+
+- include: ../../../playbooks/post-validation.yaml
