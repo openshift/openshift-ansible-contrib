@@ -1,5 +1,5 @@
 ---
-- name: Create static inventory, dns, and host files from dynamic inventory
+- name: Create DNS and host files from dynamic inventory
   hosts: localhost
   vars:
     lb_ip: "{{hostvars[groups['tag_openshift_lb'].0]['devices']['eth0'].0 }}"
@@ -10,7 +10,6 @@
         path: "../{{ item }}"
         state: absent
       with_items:
-        - inventory.ansible
         - inventory.nsupdate
         - inventory.hosts
     - name: Recreate files
@@ -18,7 +17,6 @@
         path: "../{{ item }}"
         state: touch
       with_items:
-        - inventory.ansible
         - inventory.nsupdate
         - inventory.hosts
     ###############################
@@ -73,7 +71,3 @@
         - "{{ groups['tag_openshift_master'] }}"
         - "{{ groups['tag_openshift_infra'] }}"
         - "{{ groups['tag_openshift_node'] }}"
-    ###############################
-    # Create Ansible entries
-    - name: Create Ansible LB entry
-      debug:
