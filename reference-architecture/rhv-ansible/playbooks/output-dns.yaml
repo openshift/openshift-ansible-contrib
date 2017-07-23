@@ -1,34 +1,79 @@
 ---
-- name: Pull host entries from dynamic inventory
+- name: Create static inventory, dns, and host files from dynamic inventory
   hosts: localhost
+  vars:
+    lb_ip: "{{hostvars[groups['tag_openshift_lb'].0]['devices']['eth0'].0 }}"
+    lb_host: "{{groups['tag_openshift_lb'].0}}"
   tasks:
-    - name: Clear existing file
+    - name: Clear existing files
       file:
-        path: ../vm-dns.txt
+        path: "../{{ item }}"
         state: absent
-    - name: Recreate file
-      file:
-        path: ../vm-dns.txt
-        state: touch
-    - name: Create NSUpdate style entries for public hosted zone
-      lineinfile:
-        path: ../vm-dns.txt
-        line: "zone {{public_hosted_zone}}"
-        state: present
-    - name: Create wildcard A entry
-      lineinfile:
-        path: ../vm-dns.txt
-        line: "update add *.{{app_dns_prefix}}.{{public_hosted_zone}} 86400 A {{hostvars[item]['ansible_host']}}"
-        state: present
       with_items:
-        - "{{ groups['tag_openshift_lb'].0 }}"
-    - name: Create host A entries
+        - inventory.ansible
+        - inventory.nsupdate
+        - inventory.hosts
+    - name: Recreate files
+      file:
+        path: "../{{ item }}"
+        state: touch
+      with_items:
+        - inventory.ansible
+        - inventory.nsupdate
+        - inventory.hosts
+    ###############################
+    # Create NSUPDATE entries Reverse first
+    - name: Create NSUPDATE reverse pointer entries
       lineinfile:
-        path: ../vm-dns.txt
-        line: "update add {{ item }}.{{public_hosted_zone}} 86400 A {{hostvars[item]['ansible_host']}}"
+        path: ../inventory.nsupdate
+        line: "update add {{ '.'.join(hostvars[item]['devices']['eth0'].0.split('.')[::-1]) }}.in-addr.arpa 86400 PTR  {{ item }}.{{public_hosted_zone}}"
         state: present
       with_items:
         - "{{ groups['tag_openshift_master'] }}"
         - "{{ groups['tag_openshift_infra'] }}"
         - "{{ groups['tag_openshift_node'] }}"
         - "{{ groups['tag_openshift_lb'] }}"
+    - name: Create NSUPDATE entries for public hosted zone
+      lineinfile:
+        path: ../inventory.nsupdate
+        line: "zone {{public_hosted_zone}}"
+        state: present
+    - name: Create NSUPDATE wildcard A entry
+      lineinfile:
+        path: ../inventory.nsupdate
+        line: "update add *.{{app_dns_prefix}}.{{public_hosted_zone}} 86400 A {{lb_ip}}"
+        state: present
+    - name: Create NSUPDATE public hostname entry
+      lineinfile:
+        path: ../inventory.nsupdate
+        line: "update add {{openshift_master_cluster_public_hostname}} 86400 A {{lb_ip}}"
+        state: present
+    - name: Create NSUPDATE host A entries
+      lineinfile:
+        path: ../inventory.nsupdate
+        line: "update add {{ item }}.{{public_hosted_zone}} 86400 A {{hostvars[item]['devices']['eth0'].0}}"
+        state: present
+      with_items:
+        - "{{ groups['tag_openshift_master'] }}"
+        - "{{ groups['tag_openshift_infra'] }}"
+        - "{{ groups['tag_openshift_node'] }}"
+        - "{{ groups['tag_openshift_lb'] }}"
+    ###############################
+    # Create HOST entries
+    - name: Create HOSTS public hostname
+      lineinfile:
+        path: ../inventory.hosts
+        line: "{{lb_ip}} {{lb_host}}.{{public_hosted_zone}} {{lb_host}} {{openshift_master_cluster_public_hostname}}"
+        state: present
+    - name: Create HOSTS node entries
+      lineinfile:
+        path: ../inventory.hosts
+        line: "{{hostvars[item]['devices']['eth0'].0}} {{ item }}.{{ public_hosted_zone }} {{ item }}"
+      with_items:
+        - "{{ groups['tag_openshift_master'] }}"
+        - "{{ groups['tag_openshift_infra'] }}"
+        - "{{ groups['tag_openshift_node'] }}"
+    ###############################
+    # Create Ansible entries
+    - name: Create Ansible LB entry
+      debug:
