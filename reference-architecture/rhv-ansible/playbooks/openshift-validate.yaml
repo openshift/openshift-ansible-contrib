@@ -1,6 +1,7 @@
 ---
 - hosts: localhost
   gather_facts: yes
+  become: no
   pre_tasks:
   - name: set fact
     set_fact:
@@ -11,8 +12,26 @@
   - name: set fact
     set_fact:
       console_port: "8443"
+  - name: set fact
+    set_fact:
+      wildcard_zone: "{{app_dns_prefix}}.{{public_hosted_zone}}"
   roles:
   # Group systems
   - instance-groups
+  - validate-public
 
-- include: ../../../playbooks/post-validation.yaml
+- hosts: masters
+  gather_facts: no
+  roles:
+  - validate-masters
+
+- hosts: masters
+  gather_facts: yes
+  roles:
+  - validate-etcd
+
+- hosts: single_master
+  gather_facts: yes
+  become: yes
+  roles:
+  - validate-app
