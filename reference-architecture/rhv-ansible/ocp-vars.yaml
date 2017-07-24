@@ -41,7 +41,6 @@ root_ssh_key:
 
 ### Openshift variables
 ## Choices of deployment type: openshift-enterprise, origin
-## If containerized, you must supply an Atomic image instead of a RHEL
 deployment_type: openshift-enterprise
 openshift_vers: v3_5
 containerized: false
