@@ -1,23 +1,18 @@
 #!/bin/bash
 
+GIT_RANGE=HEAD...master
+
+echo Modified files:
+git diff --name-only $GIT_RANGE
+echo ==========
+
 if [ "${RUN_OPENSTACK_CI:-}" == true ]
 then
     # TODO(shadower): Can we only run this when the project admin asked for it?
 
-    # TODO(shadower): check that the commit changed roles or playbooks/provisioning
-    # if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-    #     TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
-    # fi
-
-    echo Travis commit range: \"$TRAVIS_COMMIT_RANGE\"
-
-    echo Modified files:
-    git diff --name-only $TRAVIS_COMMIT_RANGE
-    echo ==========
-
     WHITELIST_REGEX='^(.travis.yml|ci|roles|playbooks\/provisioning)'
 
-    if git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qE "$WHITELIST_REGEX"; then
+    if git diff --name-only $GIT_RANGE | grep -qE "$WHITELIST_REGEX"; then
         RUN_OPENSTACK_CI=true
     else
         RUN_OPENSTACK_CI=false
