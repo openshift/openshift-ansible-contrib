@@ -1,12 +1,18 @@
 #!/bin/bash
 
+set +x
+
 GIT_RANGE=HEAD...master
 
 echo Git range: $GIT_RANGE
 
 git status
+git branch -v
+git branch -rv
 
 echo Modified files:
+git diff --name-only HEAD...master
+git diff --name-only -- HEAD...master
 git diff --name-only $GIT_RANGE
 echo ==========
 
