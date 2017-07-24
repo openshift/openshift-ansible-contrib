@@ -68,6 +68,7 @@ openshift_master_identity_providers:
 #openshift_master_htpasswd_users:
 #  - user1: <pre-hashed password>
 #  - user2: <pre-hashed password>
+# Use 'htpasswd -n <user>' to generate password hash. (htpasswd from httpd-tools RPM)
 # Example with admin:changeme
 openshift_master_htpasswd_users:
   - admin: '$apr1$zAhyA9Ko$rBxBOwAwwtRuuaw8OtCwH0'
