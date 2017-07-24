@@ -1,6 +1,6 @@
 - job_template: aws-infrastructure
   success_nodes:
-REPLACEME
+#REPLACEME
     success_nodes:
     - job_template: aws-openshift-install
       success_nodes:
@@ -10,6 +10,6 @@ REPLACEME
           success_nodes:
              - job_template: aws-openshift-cfme-ocp-provider
                success_nodes:
-ONEMORETIME
+#ONEMORETIME
                    success_nodes:
                      - job_template: aws-openshift-cfme-install

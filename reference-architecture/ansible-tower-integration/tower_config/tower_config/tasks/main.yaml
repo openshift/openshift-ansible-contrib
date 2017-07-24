@@ -143,11 +143,11 @@
 
 - name: Add tower group
   tower_group:
-    name: aws 
+    name: aws
     description: "Tower Group for AWS"
     source: ec2
     credential: ec2
-    inventory: "aws-inventory" 
+    inventory: "aws-inventory"
     source_vars:
       regions: all
       regions_exclude: us-gov-west-1,cn-north-1
@@ -246,13 +246,13 @@
 - name: Replace inventory source
   lineinfile:
     path: schema.yml
-    regexp: '^REPLACEME'
+    regexp: '^#REPLACEME'
     line: '  - inventory_source: aws (aws-inventory - {{ myoutput.stdout }})'
 
 - name: Replace inventory source second time
   lineinfile:
     path: schema.yml
-    regexp: '^ONEMORETIME'
+    regexp: '^#ONEMORETIME'
     line: '                 - inventory_source: aws (aws-inventory - {{ myoutput.stdout }})'
 
 - name: Create a schema for workflow-ocp-aws-install
