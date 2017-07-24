@@ -2,6 +2,10 @@
 
 GIT_RANGE=HEAD...master
 
+echo Git range: $GIT_RANGE
+
+git status
+
 echo Modified files:
 git diff --name-only $GIT_RANGE
 echo ==========
