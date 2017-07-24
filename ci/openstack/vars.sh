@@ -5,9 +5,9 @@ then
     # TODO(shadower): Can we only run this when the project admin asked for it?
 
     # TODO(shadower): check that the commit changed roles or playbooks/provisioning
-    if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-        TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
-    fi
+    # if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+    #     TRAVIS_COMMIT_RANGE="FETCH_HEAD...$TRAVIS_BRANCH"
+    # fi
 
     echo Travis commit range: \"$TRAVIS_COMMIT_RANGE\"
 
