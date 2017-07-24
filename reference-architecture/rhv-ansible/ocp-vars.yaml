@@ -45,6 +45,7 @@ root_ssh_key:
 deployment_type: openshift-enterprise
 openshift_vers: v3_5
 containerized: false
+console_port: 8443
 
 # DNS entries, requires wildcard *.{{app_dns_prefix}}.{{public_hosted_zone}} points to
 # IP of {{load_balancer_hostname}}
@@ -53,6 +54,18 @@ app_dns_prefix: apps
 load_balancer_hostname: openshift-lb.example.com
 openshift_master_cluster_hostname: openshift-lb.example.com
 openshift_master_cluster_public_hostname: openshift.example.com
+
+# OpenShift Identity Providers
+# htpasswd shown here, other options documented at
+# https://docs.openshift.com/container-platform/3.5/install_config/configuring_authentication.html
+openshift_master_identity_providers: [{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
+# Defining htpasswd users
+#openshift_master_htpasswd_users={'user1': '<pre-hashed password>', 'user2': '<pre-hashed password>'}
+# Example with admin:changeme
+openshift_master_htpasswd_users={'admin' : '$apr1$zAhyA9Ko$rBxBOwAwwtRuuaw8OtCwH0'}
+
+# or
+#openshift_master_htpasswd_file=<path to local pre-generated htpasswd file>
 
 # NFS for registry storage
 openshift_hosted_registry_storage_kind: nfs

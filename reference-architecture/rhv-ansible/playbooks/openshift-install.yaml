@@ -32,7 +32,6 @@
     - byo
   vars:
     debug_level: 2
-    console_port: 8443
     openshift_debug_level: "{{ debug_level }}"
     wildcard_zone: "{{app_dns_prefix}}.{{public_hosted_zone}}"
     osm_cluster_network_cidr: 172.16.0.0/16

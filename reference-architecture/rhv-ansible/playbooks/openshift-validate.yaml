@@ -11,7 +11,7 @@
       openshift_master_cluster_hostname: "{{ openshift_master_cluster_hostname }}"
   - name: set fact
     set_fact:
-      console_port: "8443"
+      console_port: "{{ console_port}}"
   - name: set fact
     set_fact:
       wildcard_zone: "{{app_dns_prefix}}.{{public_hosted_zone}}"
