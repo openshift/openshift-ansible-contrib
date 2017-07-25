@@ -246,14 +246,14 @@
 - name: Replace inventory source
   lineinfile:
     path: schema.yml
-    regexp: '^#REPLACEME'
-    line: '  - inventory_source: aws (aws-inventory - {{ myoutput.stdout }})'
+    regexp: 'REPLACEME'
+    line: 'aws (aws-inventory - {{ myoutput.stdout }})'
 
 - name: Replace inventory source second time
   lineinfile:
     path: schema.yml
-    regexp: '^#ONEMORETIME'
-    line: '               - inventory_source: aws (aws-inventory - {{ myoutput.stdout }})'
+    regexp: 'ONEMORETIME'
+    line: 'aws (aws-inventory - {{ myoutput.stdout }})'
 
 - name: Create a schema for workflow-ocp-aws-install
   command: tower-cli workflow schema workflow-ocp-aws-install @schema.yml
@@ -262,10 +262,10 @@
   lineinfile:
     path: schema.yml
     regexp: '^(.*)inventory_source'
-    line: '#ONEMORETIME'
+    line: '            - inventory_source: ONEMORETIME'
 
 - name: Reset schema file in case we run again
   lineinfile:
     path: schema.yml
-    regexp: '^(.*)inventory_source'
-    line: '#REPLACEME'
+    regexp: '^(.*)inventory_source.*(?<!\ONEMORETIME)$'
+    line: '  - inventory_source: REPLACEME'
