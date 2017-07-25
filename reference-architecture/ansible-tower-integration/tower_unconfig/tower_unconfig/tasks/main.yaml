@@ -1,0 +1,89 @@
+---
+
+- name: Remove workflow-ocp-aws-install
+  command: tower-cli workflow delete --name="workflow-ocp-aws-install"
+
+- name: Remove aws-openshift-install job template
+  tower_job_template:
+    name: aws-openshift-install
+    job_type: run
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/aws-ansible/playbooks/openshift-install.yaml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove infrastructure job template
+  tower_job_template:
+    name: aws-infrastructure
+    job_type: run
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/aws-ansible/playbooks/infrastructure.yaml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove create-httpd-file job template
+  tower_job_template:
+    name: create_httpd_file
+    job_type: run
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/ansible-tower-integration/create_httpd_file/create_httpd_file.yaml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove insights job template
+  tower_job_template:
+    name: redhat-access-insights-client
+    job_type: run
+    project: ansible-redhat-access-insights-client
+    playbook: "redhat-access-insights-client.yaml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower group
+  tower_group:
+    name: aws
+    inventory: "aws-inventory"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower inventory
+  tower_inventory:
+    name: "aws-inventory"
+    organization: "Default"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower credential for machine
+  tower_credential:
+    name: aws-privkey
+    kind: ssh
+    organization: "Default"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower credential for aws
+  tower_credential:
+    name: ec2
+    state: absent
+    kind: aws
+    organization: "Default"
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower project
+  tower_project:
+    name: "openshift-ansible-contrib"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower project
+  tower_project:
+    name: "ansible-redhat-access-insights-client"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower organization
+  tower_organization:
+    name: "Default"
+    description: "Set to Default since the trial license only allows one organization. You can change it if you have deep pockets"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"

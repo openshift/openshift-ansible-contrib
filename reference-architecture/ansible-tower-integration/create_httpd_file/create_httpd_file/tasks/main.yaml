@@ -1,0 +1,9 @@
+---
+- name: Install httpd-tools
+  yum:
+    name: httpd-tools
+    state: present
+  become: true
+
+- name: create httpd password
+  command: htpasswd -b /etc/origin/master/htpasswd {{ ocp_username }} {{ ocp_password }}

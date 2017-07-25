@@ -1,0 +1,6 @@
+---
+- hosts: tag_openshift_role_master
+  gather_facts: yes
+  become: yes
+  roles:
+  - { role: create_httpd_file, when: ansible_os_family == 'RedHat' }

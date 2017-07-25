@@ -1,0 +1,16 @@
+---
+- job_template: aws-infrastructure
+  success_nodes:
+  - inventory_source: REPLACEME
+    success_nodes:
+    - job_template: aws-openshift-install
+      success_nodes:
+      - job_template: create_httpd_file
+        success_nodes:
+        - job_template: redhat-access-insights-client
+          success_nodes:
+          - job_template: aws-openshift-cfme-ocp-provider
+            success_nodes:
+            - inventory_source: ONEMORETIME
+              success_nodes:
+              - job_template: aws-openshift-cfme-install
