@@ -9,7 +9,7 @@
     job_type: run
     project: openshift-ansible-contrib
     playbook: "reference-architecture/aws-ansible/playbooks/openshift-install.yaml"
-    state: absent 
+    state: absent
     tower_config_file: "~/.tower_cli.cfg"
 
 - name: Remove infrastructure job template
@@ -25,7 +25,7 @@
   tower_job_template:
     name: create_httpd_file
     job_type: run
-    project: openshift-ansible-contrib 
+    project: openshift-ansible-contrib
     playbook: "reference-architecture/ansible-tower-integration/create_httpd_file/create_httpd_file.yaml"
     state: absent
     tower_config_file: "~/.tower_cli.cfg"
@@ -41,8 +41,8 @@
 
 - name: Remove tower group
   tower_group:
-    name: aws 
-    inventory: "aws-inventory" 
+    name: aws
+    inventory: "aws-inventory"
     state: absent
     tower_config_file: "~/.tower_cli.cfg"
 
@@ -50,7 +50,7 @@
   tower_inventory:
     name: "aws-inventory"
     organization: "Default"
-    state: absent 
+    state: absent
     tower_config_file: "~/.tower_cli.cfg"
 
 - name: Remove tower credential for machine
@@ -58,13 +58,13 @@
     name: aws-privkey
     kind: ssh
     organization: "Default"
-    state: absent 
+    state: absent
     tower_config_file: "~/.tower_cli.cfg"
 
 - name: Remove tower credential for aws
   tower_credential:
     name: ec2
-    state: absent 
+    state: absent
     kind: aws
     organization: "Default"
     tower_config_file: "~/.tower_cli.cfg"
@@ -72,7 +72,7 @@
 - name: Remove tower project
   tower_project:
     name: "openshift-ansible-contrib"
-    state: absent 
+    state: absent
     tower_config_file: "~/.tower_cli.cfg"
 
 - name: Remove tower project

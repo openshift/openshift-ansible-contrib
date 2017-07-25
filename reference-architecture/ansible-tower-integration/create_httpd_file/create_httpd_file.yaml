@@ -1,3 +1,4 @@
+---
 - hosts: tag_openshift_role_master
   gather_facts: yes
   become: yes

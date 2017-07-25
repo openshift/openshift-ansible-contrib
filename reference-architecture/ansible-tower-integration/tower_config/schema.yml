@@ -1,3 +1,4 @@
+---
 - job_template: aws-infrastructure
   success_nodes:
 #REPLACEME
@@ -8,8 +9,8 @@
         success_nodes:
         - job_template: redhat-access-insights-client
           success_nodes:
-             - job_template: aws-openshift-cfme-ocp-provider
-               success_nodes:
+          - job_template: aws-openshift-cfme-ocp-provider
+            success_nodes:
 #ONEMORETIME
-                   success_nodes:
-                     - job_template: aws-openshift-cfme-install
+              success_nodes:
+              - job_template: aws-openshift-cfme-install
