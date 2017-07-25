@@ -31,6 +31,7 @@
         groups: '{{ item.metadata.group }}'
         ansible_host: '{{ item.private_v4 }}'
         ansible_fqdn: '{{ item.name }}'
+        openshift_hostname: '{{ item.name }}'
         ansible_private_key_file: '{{ private_ssh_key }}'
         private_v4: '{{ item.private_v4 }}'
 
@@ -42,6 +43,7 @@
         groups: '{{ item.metadata.group }}'
         ansible_host: '{{ item.public_v4 }}'
         ansible_fqdn: '{{ item.name }}'
+        openshift_hostname: '{{ item.name }}'
         ansible_private_key_file: '{{ private_ssh_key }}'
         private_v4: '{{ item.private_v4 }}'
         public_v4: '{{ item.public_v4 }}'
