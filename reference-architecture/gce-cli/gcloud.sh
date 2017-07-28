@@ -47,7 +47,6 @@ function run_playbook {
 
 # Scale up infrastructure and OCP
 function scaleup {
-  run_playbook playbooks/core-infra.yaml "$@"
   run_playbook playbooks/openshift-scaleup.yaml "$@"
 }
 

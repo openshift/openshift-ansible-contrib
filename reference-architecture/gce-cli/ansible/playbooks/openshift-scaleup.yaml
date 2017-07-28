@@ -1,4 +1,6 @@
 ---
+- include: core-infra.yaml
+
 - name: create instance groups
   hosts: localhost
   roles:
