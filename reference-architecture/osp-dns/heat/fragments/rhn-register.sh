@@ -15,7 +15,7 @@ RHN_USERNAME=${RHN_USERNAME:-'{{rhn_username}}'}
 RHN_PASSWORD=${RHN_PASSWORD:-'{{rhn_password}}'}
 RHN_POOL_ID=${RHN_POOL_ID:-'{{rhn_pool_id}}'}
 SAT6_HOSTNAME=${SAT6_HOSTNAME:-'{{sat6_hostname}}'}
-SAT6_ORGANIZATION=${SAT6_ORGANIZATION:-'{{sat6_hostname}}'}
+SAT6_ORGANIZATION=${SAT6_ORGANIZATION:-'{{sat6_organization}}'}
 SAT6_ACTIVATIONKEY=${SAT6_ACTIVATIONKEY:-'{{sat6_activationkey}}'}
 
 # Exit on command fail
