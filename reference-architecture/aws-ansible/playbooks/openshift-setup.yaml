@@ -45,6 +45,7 @@
       organizations: "{{ github_organization }}"
     osm_use_cockpit: true
     containerized: false
+    # registry
     openshift_hosted_registry_storage_kind: object
     openshift_hosted_registry_storage_provider: s3
     openshift_hosted_registry_storage_s3_accesskey: "{{ hostvars['localhost']['s3user_id'] }}"
@@ -56,9 +57,17 @@
     openshift_hosted_registry_pullthrough: true
     openshift_hosted_registry_acceptschema2: true
     openshift_hosted_registry_enforcequota: true
+    # metrics
     openshift_hosted_metrics_storage_kind: dynamic
-    openshift_metrics_hawkular_hostname: "hawkular-metrics.apps.{{ public_hosted_zone }}"
     openshift_hosted_metrics_storage_volume_size: "{{ openshift_hosted_metrics_storage_volume_size }}"
     openshift_metrics_hawkular_nodeselector: {"role":"infra"}
     openshift_metrics_cassandra_nodeselector: {"role":"infra"}
     openshift_metrics_heapster_nodeselector: {"role":"infra"}
+
+    # logging
+    openshift_logging_es_pvc_dynamic: true
+    openshift_logging_es_pvc_size: "{{ openshift_hosted_logging_storage_volume_size }}"
+    openshift_logging_es_cluster_size: 3
+    openshift_logging_es_nodeselector: {"role":"infra"}
+    openshift_logging_kibana_nodeselector: {"role":"infra"}
+    openshift_logging_curator_nodeselector: {"role":"infra"}
