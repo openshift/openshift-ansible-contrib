@@ -45,6 +45,11 @@ function run_playbook {
   popd
 }
 
+# Scale up infrastructure and OCP
+function scaleup {
+  run_playbook playbooks/openshift-scaleup.yaml "$@"
+}
+
 # Teardown infrastructure
 function teardown {
   run_playbook playbooks/teardown.yaml "$@"
@@ -62,6 +67,11 @@ function main {
 }
 
 case ${1:-} in
+  --scaleup )
+    shift
+    scaleup "$@"
+    exit 0
+    ;;
   --teardown | --revert )
     shift
     teardown "$@"

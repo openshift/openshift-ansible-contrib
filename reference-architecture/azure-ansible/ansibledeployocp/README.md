@@ -101,6 +101,7 @@ Optional (default values are set in [playbooks/roles/azure-deploy/default/main.y
 * infranodesize: Infrastructure nodes VM size
 * nodevmsize: Application nodes VM size
 * location: westus by default
+* openshiftsdn: SDN used by OCP. "redhat/openshift-ovs-multitenant" by default
 * metrics: true to enable cluster metrics, false to not enable (note, do not quote as those variables are boolean values, not strings), true by default
 * logging: true to enable cluster logging, false to not enable (note, do not quote as those variables are boolean values, not strings), true by default
 * opslogging: true to enable ops cluster logging, false to not enable (note, do not quote as those variables are boolean values, not strings), false by default

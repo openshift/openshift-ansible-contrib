@@ -6,6 +6,7 @@ mastervmsize: "Standard_DS3_v2"
 infranodesize: "Standard_DS3_v2"
 nodevmsize: "Standard_DS12_v2"
 location: "westus"
+openshiftsdn: "redhat/openshift-ovs-multitenant"
 metrics: true
 logging: true
 opslogging: false

@@ -274,6 +274,17 @@
         "description" : "Azure AD Client Secret"
       }
     },
+    "OpenShiftSDN" : {
+      "type" : "string",
+      "defaultValue" : "redhat/openshift-ovs-multitenant",
+      "allowedValues" : [
+        "redhat/openshift-ovs-subnet",
+        "redhat/openshift-ovs-multitenant"
+      ],
+      "metadata" : {
+        "description" : "The supported SDN plugin to be used in OCP."
+      }
+    },
     "metrics" : {
       "type": "bool",
       "defaultValue": true,
@@ -735,6 +746,9 @@
           },
           "rhsmmode" : {
             "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
+          },
+          "openshiftsdn": {
+            "value" : "[parameters('OpenShiftSDN')]"
           },
           "metrics" : {
             "value" : "[parameters('metrics')]"
