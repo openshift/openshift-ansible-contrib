@@ -51,7 +51,7 @@ console_port: 8443
 public_hosted_zone: example.com
 app_dns_prefix: apps
 load_balancer_hostname: openshift-lb.{{public_hosted_zone}}
-openshift_master_cluster_hostname: {{load_balancer_hostname}}
+openshift_master_cluster_hostname: "{{load_balancer_hostname}}"
 openshift_master_cluster_public_hostname: openshift.{{public_hosted_zone}}
 
 # OpenShift Identity Providers
