@@ -13,6 +13,9 @@ in order to create a highly available OpenShift Container Platform environment.
 A copy of the [oVirt Ansible](https://github.com/ovirt/ovirt-ansible) repository should be cloned in a directory
 alongside this repository. Roles from within the ovirt-ansible repository will be called by playbooks in this one.
 
+### Dynamic Inventory
+A copy of `ovirt4.py` from the Ansible project is provided under the inventory directory. This script will, given credentials to a RHV 4 engine, populate the Ansible inventory with facts about all virtual machines in the cluster. In order to use this dynamic inventory, see the `ovirt.ini.example` file, either providing the relevant Python secrets via environment variables, or by copying it to `ovirt.ini` and filling in the values.
+
 ### Red Hat Virtualization Certificate
 A copy of the `/etc/pki/ovirt-engine/ca.pem` from the RHV engine will need to be added to the
 `reference-architecture/rhv-ansible` directory.
