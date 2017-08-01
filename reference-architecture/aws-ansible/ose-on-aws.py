@@ -16,6 +16,16 @@ import sys
               show_default=True)
 @click.option('--openshift-sdn', default='redhat/openshift-ovs-multitenant', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
               show_default=True)
+@click.option('--deploy-glusterfs', default='false', help='Deploy OpenShift CNS during installation',
+              show_default=True)
+@click.option('--glusterfs-volume-size', default='500', help='Gluster volume size in GB',
+              show_default=False)
+@click.option('--glusterfs-volume-type', default='st1', help='Gluster volume type',
+              show_default=False)
+@click.option('--glusterfs-iops', help='Specfify the IOPS for a volume (used only with IO1)',
+              show_default=False)
+@click.option('--glusterfs-stack-name', default='glusterfs', help='Cloudformation stack name. Must be unique',
+              show_default=True)
 
 ### AWS/EC2 options
 @click.option('--region', default='us-east-1', help='ec2 region',
@@ -126,12 +136,16 @@ def launch_refarch_env(region=None,
                     openshift_metrics_storage_volume_size=None,
                     openshift_logging_deploy=None,
                     openshift_logging_storage_volume_size=None,
+                    glusterfs_stack_name=None,
+                    deploy_glusterfs=None,
+                    glusterfs_volume_size=None,
+                    glusterfs_volume_type=None,
+                    glusterfs_iops=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
     public_hosted_zone = click.prompt('Hosted DNS zone for accessing the environment')
-
 
   if s3_bucket_name is None:
     s3_bucket_name = stack_name + '-ocp-registry-' + public_hosted_zone.split('.')[0]
@@ -197,6 +211,15 @@ def launch_refarch_env(region=None,
   if isinstance(github_organization, str) or isinstance(github_organization, unicode):
     github_organization = [github_organization]
 
+  if deploy_glusterfs in 'false':
+    glusterfs_stack_name = None
+    glusterfs_volume_size = None
+    glusterfs_volume_type = None
+    glusterfs_iops = None
+
+  if glusterfs_volume_type in ['io1']:
+    glusterfs_iops = click.prompt('Specify a numeric value for iops')
+
   # Display information to the user about their choices
   click.echo('Configured values:')
   click.echo('\tstack_name: %s' % stack_name)
@@ -238,6 +261,11 @@ def launch_refarch_env(region=None,
   click.echo('\topenshift_metrics_storage_volume_size: %s' % openshift_metrics_storage_volume_size)
   click.echo('\topenshift_logging_deploy: %s' % openshift_logging_deploy)
   click.echo('\topenshift_logging_storage_volume_size: %s' % openshift_logging_storage_volume_size)
+  click.echo('\tglusterfs_stack_name: %s' % glusterfs_stack_name)
+  click.echo('\tdeploy_glusterfs: %s' % deploy_glusterfs)
+  click.echo('\tglusterfs_volume_size: %s' % glusterfs_volume_size)
+  click.echo('\tglusterfs_volume_type: %s' % glusterfs_volume_type)
+  click.echo('\tglusterfs_iops: %s' % glusterfs_iops)
   click.echo("")
 
   if not no_confirm:
@@ -300,7 +328,12 @@ def launch_refarch_env(region=None,
     openshift_hosted_metrics_deploy=%s \
     openshift_hosted_metrics_storage_volume_size=%s \
     openshift_hosted_logging_deploy=%s \
-    openshift_hosted_logging_storage_volume_size=%s \' %s' % (region,
+    openshift_hosted_logging_storage_volume_size=%s \
+    glusterfs_stack_name=%s \
+    deploy_glusterfs=%s \
+    glusterfs_volume_size=%s \
+    glusterfs_volume_type=%s \
+    glusterfs_iop=%s \' %s' % (region,
                     stack_name,
                     ami,
                     keypair,
@@ -338,6 +371,11 @@ def launch_refarch_env(region=None,
                     openshift_metrics_storage_volume_size,
                     openshift_logging_deploy,
                     openshift_logging_storage_volume_size,
+                    glusterfs_stack_name,
+                    deploy_glusterfs,
+                    glusterfs_volume_size,
+                    glusterfs_volume_type,
+                    glusterfs_iops,
                     playbook)
 
     if verbose > 0:

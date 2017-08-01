@@ -59,7 +59,7 @@ def launch_refarch_env(region=None,
                     ami=None,
                     no_confirm=False,
                     node_instance_type=None,
-                    gluster_stack=None,
+                    glusterfs_stack_name=None,
                     keypair=None,
                     public_hosted_zone=None,
                     rhsm_user=None,
@@ -86,8 +86,8 @@ def launch_refarch_env(region=None,
   if existing_stack is None:
     existing_stack = click.prompt('Specify the name of the existing CloudFormation stack')
 
-  if gluster_stack is None:
-    gluster_stack = click.prompt('Specify a unique name for the CRS CloudFormation stack')
+  if glusterfs_stack_name is None:
+    glusterfs_stack_name = click.prompt('Specify a unique name for the CRS CloudFormation stack')
 
  # If no keypair is specified fail:
   if keypair is None:
@@ -148,7 +148,7 @@ def launch_refarch_env(region=None,
       click.echo('Configured values:')
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
-      click.echo('\tgluster_stack: %s' % gluster_stack)
+      click.echo('\tglusterfs_stack_name: %s' % glusterfs_stack_name)
       click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
       click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
       click.echo('\tiops: %s' % iops)
@@ -165,7 +165,7 @@ def launch_refarch_env(region=None,
       click.echo('Configured values:')
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
-      click.echo('\tgluster_stack: %s' % gluster_stack)
+      click.echo('\tglusterfs_stack_name: %s' % glusterfs_stack_name)
       click.echo('\tprivate_subnet_id1: %s' % private_subnet_id1)
       click.echo('\tprivate_subnet_id2: %s' % private_subnet_id2)
       click.echo('\tprivate_subnet_id3: %s' % private_subnet_id3)
@@ -210,7 +210,7 @@ def launch_refarch_env(region=None,
         command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
         ami=%s \
         keypair=%s \
-        gluster_stack=%s \
+        glusterfs_stack_name=%s \
         add_node=no \
         deploy_crs=yes \
       	node_instance_type=%s \
@@ -227,7 +227,7 @@ def launch_refarch_env(region=None,
        	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
-                        gluster_stack,
+                        glusterfs_stack_name,
                     	node_instance_type,
                     	public_hosted_zone,
                     	rhsm_user,
@@ -244,7 +244,7 @@ def launch_refarch_env(region=None,
         command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
         ami=%s \
         keypair=%s \
-        gluster_stack=%s \
+        glusterfs_stack_name=%s \
         add_node=no \
         deploy_crs=yes \
       	node_instance_type=%s \
@@ -267,7 +267,7 @@ def launch_refarch_env(region=None,
       	stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
-                        gluster_stack,
+                        glusterfs_stack_name,
                     	node_instance_type,
                     	private_subnet_id1,
                     	private_subnet_id2,

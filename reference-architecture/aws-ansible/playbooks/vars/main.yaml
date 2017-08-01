@@ -21,7 +21,7 @@ openshift_master_cluster_public_hostname: "openshift-master.{{ public_hosted_zon
 osm_default_subdomain: "{{ wildcard_zone }}"
 
 # Gluster variables
-gluster_node01: "ose-{{ gluster_stack }}-node01"
-gluster_node02: "ose-{{ gluster_stack }}-node02"
-gluster_node03: "ose-{{ gluster_stack }}-node03"
-gluster_group: "{{ stack_name }}-{{ gluster_stack }}"
+gluster_node01: "ose-{{ glusterfs_stack_name }}-node01"
+gluster_node02: "ose-{{ glusterfs_stack_name }}-node02"
+gluster_node03: "ose-{{ glusterfs_stack_name }}-node03"
+gluster_group: "{{ stack_name }}-{{ gluster_stack_name }}"
