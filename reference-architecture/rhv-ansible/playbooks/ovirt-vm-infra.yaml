@@ -1,6 +1,6 @@
 ---
 - name: oVirt infra
-  hosts: engine
+  hosts: localhost
   connection: local
   gather_facts: false
 

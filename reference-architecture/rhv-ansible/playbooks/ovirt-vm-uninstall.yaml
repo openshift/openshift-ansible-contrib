@@ -9,7 +9,7 @@
     - rhsm-unregister
 
 - name: oVirt infra destroy
-  hosts: engine
+  hosts: localhost
   connection: local
   gather_facts: false
 
