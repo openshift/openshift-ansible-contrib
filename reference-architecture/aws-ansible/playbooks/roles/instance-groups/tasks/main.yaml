@@ -48,25 +48,14 @@
   when:
     - hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name
 
-- name: Add new gluster node instances to host group
+- name: Add storage instances to host group
   add_host:
     name: "{{ hostvars[item].ec2_tag_Name }}"
-    groups: nodes, cluster_hosts, schedulable_nodes, glusterfs
+    groups: nodes, cns, cluster_hosts, schedulable_nodes, glusterfs, storage 
     openshift_node_labels:
       role: storage
       KubernetesCluster: "{{ stack_name }}"
       glusterfs_devices: '[ "/dev/xvdd" ]'
-  with_items: "{{ groups.tag_provision_node | default([]) }}"
-  when:
-    - groups.tag_openshift_role_storage is defined and hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name
-
-- name: Add storage instances to host group
-  add_host:
-    name: "{{ hostvars[item].ec2_tag_Name }}"
-    groups: nodes, cns, cluster_hosts, schedulable_nodes, storage
-    openshift_node_labels:
-      role: storage
-      KubernetesCluster: "{{ stack_name }}"
   with_items: "{{ groups['tag_openshift_role_storage'] }}"
   when:
     - groups.tag_openshift_role_storage is defined and hostvars[item]['ec2_tag_KubernetesCluster'] == stack_name
