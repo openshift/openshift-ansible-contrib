@@ -1,7 +1,7 @@
 ---
 - name: Unregister VMs
   hosts:
-    - tag_openshift_masters
+    - tag_openshift_master
     - tag_openshift_infra
     - tag_openshift_node
     - tag_openshift_lb
