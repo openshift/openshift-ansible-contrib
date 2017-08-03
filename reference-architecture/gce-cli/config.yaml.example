@@ -14,7 +14,7 @@ rhsm_password: 'xxx'
 rhsm_pool: 'yyy'
 
 # Path to a RHEL image on local machine, downloaded from Red Hat Customer Portal
-rhel_image_path: '~/Downloads/rhel-guest-image-7.3-35.x86_64.qcow2'
+rhel_image_path: '~/Downloads/rhel-server-7.4-x86_64-kvm.qcow2'
 # Choose to delete or retain the clean image during teardown
 delete_image: false
 # Choose to delete or retain the gold image during teardown
