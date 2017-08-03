@@ -3,3 +3,7 @@
   hosts: localhost
   roles:
   - inventory-file-creation
+  tasks:
+  - name: print message with the location of the inventory file
+    debug:
+      msg: Static inventory file created as ansible/static-inventory
