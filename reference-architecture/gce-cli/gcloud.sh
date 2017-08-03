@@ -31,9 +31,63 @@ set -euo pipefail
 # Directory of this script
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Our config file
+CONFIG_FILE='../config.yaml'
+
+# Don't ask for confirmation
+QUIET=0
+
 # Configure python path
 PYTHONPATH="${PYTHONPATH:-}:${DIR}/ansible/inventory/gce/hosts"
 export PYTHONPATH
+
+function display_help {
+  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --static-inventory | --scaleup | --prereq | --gold-image | --infra ] [ OPTIONAL ANSIBLE OPTIONS ]
+
+Helper script to deploy infrastructure and OpenShift on Google Cloud Platform
+
+Where:
+  -c | --config FILE  Provide custom config file, must be relative
+                      to the 'ansible' directory. Default is '../config.yaml'
+  -q | --quiet        Don't ask for confirmations
+  -h | --help         Display this help text
+  --teardown          Teardown the OpenShift and infrastructure.
+                      Warning: you will loose all your data
+  --static-inventory  Generate static Ansible inventory file for existing infra.
+                      It will be saved as 'ansible/static-inventory'
+  --scaleup           Scale up your OpenShift deployment. Update your
+                      'config.yaml' file to set the desired number of nodes.
+                      Supports scaling up of nodes as well as masters.
+                      Doesn't support scaling down
+  --prereq            Run only prerequisite playbook. Sets up Ansible connection
+                      to the GCP, DNS zone, runs validation tests, etc.
+  --gold-image        Run prerequisite playbook and create gold image in GCP
+  --infra             Create complete infrastructure without deploying OpenShift
+
+If no action option is specified, the script will create the infrastructure
+and deploy OpenShift on top of it.
+
+OPTIONAL ANSIBLE OPTIONS  All other options following the options mentioned
+                          above will be passed directly to the Ansible. For
+                          example, you can override any Ansible variable with:
+                          ./$(basename "$0") -e openshift_debug_level=4"
+}
+
+# Ask user for confirmation. First parameter is message
+function ask_for_confirmation {
+  if [ $QUIET -eq 1 ]; then
+    return 0
+  fi
+  read -p "${1} [y/N] " yn
+  case $yn in
+    [Yy]* )
+      return 0
+      ;;
+    * )
+      exit 1
+      ;;
+  esac
+}
 
 # Run given playbook (1. param). All other parameters
 # are passed directly to Ansible.
@@ -41,8 +95,25 @@ function run_playbook {
   playbook="$1"
   shift
   pushd "${DIR}/ansible"
-  ansible-playbook -e @playbooks/openshift-installer-common-vars.yaml -e @../config.yaml $@ "$playbook"
+  ansible-playbook -e '@playbooks/openshift-installer-common-vars.yaml' -e "@${CONFIG_FILE}" $@ "$playbook"
   popd
+}
+
+# Run prerequisite playbook
+function prereq {
+  run_playbook playbooks/prereq.yaml -i inventory/inventory "$@"
+}
+
+# Create only gold image
+function gold_image {
+  prereq "$@"
+  run_playbook playbooks/gold-image.yaml "$@"
+}
+
+# Create only infrastructure, without deploying OpenShift
+function infra {
+  gold_image "$@"
+  run_playbook playbooks/core-infra.yaml "$@"
 }
 
 # Scale up infrastructure and OCP
@@ -62,28 +133,59 @@ function static_inventory {
 
 # Main function which creates infrastructure and deploys OCP
 function main {
-  run_playbook playbooks/prereq.yaml -i inventory/inventory "$@"
+  prereq "$@"
   run_playbook playbooks/main.yaml "$@"
 }
 
-case ${1:-} in
-  --scaleup )
-    shift
-    scaleup "$@"
-    exit 0
-    ;;
-  --teardown | --revert )
-    shift
-    teardown "$@"
-    exit 0
-    ;;
-  --static-inventory )
-    shift
-    static_inventory "$@"
-    exit 0
-    ;;
-  * )
-    main "$@"
-    exit 0
-    ;;
-esac
+while true; do
+  case ${1:-} in
+    -c | --config )
+      shift
+      CONFIG_FILE="${1}"
+      shift
+      ;;
+    -q | --quiet )
+      QUIET=1
+      shift
+      ;;
+    -h | --help )
+      display_help
+      exit 0
+      ;;
+    --prereq )
+      shift
+      prereq "$@"
+      exit 0
+      ;;
+    --gold-image )
+      shift
+      gold_image "$@"
+      exit 0
+      ;;
+    --infra )
+      shift
+      infra "$@"
+      exit 0
+      ;;
+    --scaleup )
+      shift
+      scaleup "$@"
+      exit 0
+      ;;
+    --teardown | --revert )
+      shift
+      ask_for_confirmation 'Are you sure you want to destroy OpenShift and the infrastructure? You will loose all your data.'
+      teardown "$@"
+      exit 0
+      ;;
+    --static-inventory )
+      shift
+      static_inventory "$@"
+      exit 0
+      ;;
+    * )
+      main "$@"
+      exit 0
+      ;;
+  esac
+done
