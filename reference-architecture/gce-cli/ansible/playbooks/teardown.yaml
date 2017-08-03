@@ -19,7 +19,7 @@
   - ssh-proxy-delete
   - role: deployment-delete
     deployment_name: gold-image
-    deployment_name_with_prefix: '{{ prefix }}-{{ deployment_name }}{{ "-origin" if openshift_deployment_type == "origin" }}'
+    deployment_name_with_prefix: '{{ prefix }}-{{ deployment_name }}{{ "-origin" if openshift_deployment_type == "origin" else "" }}'
     when: delete_gold_image | bool
   - role: rhel-image-delete
     when: delete_image | bool
