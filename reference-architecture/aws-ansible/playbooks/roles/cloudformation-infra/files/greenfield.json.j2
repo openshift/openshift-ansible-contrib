@@ -956,12 +956,6 @@
             }
           },
           {
-            "Name": {"Fn::Join": [".", ["bastion",{"Ref": "Route53HostedZone"}]]},
-            "Type": "A",
-			"TTL": "300",
-		    "ResourceRecords": [{ "Fn::GetAtt" : ["Bastion", "PublicIp"] }]
-          },
-          {
             "Name": {"Fn::Join": [".", ["ose-master01",{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
 			"TTL": "300",
@@ -997,17 +991,19 @@
 			"TTL": "300",
 		    "ResourceRecords": [{ "Fn::GetAtt" : ["InfraNode03", "PrivateIp"] }]
           },
+{% for idx in range(0, app_node_count|int) %}
           {
-            "Name": {"Fn::Join": [".", ["ose-app-node01",{"Ref": "Route53HostedZone"}]]},
+            "Name": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
-			"TTL": "300",
-		    "ResourceRecords": [{ "Fn::GetAtt" : ["AppNode01", "PrivateIp"] }]
+             "TTL": "300",
+            "ResourceRecords": [{ "Fn::GetAtt" : ["AppNode{{ '%02d' % idx }}", "PrivateIp"] }]
           },
+{% endfor %}
           {
-            "Name": {"Fn::Join": [".", ["ose-app-node02",{"Ref": "Route53HostedZone"}]]},
+            "Name": {"Fn::Join": [".", ["bastion",{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
-			"TTL": "300",
-		    "ResourceRecords": [{ "Fn::GetAtt" : ["AppNode02", "PrivateIp"] }]
+                        "TTL": "300",
+                    "ResourceRecords": [{ "Fn::GetAtt" : ["Bastion", "PublicIp"] }]
           }
         ]
       }
@@ -1358,54 +1354,12 @@
          ]
      }
  },
-    "AppNode01" : {
-       "Type" : "AWS::EC2::Instance",
-       "DependsOn": ["NodeInstanceProfile"],
-       "Properties" : {
-          "ImageId" : {"Ref": "AmiId"},
-          "UserData": {"Ref": "NodeUserData"},
-          "KeyName" : {"Ref": "KeyName"},
-          "InstanceType": {"Ref": "AppNodeInstanceType"},
-          "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
-          "SubnetId" : {"Ref": "PrivateSubnet1"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
-          "Tags": [
-            { "Key": "Name",
-              "Value": {"Fn::Join": [".", ["ose-app-node01",{"Ref": "PublicHostedZone"}]]}
-            },
-            { "Key": "openshift-role",
-              "Value": "app"
-            }
-          ],
-          "BlockDeviceMappings" : [
-          {
-            "DeviceName": "/dev/sda1",
-            "Ebs": {
-              "DeleteOnTermination": "true",
-              "VolumeSize": {"Ref": "NodeRootVolSize"},
-              "VolumeType": {"Ref": "NodeRootVolType"}
-            }
-          },
-          {
-            "DeviceName": "/dev/xvdb",
-            "Ebs": {
-              "DeleteOnTermination": "true",
-              "VolumeSize": {"Ref": "NodeDockerVolSize"},
-              "VolumeType": {"Ref": "NodeDockerVolType"}
-            }
-          },
-          {
-            "DeviceName": "/dev/xvdc",
-            "Ebs": {
-              "DeleteOnTermination": "true",
-              "VolumeSize": {"Ref": "NodeEmptyVolSize"},
-              "VolumeType": {"Ref": "NodeEmptyVolType"}
-            }
-          }
-         ]
-     }
- },
-    "AppNode02" : {
+{% set rotator = 1 %}
+{% for idx in range(0, app_node_count|int) %}
+{% if rotator == 4 %}
+  {% set rotator = 1 %}
+{% endif %}
+    "AppNode{{ '%02d' % idx }}" : {
        "Type" : "AWS::EC2::Instance",
        "DependsOn": ["NodeInstanceProfile"],
        "Properties" : {
@@ -1414,12 +1368,12 @@
           "KeyName" : {"Ref": "KeyName"},
           "InstanceType": {"Ref": "AppNodeInstanceType"},
 	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
-          "SubnetId" : {"Ref": "PrivateSubnet2"},
+          "SubnetId" : {"Ref": "PrivateSubnet{{ rotator }}"},
 	  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
-            { "Key": "Name",
-              "Value": {"Fn::Join": [".", ["ose-app-node02",{"Ref": "PublicHostedZone"}]]}
-            },
+          { "Key": "Name",
+            "Value": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "PublicHostedZone"}]]}
+          },
             { "Key": "openshift-role",
               "Value": "app"
             }
@@ -1452,6 +1406,8 @@
          ]
      }
    },
+{% set rotator = rotator + 1 %}
+{% endfor %}
     "S3UserName" : {
       "Type" : "AWS::IAM::User",
       "Properties" : {

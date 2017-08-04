@@ -38,6 +38,8 @@ import sys
               show_default=True)
 @click.option('--app-instance-type', default='t2.large', help='ec2 instance type',
               show_default=True)
+@click.option('--app-node-count', default='2', help='Number of Application Nodes',
+              show_default=True)
 @click.option('--bastion-instance-type', default='t2.micro', help='ec2 instance type',
               show_default=True)
 @click.option('--keypair', help='ec2 keypair name',
@@ -104,6 +106,7 @@ def launch_refarch_env(region=None,
                     master_instance_type=None,
                     node_instance_type=None,
                     app_instance_type=None,
+                    app_node_count=None,
                     bastion_instance_type=None,
                     keypair=None,
                     create_key=None,
@@ -184,6 +187,8 @@ def launch_refarch_env(region=None,
     public_subnet_id2 = click.prompt('Specify the second Public subnet within the existing VPC')
     public_subnet_id3 = click.prompt('Specify the third Public subnet within the existing VPC')
 
+  app_node_count = int(app_node_count)
+
  # Prompt for Bastion SG if byo-bastion specified
   if byo_bastion in 'yes' and bastion_sg in '/dev/null':
     bastion_sg = click.prompt('Specify the the Bastion Security group(example: sg-4afdd24)')
@@ -228,6 +233,7 @@ def launch_refarch_env(region=None,
   click.echo('\tmaster_instance_type: %s' % master_instance_type)
   click.echo('\tnode_instance_type: %s' % node_instance_type)
   click.echo('\tapp_instance_type: %s' % app_instance_type)
+  click.echo('\tapp_node_count: %d' % app_node_count)
   click.echo('\tbastion_instance_type: %s' % bastion_instance_type)
   click.echo('\tkeypair: %s' % keypair)
   click.echo('\tcreate_key: %s' % create_key)
@@ -267,6 +273,8 @@ def launch_refarch_env(region=None,
   click.echo('\tglusterfs_volume_type: %s' % glusterfs_volume_type)
   click.echo('\tglusterfs_iops: %s' % glusterfs_iops)
   click.echo("")
+
+  # app_node_count = (app_node_count +1)
 
   if not no_confirm:
     click.confirm('Continue using these values?', abort=True)
@@ -310,6 +318,7 @@ def launch_refarch_env(region=None,
     master_instance_type=%s \
     node_instance_type=%s \
     app_instance_type=%s \
+    app_node_count=%d \
     bastion_instance_type=%s \
     public_hosted_zone=%s \
     wildcard_zone=%s \
@@ -352,6 +361,7 @@ def launch_refarch_env(region=None,
                     master_instance_type,
                     node_instance_type,
                     app_instance_type,
+                    int(app_node_count),
                     bastion_instance_type,
                     public_hosted_zone,
                     wildcard_zone,

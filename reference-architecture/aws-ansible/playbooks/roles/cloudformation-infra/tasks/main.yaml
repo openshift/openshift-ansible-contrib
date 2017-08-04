@@ -1,10 +1,13 @@
 ---
+- name: Render Template
+  template: src=roles/cloudformation-infra/files/greenfield.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}greenfield.json
+
 - name: Create Greenfield Infrastructure
   cloudformation:
     stack_name: "{{ stack_name }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/greenfield.json"
+    template: "roles/cloudformation-infra/files/{{ stack_name }}greenfield.json"
     template_parameters:
       Region: "{{ region }}"
       Route53HostedZone: "{{ public_hosted_zone }}."
