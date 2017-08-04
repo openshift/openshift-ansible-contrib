@@ -991,7 +991,7 @@
 			"TTL": "300",
 		    "ResourceRecords": [{ "Fn::GetAtt" : ["InfraNode03", "PrivateIp"] }]
           },
-{% for idx in range(0, app_node_count|int) %}
+{% for idx in range(1, app_node_count|int + 1) %}
           {
             "Name": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "Route53HostedZone"}]]},
             "Type": "A",
@@ -1355,7 +1355,7 @@
      }
  },
 {% set rotator = 1 %}
-{% for idx in range(0, app_node_count|int) %}
+{% for idx in range(1, app_node_count|int + 1) %}
 {% if rotator == 4 %}
   {% set rotator = 1 %}
 {% endif %}
