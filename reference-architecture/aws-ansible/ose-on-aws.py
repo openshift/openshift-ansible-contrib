@@ -30,7 +30,7 @@ import sys
 ### AWS/EC2 options
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
-@click.option('--ami', default='ami-a33668b4', help='ec2 ami',
+@click.option('--ami', default='ami-fbc89880', help='ec2 ami',
               show_default=True)
 @click.option('--master-instance-type', default='m4.xlarge', help='ec2 instance type',
               show_default=True)
