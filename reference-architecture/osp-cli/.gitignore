@@ -1,5 +1,6 @@
 user-data
 REFARCH_ENV
+MANUAL_ENV
 keys
 OSEv3.yml
 inventory

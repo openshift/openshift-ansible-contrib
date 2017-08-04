@@ -50,32 +50,33 @@ deployment process. The values listed below must be set in the
 caller's environment before invoking the first script.  You can write
 them into a file and then `source` them into the environment.
 
-.Define Installation Variables
+.MANUAL_ENV - Define Installation Variables
 ----
+export MASTER_COUNT=3
+export INFRA_NODE_COUNT=3
+export APP_NODE_COUNT=2
+
 # Software Version Override
-export GLANCE_IMAGE=rhel73
-export OCP_VERSION=3.3
-export OSP_VERSION=8
+export GLANCE_IMAGE=rhel7
+export OCP3_VERSION=3.4
+export OSP_VERSION=10
 
-# Infrastructure
-export NAMESERVER=10.19.X.X
+# Instance Specification
+export IMAGE_NAME=rhel7
+export FLAVOR=m1.small
+export OCP3_KEY_NAME=ocp3
+export OCP3_KEY_FILE=~/keys/ocp3_rsa
+export PUBLIC_NETWORK=public_network
+
+# Naming and DNS 
 export OCP3_DOMAIN=ocp3.example.com
-
-# Generate DNS
 export OCP3_DNS_SERVER=10.19.X.X
-export OCP3_DNS_UPDATE_KEY=/home/testuser/keys/ns1.ose3.key
-
-# Generate haproxy
-export HAPROXY_HOST=ocp3-proxy.example.com
-export HAPROXY_KEY=/home/testuser/keys/services_rsa
-
-# Bastion access
-export BASTION_HOST=bastion.ocp3
-export BASTION_KEY=/home/testuser/keys/ocp3_rsa
+export OCP3_DNS_UPDATE_KEY=~/keys/dns-update.key
 
 export MASTER_DNS_NAME=devs.ocp3.example.com
 export APPS_DNS_SUFFIX=apps.ocp3.example.com
 
+# User Access Control - LDAP server (optional)
 export LDAP_BIND_DN=cn=openshift,cn=users,dc=example,dc=com
 export LDAP_BIND_PASSWORD=password
 export LDAP_URL=ldap://ad1.example.com:389/cn=users,dc=example,dc=com?sAMAccountName
@@ -95,15 +96,11 @@ repositories.
 * `rhel-7-server-openstack-${OSP_VERSION}-rpms`
 * `rhel-7-server-openstack-${OSP_VERSION}-director-rpms`
 
-.rnh_credentials
+.rhh_credentials
 ----
 export RHN_USERNAME=<username>
 export RHN_PASSWORD=<password>
 export RHN_POOL_ID=<pool id>
-export OCP_VERSION=3.3
-# Uncomment to use development version (unsupported)
-#export OCP_ANSIBLE_GIT_REPO=http://github.com/openshift/openshift-ansible.git
-#export OCP_ANSIBLE_ROOT=/home/cloud-user
 ----
 
 === Creating the Infrastructure
@@ -124,6 +121,29 @@ node VMs. This includes updating the DNS and haproxy configurations.
 //sh ./generate_haproxy_conf.sh
 //----
 
+=== Populate DNS service
+
+The `generate_dns_updates` script can automatically populate the DNS server if the proper variables have been set:
+
+* OCP3_DOMAIN=ocp3.example.com
+* OCP3_DNS_SERVER=10.19.X.X
+* OCP3_DNS_UPDATE_KEY=~/keys/dns-update.key
+
+----
+sh ./generate_dns_updates.sh
+----
+
+=== Load Balancer Configuration
+
+The DNS records for the master and app load balancers must exist:
+
+* devs.ocp3.example.com -> loadbalancer IP address
+* *.apps.ocp3.example.com -> loadbalancer IP address
+
+The loadbalancer must be configured to forward ports 80 and 443
+to the infra-node floating IP addresses and port 8443 must forward to
+the master floating IP addresses.
+
 === Prepare the host instances
 
 This step initializes and customizes the instances for OpenShift
@@ -133,10 +153,10 @@ First it configures the bastion host; registering for software repos,
 installing Ansible and other tools.  Then it repeats the process with
 all of the OpenShift VMs from the bastion host.
 
-.Stage Bastion and VM Configuration Scripts
+.Stage Bastion and instance Configurations
 ----
 sh ./prepare_bastion.sh
-sh ./prepare_instances.sh
+sh ./prepare_instances_ansible.sh
 ----
 
 The final step is to run the OpenShift Ansible installer.  This script
