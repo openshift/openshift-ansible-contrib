@@ -1,3 +1,4 @@
 ---
 
 external_nsupdate_keys: {}
+stack_name: openshift.example.com

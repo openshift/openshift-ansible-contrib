@@ -91,6 +91,8 @@ rhsm_register: False
 #    key_secret: 'kVE2bVTgZjrdJipxPhID8BEZmbHD8cExlVPR+zbFpW6la8kL5wpXiwOh8q5AAosXQI5t95UXwq3Inx8QT58duw=='
 #    key_algorithm: 'hmac-md5'
 #    server: '192.168.1.2'
+#    instack: true
+#    public_access: false
 
 
 # NOTE(shadower): Do not change this value. The Ansible user is currently

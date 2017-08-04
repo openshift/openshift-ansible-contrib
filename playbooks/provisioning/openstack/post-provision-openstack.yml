@@ -43,6 +43,8 @@
   hosts: localhost
   gather_facts: False
   become: False
+  vars_files:
+    - stack_params.yaml
   roles:
     - dns-server-detect
 
@@ -55,6 +57,7 @@
   roles:
     - role: dns-views
     - role: infra-ansible/roles/dns-server
+      #when: not external_nsupdate_keys is defined
 
 - name: Build and process DNS Records
   hosts: localhost
@@ -90,3 +93,16 @@
         line: "IP4_NAMESERVERS={{ hostvars['localhost'].private_dns_server }}"
   roles:
     - node-network-manager
+
+- name: Show configured in-stack DNS nsupdate keys for future use as an external one
+  hosts: dns
+  gather_facts: False
+  vars_files:
+    - stack_params.yaml
+  tasks:
+    - when:
+        - external_nsupdate_keys is defined
+        - external_nsupdate_keys.public is defined or external_nsupdate_keys.private is defined
+        - external_nsupdate_keys.public.instack|default(False)|bool or external_nsupdate_keys.private.instack|default(False)|bool
+      debug:
+        var: external_nsupdate_keys
