@@ -1,13 +1,22 @@
 ---
-- name: Render Template
+- name: Render Greenfield Template
   template: src=roles/cloudformation-infra/files/greenfield.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}greenfield.json
+  when: create_vpc == "yes"
+
+- name: Render Brownfield Template
+  template: src=roles/cloudformation-infra/files/brownfield.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}-brownfield.json
+  when: create_vpc == "no" and byo_bastion == "no"
+
+- name: Render Brownfield BYO Bastion Template
+  template: src=roles/cloudformation-infra/files/brownfield-byo-bastion.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}brownfield-byo-bastion.json
+  when: create_vpc == "no" and byo_bastion == "yes"
 
 - name: Create Greenfield Infrastructure
   cloudformation:
     stack_name: "{{ stack_name }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/{{ stack_name }}greenfield.json"
+    template: "roles/cloudformation-infra/files/{{ stack_name }}-greenfield.json"
     template_parameters:
       Region: "{{ region }}"
       Route53HostedZone: "{{ public_hosted_zone }}."
@@ -59,7 +68,7 @@
     stack_name: "{{ stack_name }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/brownfield.json"
+    template: "roles/cloudformation-infra/files/{{ stack_name }}-brownfield.json"
     template_parameters:
       Vpc: "{{ vpc_id }}"
       PrivateSubnet1: "{{ private_subnet_id1 }}"
@@ -114,7 +123,7 @@
     stack_name: "{{ stack_name }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/brownfield-byo-bastion.json"
+    template: "roles/cloudformation-infra/files/{{ stack_name }}-brownfield-byo-bastion.json"
     template_parameters:
       Vpc: "{{ vpc_id }}"
       BastionSg: "{{ bastion_sg }}"
