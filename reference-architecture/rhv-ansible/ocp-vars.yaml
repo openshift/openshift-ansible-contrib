@@ -18,6 +18,9 @@ qcow_url:
 # Name of cluster to install on
 rhv_cluster: Default
 
+# Name of RHV storage domain to create disks
+rhv_data_storage: my_data_storage
+
 ### Choose a subscription method:
 ## For subscriptions to Satellite:
 #

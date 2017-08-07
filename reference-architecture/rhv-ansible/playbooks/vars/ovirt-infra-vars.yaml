@@ -159,11 +159,11 @@ master_vm:
   disks:
     - size: 40GiB
       name: docker_disk
-      storage_domain: my_data_storage
+      storage_domain: "{{ rhv_data_storage }}"
       interface: virtio
     - size: 40GiB
       name: etcd_disk
-      storage_domain: my_data_storage
+      storage_domain: "{{ rhv_data_storage }}"
       interface: virtio
 
 node_vm:
@@ -176,11 +176,11 @@ node_vm:
   disks:
     - size: 20GiB
       name: docker_disk
-      storage_domain: my_data_storage
+      storage_domain: "{{ rhv_data_storage }}"
       interface: virtio
     - size: 15GiB
       name: localvol_disk
-      storage_domain: my_data_storage
+      storage_domain: "{{ rhv_data_storage }}"
       interface: virtio
 
 infra_vm:
@@ -194,11 +194,11 @@ infra_vm:
   disks:
     - size: 20GiB
       name: docker_disk
-      storage_domain: my_data_storage
+      storage_domain: "{{ rhv_data_storage }}"
       interface: virtio
     - size: 15GiB
       name: localvol_disk
-      storage_domain: my_data_storage
+      storage_domain: "{{ rhv_data_storage }}"
       interface: virtio
 
 lb_vm:
@@ -212,11 +212,11 @@ lb_vm:
   disks:
     - size: 20GiB
       name: docker_disk
-      storage_domain: my_data_storage
+      storage_domain: "{{ rhv_data_storage }}"
       interface: virtio
     - size: 15GiB
       name: localvol_disk
-      storage_domain: my_data_storage
+      storage_domain: "{{ rhv_data_storage }}"
       interface: virtio
 
 vms:
