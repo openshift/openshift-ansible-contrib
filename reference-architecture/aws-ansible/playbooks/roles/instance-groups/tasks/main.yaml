@@ -51,7 +51,7 @@
 - name: Add storage instances to host group
   add_host:
     name: "{{ hostvars[item].ec2_tag_Name }}"
-    groups: nodes, cns, cluster_hosts, schedulable_nodes, glusterfs, storage 
+    groups: nodes, cns, cluster_hosts, schedulable_nodes, glusterfs, storage
     openshift_node_labels:
       role: storage
       KubernetesCluster: "{{ stack_name }}"
