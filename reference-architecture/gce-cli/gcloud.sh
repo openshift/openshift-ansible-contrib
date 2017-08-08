@@ -46,7 +46,7 @@ ANSIBLE_LOG_PATH="${DIR}/ansible-$(date +%F_%T).log"
 export ANSIBLE_LOG_PATH
 
 function display_help {
-  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --static-inventory | --scaleup | --prereq | --gold-image | --infra | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
+  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --redeploy | --static-inventory | --scaleup | --prereq | --gold-image | --infra | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
 
 Helper script to deploy infrastructure and OpenShift on Google Cloud Platform
 
@@ -55,8 +55,10 @@ Where:
                       to the 'ansible' directory. Default is '../config.yaml'
   -q | --quiet        Don't ask for confirmations
   -h | --help         Display this help text
-  --teardown          Teardown the OpenShift and infrastructure.
+  --teardown          Teardown the OpenShift and the infrastructure.
                       Warning: you will loose all your data
+  --redeploy          Teardown the OpenShift and the infrastructure and deploy
+                      it again. Warning: you will loose all your data
   --static-inventory  Generate static Ansible inventory file for existing infra.
                       It will be saved as 'ansible/static-inventory'
   --scaleup           Scale up your OpenShift deployment. Update your
@@ -128,6 +130,7 @@ function scaleup {
 
 # Teardown infrastructure
 function teardown {
+  ask_for_confirmation 'Are you sure you want to destroy OpenShift and the infrastructure? You will loose all your data.'
   run_playbook playbooks/teardown.yaml "$@"
 }
 
@@ -179,8 +182,13 @@ while true; do
       ;;
     --teardown | --revert )
       shift
-      ask_for_confirmation 'Are you sure you want to destroy OpenShift and the infrastructure? You will loose all your data.'
       teardown "$@"
+      exit 0
+      ;;
+    --redeploy )
+      shift
+      teardown "$@"
+      main "$@"
       exit 0
       ;;
     --static-inventory )
