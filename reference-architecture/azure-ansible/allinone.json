@@ -149,7 +149,7 @@
     },
     "logging" : {
       "type" : "bool",
-      "defaultValue" : true,
+      "defaultValue" : false,
       "metadata" : {
         "description" : "Enable OCP aggregated logging"
       }
