@@ -2,3 +2,5 @@ config.yaml
 project.json
 secrets.py
 .ansible
+ansible-*.log
+

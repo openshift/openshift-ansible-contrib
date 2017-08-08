@@ -31,9 +31,6 @@ set -euo pipefail
 # Directory of this script
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Create and assign log file for ansible
-export ANSIBLE_LOG_PATH=${DIR}/$(mktemp -p . ansible-$(date -I)-XXXXXXX.log)
-
 # Our config file
 CONFIG_FILE='../config.yaml'
 
@@ -44,8 +41,12 @@ QUIET=0
 PYTHONPATH="${PYTHONPATH:-}:${DIR}/ansible/inventory/gce/hosts"
 export PYTHONPATH
 
+# Assign log file for ansible
+ANSIBLE_LOG_PATH="${DIR}/ansible-$(date +%F_%T).log"
+export ANSIBLE_LOG_PATH
+
 function display_help {
-  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --static-inventory | --scaleup | --prereq | --gold-image | --infra ] [ OPTIONAL ANSIBLE OPTIONS ]
+  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --static-inventory | --scaleup | --prereq | --gold-image | --infra | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
 
 Helper script to deploy infrastructure and OpenShift on Google Cloud Platform
 
@@ -66,6 +67,7 @@ Where:
                       to the GCP, DNS zone, runs validation tests, etc.
   --gold-image        Run prerequisite playbook and create gold image in GCP
   --infra             Create complete infrastructure without deploying OpenShift
+  --clear-logs        Delete all Ansible logs created by this script
 
 If no action option is specified, the script will create the infrastructure
 and deploy OpenShift on top of it.
@@ -184,6 +186,10 @@ while true; do
     --static-inventory )
       shift
       static_inventory "$@"
+      exit 0
+      ;;
+    --clear-logs )
+      rm -f "${DIR}"/ansible-*.log
       exit 0
       ;;
     * )
