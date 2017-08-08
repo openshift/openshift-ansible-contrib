@@ -31,6 +31,9 @@ set -euo pipefail
 # Directory of this script
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Create and assign log file for ansible
+export ANSIBLE_LOG_PATH=${DIR}/$(mktemp -p . ansible-$(date -I)-XXXXXXX.log)
+
 # Our config file
 CONFIG_FILE='../config.yaml'
 
