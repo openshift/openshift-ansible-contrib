@@ -45,7 +45,7 @@ node_instance_group_size: 2
 
 # Machine types
 bastion_machine_type: g1-small
-master_machine_type: n1-standard-2
+master_machine_type: n1-standard-4
 infra_machine_type: n1-standard-2
 node_machine_type: n1-standard-2
 
@@ -81,7 +81,7 @@ openshift_master_identity_providers:
 
 # Disk sizes in GB
 bastion_disk_size: 20
-master_boot_disk_size: 35
+master_boot_disk_size: 45
 master_docker_disk_size: 25
 infra_boot_disk_size: 25
 infra_docker_disk_size: 25
