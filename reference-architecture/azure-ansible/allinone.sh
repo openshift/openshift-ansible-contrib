@@ -59,6 +59,20 @@ ps -ef | grep allinone.sh > cmdline.out
 systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
+echo "Resize Root FS"
+echo "d
+2
+n
+p
+2
+
+
+w
+" | fdisk /dev/sda
+partx -u /dev/sda2
+xfs_growfs /dev/sda2
+
+
 mkdir -p /var/lib/origin/openshift.local.volumes
 ZEROVG=$( parted -m /dev/sda print all 2>/dev/null | grep unknown | grep /dev/sd | cut -d':' -f1 | head -n1)
 parted -s -a optimal ${ZEROVG} mklabel gpt -- mkpart primary xfs 1 -1
