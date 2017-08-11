@@ -453,7 +453,8 @@
               "uri" : "[concat('http://', variables('StorageAccountName'), '.blob.core.windows.net/openshiftvmachines/', resourceGroup().name, '.vhd')]"
             },
             "name" : "osdisk",
-            "createOption" : "FromImage"
+            "createOption" : "FromImage",
+            "diskSizeGB" : "128"
           },
           "dataDisks" : [
             {
