@@ -174,7 +174,7 @@
     "rhel" : {
       "publisher" : "Redhat",
       "offer" : "RHEL",
-      "sku" : "7.4",
+      "sku" : "7.3",
       "version" : "latest"
     },
     "baseVMachineTemplateUriOneVm" : "[concat(variables('baseTemplateUrl'), 'onevm.json')]",
