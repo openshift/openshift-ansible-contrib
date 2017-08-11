@@ -49,6 +49,12 @@
       state: started
       enabled: true
 
+  - name: Start docker
+    service:
+      name: docker 
+      state: started
+      enabled: true
+
   when: not openshift.common.is_atomic | bool
 
 # Fail as early as possible if Atomic and old version of Docker
