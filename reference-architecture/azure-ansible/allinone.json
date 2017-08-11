@@ -163,7 +163,7 @@
     }
   },
   "variables" : {
-    "gituser" : "openshift",
+    "gituser" : "glennswest",
     "branch" : "master",
     "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/')]",
     "location" : "[resourceGroup().location]",
@@ -174,7 +174,7 @@
     "rhel" : {
       "publisher" : "Redhat",
       "offer" : "RHEL",
-      "sku" : "7.3",
+      "sku" : "7.4",
       "version" : "latest"
     },
     "baseVMachineTemplateUriOneVm" : "[concat(variables('baseTemplateUrl'), 'onevm.json')]",
