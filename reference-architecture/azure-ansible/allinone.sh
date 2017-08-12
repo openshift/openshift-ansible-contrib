@@ -184,6 +184,8 @@ subscription-manager repos --disable="*"
 subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-fast-datapath-rpms"
 subscription-manager repos --enable="rhel-7-server-ose-3.6-rpms"
 yum -y install atomic-openshift-utils git net-tools bind-utils iptables-services bridge-utils bash-completion httpd-tools nodejs qemu-img docker
+systemctl enable docker
+systemctl start docker
 touch /root/.updateok
 
 # Create azure.conf file
