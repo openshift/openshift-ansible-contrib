@@ -23,6 +23,7 @@
   gather_facts: no
   become: yes
   roles:
+  - rhsm-repos 
   - prerequisites
 
 - hosts: master
