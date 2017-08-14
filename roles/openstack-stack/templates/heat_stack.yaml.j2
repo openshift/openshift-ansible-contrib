@@ -476,7 +476,7 @@ resources:
               template: k8s_type-%index%.cluster_id
               params:
                 cluster_id: {{ stack_name }}
-                k8s_type: {{ etcd_hostname | default('etcd') }}
+                k8s_type: {{ etcd_hostname }}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -526,7 +526,7 @@ resources:
             str_replace:
               template: k8s_type.cluster_id
               params:
-                k8s_type: {{ lb_hostname | default('lb') }}
+                k8s_type: {{ lb_hostname }}
                 cluster_id: {{ stack_name }}
           type:        lb
           image:       {{ openstack_image }}
@@ -564,7 +564,7 @@ resources:
               template: k8s_type-%index%.cluster_id
               params:
                 cluster_id: {{ stack_name }}
-                k8s_type: {{ master_hostname | default('master') }}
+                k8s_type: {{ master_hostname }}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -620,7 +620,7 @@ resources:
               template: sub_type_k8s_type-%index%.cluster_id
               params:
                 cluster_id: {{ stack_name }}
-                sub_type_k8s_type: {{ node_hostname | default('app-node') }}
+                sub_type_k8s_type: {{ node_hostname }}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -667,7 +667,7 @@ resources:
               template: sub_type_k8s_type-%index%.cluster_id
               params:
                 cluster_id: {{ stack_name }}
-                sub_type_k8s_type: {{ infra_hostname | default('infra-node') }}
+                sub_type_k8s_type: {{ infra_hostname }}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -718,7 +718,7 @@ resources:
               template: k8s_type-%index%.cluster_id
               params:
                 cluster_id: {{ stack_name }}
-                k8s_type: {{ dns_hostname | default('dns') }}
+                k8s_type: {{ dns_hostname }}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
