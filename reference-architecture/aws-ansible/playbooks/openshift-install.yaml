@@ -20,6 +20,15 @@
   - host-up
   - openshift-versions
 
+- hosts: nodes 
+  connection: local
+  gather_facts: no
+  become: no
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - non-atomic-docker-storage-setup
+
 - include: ../../../playbooks/prerequisite.yaml
 
 - include: openshift-setup.yaml
