@@ -403,12 +403,14 @@ cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
     yum: name=PyYAML state=latest
   - name: Install the OCP client
     yum: name=atomic-openshift-clients state=latest
+  - name: Install atomic-openshift
+    yum: name=atomic-openshift state=latest
   - name: Update all hosts
     yum: name="*" state=latest
   - name: Install the docker
     yum: name=docker state=latest
   - name: Install growpart
-    yum: cloud-utils-growpart.noarch
+    yum: name=cloud-utils-growpart.noarch
   - name: Grow root partition
     shell: growpart /dev/sda 2 -u on
   - name: Grow Root filesystem
