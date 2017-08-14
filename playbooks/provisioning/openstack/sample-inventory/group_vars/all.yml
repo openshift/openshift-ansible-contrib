@@ -12,8 +12,10 @@ openstack_external_network_name: "public"
 # # - note: do not remove openstack_default_image_name definition
 #openstack_master_image_name: "centos7"
 #openstack_infra_image_name: "centos7"
-#openstack_appnode_image_name: "centos7"
-#openstack_loadbalancer_image_name: "centos7"
+#openstack_node_image_name: "centos7"
+#openstack_lb_image_name: "centos7"
+#openstack_etcd_image_name: "centos7"
+#openstack_dns_image_name: "centos7"
 openstack_default_image_name: "centos7"
 
 openstack_num_masters: 1
