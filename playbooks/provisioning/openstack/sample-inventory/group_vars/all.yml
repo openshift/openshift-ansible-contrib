@@ -6,8 +6,8 @@ public_dns_nameservers: []
 # # Used Hostnames
 # # - set custom hostnames for roles by uncommenting corresponding lines
 #openstack_master_hostname: "master"
-#openstack_infra_hostname: "infra"
-#openstack_node_hostname: "node"
+#openstack_infra_hostname: "infra-node"
+#openstack_node_hostname: "app-node"
 #openstack_lb_hostname: "lb"
 #openstack_etcd_hostname: "etcd"
 #openstack_dns_hostname: "dns"
