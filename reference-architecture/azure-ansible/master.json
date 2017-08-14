@@ -130,7 +130,8 @@
               "uri" : "[concat('http://', parameters('sa'), '.blob.core.windows.net/openshiftvmachines/', parameters('vmName'), '.vhd')]"
             },
             "caching" : "ReadWrite",
-            "createOption" : "FromImage"
+            "createOption" : "FromImage",
+            "diskSizeGB" : "128"
           },
           "dataDisks" : [
             {

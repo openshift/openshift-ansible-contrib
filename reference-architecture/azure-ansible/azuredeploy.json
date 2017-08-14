@@ -286,23 +286,23 @@
       }
     },
     "metrics" : {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata" :{
+      "type" : "bool",
+      "defaultValue" : true,
+      "metadata" : {
         "description" : "Enable OCP metrics"
       }
     },
     "logging" : {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata" :{
+      "type" : "bool",
+      "defaultValue" : true,
+      "metadata" : {
         "description" : "Enable OCP aggregated logging"
       }
     },
     "opslogging" : {
-      "type": "bool",
-      "defaultValue": false,
-      "metadata" :{
+      "type" : "bool",
+      "defaultValue" : false,
+      "metadata" : {
         "description" : "Enable OCP aggregated logging for ops"
       }
     }
@@ -747,7 +747,7 @@
           "rhsmmode" : {
             "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
           },
-          "openshiftsdn": {
+          "openshiftsdn" : {
             "value" : "[parameters('OpenShiftSDN')]"
           },
           "metrics" : {
