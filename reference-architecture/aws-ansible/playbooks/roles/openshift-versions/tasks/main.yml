@@ -1,0 +1,11 @@
+---
+- name: Export OpenShift version
+  set_fact: 
+    ose_version: "{{ openshift_vers }}"
+  when: deployment_type == "openshift-enterprise" 
+
+- name: Set Origin fact
+  set_fact:
+    openshift_release: "{{ origin_release }}"
+  when: deployment_type == "origin"
+

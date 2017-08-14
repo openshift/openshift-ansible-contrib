@@ -20,8 +20,6 @@
     openshift_master_api_port: "{{ console_port }}"
     openshift_master_console_port: "{{ console_port | default (443) }}"
     osm_cluster_network_cidr: 172.16.0.0/16
-    openshift_major_version: 6
-    openshift_vers: v3_{{ openshift_major_version }}
     openshift_registry_selector: "role=infra"
     openshift_router_selector: "role=infra"
     openshift_hosted_router_replicas: 3

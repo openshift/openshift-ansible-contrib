@@ -72,13 +72,10 @@ import sys
 
 
 ### Subscription and Software options
-@click.option('--rhel-subscription-user', help='Red Hat Subscription Management User')
-@click.option('--rhel-subscription-pass', help='Red Hat Subscription Management Password',
+@click.option('--rhsm-user', help='Red Hat Subscription Management User')
+@click.option('--rhsm-password', help='Red Hat Subscription Management Password',
                 hide_input=True,)
-@click.option('--rhel-subscription-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
-@click.option('--rhsm-user', help='DEPRECATED!! Use rhel-subscription-user')
-@click.option('--rhsm-password', help='DEPRECATED!! Use rhel-subscription-pass')
-@click.option('--rhsm-pool', help='DEPRECATED!! Use rhel-subscription-pool')
+@click.option('--rhsm-pool', help='Red Hat Subscription Management Pool ID or Subscription Name')
 
 ### Miscellaneous options
 @click.option('--byo-bastion', default='no', help='skip bastion install when one exists within the cloud provider',
@@ -130,9 +127,6 @@ def launch_refarch_env(region=None,
                     deployment_type=None,
                     openshift_sdn=None,
                     console_port=443,
-                    rhel_subscription_user=None,
-                    rhel_subscription_pass=None,
-                    rhel_subscription_pool=None,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_pool=None,
@@ -152,19 +146,6 @@ def launch_refarch_env(region=None,
                     glusterfs_volume_type=None,
                     glusterfs_iops=None,
                     verbose=0):
-
-
-  if deployment_type in 'openshift-enterprise' and rhsm_user is not None:
-    rhel_subscription_user = rhsm_user
-    click.echo('\nrhsm_user is deprecated and will be removed in the future in favor of rhel_subscription_user\n')
-
-  if deployment_type in 'openshift-enterprise' and rhsm_user is not None:
-    rhel_subscription_pass = rhsm_password
-    click.echo('\nrhsm_password is deprecated and will be removed in the future in favor of rhel_subscription_pass\n')
-
-  if deployment_type in 'openshift-enterprise' and rhsm_pool is not None:
-    rhel_subscription_pool = rhsm_pool
-    click.echo('\nrhsm_pool is deprecated and will be removed in the future in favor of rhel_subscription_pool\n')
 
   # Need to prompt for the R53 zone:
   if public_hosted_zone is None:
@@ -214,12 +195,12 @@ def launch_refarch_env(region=None,
     bastion_sg = click.prompt('Specify the the Bastion Security group(example: sg-4afdd24)')
 
   # If the user already provided values, don't bother asking again
-  if deployment_type in ['openshift-enterprise'] and rhel_subscription_user is None:
-    rhel_subscription_user = click.prompt("RHSM username?")
-  if deployment_type in ['openshift-enterprise'] and rhel_subscription_pass is None:
-    rhel_subscription_pass = click.prompt("RHSM password?", hide_input=True)
-  if deployment_type in ['openshift-enterprise'] and rhel_subscription_pool is None:
-    rhel_subscription_pool = click.prompt("RHSM Pool ID or Subscription Name?")
+  if deployment_type in ['openshift-enterprise'] and rhsm_user is None:
+    rhsm_user = click.prompt("RHSM username?")
+  if deployment_type in ['openshift-enterprise'] and rhsm_password is None:
+    rhsm_password = click.prompt("RHSM password?", hide_input=True)
+  if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
+    rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
 
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
@@ -274,9 +255,6 @@ def launch_refarch_env(region=None,
   click.echo('\tpublic_hosted_zone: %s' % public_hosted_zone)
   click.echo('\tapp_dns_prefix: %s' % app_dns_prefix)
   click.echo('\tapps_dns: %s' % wildcard_zone)
-  click.echo('\trhel_subscription_user: %s' % rhel_subscription_user)
-  click.echo('\trhel_subscription_pass: *******')
-  click.echo('\trhel_subscription_pool: %s' % rhel_subscription_pool)
   click.echo('\tcontainerized: %s' % containerized)
   click.echo('\ts3_bucket_name: %s' % s3_bucket_name)
   click.echo('\ts3_username: %s' % s3_username)
@@ -345,9 +323,9 @@ def launch_refarch_env(region=None,
     console_port=%s \
     deployment_type=%s \
     openshift_sdn=%s \
-    rhel_subscription_user=%s \
-    rhel_subscription_pass=%s \
-    rhel_subscription_pool="%s" \
+    rhsm_user=%s \
+    rhsm_password=%s \
+    rhsm_pool="%s" \
     containerized=%s \
     s3_bucket_name=%s \
     s3_username=%s \
@@ -388,9 +366,9 @@ def launch_refarch_env(region=None,
                     console_port,
                     deployment_type,
                     openshift_sdn,
-                    rhel_subscription_user,
-                    rhel_subscription_pass,
-                    rhel_subscription_pool,
+                    rhsm_user,
+                    rhsm_password,
+                    rhsm_pool,
                     containerized,
                     s3_bucket_name,
                     s3_username,

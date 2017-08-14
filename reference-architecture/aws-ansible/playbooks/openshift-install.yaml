@@ -18,7 +18,8 @@
   - vars/main.yaml
   roles:
   - host-up
+  - openshift-versions
 
-- include: ../../../playbooks/aws-prerequisite.yaml
+- include: ../../../playbooks/prerequisite.yaml
 
 - include: openshift-setup.yaml
