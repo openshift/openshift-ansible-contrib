@@ -519,14 +519,14 @@ resources:
               template: k8s_type-%index%.cluster_id
               params:
                 cluster_id: {{ stack_name }}
-                k8s_type: lb
+                k8s_type: {{ lb_hostname }}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
             str_replace:
               template: k8s_type.cluster_id
               params:
-                k8s_type: {{ lb_hostname }}
+                k8s_type: lb
                 cluster_id: {{ stack_name }}
           type:        lb
           image:       {{ openstack_image }}
