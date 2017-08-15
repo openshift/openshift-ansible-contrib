@@ -140,6 +140,7 @@ def launch_refarch_env(region=None,
   # Hidden facts for infrastructure.yaml
   create_key = "no"
   create_vpc = "no"
+  deploy_glusterfs = "false"
   add_node = "yes"
 
   # Display information to the user about their choices
@@ -237,6 +238,7 @@ def launch_refarch_env(region=None,
         infra_elb_name=%s \
         create_key=%s \
         create_vpc=%s \
+        deploy_glusterfs=%s \
         new_node_stack=%s \
         stack_name=%s \
         openshift_sdn=%s \' %s' % (region,
@@ -258,6 +260,7 @@ def launch_refarch_env(region=None,
                         infra_elb_name,
                         create_key,
                         create_vpc,
+                        deploy_glusterfs,
                         new_node_stack,
                         existing_stack,
                         openshift_sdn,
@@ -288,6 +291,7 @@ def launch_refarch_env(region=None,
         infra_elb_name=%s \
         create_key=%s \
         create_vpc=%s \
+        deploy_glusterfs=%s \
         new_node_stack=%s \
         stack_name=%s \
         openshift_sdn=%s \' %s' % (region,
@@ -312,6 +316,7 @@ def launch_refarch_env(region=None,
                         infra_elb_name,
                         create_key,
                         create_vpc,
+                        deploy_glusterfs,
                         new_node_stack,
                         existing_stack,
                         openshift_sdn,
