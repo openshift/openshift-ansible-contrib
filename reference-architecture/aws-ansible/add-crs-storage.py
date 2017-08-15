@@ -8,7 +8,7 @@ import sys
 @click.command()
 
 ### AWS/EC2 options
-@click.option('--gluster-stack', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
+@click.option('--glusterfs-stack-name', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
               show_default=True)
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
@@ -26,9 +26,9 @@ import sys
               show_default=True)
 @click.option('--private-subnet-id3', help='Specify a Private subnet within the existing VPC',
               show_default=True)
-@click.option('--gluster-volume-size', default='500', help='Gluster volume size in GB',
+@click.option('--glusterfs-volume-size', default='500', help='Gluster volume size in GB',
               show_default=True)
-@click.option('--gluster-volume-type', default='st1', help='Gluster volume type',
+@click.option('--glusterfs-volume-type', default='st1', help='Gluster volume type',
               show_default=True)
 @click.option('--bastion-sg', help='Specify the Bastion Security Group',
               show_default=True)
@@ -69,8 +69,8 @@ def launch_refarch_env(region=None,
                     private_subnet_id1=None,
                     private_subnet_id2=None,
                     private_subnet_id3=None,
-                    gluster_volume_type=None,
-                    gluster_volume_size=None,
+                    glusterfs_volume_type=None,
+                    glusterfs_volume_size=None,
                     iops=None,
                     bastion_sg=None,
                     node_sg=None,
@@ -124,14 +124,14 @@ def launch_refarch_env(region=None,
     private_subnet_id3 = click.prompt("Specify the third private subnet for the nodes?")
 
   # If the user already provided values, don't bother asking again
-  if deployment_type in ['openshift-enterprise'] and rhsm_user is None:
+  if rhsm_user is None:
     rhsm_user = click.prompt("RHSM username?")
-  if deployment_type in ['openshift-enterprise'] and rhsm_password is None:
+  if rhsm_password is None:
     rhsm_pass = click.prompt("RHSM password?", hide_input=True)
-  if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
+  if rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name for OpenShift?")
 
-  if gluster_volume_type in ['io1']:
+  if glusterfs_volume_type in ['io1']:
     iops = click.prompt('Specify a numeric value for iops')
 
   if iops is None:
@@ -142,6 +142,7 @@ def launch_refarch_env(region=None,
   create_vpc = "no"
   add_node = "no"
   deploy_crs = "yes"
+  deploy_glusterfs = "false"
 
   # Display information to the user about their choices
   if use_cloudformation_facts:
@@ -149,8 +150,8 @@ def launch_refarch_env(region=None,
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
       click.echo('\tglusterfs_stack_name: %s' % glusterfs_stack_name)
-      click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
-      click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
+      click.echo('\tglusterfs_volume_type: %s' % glusterfs_volume_type)
+      click.echo('\tglusterfs_volume_size: %s' % glusterfs_volume_size)
       click.echo('\tiops: %s' % iops)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tkeypair: %s' % keypair)
@@ -169,8 +170,8 @@ def launch_refarch_env(region=None,
       click.echo('\tprivate_subnet_id1: %s' % private_subnet_id1)
       click.echo('\tprivate_subnet_id2: %s' % private_subnet_id2)
       click.echo('\tprivate_subnet_id3: %s' % private_subnet_id3)
-      click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
-      click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
+      click.echo('\tglusterfs_volume_type: %s' % glusterfs_volume_type)
+      click.echo('\tglusterfs_volume_size: %s' % glusterfs_volume_size)
       click.echo('\tiops: %s' % iops)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tbastion_sg: %s' % bastion_sg)
@@ -221,8 +222,9 @@ def launch_refarch_env(region=None,
       	key_path=/dev/null \
       	create_key=%s \
       	create_vpc=%s \
-        gluster_volume_type=%s \
-        gluster_volume_size=%s \
+        glusterfs_volume_type=%s \
+        glusterfs_volume_size=%s \
+        deploy_glusterfs=%s \
         iops=%s \
        	stack_name=%s \' %s' % (region,
                     	ami,
@@ -235,8 +237,9 @@ def launch_refarch_env(region=None,
                     	rhsm_pool,
                     	create_key,
                     	create_vpc,
-                        gluster_volume_type,
-                        gluster_volume_size,
+                        glusterfs_volume_type,
+                        glusterfs_volume_size,
+                        deploy_glusterfs,
                         iops,
                     	existing_stack,
                     	playbook)
@@ -258,8 +261,9 @@ def launch_refarch_env(region=None,
       	key_path=/dev/null \
       	create_key=%s \
       	create_vpc=%s \
-        gluster_volume_type=%s \
-        gluster_volume_size=%s \
+        glusterfs_volume_type=%s \
+        glusterfs_volume_size=%s \
+        deploy_glusterfs=%s \
         iops=%s \
         bastion_sg=%s \
         node_sg=%s \
@@ -278,8 +282,9 @@ def launch_refarch_env(region=None,
                     	rhsm_pool,
                     	create_key,
                     	create_vpc,
-                        gluster_volume_type,
-                        gluster_volume_size,
+                        glusterfs_volume_type,
+                        glusterfs_volume_size,
+                        deploy_glusterfs,
                         iops,
                         bastion_sg,
                         node_sg,

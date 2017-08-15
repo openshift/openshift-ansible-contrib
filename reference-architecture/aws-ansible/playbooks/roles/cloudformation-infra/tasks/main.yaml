@@ -328,7 +328,7 @@
       GlusterVolSize: "{{ glusterfs_volume_size }}"
       GlusterVolType: "{{ glusterfs_volume_type }}"
       Iops: "{{ iops }}"
-  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and gluster_volume_type == "io1"
+  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and glusterfs_volume_type == "io1"
 
 - name: Add CRS Gluster Nodes
   cloudformation:
@@ -356,4 +356,4 @@
       NodeRootVolType: gp2
       GlusterVolSize: "{{ glusterfs_volume_size }}"
       GlusterVolType: "{{ glusterfs_volume_type }}"
-  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and gluster_volume_type != "io1"
+  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and glusterfs_volume_type != "io1"
