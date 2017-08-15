@@ -11,10 +11,6 @@
 OCP3_VERSION=${OCP3_VERSION:-3.4}
 OSP_VERSION=${OSP_VERSION:-10}
 
-RHN_USERNAME=${RHN_USERNAME:-testuser}
-RHN_PASSWORD=${RHN_PASSWORD:-testpass}
-RHN_POOL_NAME=${RHN_POOL_NAME:-''}
-
 # This can take several passes to finish
 for I in 1 .. 5 ; do
     sh ch5.8.3_rhn_subscribe_all_ansible.sh

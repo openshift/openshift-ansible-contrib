@@ -4,13 +4,17 @@
   become: yes
   serial: 1
   roles:
-  - aws-rhsm-subscription
+  - role: aws-rhsm-subscription
+    when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and rhel_subscription_user is not defined
 
 - hosts: cluster_hosts
   gather_facts: no
   become: yes
   roles:
-  - rhsm-repos
+  - role: rhsm-repos
+    when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and rhel_subscription_user is not defined
   - prerequisites
 
 - hosts: master

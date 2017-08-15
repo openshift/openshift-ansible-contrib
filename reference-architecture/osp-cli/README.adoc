@@ -156,7 +156,7 @@ all of the OpenShift VMs from the bastion host.
 .Stage Bastion and instance Configurations
 ----
 sh ./prepare_bastion.sh
-sh ./prepare_instances_ansible.sh
+sh ./prepare_osp_instances_ansible.sh
 ----
 
 The final step is to run the OpenShift Ansible installer.  This script
