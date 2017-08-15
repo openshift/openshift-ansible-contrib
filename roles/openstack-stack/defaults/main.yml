@@ -12,4 +12,5 @@ num_infra: 1
 nodes_to_remove: []
 etcd_volume_size: 2
 dns_volume_size: 1
+lb_volume_size: 5
 use_bastion: False

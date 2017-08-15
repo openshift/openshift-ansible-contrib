@@ -21,6 +21,9 @@ openstack_num_nodes: 2
 #docker_master_volume_size: "15"
 #docker_infra_volume_size: "15"
 #docker_node_volume_size: "15"
+#docker_etcd_volume_size: "2"
+#docker_dns_volume_size: "1"
+#docker_lb_volume_size: "5"
 docker_volume_size: "15"
 
 openstack_subnet_prefix: "192.168.99"
