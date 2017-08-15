@@ -1,5 +1,9 @@
 # Red Hat OpenShift Container Platform on Azure
 
+## Overview
+The reference architecture supports the creation of either a multi-node full HA
+production cluster or a single node designed for exploration of OpenShift on Azure. The current version of the templates support OpenShift 3.6
+
 When creating the Red Hat OpenShift Container Platform on Azure, you will need a SSH RSA key for access.
 
 ## SSH Key Generation
