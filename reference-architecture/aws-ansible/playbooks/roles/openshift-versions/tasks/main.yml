@@ -3,4 +3,3 @@
   set_fact:
     openshift_release: "{{ origin_release }}"
   when: deployment_type == "origin"
-

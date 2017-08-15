@@ -19,7 +19,7 @@
   roles:
   - host-up
 
-- hosts: nodes 
+- hosts: nodes
   connection: local
   gather_facts: no
   become: no
