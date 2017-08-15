@@ -18,7 +18,6 @@
   - vars/main.yaml
   roles:
   - host-up
-  - openshift-versions
 
 - hosts: nodes 
   connection: local
@@ -28,6 +27,7 @@
   - vars/main.yaml
   roles:
   - non-atomic-docker-storage-setup
+  - openshift-versions
 
 - include: ../../../playbooks/prerequisite.yaml
 

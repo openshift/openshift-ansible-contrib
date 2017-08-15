@@ -1,3 +1,2 @@
 ---
-origin_release: "1.6.0"
 openshift_required_packages: ['iptables', 'iptables-services', 'NetworkManager', 'docker']
