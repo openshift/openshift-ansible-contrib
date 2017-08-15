@@ -23,5 +23,7 @@
   gather_facts: no
   become: yes
   roles:
-    - rhsm-repos
-    - prerequisites
+  - role: rhsm-repos
+    when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and rhsm_user is defined
+  - prerequisites
