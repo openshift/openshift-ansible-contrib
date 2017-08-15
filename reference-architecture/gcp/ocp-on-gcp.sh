@@ -180,7 +180,7 @@ while true; do
       scaleup "$@"
       exit 0
       ;;
-    --teardown | --revert )
+    --teardown )
       shift
       teardown "$@"
       exit 0
