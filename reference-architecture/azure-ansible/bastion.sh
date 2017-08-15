@@ -61,9 +61,14 @@ systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
 echo "Resize Root FS"
+rootdev=`findmnt --target / -o SOURCE -n`
+rootdrivename=`lsblk -no pkname $rootdev`
+rootdrive="/dev/"$rootdrivename
+majorminor=`lsblk  $rootdev -o MAJ:MIN | tail -1`
+part_number=${majorminor#*:}
 yum install -y cloud-utils-growpart.noarch
-growpart /dev/sda 2 -u on
-xfs_growfs /dev/sda2
+growpart $rootdrive $part_number -u on
+xfs_growfs $rootdev
 
 mkdir -p /home/$AUSERNAME/.azuresettings
 echo $REGISTRYSTORAGENAME > /home/$AUSERNAME/.azuresettings/registry_storage_name
@@ -409,12 +414,6 @@ cat <<EOF >> /home/${AUSERNAME}/subscribe.yml
     yum: name="*" state=latest
   - name: Install the docker
     yum: name=docker state=latest
-  - name: Install growpart
-    yum: name=cloud-utils-growpart.noarch
-  - name: Grow root partition
-    shell: growpart /dev/sda 2 -u on
-  - name: Grow Root filesystem
-    shell: xfs_growfs /dev/sda2
   - name: Start Docker
     service:
       name: docker

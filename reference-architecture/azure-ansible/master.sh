@@ -53,4 +53,14 @@ cat <<EOF > /root/.ansible.cfg
 host_key_checking = False
 EOF
 
+echo "Resize Root FS"
+rootdev=`findmnt --target / -o SOURCE -n`
+rootdrivename=`lsblk -no pkname $rootdev`
+rootdrive="/dev/"$rootdrivename
+majorminor=`lsblk  $rootdev -o MAJ:MIN | tail -1`
+part_number=${majorminor#*:}
+yum install -y cloud-utils-growpart.noarch
+growpart $rootdrive $part_number -u on
+xfs_growfs $rootdev
+
 touch /root/.updateok
