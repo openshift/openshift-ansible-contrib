@@ -60,9 +60,14 @@ systemctl enable dnsmasq.service
 systemctl start dnsmasq.service
 
 echo "Resize Root FS"
+rootdev=`findmnt --target / -o SOURCE -n`
+rootdrivename=`lsblk -no pkname $rootdev`
+rootdrive="/dev/"$rootdrivename
+majorminor=`lsblk  $rootdev -o MAJ:MIN | tail -1`
+part_number=${majorminor#*:}
 yum install -y cloud-utils-growpart.noarch
-growpart /dev/sda 2 -u on
-xfs_growfs /dev/sda2
+growpart $rootdrive $part_number -u on
+xfs_growfs $rootdev
 
 
 mkdir -p /var/lib/origin/openshift.local.volumes
