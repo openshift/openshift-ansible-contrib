@@ -98,9 +98,12 @@ as a default nameserver that comes from the NetworkManager and cloud-init.
 `openstack keypair list`. This guide assumes that its corresponding private
 key is `~/.ssh/openshift`, stored on the ansible admin (control) node.
 
-`openstack_default_image_name` is the name of the Glance image the
-servers will use. You can
-see your images with `openstack image list`.
+`openstack_default_image_name` is the default name of the Glance image the
+servers will use. You can see your images with `openstack image list`.
+In order to set a different image for a role, uncomment the line with the
+corresponding variable (e.g. `openstack_lb_image_name` for load balancer) and
+set its value to another available image name. `openstack_default_image_name`
+must stay defined as it is used as a default value for the rest of the roles.
 
 `openstack_default_flavor` is the default Nova flavor the servers will use.
 You can see your flavors with `openstack flavor list`.
@@ -113,6 +116,10 @@ stay defined as it is used as a default value for the rest of the roles.
 providing external connectivity. It is often called `public`,
 `external` or `ext-net`. You can see your networks with `openstack
 network list`.
+
+`openstack_private_network_name` is the name of the private Neutron network
+providing admin/control access for ansible. It can be merged with other
+cluster networks, there are no special requirements for networking.
 
 The `openstack_num_masters`, `openstack_num_infra` and
 `openstack_num_nodes` values specify the number of Master, Infra and
