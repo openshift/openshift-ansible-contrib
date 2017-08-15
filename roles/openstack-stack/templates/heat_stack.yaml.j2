@@ -652,7 +652,7 @@ resources:
               template: openshift-ansible-cluster_id-net
               params:
                 cluster_id: {{ stack_name }}
-          volume_size: {{ app_volume_size }}
+          volume_size: {{ node_volume_size }}
     depends_on:
       - interface
 
