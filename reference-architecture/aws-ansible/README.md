@@ -182,7 +182,7 @@ $ ./add-node.py --rhsm-user=user --rhsm-password=password --public-hosted-zone=s
 
 ## Gluster Storage
 If there is a desire to use CNS or Gluster storage for OpenShift visit the link below
-https://access.redhat.com/documentation/en-us/reference_architectures/2017/html/deploying_openshift_container_platform_3_on_amazon_web_services/#persistent_storage
+https://access.redhat.com/documentation/en-us/reference_architectures/2017/html/deploying_openshift_container_platform_3.5_on_amazon_web_services/persistent_storage
 
 ## Teardown
 
