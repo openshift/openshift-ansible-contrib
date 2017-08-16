@@ -2,7 +2,7 @@
 
 ## Overview
 The reference architecture supports the creation of either a multi-node full HA
-production cluster or a single node designed for exploration of OpenShift on Azure. The current version of the templates support OpenShift 3.6
+production cluster or a single node designed for exploration of OpenShift on Azure. 
 
 When creating the Red Hat OpenShift Container Platform on Azure, you will need a SSH RSA key for access.
 
@@ -13,21 +13,20 @@ When creating the Red Hat OpenShift Container Platform on Azure, you will need a
 3. [Mac](ssh_mac.md)
 
 ## Create the Installation
-### Create the Installation on the Azure Portal
-
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2Fazuredeploy.json" target="_blank">
+### OCP Version 3.6 - Create the Installation on the Azure Portal
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.6%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2Fazuredeploy.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fopenshift%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.6%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
 ### Development Branch
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennswest%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fglennswest%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2F3.6%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 </a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fglennswest%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2Fazure-ansible%2Fazuredeploy.json" target="_blank">
+<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2Fglennswest%2Fopenshift-ansible-contrib%2Fmaster%2Freference-architecture%2F3.6%2Fazure-ansible%2Fazuredeploy.json" target="_blank">
     <img src="http://armviz.io/visualizebutton.png"/>
 </a>
 
