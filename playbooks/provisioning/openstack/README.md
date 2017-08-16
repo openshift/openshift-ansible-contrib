@@ -127,6 +127,9 @@ for master) and change its value. `docker_volume_size` must stay defined as it i
 used as a default value for some of the servers (master, infra, app node).
 The rest of the roles (etcd, load balancer, dns) have their defaults hard-coded.
 
+**Note**: If the `ephemeral_volumes` is set to `true`, the `*_volume_size` variables
+will be ignored and the deployment will not create any cinder volumes.
+
 The `openstack_flat_secgrp`, controls Neutron security groups creation for Heat
 stacks. Set it to true, if you experience issues with sec group rules
 quotas. It trades security for number of rules, by sharing the same set
