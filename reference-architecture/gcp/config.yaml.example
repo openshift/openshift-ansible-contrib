@@ -10,7 +10,7 @@ prefix: 'ocp'
 # Username and password for Red Hat Customer Portal
 rhsm_user: 'user@example.com'
 rhsm_password: 'xxx'
-# Pool which shall be used to register the instances
+# Pool name which shall be used to register the instances
 rhsm_pool: 'yyy'
 
 # Path to a RHEL image on local machine, downloaded from Red Hat Customer Portal
@@ -54,8 +54,8 @@ openshift_deployment_type: openshift-enterprise
 containerized: false
 
 # OpenShift SDN selection
-# options are 'redhat/openshift-ovs-subnet', 'redhat/openshift-ovs-multitenant'
-os_sdn_network_plugin_name: 'redhat/openshift-ovs-subnet'
+# options are 'redhat/openshift-ovs-multitenant', 'redhat/openshift-ovs-subnet'
+os_sdn_network_plugin_name: 'redhat/openshift-ovs-multitenant'
 
 # Deploy OpenShift Metrics
 openshift_hosted_metrics_deploy: false

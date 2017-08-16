@@ -78,6 +78,10 @@ your servers will be under. With the default values, this will be
 That sudomain can be set as well by the `openshift_app_domain` variable in
 the inventory.
 
+The `openstack_<role name>_hostname` is a set of variables used for customising
+hostnames of servers with a given role. When such a variable stays commented,
+default hostname (usually the role name) is used.
+
 The `public_dns_nameservers` is a list of DNS servers accessible from all
 the created Nova servers. These will be serving as your DNS forwarders for
 external FQDNs that do not belong to the cluster's DNS domain and its subdomains.
@@ -98,17 +102,28 @@ as a default nameserver that comes from the NetworkManager and cloud-init.
 `openstack keypair list`. This guide assumes that its corresponding private
 key is `~/.ssh/openshift`, stored on the ansible admin (control) node.
 
-`openstack_default_image_name` is the name of the Glance image the
-servers will use. You can
-see your images with `openstack image list`.
+`openstack_default_image_name` is the default name of the Glance image the
+servers will use. You can see your images with `openstack image list`.
+In order to set a different image for a role, uncomment the line with the
+corresponding variable (e.g. `openstack_lb_image_name` for load balancer) and
+set its value to another available image name. `openstack_default_image_name`
+must stay defined as it is used as a default value for the rest of the roles.
 
-`openstack_default_flavor` is the Nova flavor the servers will use.
+`openstack_default_flavor` is the default Nova flavor the servers will use.
 You can see your flavors with `openstack flavor list`.
+In order to set a different flavor for a role, uncomment the line with the
+corresponding variable (e.g. `openstack_lb_flavor` for load balancer) and
+set its value to another available flavor. `openstack_default_flavor` must
+stay defined as it is used as a default value for the rest of the roles.
 
 `openstack_external_network_name` is the name of the Neutron network
 providing external connectivity. It is often called `public`,
 `external` or `ext-net`. You can see your networks with `openstack
 network list`.
+
+`openstack_private_network_name` is the name of the private Neutron network
+providing admin/control access for ansible. It can be merged with other
+cluster networks, there are no special requirements for networking.
 
 The `openstack_num_masters`, `openstack_num_infra` and
 `openstack_num_nodes` values specify the number of Master, Infra and
@@ -250,6 +265,24 @@ Once it succeeds, you can install openshift by running:
 
     ansible-playbook openshift-ansible/playbooks/byo/config.yml
 
+### Access UI
+
+OpenShift UI may be accessed via the 1st master node FQDN, port 8443.
+
+When using a bastion, you may want to make an SSH tunnel from your control node
+to access UI on the `https://localhost:8443`, with this inventory variable:
+
+   openshift_ui_ssh_tunnel: True
+
+Note, this requires sudo rights on the ansible control node and an absolute path
+for the `openstack_private_ssh_key`. You should also update the control node's
+`/etc/hosts`:
+
+    127.0.0.1 master-0.openshift.example.com
+
+In order to access UI, the ssh-tunnel service will be created and started on the
+control node. Make sure to remove these changes and the service manually, when not
+needed anymore.
 
 ## License
 
