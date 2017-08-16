@@ -163,9 +163,10 @@
     }
   },
   "variables" : {
-    "gituser" : "openshift",
+    "gituser" : "glennswest",
     "branch" : "master",
-    "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/')]",
+    "version" : "3.6",
+    "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/',variables('version'),'/')]",
     "location" : "[resourceGroup().location]",
     "virtualNetworkName" : "openshiftVnet",
     "addressPrefix" : "10.0.0.0/16",
