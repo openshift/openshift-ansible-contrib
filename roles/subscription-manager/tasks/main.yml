@@ -38,6 +38,7 @@
 
 - name: "Checking subscription status (a failure means it is not registered and will be)"
   command: "/usr/bin/subscription-manager status"
+  check_mode: no
   ignore_errors: yes
   changed_when: no
   register: check_if_registered
@@ -64,6 +65,13 @@
     - rhsm_satellite is defined
     - rhsm_satellite is not none
     - rhsm_satellite|trim != ''
+
+- name: "Set configuration options for subscription manager (eg. --server.proxy_hostname, --server.proxy_port)"
+  command: "/usr/bin/subscription-manager config {{rhsm_config_options}}"
+  when:
+    - rhsm_config_options is defined
+    - rhsm_config_options is not none
+    - rhsm_config_options|trim != ''
 
 - name: "Register to Satellite using activation key"
   command: "/usr/bin/subscription-manager register --activationkey={{ rhsm_activationkey }} --org='{{ rhsm_org }}'"

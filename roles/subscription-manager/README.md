@@ -10,6 +10,17 @@ Subscription Manager server hostname. If using a Satellite server set the FQDN h
 
 Default: none
 
+### rhsm_config_options
+
+Subscription Manager configuration options. If using a subscription-manager via an http proxy.
+
+
+    ```
+    rhsm_config_options: "--server.proxy_hostname=squid.example.com --server.proxy_port=3128" 
+
+    ```
+Default: none
+
 ### rhsm_username
 
 Subscription Manager username. Required for RHSM Hosted. Can be optionally used for Satellite, but it may be better to use **rhsm_activationkey** for this.
