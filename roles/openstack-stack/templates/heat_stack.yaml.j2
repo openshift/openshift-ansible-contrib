@@ -439,7 +439,7 @@ resources:
           port_range_min: 53
           port_range_max: 53
           remote_ip_prefix: "{{ openstack_subnet_prefix }}.0/24"
-{% if num_masters > 1 %}
+{% if num_masters > 1 or ui_ssh_tunnel|bool %}
   lb-secgrp:
     type: OS::Neutron::SecurityGroup
     properties:
@@ -450,14 +450,21 @@ resources:
         protocol: tcp
         port_range_min: {{ openshift_master_api_port | default(8443) }}
         port_range_max: {{ openshift_master_api_port | default(8443) }}
-        remote_ip_prefix: {{ lb_ingress_cidr }}
-  {% if openshift_master_console_port is defined and openshift_master_console_port != openshift_master_api_port %}
+        remote_ip_prefix: {{ lb_ingress_cidr | default(bastion_ingress_cidr) }}
+{% if ui_ssh_tunnel|bool %}
+      - direction: ingress
+        protocol: tcp
+        port_range_min: {{ openshift_master_api_port | default(8443) }}
+        port_range_max: {{ openshift_master_api_port | default(8443) }}
+        remote_ip_prefix: {{ ssh_ingress_cidr }}
+{% endif %}
+{% if openshift_master_console_port is defined and openshift_master_console_port != openshift_master_api_port %}
       - direction: ingress
         protocol: tcp
         port_range_min: {{ openshift_master_console_port | default(8443) }}
         port_range_max: {{ openshift_master_console_port | default(8443) }}
-        remote_ip_prefix: {{ lb_ingress_cidr }}
-  {% endif %}
+        remote_ip_prefix: {{ lb_ingress_cidr | default(bastion_ingress_cidr) }}
+{% endif %}
 {% endif %}
 
   etcd:
@@ -486,7 +493,7 @@ resources:
                 k8s_type: etcds
                 cluster_id: {{ stack_name }}
           type:        etcd
-          image:       {{ openstack_image }}
+          image:       {{ openstack_etcd_image }}
           flavor:      {{ etcd_flavor }}
           key_name:    {{ ssh_public_key }}
           net:         { get_resource: net }
@@ -529,7 +536,7 @@ resources:
                 k8s_type: lb
                 cluster_id: {{ stack_name }}
           type:        lb
-          image:       {{ openstack_image }}
+          image:       {{ openstack_lb_image }}
           flavor:      {{ lb_flavor }}
           key_name:    {{ ssh_public_key }}
           net:         { get_resource: net }
@@ -574,7 +581,7 @@ resources:
                 k8s_type: masters
                 cluster_id: {{ stack_name }}
           type:        master
-          image:       {{ openstack_image }}
+          image:       {{ openstack_master_image }}
           flavor:      {{ master_flavor }}
           key_name:    {{ ssh_public_key }}
           net:         { get_resource: net }
@@ -636,7 +643,7 @@ resources:
 {% for k, v in openshift_cluster_node_labels.app.iteritems() %}
             {{ k|e }}: {{ v|e }}
 {% endfor %}
-          image:       {{ openstack_image }}
+          image:       {{ openstack_node_image }}
           flavor:      {{ node_flavor }}
           key_name:    {{ ssh_public_key }}
           net:         { get_resource: net }
@@ -684,7 +691,7 @@ resources:
 {% for k, v in openshift_cluster_node_labels.infra.iteritems() %}
             {{ k|e }}: {{ v|e }}
 {% endfor %}
-          image:       {{ openstack_image }}
+          image:       {{ openstack_infra_image }}
           flavor:      {{ infra_flavor }}
           key_name:    {{ ssh_public_key }}
           net:         { get_resource: net }
@@ -695,6 +702,9 @@ resources:
             - { get_resource: flat-secgrp }
 {% else %}
             - { get_resource: node-secgrp }
+{% endif %}
+{% if ui_ssh_tunnel|bool and num_masters < 2 %}
+            - { get_resource: lb-secgrp }
 {% endif %}
             - { get_resource: infra-secgrp }
             - { get_resource: common-secgrp }
@@ -730,7 +740,7 @@ resources:
                 k8s_type: dns
                 cluster_id: {{ stack_name }}
           type:        dns
-          image:       {{ openstack_image }}
+          image:       {{ openstack_dns_image }}
           flavor:      {{ dns_flavor }}
           key_name:    {{ ssh_public_key }}
           net:         { get_resource: net }
