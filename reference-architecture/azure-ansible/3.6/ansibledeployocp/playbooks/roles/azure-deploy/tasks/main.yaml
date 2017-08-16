@@ -1,0 +1,55 @@
+---
+- name: Create Azure Deploy
+  azure_rm_deployment:
+    state: present
+    location: "{{ location }}"
+    resource_group_name: "{{ resourcegroupname }}"
+    template_link: "{{ templatelink }}"
+    parameters:
+      adminUsername:
+        value: "{{ adminusername }}"
+      adminPassword:
+        value: "{{ adminpassword }}"
+      sshKeyData:
+        value: "{{ sshkeydata }}"
+      WildcardZone:
+        value: "{{ wildcardzone }}"
+      numberOfNodes:
+        value: "{{ numberofnodes }}"
+      image:
+        value: "{{ image }}"
+      masterVMSize:
+        value: "{{ mastervmsize }}"
+      infranodeVMSize:
+        value: "{{ infranodesize }}"
+      nodeVMSize:
+        value: "{{ nodevmsize }}"
+      RHNUserName:
+        value: "{{ rhnusername }}"
+      RHNPassword:
+        value: "{{ rhnpassword }}"
+      SubscriptionPoolId:
+        value: "{{ subscriptionpoolid }}"
+      sshPrivateData:
+        value: "{{ sshprivatedata }}"
+      aadClientId:
+        value: "{{ aadclientid }}"
+      aadClientSecret:
+        value: "{{ aadclientsecret }}"
+      rhsmUsernamePasswordOrActivationKey:
+        value: "{{ rhsmusernamepasswordoractivationkey }}"
+      OpenShiftSDN:
+        value: "{{ openshiftsdn }}"
+      metrics:
+        value: "{{ metrics }}"
+      logging:
+        value: "{{ logging }}"
+      opslogging:
+        value: "{{ opslogging }}"
+
+  register: azuredeploy
+
+- debug:
+    msg: "Connect to bastion host by: {{ azuredeploy|json_query('deployment.outputs.\"bastion ssh\".value') }}"
+- debug:
+    msg: "OCP console available in {{ azuredeploy|json_query('deployment.outputs.\"openshift Webconsole\".value') }}"
