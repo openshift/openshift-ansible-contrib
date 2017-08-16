@@ -1,6 +1,7 @@
 ---
 openshift_deployment_type: origin
-openshift_release: 1.5.1
+#TODO(bogdando) uncomment the openshift_release once we figured out the version
+#openshift_release: 1.5.1
 #openshift_deployment_type: openshift-enterprise
 #openshift_release: v3.5
 openshift_master_default_subdomain: "apps.{{ env_id }}.{{ public_dns_domain }}"
