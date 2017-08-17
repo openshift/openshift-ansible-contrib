@@ -1,12 +1,16 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euox pipefail
 
 source ci/openstack/vars.sh
 if [ "${RUN_OPENSTACK_CI:-}" != "true" ]; then
     echo RUN_OPENSTACK_CI is set to false, skipping the openstack end to end test.
     exit
 fi
+
+mkdir -p bin
+scp -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" openshift@master-0.$ENV_ID.example.com:/usr/bin/oc bin/
+ls -alh bin
 
 export PATH="$PWD/bin:$PATH"
 ENV_ID="openshift-$TRAVIS_BUILD_NUMBER"
