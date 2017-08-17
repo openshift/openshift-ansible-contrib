@@ -2,12 +2,10 @@
 - block:
     - name: disable unneeded repos
       command: subscription-manager repos --disable='*'
-#     when: not skip_packages is defined
 
     - name: ensure proper repos are assigned
       command: subscription-manager repos --enable={{ item }}
       with_items: "{{ openshift_required_repos }}"
-#     when: not skip_packages is defined
 
     - name: check to see if rhui exists
       stat:
