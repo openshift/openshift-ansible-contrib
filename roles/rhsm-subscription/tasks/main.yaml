@@ -25,10 +25,10 @@
       register: repolist
       ignore_errors: yes
 
-    - name: Set fact if we have the repos we need.
-      set_fact:
-        skip_packages: True
-      when: "'ose-3.6' in repolist.stdout"
+#    - name: Set fact if we have the repos we need.
+#      set_fact:
+#        skip_packages: True
+#      when: "'ose-3.6' in repolist.stdout"
 
     - name: Is the host already registered?
       command: "subscription-manager status"
@@ -63,7 +63,8 @@
     - name: Check if subscription is attached
       command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"
       register: subscription_attached
-      when: rhsm_pool is defined and rhsm_pool and not skip_packages
+#      when: rhsm_pool is defined and rhsm_pool and not skip_packages
+      when: rhsm_pool is defined
       changed_when: no
 
     - block:
@@ -80,7 +81,8 @@
         - name: Attach subscription
           command: subscription-manager attach --pool="{{ pool_id.stdout }}"
 
-      when: rhsm_pool is defined and rhsm_pool and not skip_packages is defined
+#      when: rhsm_pool is defined and rhsm_pool and not skip_packages is defined
+      when: rhsm_pool is defined
 
     - name: Install katello-agent RPM if we are using satellite
       yum:
