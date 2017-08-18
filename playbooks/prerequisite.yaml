@@ -14,7 +14,7 @@
   roles:
   - role: rhsm-subscription
     when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
-          ansible_distribution == "RedHat" and rhsm_user is defined
+          ansible_distribution == "RedHat" and ( rhsm_user is defined or rhsm_activation_key is defined)
 
 - hosts: nodes
   gather_facts: no
@@ -22,7 +22,7 @@
   roles:
   - role: rhsm-repos
     when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
-          ansible_distribution == "RedHat" and rhsm_user is defined
+          ansible_distribution == "RedHat" and ( rhsm_user is defined or rhsm_activation_key is defined)
   - prerequisites
 
 - hosts: masters
