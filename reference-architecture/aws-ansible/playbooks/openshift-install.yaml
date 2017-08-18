@@ -20,7 +20,6 @@
   - host-up
 
 - hosts: nodes
-  connection: local
   gather_facts: no
   become: yes
   vars_files:
