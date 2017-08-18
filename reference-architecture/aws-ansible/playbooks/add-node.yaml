@@ -10,7 +10,7 @@
   - instance-groups
   - cfn-outputs
 
-- hosts: nodes
+- hosts: new_nodes
   gather_facts: yes
   become: yes
   vars_files:
