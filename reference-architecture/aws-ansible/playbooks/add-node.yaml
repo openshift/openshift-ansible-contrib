@@ -11,7 +11,7 @@
   - cfn-outputs
 
 - hosts: nodes
-  gather_facts: no
+  gather_facts: yes
   become: yes
   vars_files:
   - vars/main.yaml
