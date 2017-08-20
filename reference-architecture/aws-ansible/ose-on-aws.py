@@ -174,6 +174,21 @@ def launch_refarch_env(region=None,
     public_subnet_id3 = click.prompt('Specify the third Public subnet within the existing VPC')
 
   app_node_count = int(app_node_count)
+  if app_node_count > 4:
+    click.echo("Please choose a value between 1 and 4")
+    sys.exit(1)
+
+  if master_instance_type in ['m4.large', 't2.micro', 't2.small', 't2.nano', 'm3.medium', 'm3.large', 'm3.xlarge']:
+    click.echo('The master instance type will not support an OpenShift deployment')
+    sys.exit(1)
+
+  if node_instance_type in ['t2.micro', 't2.nano', 'm3.medium', 'm3.large']:
+    click.echo('The node instance type will not support an OpenShift deployment')
+    sys.exit(1)
+
+  if app_instance_type in ['t2.micro', 't2.nano', 'm3.medium', 'm3.large']:
+    click.echo('The app instance type will not support an OpenShift deployment')
+    sys.exit(1)
 
  # Prompt for Bastion SG if byo-bastion specified
   if byo_bastion in 'yes' and bastion_sg in '/dev/null':

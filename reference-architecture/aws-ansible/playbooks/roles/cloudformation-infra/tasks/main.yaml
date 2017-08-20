@@ -35,6 +35,7 @@
       BastionInstanceType: "{{ bastion_instance_type }}"
       BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}"
       MasterRootVolSize: "50"
+      BastionRootVolSize: "10"
       BastionRootVolType: gp2
       MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"
@@ -90,6 +91,7 @@
       BastionInstanceType: "{{ bastion_instance_type }}"
       BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}"
       MasterRootVolSize: "50"
+      BastionRootVolSize: "10"
       BastionRootVolType: gp2
       MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"

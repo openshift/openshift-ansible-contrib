@@ -1,5 +1,5 @@
 # The Reference Architecture OpenShift on Amazon Web Services
-This repository contains the scripts used to deploy an OpenShift Container Platform or OpenShift Origin environment based off of the Reference Architecture Guide for OCP 3.5 on Amazon Web Services.
+This repository contains the scripts used to deploy an OpenShift Container Platform or OpenShift Origin environment based off of the Reference Architecture Guide for OCP 3.6 on Amazon Web Services.
 
 ## Overview
 The repository contains Ansible playbooks which deploy 3 masters in different availability zones, 3 infrastructure and 2 application nodes. The infrastructure and application nodes are split between availability zones. The playbooks deploy a Docker registry and scale the router to the number of infrastructure nodes.
@@ -14,7 +14,7 @@ The code in this repository handles all of the AWS specific components except fo
 
 ```
 $ subscription-manager repos --enable rhel-7-server-optional-rpms
-$ subscription-manager repos --enable rhel-7-server-ose-3.5-rpms
+$ subscription-manager repos --enable rhel-7-server-ose-3.6-rpms
 $ subscription-manager repos --enable rhel-7-fast-datapath-rpms
 $ yum -y install atomic-openshift-utils ansible openshift-ansible-playbooks
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -178,7 +178,7 @@ $ ./add-node.py --rhsm-user=user --rhsm-password=password --public-hosted-zone=s
 
 ## Gluster Storage
 If there is a desire to use CNS or Gluster storage for OpenShift visit the link below
-https://access.redhat.com/documentation/en-us/reference_architectures/2017/html/deploying_openshift_container_platform_3.5_on_amazon_web_services/persistent_storage
+https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_and_managing_openshift_container_platform_3.6_on_amazon_web_services/#persistent_storage
 
 ## Teardown
 
