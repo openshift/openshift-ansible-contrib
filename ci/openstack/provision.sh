@@ -39,11 +39,6 @@ manage_packages: False
 ephemeral_volumes: True
 EOF
 
-
-# TODO(shadower): this just started to break. We will need to unset this from
-# the sample inventory.
-sed -i 's/openshift_release/#openshift_release/' "$INVENTORY"/group_vars/OSEv3.yml
-
 cat << EOF >> "$INVENTORY"/group_vars/OSEv3.yml
 openshift_master_identity_providers:
 - name: 'htpasswd_auth'
