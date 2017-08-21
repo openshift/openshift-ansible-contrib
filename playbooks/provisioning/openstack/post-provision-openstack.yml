@@ -56,7 +56,6 @@
   roles:
     - role: dns-views
     - role: infra-ansible/roles/dns-server
-      #when: not external_nsupdate_keys is defined
 
 - name: Build and process DNS Records
   hosts: localhost
@@ -104,8 +103,6 @@
   become: False
   gather_facts: False
   tasks:
-    - when:
-        - external_nsupdate_keys is defined
-        - pub_instack or priv_instack
+    - when: pub_instack or priv_instack
       debug:
         var: external_nsupdate_keys

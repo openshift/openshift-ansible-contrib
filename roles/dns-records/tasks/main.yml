@@ -9,9 +9,13 @@
     private_records: "{{ private_records | default([]) + [ { 'type': 'A', 'hostname': '*.' + openshift_app_domain, 'ip': hostvars[item]['private_v4'] } ] }}"
   with_items: "{{ groups['infra_hosts'] }}"
 
+- name: "Set the auto detected DNS servers' IP addresses"
+  set_fact:
+    nsupdate_server_private: "{{ private_dns_server }}"
+    nsupdate_server_public: "{{ public_dns_server }}"
+
 - name: "Set the private DNS server to use the external value (if provided)"
   set_fact:
-    nsupdate_server_private: "{{ external_nsupdate_keys[private]['server'] }}"
     nsupdate_key_secret_private: "{{ external_nsupdate_keys[private]['key_secret'] }}"
     nsupdate_key_algorithm_private: "{{ external_nsupdate_keys[private]['key_algorithm'] }}"
   when:
@@ -20,9 +24,8 @@
 
 - name: "Set the private DNS server to use the provisioned value"
   set_fact:
-    nsupdate_server_private: "{{ hostvars[groups['dns'][0]].public_v4 }}"
-    nsupdate_key_secret_private: "{{ hostvars[groups['dns'][0]].nsupdate_keys['private-' + full_dns_domain].key_secret }}"
-    nsupdate_key_algorithm_private: "{{ hostvars[groups['dns'][0]].nsupdate_keys['private-' + full_dns_domain].key_algorithm }}"
+    nsupdate_key_secret_private: "{{ hostvars[groups['dns'][0]].nsupdate_keys[private].key_secret }}"
+    nsupdate_key_algorithm_private: "{{ hostvars[groups['dns'][0]].nsupdate_keys[private].key_algorithm }}"
   when:
     - nsupdate_server_private is undefined
 
@@ -32,7 +35,7 @@
       - view: "private"
         zone: "{{ full_dns_domain }}"
         server: "{{ nsupdate_server_private }}"
-        key_name: "{{ ( 'private-' + full_dns_domain ) }}"
+        key_name: "{{ private }}"
         key_secret: "{{ nsupdate_key_secret_private }}"
         key_algorithm: "{{ nsupdate_key_algorithm_private | lower }}"
         entries: "{{ private_records }}"
@@ -51,7 +54,6 @@
 
 - name: "Set the public DNS server details to use the external value (if provided)"
   set_fact:
-    nsupdate_server_public: "{{ external_nsupdate_keys[public]['server'] }}"
     nsupdate_key_secret_public: "{{ external_nsupdate_keys[public]['key_secret'] }}"
     nsupdate_key_algorithm_public: "{{ external_nsupdate_keys[public]['key_algorithm'] }}"
   when:
@@ -60,9 +62,8 @@
 
 - name: "Set the public DNS server details to use the provisioned value"
   set_fact:
-    nsupdate_server_public: "{{ hostvars[groups['dns'][0]].public_v4 }}"
-    nsupdate_key_secret_public: "{{ hostvars[groups['dns'][0]].nsupdate_keys['public-' + full_dns_domain].key_secret }}"
-    nsupdate_key_algorithm_public: "{{ hostvars[groups['dns'][0]].nsupdate_keys['public-' + full_dns_domain].key_algorithm }}"
+    nsupdate_key_secret_public: "{{ hostvars[groups['dns'][0]].nsupdate_keys[public].key_secret }}"
+    nsupdate_key_algorithm_public: "{{ hostvars[groups['dns'][0]].nsupdate_keys[public].key_algorithm }}"
   when:
     - nsupdate_server_public is undefined
 
