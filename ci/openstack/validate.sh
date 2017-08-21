@@ -19,6 +19,8 @@ oc login --insecure-skip-tls-verify=true https://master-0.$ENV_ID.example.com:84
 oc new-project test
 oc new-app --template=cakephp-mysql-example
 
+set +x
+
 echo Waiting for the pods to come up
 
 STATUS=timeout
