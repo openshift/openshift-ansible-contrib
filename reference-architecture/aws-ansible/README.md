@@ -1,20 +1,20 @@
 # The Reference Architecture OpenShift on Amazon Web Services
-This repository contains the scripts used to deploy an OpenShift Container Platform or OpenShift Origin environment based off of the Reference Architecture Guide for OCP 3.5 on Amazon Web Services.
+This repository contains the scripts used to deploy an OpenShift Container Platform or OpenShift Origin environment based off of the Reference Architecture Guide for OCP 3.6 on Amazon Web Services.
 
 ## Overview
-The repository contains Ansible playbooks which deploy 3 Masters in different availability zones, 3 infrastructure nodes and 2 applcation nodes. The Infrastrucute and Application nodes are split between availbility zones.  The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes.
+The repository contains Ansible playbooks which deploy 3 masters in different availability zones, 3 infrastructure and 2 application nodes. The infrastructure and application nodes are split between availability zones. The playbooks deploy a Docker registry and scale the router to the number of infrastructure nodes.
 
 ![Architecture](images/arch.jpg)
 
 ## Prerequisites
-A registered domain must be added to Route53 as a Hosted Zone before installation.  This registered domain can be purchased through AWS.
+A registered domain must be added to Route53 as a Hosted Zone before installation. This registered domain can be purchased through AWS.
 
 ### Deploying OpenShift Container Platform
 The code in this repository handles all of the AWS specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ose-on-aws.py. Do not perform the following within a container as errors have been found when attempting to run subscription-manager. It is advised to use a VM or bare metal installation of RHEL.
 
 ```
 $ subscription-manager repos --enable rhel-7-server-optional-rpms
-$ subscription-manager repos --enable rhel-7-server-ose-3.5-rpms
+$ subscription-manager repos --enable rhel-7-server-ose-3.6-rpms
 $ subscription-manager repos --enable rhel-7-fast-datapath-rpms
 $ yum -y install atomic-openshift-utils ansible openshift-ansible-playbooks
 $ rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -61,7 +61,6 @@ Host bastion
      CheckHostIP                no
      ForwardAgent               yes
      IdentityFile               /path/to/ssh/key
-
 ```
 ### Export the EC2 Credentials
 You will need to export your EC2 credentials before attempting to use the
@@ -92,7 +91,6 @@ When installing into an new AWS environment perform the following.   This will c
 --public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core" \
 --github-client-secret=47a0c41f0295b451834675ed78aecfb7876905f9 --github-organization=openshift \
 --github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc --deploy-openshift-metrics=true
-
 ```
 **OpenShift Origin**
 ```
@@ -106,7 +104,6 @@ If the SSH key that you plan on using in AWS already exists then perform the fol
 **OpenShift Container Platform**
 ```
 ./ose-on-aws.py --keypair=OSE-key --rhsm-user=rh-user --rhsm-password=password --public-hosted-zone=sysdeseng.com --rhsm-pool="Red Hat OpenShift Container Platform, Standard, 2-Core"
-
 ```
 
 **OpenShift Origin**
@@ -117,7 +114,7 @@ If the SSH key that you plan on using in AWS already exists then perform the fol
 ```
 
 ### Existing AWS Environment (Brownfield)
-If installing OpenShift Container Platform or OpenShift Origin into an existing AWS VPC perform the following. The script will prompt for vpc and subnet IDs.  The Brownfield deployment can also skip the creation of a Bastion server if one already exists. For mappings of security groups make sure the bastion security group is named bastion-sg.
+If installing OpenShift Container Platform or OpenShift Origin into an existing AWS VPC perform the following. The script will prompt for vpc and subnet IDs. The Brownfield deployment can also skip the creation of a Bastion server if one already exists. For mappings of security groups make sure the bastion security group is named bastion-sg.
 
 **OpenShift Container Platform**
 ```
@@ -153,8 +150,7 @@ The same greenfield and brownfield deployment steps can be used to launch anothe
 --github-organization=RHSyseng --github-client-id=3a30415d84720ad14abc
 ```
 
-
-## Adding nodes 
+## Adding nodes
 Adding nodes can be done by performing the following. The configuration option --node-type allows for the creation of application or
 infrastructure nodes. If the deployment is for an application node --infra-sg and --infra-elb-name are not required.
 
@@ -182,11 +178,11 @@ $ ./add-node.py --rhsm-user=user --rhsm-password=password --public-hosted-zone=s
 
 ## Gluster Storage
 If there is a desire to use CNS or Gluster storage for OpenShift visit the link below
-https://access.redhat.com/documentation/en-us/reference_architectures/2017/html/deploying_openshift_container_platform_3.5_on_amazon_web_services/persistent_storage
+https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_and_managing_openshift_container_platform_3.6_on_amazon_web_services/#persistent_storage
 
 ## Teardown
 
-A playbook is included to remove the s3 bucket and cloudformation. The parameter ci=true should not be used unless there is 100% certanty that all unattached EBS volumes can be removed.
+A playbook is included to remove the s3 bucket and cloudformation. The parameter ci=true should not be used unless there is 100% certainty that all unattached EBS volumes can be removed.
 
 ```
 ansible-playbook -i inventory/aws/hosts -e 'region=us-east-1 stack_name=openshift-infra ci=false' playbooks/teardown.yaml

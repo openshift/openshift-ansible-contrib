@@ -1,0 +1,59 @@
+---
+- block:
+    - name: Allow rhsm a longer timeout to help out with subscription-manager
+      lineinfile:
+        dest: /etc/rhsm/rhsm.conf
+        line: 'server_timeout=600'
+        insertafter: '^proxy_password ='
+
+    - name: Check for sat config file
+      stat: path=/etc/rhsm/rhsm.conf.kat-backup
+      register: sat_cfg
+
+    - name: Remove satellite configuration if using RH CDN
+      command: "mv -f /etc/rhsm/rhsm.conf.kat-backup /etc/rhsm/rhsm.conf"
+      when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
+      ignore_errors: yes
+
+    - name: Remove satellite SSL if using RH CDN
+      command: "rpm -e $(rpm -qa katello-ca-consumer*)"
+      when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
+      ignore_errors: yes
+
+    - name: "Install Satellite certificate (if applicable)"
+      command: "rpm -Uh --force {{ rhsm_katello_url }}"
+      when:
+        - rhsm_katello_url is defined
+        - rhsm_katello_url|trim != ''
+
+    - name: "Is the system already registered?"
+      command: "subscription-manager status"
+      register: subscribed
+      ignore_errors: yes
+
+    - name: 'Register system using Red Hat Subscription Manager'
+      redhat_subscription:
+        state: present
+        username: "{{ rhsm_user | default(omit) }}"
+        password: "{{ rhsm_password | default(omit) }}"
+        pool: "{{ rhsm_pool | default(omit) }}"
+        server_hostname: "{{ rhsm_satellite | default(omit) }}"
+        activationkey: "{{ rhsm_activation_key | default(omit) }}"
+        org_id: "{{ rhsm_org_id | default(omit) }}"
+      when: "'Current' not in subscribed.stdout"
+
+    - name: "Obtain currently enabled repos"
+      shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
+      register: enabled_repos
+
+    - name: "Disable repositories that should not be enabled"
+      shell: "subscription-manager repos --disable={{ item }}"
+      with_items:
+        - "{{ enabled_repos.stdout_lines | difference(openshift_required_repos) }}"
+
+    - name: "Enable specified repositories not already enabled"
+      command: "subscription-manager repos --enable={{ item }}"
+      with_items:
+        - "{{ openshift_required_repos | difference(enabled_repos.stdout_lines) }}"
+
+  when: ansible_distribution == "RedHat"

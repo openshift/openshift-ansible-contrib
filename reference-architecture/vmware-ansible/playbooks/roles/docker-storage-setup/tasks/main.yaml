@@ -1,0 +1,51 @@
+---
+- block:
+    - name: create a partition on sdb
+      parted:
+        device: /dev/sdb
+        number: 1
+        state: present
+
+    - name: format device
+      filesystem:
+        fstype: xfs
+        dev: /dev/sdb1
+
+    - name: Mount the partition
+      mount:
+        name: /var/lib/docker
+        src: /dev/sdb1
+        fstype: xfs
+        state: present
+
+    - name: create the docker-storage config file
+      template:
+        src: "{{ role_path }}/templates/docker-storage-overlayfs.j2"
+        dest: /etc/sysconfig/docker-storage
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: restorecon the new partion
+      command: "restorecon -Rv /var/lib/docker"
+
+    - name: Remount new partition
+      command: "mount -a"
+
+  when:
+    - ansible_distribution_version == "7.4"
+    - ansible_distribution == "RedHat"
+
+- block:
+    - name: create the docker-storage-setup config file
+      template:
+        src: "{{ role_path }}/templates/docker-storage-setup-dm.j2"
+        dest: /etc/sysconfig/docker-storage-setup
+        owner: root
+        group: root
+        mode: 0644
+
+  when: ansible_distribution_version != "7.4"
+
+- name: start docker
+  service: name=docker state=started enabled=true

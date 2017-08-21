@@ -13,7 +13,7 @@
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
     disk:
-    - size_gb: 40
+    - size_gb: 60
       datastore: "{{ vcenter_datastore }}"
       type: thin
     - size_gb: 40

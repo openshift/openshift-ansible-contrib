@@ -17,7 +17,7 @@
 - include: openshift-configure.yaml
   tags: ['ocp-configure', 'all-ocp']
 
-- include: openshift-validate.yaml
+- include: ../../../playbooks/post-validation.yaml
   tags: ['ocp-demo', 'all-ocp']
 
 - include: openshift-minor-upgrade.yaml

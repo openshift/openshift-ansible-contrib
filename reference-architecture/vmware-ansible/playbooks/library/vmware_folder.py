@@ -71,7 +71,7 @@ extends_documentation_fragment: vmware.documentation
 '''
 
 EXAMPLES = '''
-# Create a folder 
+# Create a folder
   - name: Add a folder to vCenter
     vmware_folder:
       hostname: vcsa_host
@@ -136,6 +136,8 @@ class VMwareFolder(object):
         last_e = self.folder_expanded.pop()
         fold_obj = self.get_obj([vim.Folder],last_e)
         if fold_obj:
+            return fold_obj
+        if fold_obj is None:
             return fold_obj
 
     def get_obj(self, vimtype, name, return_all = False):

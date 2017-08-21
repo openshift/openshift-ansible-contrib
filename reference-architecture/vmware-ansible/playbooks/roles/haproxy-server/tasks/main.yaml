@@ -1,13 +1,4 @@
 ---
-- name: Adding updated VM to inventory with hostname
-  add_host: hostname="{{host_inventory[inventory_hostname].guestname}}" ansible_ssh_host="{{host_inventory[inventory_hostname].guestname}}.{{public_hosted_zone}}"
-  when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
-
-- name: Restart networking to clear temp DHCP address
-  service: name=network state=restarted
-  ignore_errors: true
-  when: hostvars[inventory_hostname].ansible_ssh_host != "{{host_inventory[inventory_hostname].ip4addr}}"
-
 - name: Ensure HAProxy is installed.
   yum: name=haproxy state=installed
 

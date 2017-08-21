@@ -1,0 +1,68 @@
+---
+- block:
+    - name: Allow rhsm a longer timeout to help out with subscription-manager
+      lineinfile:
+        dest: /etc/rhsm/rhsm.conf
+        line: 'server_timeout=600'
+        insertafter: '^proxy_password ='
+
+    - name: Check for sat config file
+      stat: path=/etc/rhsm/rhsm.conf.kat-backup
+      register: sat_cfg
+
+    - name: Remove satellite configuration if using RH CDN
+      command: "mv -f /etc/rhsm/rhsm.conf.kat-backup /etc/rhsm/rhsm.conf"
+      when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
+      ignore_errors: yes
+
+    - name: Remove satellite SSL if using RH CDN
+      command: "rpm -e $(rpm -qa katello-ca-consumer*)"
+      when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
+      ignore_errors: yes
+
+    - name: Is the host already registered?
+      command: "subscription-manager status"
+      register: subscribed
+      changed_when: no
+      ignore_errors: yes
+
+    - name: Register host via Activation key
+      redhat_subscription:
+        activationkey: "{{ rhsm_activation_key }}"
+        org_id: "{{ rhsm_org_id }}"
+        state: present
+        pool: "{{ rhsm_pool }}"
+      when: rhsm_activation_key is defined and rhsm_activation_key
+      register: register_key_result
+      ignore_errors: yes
+
+    - name: Register host
+      redhat_subscription:
+        username: "{{ rhsm_user }}"
+        password: "{{ rhsm_password }}"
+        state: present
+        pool: "{{ rhsm_pool }}"
+      when: "'Current' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
+
+    - name: Check if subscription is attached
+      command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"
+      register: subscription_attached
+      changed_when: no
+
+    - block:
+        - name: Get pool id
+          shell: subscription-manager list --available --pool-only --matches="{{ rhsm_pool }}" | head -n 1
+          register: pool_id
+          changed_when: no
+
+        - name: Fail if no pool ID is returned
+          fail:
+            msg: No subscription matching "{{ rhsm_pool }}" found
+          when: pool_id.stdout == ""
+
+        - name: Attach subscription
+          command: subscription-manager attach --pool="{{ pool_id.stdout }}"
+
+      when: subscription_attached.stdout == ""
+
+  when: ansible_distribution == "RedHat"

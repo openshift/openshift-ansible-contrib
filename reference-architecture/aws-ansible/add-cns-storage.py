@@ -16,11 +16,11 @@ import sys
               show_default=True)
 
 ### AWS/EC2 options
-@click.option('--gluster-stack', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
+@click.option('--glusterfs-stack-name', help='Specify a gluster stack name. Making the name unique will allow for multiple deployments',
               show_default=True)
 @click.option('--region', default='us-east-1', help='ec2 region',
               show_default=True)
-@click.option('--ami', default='ami-10251c7a', help='ec2 ami',
+@click.option('--ami', default='ami-fbc89880', help='ec2 ami',
               show_default=True)
 @click.option('--node-instance-type', default='m4.2xlarge', help='ec2 instance type',
               show_default=True)
@@ -34,9 +34,9 @@ import sys
               show_default=True)
 @click.option('--private-subnet-id3', help='Specify a Private subnet within the existing VPC',
               show_default=True)
-@click.option('--gluster-volume-size', default='500', help='Gluster volume size in GB',
+@click.option('--glusterfs-volume-size', default='500', help='Gluster volume size in GB',
               show_default=True)
-@click.option('--gluster-volume-type', default='st1', help='Gluster volume type',
+@click.option('--glusterfs-volume-type', default='st1', help='Gluster volume type',
               show_default=True)
 @click.option('--iops', help='Specfify the IOPS for a volume (used only with IO1)',
               show_default=True)
@@ -67,7 +67,7 @@ def launch_refarch_env(region=None,
                     ami=None,
                     no_confirm=False,
                     node_instance_type=None,
-                    gluster_stack=None,
+                    glusterfs_stack_name=None,
                     keypair=None,
                     public_hosted_zone=None,
                     deployment_type=None,
@@ -80,8 +80,8 @@ def launch_refarch_env(region=None,
                     private_subnet_id1=None,
                     private_subnet_id2=None,
                     private_subnet_id3=None,
-                    gluster_volume_type=None,
-                    gluster_volume_size=None,
+                    glusterfs_volume_type=None,
+                    glusterfs_volume_size=None,
                     openshift_sdn=None,
                     iops=None,
                     node_sg=None,
@@ -97,8 +97,8 @@ def launch_refarch_env(region=None,
   if existing_stack is None:
     existing_stack = click.prompt('Specify the name of the existing CloudFormation stack')
 
-  if gluster_stack is None:
-    gluster_stack = click.prompt('Specify a unique name for the CNS CloudFormation stack')
+  if glusterfs_stack_name is None:
+    glusterfs_stack_name = click.prompt('Specify a unique name for the CNS CloudFormation stack')
 
  # If no keypair is specified fail:
   if keypair is None:
@@ -138,7 +138,7 @@ def launch_refarch_env(region=None,
   elif private_subnet_id3 is None:
     private_subnet_id3 = click.prompt("Specify the third private subnet for the nodes?")
 
-  if gluster_volume_type in ['io1']:
+  if glusterfs_volume_type in ['io1']:
     iops = click.prompt('Specify a numeric value for iops')
 
   if iops is None:
@@ -148,17 +148,18 @@ def launch_refarch_env(region=None,
   create_key = "no"
   create_vpc = "no"
   add_node = "yes"
-  node_type = "gluster"
+  deploy_glusterfs = "true"
+  node_type = "glusterfs"
 
   # Display information to the user about their choices
   if use_cloudformation_facts:
       click.echo('Configured values:')
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
-      click.echo('\tgluster_stack: %s' % gluster_stack)
+      click.echo('\tglusterfs_stack_name: %s' % glusterfs_stack_name)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
-      click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
-      click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
+      click.echo('\tglusterfs_volume_type: %s' % glusterfs_volume_type)
+      click.echo('\tglusterfs_volume_size: %s' % glusterfs_volume_size)
       click.echo('\tiops: %s' % iops)
       click.echo('\topenshift_sdn: %s' % openshift_sdn)
       click.echo('\tkeypair: %s' % keypair)
@@ -176,13 +177,13 @@ def launch_refarch_env(region=None,
       click.echo('Configured values:')
       click.echo('\tami: %s' % ami)
       click.echo('\tregion: %s' % region)
-      click.echo('\tgluster_stack: %s' % gluster_stack)
+      click.echo('\tglusterfs_stack_name: %s' % glusterfs_stack_name)
       click.echo('\tnode_instance_type: %s' % node_instance_type)
       click.echo('\tprivate_subnet_id1: %s' % private_subnet_id1)
       click.echo('\tprivate_subnet_id2: %s' % private_subnet_id2)
       click.echo('\tprivate_subnet_id3: %s' % private_subnet_id3)
-      click.echo('\tgluster_volume_type: %s' % gluster_volume_type)
-      click.echo('\tgluster_volume_size: %s' % gluster_volume_size)
+      click.echo('\tglusterfs_volume_type: %s' % glusterfs_volume_type)
+      click.echo('\tglusterfs_volume_size: %s' % glusterfs_volume_size)
       click.echo('\tiops: %s' % iops)
       click.echo('\openshift_sdn: %s' % openshift_sdn)
       click.echo('\tkeypair: %s' % keypair)
@@ -225,7 +226,7 @@ def launch_refarch_env(region=None,
         command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
         ami=%s \
         keypair=%s \
-        gluster_stack=%s \
+        glusterfs_stack_name=%s \
         add_node=yes \
     	node_instance_type=%s \
     	public_hosted_zone=%s \
@@ -235,18 +236,19 @@ def launch_refarch_env(region=None,
         rhsm_password=%s \
         rhsm_pool="%s" \
         containerized=%s \
-        node_type=gluster \
+        node_type=glusterfs \
         key_path=/dev/null \
         create_key=%s \
         create_vpc=%s \
-        gluster_volume_type=%s \
-        gluster_volume_size=%s \
+        deploy_glusterfs=%s \
+        glusterfs_volume_type=%s \
+        glusterfs_volume_size=%s \
         iops=%s \
         openshift_sdn=%s \
         stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
-                        gluster_stack,
+                        glusterfs_stack_name,
                     	node_instance_type,
                     	public_hosted_zone,
                     	deployment_type,
@@ -257,8 +259,9 @@ def launch_refarch_env(region=None,
                     	containerized,
                     	create_key,
                     	create_vpc,
-                        gluster_volume_type,
-                        gluster_volume_size,
+                    	deploy_glusterfs,
+                        glusterfs_volume_type,
+                        glusterfs_volume_size,
                         iops,
                         openshift_sdn,
                     	existing_stack,
@@ -267,7 +270,7 @@ def launch_refarch_env(region=None,
         command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
         ami=%s \
         keypair=%s \
-        gluster_stack=%s \
+        glusterfs_stack_name=%s \
         add_node=yes \
    	  node_sg=%s \
     	  node_instance_type=%s \
@@ -281,19 +284,20 @@ def launch_refarch_env(region=None,
     	  rhsm_password=%s \
     	  rhsm_pool="%s" \
     	  containerized=%s \
-    	  node_type=gluster \
+    	  node_type=glusterfs \
     	  iam_role=%s \
     	  key_path=/dev/null \
     	  create_key=%s \
     	  create_vpc=%s \
-          gluster_volume_type=%s \
-          gluster_volume_size=%s \
+    	  deploy_glusterfs=%s \
+          glusterfs_volume_type=%s \
+          glusterfs_volume_size=%s \
           iops=%s \
           openshift_sdn=%s \
     	  stack_name=%s \' %s' % (region,
                     	ami,
                     	keypair,
-                        gluster_stack,
+                        glusterfs_stack_name,
                     	node_sg,
                     	node_instance_type,
                     	private_subnet_id1,
@@ -309,8 +313,9 @@ def launch_refarch_env(region=None,
                     	iam_role,
                     	create_key,
                     	create_vpc,
-                        gluster_volume_type,
-                        gluster_volume_size,
+                    	deploy_glusterfs,
+                        glusterfs_volume_type,
+                        glusterfs_volume_size,
                         iops,
                         openshift_sdn,
                     	existing_stack,

@@ -6,7 +6,7 @@ This repository contains the code used to deploy an OpenShift Container Platform
 
 The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructure nodes and 2 application nodes in different availability zones.
 
-![Architecture](images/arch.svg)
+![Architecture](images/arch.png)
 
 ## Usage
 

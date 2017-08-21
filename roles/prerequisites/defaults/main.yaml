@@ -1,3 +1,2 @@
 ---
-origin_release: "1.5.1"
-openshift_required_packages: ['iptables', 'iptables-services', 'NetworkManager']
+openshift_required_packages: ['iptables', 'iptables-services', 'NetworkManager', 'docker']

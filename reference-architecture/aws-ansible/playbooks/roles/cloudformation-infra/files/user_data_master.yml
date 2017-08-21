@@ -21,13 +21,14 @@ mounts:
 - [ /dev/xvdc, /var/lib/etcd, xfs, "defaults" ]
 - [ /dev/xvdd, /var/lib/origin/openshift.local.volumes, xfs, "defaults,gquota" ]
 
-
 write_files:
 - content: |
     DEVS='/dev/xvdb'
     VG=docker_vol
     DATA_SIZE=95%VG
-    EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
+    STORAGE_DRIVER=overlay2
+    ROOT_SIZE=45G
+    GROWPART=true
   path: /etc/sysconfig/docker-storage-setup
   owner: root:root
 

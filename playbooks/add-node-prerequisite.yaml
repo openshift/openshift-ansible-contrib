@@ -2,13 +2,28 @@
 - hosts: new_nodes
   gather_facts: yes
   become: yes
+  roles:
+  - rhsm-timeout
+  - role: atomic-update
+    when: openshift.common.is_atomic
+
+- hosts: new_nodes
+  gather_facts: no
+  become: yes
   serial: 1
   roles:
-    - aws-rhsm-subscription
+  - role: rhel_subscribe
+    when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and rhel_subscription_user is defined
+  - role: rhsm-subscription
+    when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and rhsm_user is defined
 
 - hosts: new_nodes
   gather_facts: no
   become: yes
   roles:
-    - rhsm-repos
-    - prerequisites
+  - role: rhsm-repos
+    when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and rhsm_user is defined
+  - prerequisites

@@ -1,0 +1,22 @@
+---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
+- name: create the docker-storage-setup config file
+  template:
+    src: "{{ role_path }}/templates/docker-storage-setup.j2"
+    dest: /etc/sysconfig/docker-storage-setup
+    owner: root
+    group: root
+    mode: 0644
+  when: not openshift.common.is_atomic | bool and ansible_distribution != 'CentOS'
+
+- name: create the docker-storage-setup config file
+  template:
+    src: "{{ role_path }}/templates/docker-storage-setup-dm.j2"
+    dest: /etc/sysconfig/docker-storage-setup
+    owner: root
+    group: root
+    mode: 0644
+  when: ansible_distribution == 'CentOS' and not openshift.common.is_atomic | bool

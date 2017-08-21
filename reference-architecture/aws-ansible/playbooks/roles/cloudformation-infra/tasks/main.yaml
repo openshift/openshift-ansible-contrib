@@ -1,10 +1,22 @@
 ---
+- name: Render Greenfield Template
+  template: src=roles/cloudformation-infra/files/greenfield.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}-greenfield.json
+  when: create_vpc == "yes"
+
+- name: Render Brownfield Template
+  template: src=roles/cloudformation-infra/files/brownfield.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}-brownfield.json
+  when: create_vpc == "no" and byo_bastion == "no"
+
+- name: Render Brownfield BYO Bastion Template
+  template: src=roles/cloudformation-infra/files/brownfield-byo-bastion.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}brownfield-byo-bastion.json
+  when: create_vpc == "no" and byo_bastion == "yes"
+
 - name: Create Greenfield Infrastructure
   cloudformation:
     stack_name: "{{ stack_name }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/greenfield.json"
+    template: "roles/cloudformation-infra/files/{{ stack_name }}-greenfield.json"
     template_parameters:
       Region: "{{ region }}"
       Route53HostedZone: "{{ public_hosted_zone }}."
@@ -22,7 +34,8 @@
       AmiId: "{{ ami }}"
       BastionInstanceType: "{{ bastion_instance_type }}"
       BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}"
-      MasterRootVolSize: "10"
+      MasterRootVolSize: "50"
+      BastionRootVolSize: "10"
       BastionRootVolType: gp2
       MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"
@@ -33,7 +46,7 @@
       MasterEmptyVolType: gp2
       MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}"
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: "15"
+      InfraRootVolSize: "50"
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
@@ -41,7 +54,7 @@
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ app_instance_type }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -56,7 +69,7 @@
     stack_name: "{{ stack_name }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/brownfield.json"
+    template: "roles/cloudformation-infra/files/{{ stack_name }}-brownfield.json"
     template_parameters:
       Vpc: "{{ vpc_id }}"
       PrivateSubnet1: "{{ private_subnet_id1 }}"
@@ -77,7 +90,8 @@
       AmiId: "{{ ami }}"
       BastionInstanceType: "{{ bastion_instance_type }}"
       BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}"
-      MasterRootVolSize: "10"
+      MasterRootVolSize: "50"
+      BastionRootVolSize: "10"
       BastionRootVolType: gp2
       MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"
@@ -88,7 +102,7 @@
       MasterEmptyVolType: gp2
       MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}"
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: "15"
+      InfraRootVolSize: "50"
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
@@ -96,7 +110,7 @@
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ app_instance_type }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -111,7 +125,7 @@
     stack_name: "{{ stack_name }}"
     state: "present"
     region: "{{ region }}"
-    template: "roles/cloudformation-infra/files/brownfield-byo-bastion.json"
+    template: "roles/cloudformation-infra/files/{{ stack_name }}-brownfield-byo-bastion.json"
     template_parameters:
       Vpc: "{{ vpc_id }}"
       BastionSg: "{{ bastion_sg }}"
@@ -131,7 +145,7 @@
       KeyName: "{{ keypair }}"
       MasterInstanceType: "{{ master_instance_type }}"
       AmiId: "{{ ami }}"
-      MasterRootVolSize: "10"
+      MasterRootVolSize: "50"
       MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"
       MasterDockerVolType: gp2
@@ -141,7 +155,7 @@
       MasterEmptyVolType: gp2
       MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}"
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: "15"
+      InfraRootVolSize: "50"
       InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
@@ -149,7 +163,7 @@
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ app_instance_type }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -176,7 +190,7 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -204,7 +218,7 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
@@ -214,9 +228,15 @@
       KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and add_node == "yes" and node_type == "infra"
 
+- name: Get cfn stack outputs
+  cloudformation_facts:
+    stack_name: "{{ stack_name }}"
+    region: "{{ region }}"
+  register: stack
+
 - name: Add CNS Gluster Nodes with io1
   cloudformation:
-    stack_name: "{{ stack_name }}-{{ gluster_stack }}"
+    stack_name: "{{ stack_name }}-{{ glusterfs_stack_name }}"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/add-cns-storage-iops.json"
@@ -236,22 +256,22 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
-      GlusterVolSize: "{{ gluster_volume_size }}"
-      GlusterVolType: "{{ gluster_volume_type }}"
+      GlusterVolSize: "{{ glusterfs_volume_size }}"
+      GlusterVolType: "{{ glusterfs_volume_type }}"
       Iops: "{{ iops }}"
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
       NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
-      NodeType: "{{ node_type }}"
+      NodeType: glusterfs
     tags:
       KubernetesCluster: "{{ stack_name }}"
-  when: create_vpc == "no" and add_node == "yes" and node_type == "gluster" and gluster_volume_type == "io1"
+  when: deploy_glusterfs == "true" and glusterfs_volume_type == "io1" or create_vpc == "no" and add_node == "yes" and node_type == "glusterfs" and glusterfs_volume_type == "io1"
 
 - name: Add CNS Gluster Nodes
   cloudformation:
-    stack_name: "{{ stack_name }}-{{ gluster_stack }}"
+    stack_name: "{{ stack_name }}-{{ glusterfs_stack_name }}"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/add-cns-storage.json"
@@ -271,21 +291,21 @@
       NodeEmptyVolSize: "{{ emptydir_storage }}"
       NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
-      GlusterVolSize: "{{ gluster_volume_size }}"
-      GlusterVolType: "{{ gluster_volume_type }}"
+      GlusterVolSize: "{{ glusterfs_volume_size }}"
+      GlusterVolType: "{{ glusterfs_volume_type }}"
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
       NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
-      NodeType: "{{ node_type }}"
+      NodeType: glusterfs
     tags:
       KubernetesCluster: "{{ stack_name }}"
-  when: create_vpc == "no" and add_node == "yes" and node_type == "gluster" and gluster_volume_type != "io1"
+  when: deploy_glusterfs == "true" and glusterfs_volume_type != "io1" or create_vpc == "no" and add_node == "yes" and node_type == "glusterfs" and glusterfs_volume_type != "io1"
 
 - name: Add CRS Gluster Nodes with IO1
   cloudformation:
-    stack_name: "{{ stack_name }}-{{ gluster_stack }}"
+    stack_name: "{{ stack_name }}-{{ glusterfs_stack_name }}"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/add-crs-storage-iops.json"
@@ -305,16 +325,16 @@
       AmiId: "{{ ami }}"
       InstanceType: "{{ node_instance_type }}"
       NodeUserData: "{{ lookup('file', 'user_data_gluster.yml') | b64encode }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
-      GlusterVolSize: "{{ gluster_volume_size }}"
-      GlusterVolType: "{{ gluster_volume_type }}"
+      GlusterVolSize: "{{ glusterfs_volume_size }}"
+      GlusterVolType: "{{ glusterfs_volume_type }}"
       Iops: "{{ iops }}"
-  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and gluster_volume_type == "io1"
+  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and glusterfs_volume_type == "io1"
 
 - name: Add CRS Gluster Nodes
   cloudformation:
-    stack_name: "{{ stack_name }}-{{ gluster_stack }}"
+    stack_name: "{{ stack_name }}-{{ glusterfs_stack_name }}"
     state: "present"
     region: "{{ region }}"
     template: "roles/cloudformation-infra/files/add-crs-storage.json"
@@ -334,8 +354,8 @@
       AmiId: "{{ ami }}"
       InstanceType: "{{ node_instance_type }}"
       NodeUserData: "{{ lookup('file', 'user_data_gluster.yml') | b64encode }}"
-      NodeRootVolSize: "15"
+      NodeRootVolSize: "50"
       NodeRootVolType: gp2
-      GlusterVolSize: "{{ gluster_volume_size }}"
-      GlusterVolType: "{{ gluster_volume_type }}"
-  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and gluster_volume_type != "io1"
+      GlusterVolSize: "{{ glusterfs_volume_size }}"
+      GlusterVolType: "{{ glusterfs_volume_type }}"
+  when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and glusterfs_volume_type != "io1"

@@ -3,11 +3,6 @@
   openshift_facts:
     role: common
 
-- name: Set Origin fact
-  set_fact:
-    openshift_release: "{{ origin_release }}"
-  when: deployment_type == "origin"
-
 - block:
   - name: Clear yum cache
     command: "yum clean all"
@@ -46,6 +41,12 @@
   - name: Start iptables
     service:
       name: iptables
+      state: started
+      enabled: true
+
+  - name: Start docker
+    service:
+      name: docker
       state: started
       enabled: true
 

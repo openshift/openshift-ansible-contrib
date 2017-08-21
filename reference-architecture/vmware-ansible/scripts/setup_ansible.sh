@@ -1,13 +1,14 @@
 #! /bin/bash
 #
-
 subscription-manager repos --enable rhel-7-server-rpms
-subscription-manager repos --enable rhel-7-server-ose-3.3-rpms
+subscription-manager repos --enable rhel-7-server-ose-3.6-rpms
 subscription-manager repos --enable rhel-7-server-optional-rpms
 subscription-manager repos --enable rhel-7-server-extras-rpms
 subscription-manager repos --enable rhel-7-server-satellite-tools-6.2-rpms
 
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+
+git clone https://github.com/vmware/pyvmomi && cd pyvmomi/ && python setup.py install
 
 yum -y install atomic-openshift-utils \
                  git \

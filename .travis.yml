@@ -12,9 +12,31 @@ python:
   - "2.7"
   - "3.5"
 
+env:
+  global:
+    - CI_CONCURRENT_JOBS=1
+    - OPENSHIFT_ANSIBLE_COMMIT=master
+  matrix:
+    - RUN_OPENSTACK_CI=false
+    - RUN_OPENSTACK_CI=true
+
+matrix:
+  exclude:
+    - python: "3.5"
+      env: RUN_OPENSTACK_CI=true
+
+before_install:
+  - ci/fetch-master.sh
+
 install:
-  - pip install -r requirements.txt
-  - pip install tox-travis
+  - ci/install-tox.sh
+  - ci/openstack/install.sh
 
 script:
-  - tox
+  - ci/run-tox.sh
+  - ci/openstack/provision.sh
+  - travis_wait 40 ci/openstack/install-openshift.sh
+  - ci/openstack/validate.sh
+
+after_script:
+  - ci/openstack/teardown.sh

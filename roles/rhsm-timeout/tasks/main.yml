@@ -1,0 +1,11 @@
+---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
+- name: Allow rhsm a longer timeout to help out with subscription-manager
+  lineinfile:
+    dest: /etc/rhsm/rhsm.conf
+    line: 'server_timeout=600'
+    insertafter: '^proxy_password ='
+  when: ansible_distribution == "RedHat"

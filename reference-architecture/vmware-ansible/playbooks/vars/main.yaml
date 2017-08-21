@@ -9,3 +9,11 @@ app_tag: app
 master_group_tag: "tag_openshift-role_{{ master_tag }}"
 app_group_tag: "tag_openshift-role_{{ app_tag }}"
 infra_group_tag: "tag_openshift-role_{{ infra_tag }}"
+openshift_major_version: 6
+openshift_vers: v3_{{ openshift_major_version }}
+openshift_ansible_branch: release-3.{{ openshift_major_version }}
+openshift_required_repos:
+- rhel-7-server-rpms
+- rhel-7-server-extras-rpms
+- rhel-7-server-ose-3.{{ openshift_major_version }}-rpms
+- rhel-7-fast-datapath-rpms

@@ -8,7 +8,6 @@
   roles:
     - instance-groups
 
-
 - hosts: cluster_hosts
   user: root
   become: false
@@ -40,6 +39,8 @@
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
         name: "{{ item.value.guestname }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        folder: "/{{ vcenter_folder }}"
         state: absent
         force: true
       with_dict: "{{production_hosts}}"
@@ -50,6 +51,8 @@
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
         name: "{{ item.value.guestname }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        folder: "/{{ vcenter_folder }}"
         state: absent
         force: true
       with_dict: "{{infrastructure_hosts}}"

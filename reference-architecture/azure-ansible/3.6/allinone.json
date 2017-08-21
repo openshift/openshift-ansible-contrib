@@ -1,0 +1,672 @@
+{
+  "$schema" : "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion" : "1.0.0.0",
+  "parameters" : {
+    "adminUsername" : {
+      "type" : "string",
+      "minLength" : 1,
+      "metadata" : {
+        "description" : "User name for the Virtual Machine and OpenShift Webconsole."
+      }
+    },
+    "adminPassword" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "User password for the OpenShift Webconsole"
+      }
+    },
+    "sshKeyData" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "SSH RSA public key file as a string."
+      }
+    },
+    "image" : {
+      "type" : "string",
+      "allowedValues" : [
+        "rhel"
+      ],
+      "defaultValue" : "rhel",
+      "metadata" : {
+        "description" : "OS to use.Red Hat Enterprise Linux"
+      }
+    },
+    "vmSize" : {
+      "type" : "string",
+      "defaultValue" : "Standard_DS4_v2",
+      "allowedValues" : [
+        "Standard_A2",
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_A5",
+        "Standard_A6",
+        "Standard_A7",
+        "Standard_A8",
+        "Standard_A9",
+        "Standard_A10",
+        "Standard_A11",
+        "Standard_D2",
+        "Standard_D3",
+        "Standard_D4",
+        "Standard_D11",
+        "Standard_D12",
+        "Standard_D13",
+        "Standard_D14",
+        "Standard_D2_v2",
+        "Standard_D3_v2",
+        "Standard_D4_v2",
+        "Standard_D5_v2",
+        "Standard_D11_v2",
+        "Standard_D12_v2",
+        "Standard_D13_v2",
+        "Standard_D14_v2",
+        "Standard_G1",
+        "Standard_G2",
+        "Standard_G3",
+        "Standard_G4",
+        "Standard_G5",
+        "Standard_DS2",
+        "Standard_DS3",
+        "Standard_DS4",
+        "Standard_DS11",
+        "Standard_DS12",
+        "Standard_DS13",
+        "Standard_DS14",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2",
+        "Standard_DS11_v2",
+        "Standard_DS12_v2",
+        "Standard_DS13_v2",
+        "Standard_DS14_v2",
+        "Standard_GS1",
+        "Standard_GS2",
+        "Standard_GS3",
+        "Standard_GS4",
+        "Standard_GS5"
+      ],
+      "metadata" : {
+        "description" : "The size of the each Node Virtual Machine."
+      }
+    },
+    "rhsmUsernamePasswordOrActivationKey" : {
+      "type" : "string",
+      "minLength" : 1,
+      "defaultValue" : "usernamepassword",
+      "allowedValues" : [
+        "usernamepassword",
+        "activationkey"
+      ],
+      "metadata" : {
+        "description" : "Select whether you want to use your Red Hat Subscription Manager Username and Password or Organization ID and Activation Key to register the RHEL instance to your Red Hat Subscription."
+      }
+    },
+    "RHNUserName" : {
+      "type" : "string",
+      "minLength" : 1,
+      "metadata" : {
+        "description" : "Red Hat Subscription User Name or Email Address or Organization ID"
+      }
+    },
+    "RHNPassword" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "Red Hat Subscription Password or Activation Key"
+      }
+    },
+    "SubscriptionPoolId" : {
+      "type" : "string",
+      "minLength" : 1,
+      "metadata" : {
+        "description" : "Pool ID of the Red Hat subscritpion to use"
+      }
+    },
+    "sshPrivateData" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "SSH RSA private key file as a base64 string."
+      }
+    },
+    "aadClientId" : {
+      "type" : "string",
+      "metadata" : {
+        "description" : "Azure AD Client Id"
+      }
+    },
+    "aadClientSecret" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "Azure AD Client Secret"
+      }
+    },
+    "metrics" : {
+      "type" : "bool",
+      "defaultValue" : true,
+      "metadata" : {
+        "description" : "Enable OCP metrics"
+      }
+    },
+    "logging" : {
+      "type" : "bool",
+      "defaultValue" : false,
+      "metadata" : {
+        "description" : "Enable OCP aggregated logging"
+      }
+    },
+    "opslogging" : {
+      "type" : "bool",
+      "defaultValue" : false,
+      "metadata" : {
+        "description" : "Enable OCP aggregated logging for ops"
+      }
+    }
+  },
+  "variables" : {
+    "gituser" : "openshift",
+    "branch" : "master",
+    "version" : "3.6",
+    "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/',variables('version'),'/')]",
+    "location" : "[resourceGroup().location]",
+    "virtualNetworkName" : "openshiftVnet",
+    "addressPrefix" : "10.0.0.0/16",
+    "vhdStorageType" : "Premium_LRS",
+    "vnetId" : "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+    "rhel" : {
+      "publisher" : "Redhat",
+      "offer" : "RHEL",
+      "sku" : "7-RAW",
+      "version" : "latest"
+    },
+    "baseVMachineTemplateUriOneVm" : "[concat(variables('baseTemplateUrl'), 'onevm.json')]",
+    "vmSizesMap" : {
+      "Standard_A2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A4" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A5" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A6" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A7" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A8" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A9" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A10" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A11" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D1" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D4" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D11" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D12" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D13" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D14" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D1_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D2_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D3_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D4_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D5_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D11_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D12_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D13_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D14_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G1" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G4" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G5" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_DS1" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS3" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS4" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS11" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS12" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS13" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS14" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS1_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS2_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS3_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS4_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS5_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS11_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS12_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS13_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS14_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS15_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS1" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS3" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS4" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS5" : {
+        "storageAccountType" : "Premium_LRS"
+      }
+    },
+    "tenantId" : "[subscription().tenantId]",
+    "StorageAccountPersistentVolume" : "[concat('sapv', resourceGroup().name)]",
+    "StorageAccountLoggingMetricsVolumes" : "[concat('sapvlm', resourceGroup().name)]",
+    "registryStorageName" : "[concat('sareg', resourceGroup().name)]",
+    "subscriptionId" : "[subscription().subscriptionId]",
+    "StorageAccountLoggingMetricsVolumesVolumeType" : "Premium_LRS",
+    "apiVersion" : "2015-06-15",
+    "apiVersionCompute" : "2015-06-15",
+    "apiVersionNetwork" : "2016-03-30",
+    "tmApiVersion" : "2015-11-01",
+    "apiVersionStorage" : "2015-06-15",
+    "apiVersionLinkTemplate" : "2015-01-01",
+    "StorageAccountName" : "[concat('samas', resourceGroup().name)]",
+    "nicName" : "OneVmNic",
+    "publicIPAddressName" : "onevmPublicIP",
+    "publicIPAddressType" : "Dynamic",
+    "subnetRef" : "[concat(variables('vnetID'),'/subnets/',variables('virtualNetworkName'))]",
+    "sshKeyPath" : "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
+    "publicIpRef" : "[concat('Microsoft.Network/publicIPAddresses/',variables('publicIPAddressName'))]",
+    "sQuote" : "\"",
+    "rhsmmode" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
+  },
+  "resources" : [
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('registryStorageName')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "['Standard_RAGRS']"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('StorageAccountPersistentVolume')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccountPersistentVolume"
+      },
+      "properties" : {
+        "accountType" : "[variables('vmSizesMap')[parameters('vmSize')].storageAccountType]"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('StorageAccountLoggingMetricsVolumes')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccountLoggingMetricsVolumes"
+      },
+      "properties" : {
+        "accountType" : "[variables('StorageAccountLoggingMetricsVolumesVolumeType')]"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('StorageAccountName')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "[variables('vmSizesMap')[parameters('vmSize')].storageAccountType]"
+      }
+    },
+    {
+      "apiVersion" : "2017-03-30",
+      "type" : "Microsoft.Compute/virtualMachines",
+      "name" : "[resourceGroup().name]",
+      "location" : "[resourceGroup().location]",
+      "dependsOn" : [
+        "[resourceId('Microsoft.Storage/storageAccounts/', variables('StorageAccountName'))]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', variables('nicName'))]"
+      ],
+      "properties" : {
+        "hardwareProfile" : {
+          "vmSize" : "[parameters('vmSize')]"
+        },
+        "osProfile" : {
+          "computerName" : "[resourceGroup().name]",
+          "adminUsername" : "[parameters('adminUsername')]",
+          "adminPassword" : "[parameters('adminPassword')]",
+          "linuxConfiguration" : {
+            "disablePasswordAuthentication" : "true",
+            "ssh" : {
+              "publicKeys" : [
+                {
+                  "path" : "[variables('sshKeyPath')]",
+                  "keyData" : "[parameters('sshKeyData')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile" : {
+          "imageReference" : "[variables('rhel')]",
+          "osDisk" : {
+            "caching" : "ReadWrite",
+            "vhd" : {
+              "uri" : "[concat('http://', variables('StorageAccountName'), '.blob.core.windows.net/openshiftvmachines/', resourceGroup().name, '.vhd')]"
+            },
+            "name" : "osdisk",
+            "createOption" : "FromImage",
+            "diskSizeGB" : "192"
+          },
+          "dataDisks" : [
+            {
+              "caching" : "None",
+              "createOption" : "Empty",
+              "diskSizeGB" : "128",
+              "lun" : 0,
+              "name" : "datadisk0",
+              "vhd" : {
+                "uri" : "[concat('http://', variables('StorageAccountName'), '.blob.core.windows.net/openshiftvmachines/', resourceGroup().name, '_datadisk0.vhd')]"
+              }
+            },
+            {
+              "caching" : "None",
+              "createOption" : "Empty",
+              "diskSizeGB" : "128",
+              "lun" : 1,
+              "name" : "datadisk1",
+              "vhd" : {
+                "uri" : "[concat('http://', variables('StorageAccountName'), '.blob.core.windows.net/openshiftvmachines/', resourceGroup().name, '_datadisk1.vhd')]"
+              }
+            },
+            {
+              "caching" : "None",
+              "createOption" : "Empty",
+              "diskSizeGB" : "512",
+              "lun" : 2,
+              "name" : "datadisk2",
+              "vhd" : {
+                "uri" : "[concat('http://', variables('StorageAccountName'), '.blob.core.windows.net/openshiftvmachines/', resourceGroup().name, '_datadisk2.vhd')]"
+              }
+            }
+          ]
+        },
+        "networkProfile" : {
+          "networkInterfaces" : [
+            {
+              "id" : "[resourceId('Microsoft.Network/networkInterfaces',variables('nicName'))]"
+            }
+          ]
+        },
+        "diagnosticsProfile" : {
+          "bootDiagnostics" : {
+            "enabled" : "false",
+            "storageUri" : "[concat(reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2016-01-01').primaryEndpoints.blob)]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion" : "2017-04-01",
+      "type" : "Microsoft.Network/networkInterfaces",
+      "name" : "[variables('nicName')]",
+      "location" : "[resourceGroup().location]",
+      "dependsOn" : [
+        "[resourceId('Microsoft.Network/publicIPAddresses/', variables('publicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]"
+      ],
+      "properties" : {
+        "ipConfigurations" : [
+          {
+            "name" : "ipconfig1",
+            "properties" : {
+              "privateIPAllocationMethod" : "Dynamic",
+              "publicIPAddress" : {
+                "id" : "[resourceId('Microsoft.Network/publicIPAddresses',variables('publicIPAddressName'))]"
+              },
+              "subnet" : {
+                "id" : "[variables('subnetRef')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion" : "2017-04-01",
+      "type" : "Microsoft.Network/publicIPAddresses",
+      "name" : "[variables('publicIPAddressName')]",
+      "location" : "[resourceGroup().location]",
+      "properties" : {
+        "publicIPAllocationMethod" : "Static",
+        "dnsSettings" : {
+          "domainNameLabel" : "[resourceGroup().name]"
+        }
+      }
+    },
+    {
+      "apiVersion" : "[variables('apiVersion')]",
+      "type" : "Microsoft.Network/virtualNetworks",
+      "name" : "[variables('virtualNetworkName')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "VirtualNetwork"
+      },
+      "properties" : {
+        "addressSpace" : {
+          "addressPrefixes" : [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets" : [
+          {
+            "name" : "[variables('virtualNetworkName')]",
+            "properties" : {
+              "addressPrefix" : "[variables('addressPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type" : "Microsoft.Compute/virtualMachines/extensions",
+      "name" : "[concat(resourceGroup().name,'/installcustomscript')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[resourceGroup().location]",
+      "tags" : {
+        "displayName" : "VirtualMachineCustomScriptExtension"
+      },
+      "dependsOn" : [
+        "[concat('Microsoft.Compute/virtualMachines/', resourceGroup().name)]"
+      ],
+      "properties" : {
+        "publisher" : "Microsoft.Azure.Extensions",
+        "type" : "CustomScript",
+        "typeHandlerVersion" : "2.0",
+        "autoUpgradeMinorVersion" : true,
+        "settings" : {
+          "fileUris" : [
+            "[concat(variables('baseTemplateUrl'), 'allinone.sh')]"
+          ]
+        },
+        "protectedSettings" : {
+          "commandToExecute" : "[ concat('bash allinone.sh ', resourceGroup().name, ' ', resourceGroup().name, ' ',  parameters('adminUsername'), ' ', parameters('adminPassword'), ' ', reference(variables('publicIPAddressName')).dnsSettings.fqdn, ' ', '0', ' ', reference('onevmPublicIP').ipAddress, ' ', parameters('RHNUserName'), ' ', parameters('RHNPassword'),' ', parameters('SubscriptionPoolId'), ' ',  variables('sQuote'),  parameters('sshPrivateData'), variables('sQuote'),  ' ', variables('sQuote'), parameters('sshKeyData'), variables('sQuote'),' ',variables('registryStorageName'),' ',listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('registryStorageName')),'2015-06-15').key1,' ',variables('location'),' ',variables('subscriptionid'),' ',variables('tenantid'),' ',parameters('aadclientid'),' ',parameters('aadclientsecret'),' ', variables('rhsmmode'),' ',parameters('metrics'),' ',parameters('logging'),' ',parameters('opslogging'))]"
+        }
+      }
+    },
+    {
+      "type" : "Microsoft.Network/networkSecurityGroups",
+      "name" : "[concat(resourceGroup().name, 'nsg')]",
+      "tags" : {
+        "displayName" : "NetworkSecurityGroup"
+      },
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[resourceGroup().location]",
+      "properties" : {
+        "securityRules" : [
+          {
+            "name" : "default-allow-openshift-router-https",
+            "properties" : {
+              "protocol" : "Tcp",
+              "sourcePortRange" : "*",
+              "destinationPortRange" : "443",
+              "sourceAddressPrefix" : "*",
+              "destinationAddressPrefix" : "*",
+              "access" : "Allow",
+              "priority" : 2000,
+              "direction" : "Inbound"
+            }
+          },
+          {
+            "name" : "default-allow-openshift-router-http\n",
+            "properties" : {
+              "protocol" : "Tcp",
+              "sourcePortRange" : "*",
+              "destinationPortRange" : "80",
+              "sourceAddressPrefix" : "*",
+              "destinationAddressPrefix" : "*",
+              "access" : "Allow",
+              "priority" : 2001,
+              "direction" : "Inbound"
+            }
+          },
+          {
+            "name" : "default-allow-openshift-master",
+            "properties" : {
+              "protocol" : "Tcp",
+              "sourcePortRange" : "*",
+              "destinationPortRange" : "8443",
+              "sourceAddressPrefix" : "*",
+              "destinationAddressPrefix" : "*",
+              "access" : "Allow",
+              "priority" : 2002,
+              "direction" : "Inbound"
+            }
+          },
+          {
+            "name" : "default-allow-ssh",
+            "properties" : {
+              "protocol" : "Tcp",
+              "sourcePortRange" : "*",
+              "destinationPortRange" : "22",
+              "sourceAddressPrefix" : "*",
+              "destinationAddressPrefix" : "*",
+              "access" : "Allow",
+              "priority" : 2003,
+              "direction" : "Inbound"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs" : {
+    "sshCommand" : {
+      "type" : "string",
+      "value" : "[concat('ssh ', parameters('adminUsername'), '@', reference(variables('publicIPAddressName')).dnsSettings.fqdn)]"
+    },
+    "publicIP" : {
+      "type" : "string",
+      "value" : "[reference('onevmPublicIP').ipAddress]"
+    }
+  }
+}

@@ -10,7 +10,7 @@
   vars_files:
     - vars/main.yaml
   roles:
-    - rhel_subscribe
+    - rhsm
     - vmware-guest-setup
   ignore_errors: yes
 

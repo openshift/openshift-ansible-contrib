@@ -19,6 +19,15 @@
   roles:
   - host-up
 
-- include: ../../../playbooks/aws-prerequisite.yaml
+- hosts: nodes
+  gather_facts: yes
+  become: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - non-atomic-docker-storage-setup
+  - openshift-versions
+
+- include: ../../../playbooks/prerequisite.yaml
 
 - include: openshift-setup.yaml

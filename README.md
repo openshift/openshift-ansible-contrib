@@ -9,6 +9,11 @@ This repository contains *unsupported* code that can be used in conjunction with
 - code for provisioning various cloud providers (GCE, AWS, VMWare, [Openstack](https://github.com/openshift/openshift-ansible-contrib/tree/master/playbooks/provisioning/openstack) and [Red Hat Virtualization (RHV) / oVirt](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/rhv-ansible))
 - supporting scripts and playbooks for the various [reference architectures](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture) Red Hat has published
 
+## Contributing
+
+If you're submitting a pull request or doing a code review, please
+take a look at our [contributing guide](./CONTRIBUTING.md).
+
 ## Running tests locally
 We use [tox](http://readthedocs.org/docs/tox/) to manage virtualenvs and run
 tests. Alternatively, tests can be run using

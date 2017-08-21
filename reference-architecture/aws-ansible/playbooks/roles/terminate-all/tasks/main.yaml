@@ -39,7 +39,7 @@
   cloudformation:
     stack_name: "{{ stack_name }}"
     state: absent
-    template: roles/cloudformation-infra/files/greenfield.json
+    template: "roles/cloudformation-infra/files/{{ stack_name }}-greenfield.json"
     region: "{{ region }}"
   ignore_errors: true
 

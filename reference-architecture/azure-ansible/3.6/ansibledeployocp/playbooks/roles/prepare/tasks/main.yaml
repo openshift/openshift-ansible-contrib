@@ -1,0 +1,31 @@
+---
+- name: Add EPEL repository
+  yum_repository:
+    name: epel
+    description: EPEL YUM repo
+    mirrorlist: https://mirrors.fedoraproject.org/mirrorlist?repo=epel-7&arch=$basearch
+    enabled: no
+    gpgcheck: no
+  tags: epel
+
+- name: Install required packages
+  yum:
+    name: "{{ item }}"
+    state: latest
+    disablerepo: "epel"
+  with_items: "{{ packages }}"
+  tags: packages
+
+- name: Install EPEL required packages
+  yum:
+    name: "{{ item }}"
+    state: latest
+    enablerepo: "epel"
+  with_items: "{{ epelpackages }}"
+  tags: epelpackages
+
+- name: Install pip required packages
+  pip:
+    name: "{{ item }}"
+  with_items: "{{ pippackages }}"
+  tags: pip

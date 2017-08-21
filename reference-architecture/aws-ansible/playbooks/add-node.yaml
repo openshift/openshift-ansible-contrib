@@ -10,6 +10,15 @@
   - instance-groups
   - cfn-outputs
 
+- hosts: new_nodes
+  gather_facts: yes
+  become: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - non-atomic-docker-storage-setup
+  - openshift-versions
+
 - include: ../../../playbooks/add-node-prerequisite.yaml
 
 - include: node-setup.yaml

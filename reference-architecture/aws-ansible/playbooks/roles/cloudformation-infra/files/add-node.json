@@ -16,7 +16,7 @@
     },
     "NodeRootVolSize": {
       "Type": "String",
-      "Default": "30"
+      "Default": "50"
     },
     "NodeDockerVolSize": {
       "Type": "String",

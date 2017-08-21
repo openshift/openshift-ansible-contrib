@@ -1,0 +1,51 @@
+# used to create a new host group. This host group is then used to wait for each instance to respond to the public IP SSH.
+---
+- hosts: all
+  tasks:
+    - name: Check communications
+      ping:
+    - name: wait for .updateok
+      wait_for: path=/root/.openshiftcomplete timeout=3600
+    - name: Copy kube config to root
+      command: cp -r -f /home/glennswest/.kube /root/.kube
+    - name: GetNodes
+      shell: oc get nodes
+      register: GetNodes
+    - debug: msg="{{ GetNodes.stdout_lines }}"
+    - name: GetTemplates
+      shell: oc get templates -n openshift
+      register: GetTemplates
+    - debug: msg="{{ GetTemplates.stdout_lines }}"
+    - name: NewProject
+      shell: oc new-project test
+      register: NewProject
+    - debug: msg="{{ NewProject.stdout_lines }}"
+    - name: NewNodeJS
+      shell: oc new-app https://github.com/openshift/nodejs-ex.git
+      register: NewNodeJS
+    - debug: msg="{{ NewNodeJS.stdout_lines }}"
+    - name: ExposeNodeJS
+      shell: oc expose svc/nodejs-ex
+      register: ExposeNodeJS
+    - debug: msg="{{ ExposeNodeJS.stdout_lines }}"
+    - name: ListPods1
+      shell: oc get pods --all-namespaces=true
+      register: ListPods1
+    - debug: msg="{{ ListPods1.stdout_lines }}"
+    - pause: 
+        minutes: 2
+    - name: ListPods2
+      shell: oc get pods --all-namespaces=true
+      register: ListPods2
+    - debug: msg="{{ ListPods2.stdout_lines }}"
+    - name: PVTest
+      shell: oc process -n openshift  nodejs-mongo-persistent |  oc create -f - 
+      register: PVTest
+    - debug: msg="{ PVTest.stdout_lines }}"
+    - pause:
+        minutes: 3
+    - name: ListPods3
+      shell: oc get pods --all-namespaces=true
+      register: ListPods3
+    - debug: msg="{{ ListPods3.stdout_lines }}"
+    

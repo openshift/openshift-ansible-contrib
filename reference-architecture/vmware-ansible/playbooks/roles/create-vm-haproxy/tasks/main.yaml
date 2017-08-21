@@ -11,6 +11,18 @@
     template: "{{vcenter_template_name}}"
     folder: "/{{ vcenter_folder }}"
     annotation: "{{ item.value.tag }}"
+    state: poweredon
+    wait_for_ip_address: true
+    disk:
+    - size_gb: 60
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
+    - size_gb: 40
+      datastore: "{{ vcenter_datastore }}"
+      type: thin
     networks:
     - name: "{{ vm_network }}"
       ip: "{{ item.value.ip4addr }}"

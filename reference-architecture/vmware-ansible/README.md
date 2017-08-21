@@ -1,5 +1,5 @@
 # The Reference Architecture OpenShift on VMware
-This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.5 on VMware
+This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.6 on VMware
 
 ## Overview
 The repository contains Ansible playbooks which deploy 3 Masters, 2 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes. Please see the [TLDR](README.md#TLDR:-Steps-to-install-Red-Hat-OpenShift-Cluster-Platform) bottom section if you just want the concise deployment steps.
@@ -14,7 +14,7 @@ The code in this repository handles all of the VMware specific components except
 
 ```bash
 subscription-manager repos --enable rhel-7-server-optional-rpms
-subscription-manager repos --enable rhel-7-server-ose-3.5-rpms
+subscription-manager repos --enable rhel-7-server-ose-3.6-rpms
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 yum -y install atomic-openshift-utils \
                   git \
