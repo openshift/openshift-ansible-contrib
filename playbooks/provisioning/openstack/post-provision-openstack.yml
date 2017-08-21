@@ -68,6 +68,11 @@
   roles:
     - role: dns-records
     - role: infra-ansible/roles/dns
+  post_tasks:
+    - name: Show configured external DNS servers nsupdate keys
+      when: external_nsupdate_keys is defined
+      debug:
+        var: external_nsupdate_keys
 
 - name: Switch the stack subnet to the configured private DNS server
   hosts: localhost
