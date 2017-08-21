@@ -134,11 +134,10 @@ public cluster view dynamic updates:
         instack: true
         public_access: false
 
-Here `external_nsupdate_keys.private.instack: true` ensures the updates
-matching the private view will be sent to the pre-provisioned DNS server as
-it can not be accessed via floating IP (`public_access: false`). The real
-use case depends on the ansible control node placement inside or outside of
-the admin private network.
+Here `instack: true` ensures the updates matching the private view will be sent
+to the pre-provisioned DNS server as it can not be accessed via floating IP
+(`public_access: false`). The real use case depends on the ansible control node
+placement inside or outside of the admin private network.
 
 Note that for in-stack or mixed DNS servers, the `server` IP, `key_secrect` and
 algorithm may be unknown by the initial provisioning time and may be omitted.
@@ -154,11 +153,10 @@ unchanged IP and a key for future deployment updates or scaling out:
         key_algorithm: 'hmac-sha256'
         server: <private in-stack DNS server IP>
 
-Finally, for the given example, the external DNS server will take the default
-`external_nsupdate_keys.public.instack: false` attribute and will be processing
-dynamic records updates mathing a public view only. Note that setting
-`public_access: False` changes nothing for the public section, as it doesn't
-make any sense.
+Finally, for the given example's public view, the external DNS server will take
+the default `instack: false` attribute and will be processing dynamic records
+updates mathing a public view only. Note that setting `public_access: False`
+changes nothing for the public section, as it doesn't make any sense.
 
 #### Other configuration variables
 

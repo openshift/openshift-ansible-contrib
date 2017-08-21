@@ -11,12 +11,12 @@
 
 - name: "Set the private DNS server to use the external value (if provided)"
   set_fact:
-    nsupdate_server_private: "{{ external_nsupdate_keys['private']['server'] }}"
-    nsupdate_key_secret_private: "{{ external_nsupdate_keys['private']['key_secret'] }}"
-    nsupdate_key_algorithm_private: "{{ external_nsupdate_keys['private']['key_algorithm'] }}"
+    nsupdate_server_private: "{{ external_nsupdate_keys[private]['server'] }}"
+    nsupdate_key_secret_private: "{{ external_nsupdate_keys[private]['key_secret'] }}"
+    nsupdate_key_algorithm_private: "{{ external_nsupdate_keys[private]['key_algorithm'] }}"
   when:
     - external_nsupdate_keys is defined
-    - external_nsupdate_keys['private'] is defined
+    - external_nsupdate_keys[private] is defined
 
 - name: "Set the private DNS server to use the provisioned value"
   set_fact:
@@ -51,12 +51,12 @@
 
 - name: "Set the public DNS server details to use the external value (if provided)"
   set_fact:
-    nsupdate_server_public: "{{ external_nsupdate_keys['public']['server'] }}"
-    nsupdate_key_secret_public: "{{ external_nsupdate_keys['public']['key_secret'] }}"
-    nsupdate_key_algorithm_public: "{{ external_nsupdate_keys['public']['key_algorithm'] }}"
+    nsupdate_server_public: "{{ external_nsupdate_keys[public]['server'] }}"
+    nsupdate_key_secret_public: "{{ external_nsupdate_keys[public]['key_secret'] }}"
+    nsupdate_key_algorithm_public: "{{ external_nsupdate_keys[public]['key_algorithm'] }}"
   when:
     - external_nsupdate_keys is defined
-    - external_nsupdate_keys['public'] is defined
+    - external_nsupdate_keys[public] is defined
 
 - name: "Set the public DNS server details to use the provisioned value"
   set_fact:

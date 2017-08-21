@@ -1,29 +1,44 @@
 ---
+- name: Identify mixed instack/external DNS servers cases
+  block:
+    - set_fact:
+        pub_instack: False
+        priv_instack: False
+        priv_pub_access: False
+
+    - set_fact:
+        pub_instack: "{{ external_nsupdate_keys[public].instack|default(False)|bool }}"
+      when: external_nsupdate_keys[public] is defined
+
+    - set_fact:
+        priv_instack: "{{ external_nsupdate_keys[private].instack|default(False)|bool }}"
+        priv_pub_access: "{{ external_nsupdate_keys[private].public_access|default(False)|bool }}"
+      when: external_nsupdate_keys[private] is defined
+
 - fail:
     msg: 'Missing required private DNS server(s)'
   when:
-    - external_nsupdate_keys['private'] is undefined
+    - external_nsupdate_keys[private] is undefined
     - hostvars[groups['dns'][0]] is undefined
 
 - fail:
     msg: 'Missing required public DNS server(s)'
   when:
-    - external_nsupdate_keys['public'] is undefined
+    - external_nsupdate_keys[public] is undefined
     - hostvars[groups['dns'][0]] is undefined
 
 - name: "Set the private DNS server to use the external value (if provided)"
   set_fact:
-    private_dns_server: "{{ external_nsupdate_keys['private']['server'] }}"
+    private_dns_server: "{{ external_nsupdate_keys[private]['server'] }}"
   when:
-    - external_nsupdate_keys['private'] is defined
-    - not external_nsupdate_keys['private'].instack|default(False)|bool
+    - external_nsupdate_keys[private] is defined
+    - not priv_instack
 
 - name: "Set the private DNS server to use the pre-/provisioned value"
   set_fact:
     private_dns_server: >-
-      {%- if external_nsupdate_keys['private'] is defined and
-      external_nsupdate_keys['private'].instack|default(False)|bool and
-      external_nsupdate_keys['private'].public_access|default(False)|bool -%}
+      {%- if external_nsupdate_keys[private] is defined
+      and priv_instack and priv_pub_access -%}
       {{ hostvars[groups['dns'][0]].public_v4 }}
       {%- else -%}
       {{ hostvars[groups['dns'][0]].private_v4 }}
@@ -33,10 +48,10 @@
 
 - name: "Set the public DNS server to use the external value (if provided)"
   set_fact:
-    public_dns_server: "{{ external_nsupdate_keys['public']['server'] }}"
+    public_dns_server: "{{ external_nsupdate_keys[public]['server'] }}"
   when:
-    - external_nsupdate_keys['public'] is defined
-    - not external_nsupdate_keys['public'].instack|default(False)|bool
+    - external_nsupdate_keys[public] is defined
+    - not pub_instack
 
 - name: "Set the public DNS server to use the pre-/provisioned value"
   set_fact:
@@ -45,26 +60,24 @@
     - public_dns_server is undefined
 
 - name: Update configured DNS nsupdate keys for mixed instack cases
-  when:
-    - external_nsupdate_keys.public is defined or external_nsupdate_keys.private is defined
-    - external_nsupdate_keys.public.instack is defined or external_nsupdate_keys.private.instack is defined
   block:
-    - set_fact:
+    - when: external_nsupdate_keys[public] is defined and pub_instack
+      set_fact:
         external_nsupdate_keys:
           public: >-
-            {%- if not external_nsupdate_keys.public.instack|default(False)|bool -%}
-            {{ external_nsupdate_keys['public-' + stack_name] }}
-            {%- else -%}
-            {{ external_nsupdate_keys['public-' + stack_name]|
+            {{ external_nsupdate_keys[public]|
             combine({ 'server' : hostvars[groups['dns'][0]].public_v4 }) }}
-            {%- endif -%}
+          private: "{{ external_nsupdate_keys[private] }}"
+
+    - when: external_nsupdate_keys[private] is defined and priv_instack
+      set_fact:
+        external_nsupdate_keys:
+          public: "{{ external_nsupdate_keys[public] }}"
           private: >-
-            {%- if not external_nsupdate_keys.private.instack|default(False)|bool -%}
-            {{ external_nsupdate_keys['private-' + stack_name] }}
-            {%- elif external_nsupdate_keys.private.public_access|default(True)|bool -%}
-            {{ external_nsupdate_keys['private-' + stack_name]|
+            {%- if priv_pub_access -%}
+            {{ external_nsupdate_keys[private]|
             combine({ 'server' : hostvars[groups['dns'][0]].public_v4 }) }}
             {%- else -%}
-            {{ external_nsupdate_keys['private-' + stack_name]|
+            {{ external_nsupdate_keys[private]|
             combine({ 'server' : hostvars[groups['dns'][0]].private_v4 }) }}
             {%- endif -%}
