@@ -77,8 +77,8 @@
 
       #when: rhsm_pool is defined and rhsm_pool and not skip_packages is defined
       when:
-      - rhsm_pool is defined
-      - subscription_attached.stdout == ''
+        - rhsm_pool is defined
+        - subscription_attached.stdout == ''
 
     - name: Install katello-agent RPM if we are using satellite
       yum:
