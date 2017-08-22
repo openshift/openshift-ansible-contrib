@@ -75,10 +75,11 @@ Otherwise, even if there are differences between the two versions, installation 
 Pay special attention to the values in the first paragraph -- these
 will depend on your OpenStack environment.
 
-Note that all DNS configuration tasks are done by that post provsision playbook.
-It also updates the Neutron subnet for the Heat stack to point to those DNS servers.
-So the provisioned cluster nodes will start using it natively as default nameservers.
-Technically, this allows to deploy OpenShift clusters without dnsmasq proxies.
+Note that all DNS configuration tasks are done by the post-provsision playbook.
+That playbook also updates the Neutron subnet for the Heat stack to point to the
+configured DNS servers. So the provisioned cluster nodes will start using those
+natively as default nameservers. Technically, this allows to deploy OpenShift
+clusters without dnsmasq proxies.
 
 The `env_id` and `public_dns_domain` will form the cluster's DNS domain all
 your servers will be under. With the default values, this will be
@@ -101,8 +102,8 @@ daemon that in turn proxies DNS requests to the authoritative DNS server.
 When Network Manager is enabled for provisioned cluster nodes, which is
 normally the case, you should not change the defaults and always deploy dnsmasq.
 
-`external_nsupdate_keys` describes an external authoritative DNS server, if
-you already have one and only want to update its records.
+`external_nsupdate_keys` describes an external authoritative DNS server(s)
+processing dynamic records updates in the public and private cluster views:
 
     external_nsupdate_keys:
       public-openshift.example.com:
@@ -114,49 +115,30 @@ you already have one and only want to update its records.
         key_algorithm: 'hmac-sha256'
         server: <public DNS server IP>
 
-To re-use the provisioned in-stack Nova server as an external DNS, you can find
-an access IP address and nsupdate keys printed at the end of the post provision
-playbook.
+Another example defines an in-stack DNS server for the private view
+additionally to the external DNS server for the public view:
 
-##### Mixed external/in-stack/pre-provisioned DNS servers configuration
-
-Setting `openstack_num_dns: 0` will not provision in-stack DNS servers. This
-allows you to use only external DNS servers. Sometimes, it makes sense to have
-an in-stack DNS server for private and an additional external DNS server for
-public cluster view dynamic updates:
-
-    external_nsupdate_keys:
-      public-openshift.example.com:
-        key_secret: <some nsupdate key>
-        key_algorithm: 'hmac-sha256'
-        server: <public DNS server IP>
+      ... skipped ...
       private-openshift.example.com:
-        instack: true
-        public_access: false
-
-Here `instack: true` ensures the updates matching the private view will be sent
-to the pre-provisioned DNS server as it can not be accessed via floating IP
-(`public_access: false`). The real use case depends on the ansible control node
-placement inside or outside of the admin private network.
-
-Note that for in-stack or mixed DNS servers, the `server` IP, `key_secrect` and
-algorithm may be unknown by the initial provisioning time and may be omitted.
-Those will be given values after the post-provision playbook finishes its
-execution, so you can update `external_nsupdate_keys` to re-use it with the
-unchanged IP and a key for future deployment updates or scaling out:
-
-    ...
-      private-openshift.example.com:
-        instack: true
-        public_access: false
-        key_secret: <some nsupdate key>
         key_algorithm: 'hmac-sha256'
-        server: <private in-stack DNS server IP>
+        instack: True
+        public_access: False
 
-Finally, for the given example's public view, the external DNS server will take
-the default `instack: false` attribute and will be processing dynamic records
-updates mathing a public view only. Note that setting `public_access: False`
-changes nothing for the public section, as it doesn't make any sense.
+Here, updates matching the private view will be sent to the in-stack DNS
+server's private IP as it can not be accessed via the floating IP.
+
+The real use case depends on the ansible control node placement inside or
+outside of the admin network. Enable the `public_access` flag, only when
+the control nodes reaches the cluster admin network from externally routed
+networks. Setting `public_access: False` for the public view section
+doesn't make any sense and takes no effect.
+
+Note that the `server` IP and `key_secrect` will be auto-evaluated
+from the in-stack DNS server, which is a first member of the 'dns'
+inventory hosts group.
+
+The final `external_nsupdate_keys` updated with the evaluated data is shown
+in a debug message after the post provision playbook finishes its execution.
 
 #### Other configuration variables
 
