@@ -9,43 +9,6 @@ This repository contains *unsupported* code that can be used in conjunction with
 - code for provisioning various cloud providers (GCE, AWS, VMWare, [Openstack](https://github.com/openshift/openshift-ansible-contrib/tree/master/playbooks/provisioning/openstack) and [Red Hat Virtualization (RHV) / oVirt](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/rhv-ansible))
 - supporting scripts and playbooks for the various [reference architectures](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture) Red Hat has published
 
-## Running Custom Post-Provision Actions
-
-If you'd like to run post-provision actions, one option is to create a custom playbook. Here's one example that adds additional YUM repositories:
-
-```
----
-- hosts: app
-  tasks:
-
-  # enable EPL
-  - name: Add repository
-    yum_repository:
-      name: epel
-      description: EPEL YUM repo
-      baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-```
-
-This example runs against app nodes. The list of options include:
-
-  - cluster_hosts (all hosts)
-  - app
-  - dns
-  - masters
-  - infra_hosts
-
-After writing your custom playbook, run it like this:
-
-```
-ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ custom-playbook.yaml
-```
-
-If you'd like to limit the run to one particular host, you can do so as follows:
-
-```
-ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ custom-playbook.yaml -l app-node-0.openshift.example.com
-```
-
 ## Contributing
 
 If you're submitting a pull request or doing a code review, please
