@@ -120,7 +120,6 @@ additionally to the external DNS server for the public view:
 
       ... skipped ...
       private-openshift.example.com:
-        key_algorithm: 'hmac-sha256'
         instack: True
         public_access: False
 
@@ -133,7 +132,7 @@ the control nodes reaches the cluster admin network from externally routed
 networks. Setting `public_access: False` for the public view section
 doesn't make any sense and takes no effect.
 
-Note that the `server` IP and `key_secrect` will be auto-evaluated
+Note that the server IP, key secrect and algorithm will be auto-evaluated
 from the in-stack DNS server, which is a first member of the 'dns'
 inventory hosts group.
 

@@ -1,0 +1,64 @@
+---
+- name: "Set the private DNS server nsupdate keys to use the external values (if provided)"
+  set_fact:
+    private_dns_server: "{{ external_nsupdate_keys[private]['server'] }}"
+    private_key_algorithm: "{{ external_nsupdate_keys[private]['key_algorithm'] }}"
+    private_key_secret: "{{ external_nsupdate_keys[private]['key_secret'] }}"
+  when:
+    - external_nsupdate_keys[private] is defined
+    - not priv_instack
+
+- name: "Set the private DNS server nsupdate IP to use the pre-/provisioned value"
+  set_fact:
+    private_dns_server: >-
+      {%- if external_nsupdate_keys[private] is defined
+      and priv_instack and priv_pub_access -%}
+      {{ hostvars[groups['dns'][0]].public_v4 }}
+      {%- else -%}
+      {{ hostvars[groups['dns'][0]].private_v4 }}
+      {%- endif -%}
+  when:
+    - private_dns_server is undefined
+
+- name: "Set the private DNS server nsupdate key algorithm to use the pre-/provisioned value"
+  set_fact:
+    private_key_algorithm: "{{ hostvars[groups['dns'][0]].nsupdate_keys[private].key_algorithm }}"
+  when:
+    - private_key_algorithm is undefined
+    - hostvars[groups['dns'][0]].nsupdate_keys is defined
+
+- name: "Set the private DNS server nsupdate key secret to use the pre-/provisioned value"
+  set_fact:
+    private_key_secret: "{{ hostvars[groups['dns'][0]].nsupdate_keys[private].key_secret }}"
+  when:
+    - private_key_secret is undefined
+    - hostvars[groups['dns'][0]].nsupdate_keys is defined
+
+- name: "Set the public DNS server nsupdate keys to use the external values (if provided)"
+  set_fact:
+    public_dns_server: "{{ external_nsupdate_keys[public]['server'] }}"
+    public_key_algorithm: "{{ external_nsupdate_keys[public]['key_algorithm'] }}"
+    public_key_secret: "{{ external_nsupdate_keys[public]['key_secret'] }}"
+  when:
+    - external_nsupdate_keys[public] is defined
+    - not pub_instack
+
+- name: "Set the public DNS server nsupdate IP to use the pre-/provisioned value"
+  set_fact:
+    public_dns_server: "{{ hostvars[groups['dns'][0]].public_v4 }}"
+  when:
+    - public_dns_server is undefined
+
+- name: "Set the public DNS server nsupdate key algorithm to use the pre-/provisioned value"
+  set_fact:
+    public_key_algorithm: "{{ hostvars[groups['dns'][0]].nsupdate_keys[public].key_algorithm }}"
+  when:
+    - public_key_algorithm is undefined
+    - hostvars[groups['dns'][0]].nsupdate_keys is defined
+
+- name: "Set the public DNS server nsupdate key secret to use the pre-/provisioned value"
+  set_fact:
+    public_key_secret: "{{ hostvars[groups['dns'][0]].nsupdate_keys[public].key_secret }}"
+  when:
+    - public_key_secret is undefined
+    - hostvars[groups['dns'][0]].nsupdate_keys is defined
