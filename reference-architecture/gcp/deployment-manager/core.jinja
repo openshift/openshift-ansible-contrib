@@ -72,12 +72,21 @@ resources:
             #cloud-config
             write_files:
             - content: |
-                DEVS='/dev/disk/by-id/google-docker'
-                VG='docker-vol'
-                DATA_SIZE='95%VG'
-                EXTRA_DOCKER_STORAGE_OPTIONS='--storage-opt dm.basesize=3G'
-              path: /etc/sysconfig/docker-storage-setup
+                DOCKER_STORAGE_OPTIONS='--storage-driver overlay2'
+              path: /etc/sysconfig/docker-storage
               permissions: '0644'
+
+            fs_setup:
+            - label: docker
+              filesystem: xfs
+              device: /dev/disk/by-id/google-docker
+              partition: none
+
+            mounts:
+            - [ '/dev/disk/by-id/google-docker', '/var/lib/docker', 'xfs', 'defaults', '0', '0'
+
+            runcmd:
+            - [ /usr/sbin/restorecon, -R, /var/lib/docker ]
       {% else %}
       metadata: {}
       {% endif %}
@@ -144,21 +153,26 @@ resources:
             #cloud-config
             write_files:
             - content: |
-                DEVS='/dev/disk/by-id/google-docker'
-                VG='docker-vol'
-                DATA_SIZE='95%VG'
-                EXTRA_DOCKER_STORAGE_OPTIONS='--storage-opt dm.basesize=3G'
-              path: /etc/sysconfig/docker-storage-setup
+                DOCKER_STORAGE_OPTIONS='--storage-driver overlay2'
+              path: /etc/sysconfig/docker-storage
               permissions: '0644'
 
             fs_setup:
+            - label: docker
+              filesystem: xfs
+              device: /dev/disk/by-id/google-docker
+              partition: none
             - label: osl
               filesystem: xfs
               device: /dev/disk/by-id/google-openshift
               partition: none
 
             mounts:
+            - [ '/dev/disk/by-id/google-docker', '/var/lib/docker', 'xfs', 'defaults', '0', '0' ]
             - [ '/dev/disk/by-id/google-openshift', '/var/lib/origin/openshift.local.volumes', 'xfs', 'defaults,gquota', '0', '0' ]
+
+            runcmd:
+            - [ /usr/sbin/restorecon, -R, /var/lib/docker ]
       networkInterfaces:
       - accessConfigs:
         - name: external-nat
@@ -222,21 +236,26 @@ resources:
             #cloud-config
             write_files:
             - content: |
-                DEVS='/dev/disk/by-id/google-docker'
-                VG='docker-vol'
-                DATA_SIZE='95%VG'
-                EXTRA_DOCKER_STORAGE_OPTIONS='--storage-opt dm.basesize=3G'
-              path: /etc/sysconfig/docker-storage-setup
+                DOCKER_STORAGE_OPTIONS='--storage-driver overlay2'
+              path: /etc/sysconfig/docker-storage
               permissions: '0644'
 
             fs_setup:
+            - label: docker
+              filesystem: xfs
+              device: /dev/disk/by-id/google-docker
+              partition: none
             - label: osl
               filesystem: xfs
               device: /dev/disk/by-id/google-openshift
               partition: none
 
             mounts:
+            - [ '/dev/disk/by-id/google-docker', '/var/lib/docker', 'xfs', 'defaults', '0', '0' ]
             - [ '/dev/disk/by-id/google-openshift', '/var/lib/origin/openshift.local.volumes', 'xfs', 'defaults,gquota', '0', '0' ]
+
+            runcmd:
+            - [ /usr/sbin/restorecon, -R, /var/lib/docker ]
       networkInterfaces:
       - accessConfigs:
         - name: external-nat
