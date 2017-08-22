@@ -1,0 +1,75 @@
+---
+
+- name: Remove workflow-ocp-gce-install
+  command: tower-cli workflow delete --name="workflow-ocp-gce-install"
+
+- name: Remove gce-openshift-install job template
+  tower_job_template:
+    name: gce-openshift-install
+    job_type: run
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/gce-cli/ansible/playbooks/openshift-install.yaml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove gce-gold-image job template
+  tower_job_template:
+    name: gce-gold-image
+    job_type: run
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/gce-cli/ansible/playbooks/gold-image.yaml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove gce-infrastructure job template
+  tower_job_template:
+    name: gce-infrastructure
+    job_type: run
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/gce-cli/ansible/playbooks/core-infra.yaml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower group
+  tower_group:
+    name: gce
+    inventory: "gce-inventory"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower inventory
+  tower_inventory:
+    name: "gce-inventory"
+    organization: "Default"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower credential for machine
+  tower_credential:
+    name: gce-privkey
+    kind: ssh
+    organization: "Default"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower credential for gcp
+  tower_credential:
+    name: gcp-credential
+    kind: gce
+    organization: "Default"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower project
+  tower_project:
+    name: "openshift-ansible-contrib"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower organization
+  tower_organization:
+    name: "Default"
+    description: "Set to Default since the trial license only allows one organization."
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+

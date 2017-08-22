@@ -1,0 +1,10 @@
+---
+
+GCE_MACHINE_KEY: '~/.ssh/id_rsa'
+GCE_USERNAME: 'Put the username to access instances via SSH here'
+GCP_SERVICE_ACCOUNT_EMAIL: 'Put your GCE email here'
+GCP_CREDENTIALS_FILE: 'Put your GCE PEM credentials here'
+GCP_PROJECT_ID: 'Put the project name you want to work with here'
+TOWER_HOSTNAME: 'localhost'
+TOWER_USER: 'admin'
+TOWER_PASSWORD: 'Put your tower password here'
