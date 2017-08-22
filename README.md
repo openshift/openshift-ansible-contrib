@@ -6,7 +6,7 @@ Status](https://travis-ci.org/openshift/openshift-ansible-contrib.svg?branch=mas
 This repository contains *unsupported* code that can be used in conjunction with the
 [openshift-ansible](https://github.com/openshift/openshift-ansible) repository, namely:
 - additional [roles](https://github.com/openshift/openshift-ansible-contrib/tree/master/roles) for OpenShift deployment
-- code for provisioning various cloud providers (GCE, AWS, VMWare, [Openstack](https://github.com/openshift/openshift-ansible-contrib/tree/master/playbooks/provisioning/openstack) and [Red Hat Virtualization (RHV) / oVirt](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/rhv-ansible))
+- code for provisioning various cloud providers ([GCP](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/gcp), [AWS](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/aws-ansible), [VMware](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/vmware-ansible), [Azure](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/azure-ansible), [OpenStack](https://github.com/openshift/openshift-ansible-contrib/tree/master/playbooks/provisioning/openstack) and [Red Hat Virtualization (RHV) / oVirt](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture/rhv-ansible))
 - supporting scripts and playbooks for the various [reference architectures](https://github.com/openshift/openshift-ansible-contrib/tree/master/reference-architecture) Red Hat has published
 
 ## Contributing
