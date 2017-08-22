@@ -260,7 +260,7 @@ if requested, and DNS server, and ensures other OpenShift requirements to be met
 
 ### Running Custom Post-Provision Actions
 
-If you'd like to run post-provision actions, one option is to create a custom playbook. Here's one example that adds additional YUM repositories:
+If you'd like to run post-provision actions, you can do so by creating a custom playbook. Here's one example that adds additional YUM repositories:
 
 ```
 ---
@@ -277,7 +277,8 @@ If you'd like to run post-provision actions, one option is to create a custom pl
 
 This example runs against app nodes. The list of options include:
 
-  - cluster_hosts (all hosts)
+  - cluster_hosts (all hosts: app, infra, masters, dns, lb)
+  - OSEv3 (app, infra, masters)
   - app
   - dns
   - masters
