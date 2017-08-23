@@ -89,7 +89,7 @@
       lineinfile:
         state: present
         dest: /etc/sysconfig/network
-        regexp: "IP4_NAMESERVERS={{ hostvars['localhost'].private_dns_server }}"
-        line: "IP4_NAMESERVERS={{ hostvars['localhost'].private_dns_server }}"
+        regexp: "IP4_NAMESERVERS={{ hostvars['localhost'].private_dns_server_cluster_use }}"
+        line: "IP4_NAMESERVERS={{ hostvars['localhost'].private_dns_server_cluster_use }}"
   roles:
     - node-network-manager

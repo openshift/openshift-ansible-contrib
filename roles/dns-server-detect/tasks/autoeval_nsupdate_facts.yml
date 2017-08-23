@@ -4,11 +4,12 @@
     private_dns_server: "{{ external_nsupdate_keys[private]['server'] }}"
     private_key_algorithm: "{{ external_nsupdate_keys[private]['key_algorithm'] }}"
     private_key_secret: "{{ external_nsupdate_keys[private]['key_secret'] }}"
+    private_dns_server_cluster_use: "{{ private_dns_server }}"
   when:
     - external_nsupdate_keys[private] is defined
     - not priv_instack
 
-- name: "Set the private DNS server nsupdate IP to use the pre-/provisioned value"
+- name: "Set the private DNS server IPs for nsupdates/cluster to use the pre-/provisioned values"
   set_fact:
     private_dns_server: >-
       {%- if external_nsupdate_keys[private] is defined
@@ -17,6 +18,7 @@
       {%- else -%}
       {{ hostvars[groups['dns'][0]].private_v4 }}
       {%- endif -%}
+    private_dns_server_cluster_use: "{{ hostvars[groups['dns'][0]].private_v4 }}"
   when:
     - private_dns_server is undefined
 
