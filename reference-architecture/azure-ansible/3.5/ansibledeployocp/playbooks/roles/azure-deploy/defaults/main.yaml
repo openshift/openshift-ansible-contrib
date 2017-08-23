@@ -1,5 +1,5 @@
 ---
-templatelink: "https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/azuredeploy.json"
+templatelink: "https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/3.5/azuredeploy.json"
 numberofnodes: 3
 image: "rhel"
 mastervmsize: "Standard_DS3_v2"

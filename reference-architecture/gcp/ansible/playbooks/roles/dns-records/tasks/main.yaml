@@ -21,6 +21,7 @@
     type: '{{ item.type }}'
     record_data: '{{ item.record_data }}'
     ttl: 3600
+    overwrite: true
     state: present
   with_items:
   - record: '{{ openshift_master_cluster_public_hostname }}'

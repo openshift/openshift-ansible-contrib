@@ -1,0 +1,7 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: no
+  become: false
+  roles:
+    - { role: azure-delete, tags: ['delete'] }

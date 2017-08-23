@@ -52,12 +52,8 @@
     - google-config
     - google-compute-engine
     - google-compute-engine-init
-    when: openshift_deployment_type == 'openshift-enterprise'
-
-  - name: install cloud-init
-    package:
-      name: cloud-init
-      state: present
+    - cloud-init
+    - docker
 
   - name: add disk_setup to cloud_config_modules
     lineinfile:

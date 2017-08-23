@@ -76,7 +76,9 @@
           command: subscription-manager attach --pool="{{ pool_id.stdout }}"
 
       #when: rhsm_pool is defined and rhsm_pool and not skip_packages is defined
-      when: rhsm_pool is defined
+      when:
+        - rhsm_pool is defined
+        - subscription_attached.stdout == ''
 
     - name: Install katello-agent RPM if we are using satellite
       yum:
