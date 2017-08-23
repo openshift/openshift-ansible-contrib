@@ -136,9 +136,6 @@ Note that the server IP, key secrect and algorithm will be auto-evaluated
 from the in-stack DNS server, which is a first member of the 'dns'
 inventory hosts group.
 
-The final `external_nsupdate_keys` updated with the evaluated data is shown
-in a debug message after the post provision playbook finishes its execution.
-
 #### Other configuration variables
 
 `openstack_ssh_key` is a Nova keypair - you can see your keypairs with

@@ -28,5 +28,3 @@
     - hostvars[groups['dns'][0]] is undefined
 
 - include: autoeval_nsupdate_facts.yml
-
-- include: update_external_nsupdate_keys.yml

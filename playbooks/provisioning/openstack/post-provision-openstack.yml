@@ -93,12 +93,3 @@
         line: "IP4_NAMESERVERS={{ hostvars['localhost'].private_dns_server }}"
   roles:
     - node-network-manager
-
-- name: Show configured in-stack DNS nsupdate keys for future use as an external one
-  hosts: localhost
-  become: False
-  gather_facts: False
-  tasks:
-    - when: pub_instack or priv_instack
-      debug:
-        var: external_nsupdate_keys
