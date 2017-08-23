@@ -16,6 +16,7 @@ fi
 git clone https://github.com/openshift/openshift-ansible ../openshift-ansible
 cd ../openshift-ansible
 git checkout "${OPENSHIFT_ANSIBLE_COMMIT:-master}"
+git status
 cd ../openshift-ansible-contrib
 
 pip install ansible shade dnspython python-openstackclient python-heatclient
