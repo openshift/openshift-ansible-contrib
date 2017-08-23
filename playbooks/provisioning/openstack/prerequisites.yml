@@ -90,7 +90,7 @@
 
   # Include variables that will be used by heat
   vars_files:
-    - stack_params.yaml
+  - stack_params.yaml
 
   tasks:
   # Check that custom images are available

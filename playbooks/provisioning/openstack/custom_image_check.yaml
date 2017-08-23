@@ -1,3 +1,4 @@
+---
 - name: Try to get image facts
   os_image_facts:
     image: "{{ image }}"
