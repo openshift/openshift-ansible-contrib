@@ -39,6 +39,7 @@
     public_dns_server: "{{ external_nsupdate_keys[public]['server'] }}"
     public_key_algorithm: "{{ external_nsupdate_keys[public]['key_algorithm'] }}"
     public_key_secret: "{{ external_nsupdate_keys[public]['key_secret'] }}"
+    public_key_name: "{{ external_nsupdate_keys[public]['key_name']|default(public) }}"
   when:
     - external_nsupdate_keys[public] is defined
     - not pub_instack

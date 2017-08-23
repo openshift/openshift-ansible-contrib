@@ -108,12 +108,19 @@ processing dynamic records updates in the public and private cluster views:
     external_nsupdate_keys:
       public-openshift.example.com:
         key_secret: <some nsupdate key>
-        key_algorithm: 'hmac-sha256'
+        key_algorithm: 'hmac-md5'
+        key_name: 'update-key'
         server: <public DNS server IP>
       private-openshift.example.com:
         key_secret: <some nsupdate key 2>
         key_algorithm: 'hmac-sha256'
-        server: <public DNS server IP>
+        server: <public/private DNS server IP>
+
+Here, for the public view section, we specified another key algorithm and
+optional `key_name`, which normally defaults to the cluster's DNS domain.
+This just illustrates a compatibility mode with a DNS service deployed
+by OpenShift on OSP10 reference architecture, and used in a mixed mode with
+another external DNS server.
 
 Another example defines an in-stack DNS server for the private view
 additionally to the external DNS server for the public view:

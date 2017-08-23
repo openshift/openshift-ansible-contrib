@@ -38,7 +38,7 @@
       - view: "public"
         zone: "{{ full_dns_domain }}"
         server: "{{ public_dns_server }}"
-        key_name: "{{ ( 'public-' + full_dns_domain ) }}"
+        key_name: "{{ public_key_name|default(public) }}"
         key_secret: "{{ public_key_secret }}"
         key_algorithm: "{{ public_key_algorithm | lower }}"
         entries: "{{ public_records }}"
