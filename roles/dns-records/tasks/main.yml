@@ -9,32 +9,15 @@
     private_records: "{{ private_records | default([]) + [ { 'type': 'A', 'hostname': '*.' + openshift_app_domain, 'ip': hostvars[item]['private_v4'] } ] }}"
   with_items: "{{ groups['infra_hosts'] }}"
 
-- name: "Set the private DNS server to use the external value (if provided)"
-  set_fact:
-    nsupdate_server_private: "{{ external_nsupdate_keys['private']['server'] }}"
-    nsupdate_key_secret_private: "{{ external_nsupdate_keys['private']['key_secret'] }}"
-    nsupdate_key_algorithm_private: "{{ external_nsupdate_keys['private']['key_algorithm'] }}"
-  when:
-    - external_nsupdate_keys is defined
-    - external_nsupdate_keys['private'] is defined
-
-- name: "Set the private DNS server to use the provisioned value"
-  set_fact:
-    nsupdate_server_private: "{{ hostvars[groups['dns'][0]].public_v4 }}"
-    nsupdate_key_secret_private: "{{ hostvars[groups['dns'][0]].nsupdate_keys['private-' + full_dns_domain].key_secret }}"
-    nsupdate_key_algorithm_private: "{{ hostvars[groups['dns'][0]].nsupdate_keys['private-' + full_dns_domain].key_algorithm }}"
-  when:
-    - nsupdate_server_private is undefined
-
 - name: "Generate the private Add section for DNS"
   set_fact:
     private_named_records:
       - view: "private"
         zone: "{{ full_dns_domain }}"
-        server: "{{ nsupdate_server_private }}"
-        key_name: "{{ ( 'private-' + full_dns_domain ) }}"
-        key_secret: "{{ nsupdate_key_secret_private }}"
-        key_algorithm: "{{ nsupdate_key_algorithm_private | lower }}"
+        server: "{{ private_dns_server }}"
+        key_name: "{{ private }}"
+        key_secret: "{{ private_key_secret }}"
+        key_algorithm: "{{ private_key_algorithm | lower }}"
         entries: "{{ private_records }}"
 
 - name: "Generate list of public A records"
@@ -49,32 +32,15 @@
   with_items: "{{ groups['infra_hosts'] }}"
   when: hostvars[item]['public_v4'] is defined
 
-- name: "Set the public DNS server details to use the external value (if provided)"
-  set_fact:
-    nsupdate_server_public: "{{ external_nsupdate_keys['public']['server'] }}"
-    nsupdate_key_secret_public: "{{ external_nsupdate_keys['public']['key_secret'] }}"
-    nsupdate_key_algorithm_public: "{{ external_nsupdate_keys['public']['key_algorithm'] }}"
-  when:
-    - external_nsupdate_keys is defined
-    - external_nsupdate_keys['public'] is defined
-
-- name: "Set the public DNS server details to use the provisioned value"
-  set_fact:
-    nsupdate_server_public: "{{ hostvars[groups['dns'][0]].public_v4 }}"
-    nsupdate_key_secret_public: "{{ hostvars[groups['dns'][0]].nsupdate_keys['public-' + full_dns_domain].key_secret }}"
-    nsupdate_key_algorithm_public: "{{ hostvars[groups['dns'][0]].nsupdate_keys['public-' + full_dns_domain].key_algorithm }}"
-  when:
-    - nsupdate_server_public is undefined
-
 - name: "Generate the public Add section for DNS"
   set_fact:
     public_named_records:
       - view: "public"
         zone: "{{ full_dns_domain }}"
-        server: "{{ nsupdate_server_public }}"
-        key_name: "{{ ( 'public-' + full_dns_domain ) }}"
-        key_secret: "{{ nsupdate_key_secret_public }}"
-        key_algorithm: "{{ nsupdate_key_algorithm_public | lower }}"
+        server: "{{ public_dns_server }}"
+        key_name: "{{ public_key_name|default(public) }}"
+        key_secret: "{{ public_key_secret }}"
+        key_algorithm: "{{ public_key_algorithm | lower }}"
         entries: "{{ public_records }}"
 
 - name: "Generate the final dns_records_add"

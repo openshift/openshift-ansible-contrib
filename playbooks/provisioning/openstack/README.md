@@ -53,8 +53,9 @@ Otherwise, even if there are differences between the two versions, installation 
 * Assigns Cinder volumes to the servers
 * Set up an `openshift` user with sudo privileges
 * Optionally attach Red Hat subscriptions
-* Set up a bind-based DNS server
-* When deploying more than one master, set up a HAproxy server
+* Sets up a bind-based DNS server or configures the cluster servers to use an external DNS server.
+* Supports mixed in-stack/external DNS servers for dynamic updates.
+* When deploying more than one master, sets up a HAproxy server
 
 
 ## Set up
@@ -69,8 +70,16 @@ Otherwise, even if there are differences between the two versions, installation 
 
 ### Update `inventory/group_vars/all.yml`
 
+#### DNS configuration variables
+
 Pay special attention to the values in the first paragraph -- these
 will depend on your OpenStack environment.
+
+Note that all DNS configuration tasks are done by the post-provsision playbook.
+That playbook also updates the Neutron subnet for the Heat stack to point to the
+configured DNS servers. So the provisioned cluster nodes will start using those
+natively as default nameservers. Technically, this allows to deploy OpenShift
+clusters without dnsmasq proxies.
 
 The `env_id` and `public_dns_domain` will form the cluster's DNS domain all
 your servers will be under. With the default values, this will be
@@ -93,10 +102,48 @@ daemon that in turn proxies DNS requests to the authoritative DNS server.
 When Network Manager is enabled for provisioned cluster nodes, which is
 normally the case, you should not change the defaults and always deploy dnsmasq.
 
-Note that the authoritative DNS server is configured on post provsision
-steps, and the Neutron subnet for the Heat stack is updated to point to that
-server in the end. So the provisioned servers will start using it natively
-as a default nameserver that comes from the NetworkManager and cloud-init.
+`external_nsupdate_keys` describes an external authoritative DNS server(s)
+processing dynamic records updates in the public and private cluster views:
+
+    external_nsupdate_keys:
+      public-openshift.example.com:
+        key_secret: <some nsupdate key>
+        key_algorithm: 'hmac-md5'
+        key_name: 'update-key'
+        server: <public DNS server IP>
+      private-openshift.example.com:
+        key_secret: <some nsupdate key 2>
+        key_algorithm: 'hmac-sha256'
+        server: <public/private DNS server IP>
+
+Here, for the public view section, we specified another key algorithm and
+optional `key_name`, which normally defaults to the cluster's DNS domain.
+This just illustrates a compatibility mode with a DNS service deployed
+by OpenShift on OSP10 reference architecture, and used in a mixed mode with
+another external DNS server.
+
+Another example defines an in-stack DNS server for the private view
+additionally to the external DNS server for the public view:
+
+      ... skipped ...
+      private-openshift.example.com:
+        instack: True
+        public_access: False
+
+Here, updates matching the private view will be sent to the in-stack DNS
+server's private IP as it can not be accessed via the floating IP.
+
+The real use case depends on the ansible control node placement inside or
+outside of the admin network. Enable the `public_access` flag, only when
+the control nodes reaches the cluster admin network from externally routed
+networks. Setting `public_access: False` for the public view section
+doesn't make any sense and takes no effect.
+
+Note that the server IP, key secrect and algorithm will be auto-evaluated
+from the in-stack DNS server, which is a first member of the 'dns'
+inventory hosts group.
+
+#### Other configuration variables
 
 `openstack_ssh_key` is a Nova keypair - you can see your keypairs with
 `openstack keypair list`. This guide assumes that its corresponding private

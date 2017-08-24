@@ -92,6 +92,15 @@ rhsm_register: False
 #    key_algorithm: 'hmac-md5'
 #    server: '192.168.1.2'
 
+# # Or roll a mixed instack/external DNS
+#external_nsupdate_keys:
+#  public:
+#    key_secret: 'foo'
+#    key_algorithm: 'hmac-md5'
+#    server: '192.168.1.1'
+#  private:
+#    instack: true
+#    public_access: false
 
 # NOTE(shadower): Do not change this value. The Ansible user is currently
 # hardcoded to `openshift`.
