@@ -11,7 +11,7 @@ prefix: 'ocp'
 rhsm_user: 'user@example.com'
 rhsm_password: 'xxx'
 # Pool name which shall be used to register the instances
-rhsm_pool: 'yyy'
+rhsm_pool: 'OpenShift Enterprise Broker Infrastructure'
 
 # Path to a RHEL image on local machine, downloaded from Red Hat Customer Portal
 rhel_image_path: '~/Downloads/rhel-server-7.4-x86_64-kvm.qcow2'
