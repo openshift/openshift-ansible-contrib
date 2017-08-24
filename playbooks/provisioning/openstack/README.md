@@ -351,12 +351,17 @@ One can scale up the number of application nodes by executing the ansible playbo
 This process can be done even if there is currently no deployment available.
 The `increment_by` variable is used to specify by how much the deployment should
 be scaled up (if none exists, it serves as a target number of application nodes).
+The path to `openshift-ansible` directory can be customised by the `openshift_ansible_dir`
+variable. Its value must be an absolute path to `openshift-ansible` and it cannot
+contain the '/' symbol at the end. 
 
 Usage:
 
 ```
-ansible-playbook --user openshift --private-key ~/.ssh/openshift -i <path to inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/scale-up.yaml` [-e increment_by=<number>]
+ansible-playbook -i <path to inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/scale-up.yaml` [-e increment_by=<number>] [-e openshift_ansible_dir=<path to openshift-ansible>]
 ```
+
+Note: This playbook works only without a bastion node (`openstack_use_bastion: False`).
 
 ## License
 
