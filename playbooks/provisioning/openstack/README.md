@@ -200,6 +200,18 @@ be the case for development environments. When turned off, the servers will
 be provisioned omitting the ``yum update`` command. This brings security
 implications though, and is not recommended for production deployments.
 
+##### DNS servers security options
+
+Aside from `node_ingress_cidr` restricting public access to in-stack DNS
+servers, there are following (bind/named specific) DNS security
+options available:
+
+    named_public_recursion: 'no'
+    named_private_recursion: 'yes'
+
+External DNS servers, which is not included in the 'dns' hosts group,
+are not managed. It is up to you to configure such ones.
+
 ### Configure the OpenShift parameters
 
 Finally, you need to update the DNS entry in
