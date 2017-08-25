@@ -325,7 +325,23 @@ if requested, and DNS server, and ensures other OpenShift requirements to be met
 
 ### Running Custom Post-Provision Actions
 
-If you'd like to run post-provision actions, you can do so by creating a custom playbook. Here's one example that adds additional YUM repositories:
+A library of custom post-provision actions exists in `openshift-ansible-contrib/playbooks/provision/openstack/custom-actions`. Playbooks include:
+
+  - add-yum-repos.yml
+
+A custom playbook can be run like this:
+
+```
+ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ openshift-ansible-contrib/playbooks/provision/openstack/custom-actions/custom-playbook.yml
+```
+
+If you'd like to limit the run to one particular host, you can do so as follows:
+
+```
+ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ openshift-ansible-contrib/playbooks/provision/openstack/custom-actions/custom-playbook.yml -l app-node-0.openshift.example.com
+```
+
+You can also create your own custom playbook. Here's one example that adds additional YUM repositories:
 
 ```
 ---
@@ -349,17 +365,7 @@ This example runs against app nodes. The list of options include:
   - masters
   - infra_hosts
 
-After writing your custom playbook, run it like this:
-
-```
-ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ custom-playbook.yaml
-```
-
-If you'd like to limit the run to one particular host, you can do so as follows:
-
-```
-ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ custom-playbook.yaml -l app-node-0.openshift.example.com
-```
+Please consider contributing your custom playbook back to openshift-ansible-contrib!
 
 ### Install OpenShift
 
