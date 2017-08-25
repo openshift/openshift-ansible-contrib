@@ -1,0 +1,142 @@
+---
+
+- name: Install pip
+  yum:
+    name: python2-pip
+    state: present
+  become: true
+
+- name: Install git
+  yum:
+    name: git
+    state: present
+  become: true
+
+- name: Install Tower CLI
+  pip:
+    name: ansible-tower-cli
+  become: true
+
+- name: Create tower organization
+  tower_organization:
+    name: "Default"
+    description: "Set to Default since the trial license only allows one organization."
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Add tower project for openshift-ansible-contrib
+  tower_project:
+    name: "openshift-ansible-contrib"
+    description: "sync openshift-ansible-contrib"
+    organization: "Default"
+    scm_url: https://github.com/strategicdesignteam/openshift-ansible-contrib.git
+    scm_type: git
+    scm_branch: master
+    scm_update_on_launch: true
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Sync project openshift-ansible-contrib
+  command: tower-cli project update -n openshift-ansible-contrib
+
+- name: Add tower credential for machine
+  tower_credential:
+    name: gce-privkey
+    kind: ssh
+    become_method: sudo
+    description: gce-privkey
+    organization: "Default"
+    state: present
+    ssh_key_data: "{{ GCE_MACHINE_SSH_KEY }}"
+    username: "{{ GCE_USERNAME }}"
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Add tower credential for gcp
+  tower_credential:
+    name: gcp-credential
+    kind: gce
+    description: gcp
+    organization: "Default"
+    state: present
+    service_account_email: "{{ GCP_SERVICE_ACCOUNT_EMAIL }}"
+    credentials_file: "{{ GCP_CREDENTIALS_FILE }}"
+    project_id: "{{ GCP_PROJECT_ID }}"
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Add tower inventory
+  tower_inventory:
+    name: "gce-inventory"
+    description: "Tower inventory for GCE"
+    organization: "Default"
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Add tower group
+  tower_group:
+    name: gce
+    description: "Tower Group for GCE"
+    source: gcp
+    credential: gcp-credential
+    inventory: "gce-inventory"
+    source_vars:
+      regions: all
+      hostname_variable: tag_Name
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Create gce-prereq job template
+  become: true
+  tower_job_template:
+    name: gce-prereq
+    job_type: run
+    inventory: gce-inventory
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/gce-cli/ansible/playbooks/prereq.yaml"
+    machine_credential: gce-privkey
+    cloud_credential: gcp-credential
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Create gce-gold-image job template
+  become: true
+  tower_job_template:
+    name: gce-gold-image
+    job_type: run
+    inventory: gce-inventory
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/gce-cli/ansible/playbooks/gold-image.yaml"
+    machine_credential: gce-privkey
+    cloud_credential: gcp-credential
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Create gce-infrastructure job template
+  become: true
+  tower_job_template:
+    name: gce-infrastructure
+    job_type: run
+    inventory: gce-inventory
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/gce-cli/ansible/playbooks/core-infra.yaml"
+    machine_credential: gce-privkey
+    cloud_credential: gcp-credential
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Create gce-openshift-install job template
+  tower_job_template:
+    name: gce-openshift-install
+    job_type: run
+    inventory: gce-inventory
+    become_enabled: yes
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/gce-cli/ansible/playbooks/openshift-install.yaml"
+    machine_credential: gce-privkey
+    cloud_credential: gcp-credential
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Create workflow-ocp-gce-install
+  command: tower-cli workflow create --name="workflow-ocp-gce-install" --organization="Default" --description="A workflow for deploying OCP on AWS" -e @workflow-ocp-gce-install-extravars.yaml
+
+

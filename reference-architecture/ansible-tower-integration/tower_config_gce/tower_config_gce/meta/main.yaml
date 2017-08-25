@@ -1,0 +1,16 @@
+---
+galaxy_info:
+  author: James Labocki
+  description: Configures Tower to sync openshift-ansible-contrib
+  company: Red Hat, Inc.
+  license: MIT
+  min_ansible_version: 1.2
+  platforms:
+  - name: EL
+    versions:
+    - 6
+    - 7
+  categories:
+  - packaging
+  - system
+  dependencies: []

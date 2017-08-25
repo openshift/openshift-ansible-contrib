@@ -1,0 +1,8 @@
+---
+
+AWS_MACHINE_KEY: '~/.ssh/id_rsa'
+AWS_KEY: 'Put your AWS key here'
+AWS_SECRET: 'Put your AWS secret here'
+TOWER_HOSTNAME: 'localhost'
+TOWER_USER: 'admin'
+TOWER_PASSWORD: 'Put your tower password here'
