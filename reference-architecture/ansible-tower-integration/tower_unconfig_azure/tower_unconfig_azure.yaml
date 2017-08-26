@@ -1,0 +1,5 @@
+---
+- hosts: localhost
+  become: no
+  roles:
+  - { role: tower_unconfig_azure, when: ansible_os_family == 'RedHat' }

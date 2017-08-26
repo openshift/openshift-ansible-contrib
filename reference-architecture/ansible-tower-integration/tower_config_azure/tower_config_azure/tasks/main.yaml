@@ -1,0 +1,207 @@
+---
+
+- name: Install pip
+  yum:
+    name: python2-pip
+    state: present
+  become: true
+
+- name: Install Tower CLI
+  yum:
+    name: ansible-tower-cli
+  become: true
+
+- name: Install npm
+  yum:
+    name: npm
+    state: present
+  become: true
+
+- name: Install npm azure-cli
+  command: npm install -g azure-cli
+  become: true
+
+- name: Azure Login
+  command: azure login -u "{{ AZURE_USERNAME }}" -p "{{ AZURE_PASSWORD }}"
+
+- name: Create Azure Service Principal
+  command: azure ad sp create -n "{{ AZURE_SP_NAME }}" -p "{{ AZURE_SP_PASSWORD }}"
+
+- name: Find Azure Service Principal Object ID
+  shell: azure ad sp show -c "{{ AZURE_SP_NAME }}" |grep "Object Id:" |awk -F" " '{print $4}'
+  register: azure_sp_object_id
+
+- debug: var=azure_sp_object_id
+
+- name: Find Azure Service Principal Object ID
+  shell: azure ad sp show -c "{{ AZURE_SP_NAME }}" |sed -n '7p' |awk -F" " '{print $2}'
+  register: azure_sp_name
+
+- debug: var=azure_sp_name
+
+- name: Find Azure Subscription ID
+  shell: azure account show |grep -v Tenant |grep ID |awk -F" " '{print $4}'
+  register: azure_subscription_id
+
+- debug: var=azure_subscription_id
+
+- name: Find Azure Tenant ID
+  shell: azure account show |grep "Tenant ID" |awk -F" " '{print $5}'
+  register: azure_tenant_id
+
+- debug: var=azure_tenant_id
+
+- name: Wait for Azure to be ready
+  pause:
+    seconds: 10
+
+- name: Grant contributor to Service Principal
+  command: azure role assignment create --objectId {{ azure_sp_object_id.stdout }} -o contributor -c /subscriptions/{{ azure_subscription_id.stdout }}
+
+- name: Add EPEL repository
+  yum_repository:
+    name: epel
+    description: EPEL YUM repo
+    mirrorlist: https://mirrors.fedoraproject.org/mirrorlist?repo=epel-7&arch=$basearch
+    enabled: no
+    gpgcheck: no
+  tags: epel
+  become: true
+
+- name: Install required packages
+  yum:
+    name: "{{ item }}"
+    state: present
+    disablerepo: "epel"
+  with_items:
+    - ansible
+    - python-devel
+    - openssl-devel
+    - gcc
+  become: true
+
+- name: Install EPEL required packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python2-pip
+    - python2-jmespath
+  become: true
+
+- name: Install pip required packages
+  pip:
+    name: "{{ item }}"
+  with_items:
+    - packaging
+    - msrestazure
+    - azure==2.0.0rc5
+  become: true
+
+- name: Create tower organization
+  tower_organization:
+    name: "Default"
+    description: "Set to Default since the trial license only allows one organization. You can change it if you have deep pockets"
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Add tower project for openshift-ansible-contrib
+  tower_project:
+    name: "openshift-ansible-contrib"
+    description: "sync openshift-ansible-contrib"
+    organization: "Default"
+    scm_url: https://github.com/openshift/openshift-ansible-contrib.git
+    scm_type: git
+    scm_branch: master
+    scm_update_on_launch: true
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Sync project openshift-ansible-contrib
+  command: tower-cli project update -n openshift-ansible-contrib
+
+- name: Add tower credential for machine
+  tower_credential:
+    name: azure-privkey
+    kind: ssh
+    become_method: sudo
+    description: azure-privkey
+    organization: "Default"
+    state: present
+    ssh_key_data: "{{ AZURE_MACHINE_SSH_KEY }}"
+    username: ec2-user
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Add tower credential for Azure
+  tower_credential:
+    name: azure
+    kind: azure_rm
+    description: azure
+    organization: "Default"
+    state: present
+    client: " {{ azure_sp_name.stdout  }}"
+    subscription: " {{ azure_subscription_id.stdout }} "
+    tenant: " {{ azure_tenant_id.stdout }}"
+    secret: " {{ AZURE_SP_PASSWORD }} "
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Add tower inventory
+  tower_inventory:
+    name: "azure-inventory"
+    description: "Tower inventory for Azure"
+    organization: "Default"
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Add tower group
+  tower_group:
+    name: azure
+    description: "Tower Group for Azure"
+    source: azure_rm
+    credential: azure
+    inventory: "azure-inventory"
+    source_vars: "{{ lookup('file', 'tower-group-extravars.yaml') }}"
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Wait for projects to sync
+  pause:
+    seconds: 10
+
+- name: Create azure-deploy-ocp job template
+  become: true
+  tower_job_template:
+    name: azure-deploy-ocp
+    job_type: run
+    inventory: azure-inventory
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/azure-ansible/3.6/ansibledeployocp/playbooks/deploy.yaml"
+    machine_credential: azure-privkey
+    cloud_credential: azure
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Create azure-destroy-ocp job template
+  become: true
+  tower_job_template:
+    name: azure-destroy-ocp
+    job_type: run
+    inventory: azure-inventory
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/azure-ansible/3.6/ansibledeployocp/playbooks/destroy.yaml"
+    machine_credential: azure-privkey
+    cloud_credential: azure
+    state: present
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Create workflow-ocp-azure-install
+  command: tower-cli workflow create --name="workflow-ocp-azure-install" --organization="Default" --description="A workflow for deploying OCP on Azure" -e @workflow-ocp-azure-extravars.yaml
+
+- name: Create a schema for workflow-ocp-azure-install
+  command: tower-cli workflow schema workflow-ocp-azure-install @schema-deploy.yaml
+
+- name: Create workflow-ocp-azure-destroy
+  command: tower-cli workflow create --name="workflow-ocp-azure-destroy" --organization="Default" --description="A workflow for destroy OCP on Azure" -e @workflow-ocp-azure-extravars.yaml
+
+- name: Create a schema for workflow-ocp-azure-destroy
+  command: tower-cli workflow schema workflow-ocp-azure-destroy @schema-destroy.yaml

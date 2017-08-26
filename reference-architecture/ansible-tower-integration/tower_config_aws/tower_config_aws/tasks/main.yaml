@@ -6,6 +6,12 @@
     state: present
   become: true
 
+- name: Install git
+  yum:
+    name: git
+    state: present
+  become: true
+
 - name: Install Tower CLI
   pip:
     name: ansible-tower-cli
@@ -72,7 +78,7 @@
     organization: "Default"
     scm_url: https://github.com/strategicdesignteam/openshift-ansible-contrib.git
     scm_type: git
-    scm_branch: temp
+    scm_branch: master
     scm_update_on_launch: true
     state: present
     tower_config_file: "~/.tower_cli.cfg"
