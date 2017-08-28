@@ -352,6 +352,7 @@ resources:
     loadBalancingScheme: EXTERNAL
     portName: {{ properties['prefix'] }}-web-console
     protocol: HTTPS
+    timeoutSec: 300
     backends:
     - group: $(ref.{{ properties['prefix'] }}-master.instanceGroup)
   type: compute.v1.backendService
