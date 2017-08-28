@@ -1,3 +1,4 @@
+---
 - hosts: cluster_hosts
   vars:
     yum_repos: []
