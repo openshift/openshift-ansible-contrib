@@ -1,0 +1,67 @@
+---
+# The parameters detailed description can be found in https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_red_hat_openshift_container_platform_3_on_microsoft_azure/#provision_the_emphasis_role_strong_openshift_container_platform_emphasis_environment
+
+# id_rsa.pub content
+sshkeydata: "xxxxxxxx"
+
+# id_rsa content in base64 without \n characters
+# cat ~/.ssh/id_rsa | base64 | tr -d '\n'
+sshprivatedata: "xxxxxxx"
+
+# User that will be created to login via ssh and as OCP cluster-admin
+adminusername: "myusername"
+
+# Password in plain text
+adminpassword: "mypassword"
+
+# This should be "usernamepassword" or "activationkey"
+# If "usernamepassword", then the username and password should be specified
+# If "activationkey", then the activation key and organization id should be specified
+rhsmusernamepasswordoractivationkey: "usernamepassword"
+# or rhsmusernamepasswordoractivationkey: "activationkey"
+
+# The RHN username where the instances will be registered
+rhnusername: "myrhnusername"
+# or rhnusername: "activationkey" if activation key method has been chosen
+
+# The RHN password where the instances will be registered in plain text
+rhnpassword: "myrhnpassword"
+# or rhnpassword: "organizationid" if activation key method has been chosen
+
+# The subscription pool id the instances will use
+subscriptionpoolid: "xxxxxx"
+
+# The Azure resource name that will be created
+resourcegroupname: "myresourcegroup"
+
+# Active Directory ID needed to be able to create, move and delete persistent volumes
+aadclientid: "22222222-2222-2222-2222-222222222222"
+
+# The Active Directory Password to match the AAD Client ID
+aadclientsecret: "theserviceprinciplepassword"
+
+# Subdomain for applications in the OpenShift cluster (required by the load balancer, but nip.io will be used). It is just the subdomain, not the full FQDN.
+wildcardzone: "myapps"
+
+# Optional (default values are set in playbooks/roles/azure-deploy/default/main.yaml)
+# The ARM template that will be deployed
+# templatelink: "https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/azuredeploy.json"
+# From 3 to 30 nodes
+# numberofnodes: 3
+# image: "rhel"
+# mastervmsize: "Standard_DS3_v2"
+# infranodesize: "Standard_DS3_v2"
+# nodevmsize: "Standard_DS12_v2"
+# Azure location:
+# location: "westus"
+# OpenShift SDN:
+# openshiftsdn: "redhat/openshift-ovs-multitenant"
+# Deploy metrics
+# metrics: true
+# Deploy agregated logging
+# logging: true
+# Deploy agregated logging for ops
+# opslogging: true
+
+# Use East as West seems to not allow enoughr esources to be deployed
+location: "East US 2"

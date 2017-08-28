@@ -8,7 +8,7 @@
   when: create_vpc == "no" and byo_bastion == "no"
 
 - name: Render Brownfield BYO Bastion Template
-  template: src=roles/cloudformation-infra/files/brownfield-byo-bastion.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}brownfield-byo-bastion.json
+  template: src=roles/cloudformation-infra/files/brownfield-byo-bastion.json.j2 dest=roles/cloudformation-infra/files/{{ stack_name }}-brownfield-byo-bastion.json
   when: create_vpc == "no" and byo_bastion == "yes"
 
 - name: Create Greenfield Infrastructure

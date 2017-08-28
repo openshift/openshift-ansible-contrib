@@ -28,9 +28,13 @@ For OpenShift Cloud Platform deployment, you also need to have RHEL 7 KVM Guest 
 
 For OpenShift Origin deployment, KVM Guest Image is not needed, CentOS 7 image available in the GCP will be used directly.
 
-### Setup Google Cloud SDK
+### Setup Google Cloud Account and SDK
 
-Google provides repositories which can be used to install Google Cloud SDK:
+You need to have account in the [Google Cloud Platform](https://cloud.google.com/). Unfortunately, it's not possible to use trial version of the account as it contains only one static IP address, but the ref. arch. requires two.
+
+#### Google Cloud SDK
+
+Google provides repositories which can be used to install Google Cloud SDK (this repo works also for Fedora):
 ```
 sudo tee -a /etc/yum.repos.d/google-cloud-sdk.repo << EOM
 [google-cloud-sdk]

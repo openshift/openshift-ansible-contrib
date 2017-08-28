@@ -10,6 +10,6 @@ GCP https://access.redhat.com/articles/2751521
 
 VMware https://access.redhat.com/articles/2745171
 
-OSP https://access.redhat.com/articles/2743631
+OSP https://access.redhat.com/articles/3133011
 
 Azure https://access.redhat.com/articles/3030691

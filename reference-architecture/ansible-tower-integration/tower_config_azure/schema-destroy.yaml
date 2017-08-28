@@ -1,0 +1,2 @@
+---
+- job_template: azure-destroy-ocp

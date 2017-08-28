@@ -1,0 +1,99 @@
+---
+
+- name: Remove workflow-ocp-azure-install
+  command: tower-cli workflow delete --name="workflow-ocp-azure-install"
+
+- name: Remove azure-deploy-ocp job template
+  tower_job_template:
+    name: azure-deploy-ocp
+    job_type: run
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/azure-ansible/3.6/ansibledeployocp/playbooks/deploy.yml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove workflow-ocp-azure-destroy
+  command: tower-cli workflow delete --name="workflow-ocp-azure-destroy"
+
+- name: Remove azure-destroy-ocp job template
+  tower_job_template:
+    name: azure-destroy-ocp
+    job_type: run
+    project: openshift-ansible-contrib
+    playbook: "reference-architecture/azure-ansible/3.6/ansibledeployocp/playbooks/destroy.yml"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower group
+  tower_group:
+    name: azure
+    inventory: "azure-inventory"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower inventory
+  tower_inventory:
+    name: "azure-inventory"
+    organization: "Default"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower credential for machine
+  tower_credential:
+    name: azure-privkey
+    kind: ssh
+    organization: "Default"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower project
+  tower_project:
+    name: "openshift-ansible-contrib"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Remove tower organization
+  tower_organization:
+    name: "Default"
+    description: "Set to Default since the trial license only allows one organization. You can change it if you have deep pockets"
+    state: absent
+    tower_config_file: "~/.tower_cli.cfg"
+
+- name: Azure Login
+  command: azure login -u "{{ AZURE_USERNAME }}" -p "{{ AZURE_PASSWORD }}"
+
+- name: Find Azure Service Principal Object ID
+  shell: azure ad sp show -c "{{ AZURE_SP_NAME }}" |grep "Object Id:" |awk -F" " '{print $4}'
+  register: azure_sp_object_id
+
+- name: Find Azure Subscription ID
+  shell: azure account show |grep -v Tenant |grep ID |awk -F" " '{print $4}'
+  register: azure_subscription_id
+
+- name: Delete contributor to Service Principal
+  command: azure role assignment delete -q --objectId {{ azure_sp_object_id.stdout }} -o contributor -c /subscriptions/{{ azure_subscription_id.stdout }}
+
+- name: Remove Azure Service Principal
+  command: azure ad sp delete -qdo "{{ azure_sp_object_id.stdout }}"
+
+- name: Remove  npm azure-cli
+  command: npm rm -g azure-cli
+  become: true
+
+- name: Remove npm
+  yum:
+    name: npm
+    state: absent
+  become: true
+
+- name: Remove tower-cli
+  yum:
+    name: ansible-tower-cli
+    state: absent
+  become: true
+
+- name: Remove pip
+  yum:
+    name: python2-pip
+    state: absent
+  become: true
