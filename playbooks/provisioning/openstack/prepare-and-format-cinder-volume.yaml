@@ -3,13 +3,10 @@
   gather_facts: False
   become: False
   tasks:
-  - ping:
   - debug: var=prepare_and_format_registry_volume
   - set_fact:
       cinder_volume: "{{ hostvars[groups.masters[0]].openshift_hosted_registry_storage_openstack_volumeID }}"
       cinder_fs: "{{ hostvars[groups.masters[0]].openshift_hosted_registry_storage_openstack_filesystem }}"
-  - debug: var=cinder_volume
-  - debug: var=cinder_fs
   - name: Attach the volume to the VM
     os_server_volume:
       state: present
@@ -20,26 +17,30 @@
   - set_fact:
       attached_device: >-
         {{ volume_attachment['attachments']|json_query("[?volume_id=='" + cinder_volume + "'].device | [0]") }}
-  - debug: var=attached_device
 
 
 - hosts: masters[0]
   gather_facts: False
   become: True
   tasks:
-  - ping:
-  - debug: var=cinder_volume
-  - debug: var=cinder_fs
-  - debug: var=attached_device
-
   - debug: var=openshift_hosted_registry_storage_openstack_volumeID
   - debug: var=openshift_hosted_registry_storage_openstack_filesystem
-
-  - debug: var=hostvars['localhost'].attached_device
-  
   
   - name: Wait for the device to appear
     wait_for: path={{ hostvars['localhost'].attached_device }}
+
+  - name: Create a temp directory for mounting the volume
+    tempfile:
+      prefix: cinder-volume
+      state: directory
+    register: cinder_mount_dir
+
+  - debug: var=cinder_mount_dir.path
+
+  - name: Delete the temp directory
+    file:
+      name: "{{ cinder_mount_dir.path }}"
+      state: absent
 
 
 - hosts: localhost
