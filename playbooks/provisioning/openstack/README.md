@@ -325,20 +325,16 @@ if requested, and DNS server, and ensures other OpenShift requirements to be met
 
 ### Running Custom Post-Provision Actions
 
-A library of custom post-provision actions exists in `openshift-ansible-contrib/playbooks/provision/openstack/custom-actions`. Playbooks include:
-
-  - add-yum-repos.yml
-
 A custom playbook can be run like this:
 
 ```
-ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ openshift-ansible-contrib/playbooks/provision/openstack/custom-actions/custom-playbook.yml
+ansible-playbook --private-key ~/.ssh/openshift -i inventory/ openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/custom-playbook.yml
 ```
 
 If you'd like to limit the run to one particular host, you can do so as follows:
 
 ```
-ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ openshift-ansible-contrib/playbooks/provision/openstack/custom-actions/custom-playbook.yml -l app-node-0.openshift.example.com
+ansible-playbook --private-key ~/.ssh/openshift -i inventory/ openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/custom-playbook.yml -l app-node-0.openshift.example.com
 ```
 
 You can also create your own custom playbook. Here's one example that adds additional YUM repositories:
@@ -366,6 +362,12 @@ This example runs against app nodes. The list of options include:
   - infra_hosts
 
 Please consider contributing your custom playbook back to openshift-ansible-contrib!
+
+A library of custom post-provision actions exists in `openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions`. Playbooks include:
+
+##### add-yum-repos.yml
+
+[add-yum-repos.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-yum-repos.yml) adds a list of custom yum repositories to every node in the cluster.
 
 ### Install OpenShift
 
