@@ -242,8 +242,13 @@ provider network directly.
 To use a provider network, set its name in `openstack_provider_network_name` in
 `inventory/group_vars/all.yml`.
 
-If you set the provider network name, the `openstack_external_network_name` and
-`openstack_private_network_name` fields will be ignored.
+When using Flannel SDN as a provider data network, set the dedicated flannel network
+name in `openstack_provider_data_network_name` as well. That network is used for
+the applications/workloads data and should be isolated from other provider networks.
+
+If you set the provider network name, the `openstack_external_network_name`,
+`openstack_private_network_name` and `openstack_private_data_network_name` fields
+will be ignored.
 
 **NOTE**: this will not update the nodes' DNS, so running openshift-ansible
 right after provisioning will fail (unless you're using an external DNS server
@@ -266,6 +271,10 @@ may want to turn off in order to speed up the provisioning tasks. This may
 be the case for development environments. When turned off, the servers will
 be provisioned omitting the ``yum update`` command. This brings security
 implications though, and is not recommended for production deployments.
+
+Flannel network used for user applications and workloads data should be
+isolated from other networks as it has Neutron ports security disabled.
+Openshift master, compute and infra nodes will be connected to that network.
 
 ##### DNS servers security options
 

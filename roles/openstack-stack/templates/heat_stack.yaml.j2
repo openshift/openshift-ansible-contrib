@@ -113,6 +113,22 @@ resources:
         - {{ nameserver }}
 {% endfor %}
 
+{% if openshift_use_flannel|default(False)|bool %}
+  data_net:
+    type: OS::Neutron::Net
+    properties:
+      name: openshift-ansible-{{ stack_name }}-data-net
+      port_security_enabled: false
+
+  data_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      name: openshift-ansible-{{ stack_name }}-data-subnet
+      network: { get_resource: data_net }
+      cidr: {{ osm_cluster_network_cidr|default('10.128.0.0/14') }}
+      gateway_ip: null
+{% endif %}
+
   router:
     type: OS::Neutron::Router
     properties:
@@ -618,7 +634,12 @@ resources:
           key_name:    {{ ssh_public_key }}
 {% if provider_network %}
           net:         {{ provider_network }}
-          net_name:         {{ provider_network }}
+          net_name:    {{ provider_network }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    {{ provider_data_network }}
+          data_net_name: {{ provider_data_network }}
+{% endif %}
 {% else %}
           net:         { get_resource: net }
           subnet:      { get_resource: subnet }
@@ -627,6 +648,12 @@ resources:
               template: openshift-ansible-cluster_id-net
               params:
                 cluster_id: {{ stack_name }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    { get_resource: data_net }
+          data_subnet: { get_resource: data_subnet }
+          data_net_name: openshift-ansible-{{ stack_name }}-data-net
+{% endif %}
 {% endif %}
           secgrp:
 {% if openstack_flat_secgrp|default(False)|bool %}
@@ -686,7 +713,12 @@ resources:
           key_name:    {{ ssh_public_key }}
 {% if provider_network %}
           net:         {{ provider_network }}
-          net_name:         {{ provider_network }}
+          net_name:    {{ provider_network }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    {{ provider_data_network }}
+          data_net_name: {{ provider_data_network }}
+{% endif %}
 {% else %}
           net:         { get_resource: net }
           subnet:      { get_resource: subnet }
@@ -695,6 +727,12 @@ resources:
               template: openshift-ansible-cluster_id-net
               params:
                 cluster_id: {{ stack_name }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    { get_resource: data_net }
+          data_subnet: { get_resource: data_subnet }
+          data_net_name: openshift-ansible-{{ stack_name }}-data-net
+{% endif %}
 {% endif %}
           secgrp:
             - { get_resource: {% if openstack_flat_secgrp|default(False)|bool %}flat-secgrp{% else %}node-secgrp{% endif %} }
@@ -740,7 +778,12 @@ resources:
           key_name:    {{ ssh_public_key }}
 {% if provider_network %}
           net:         {{ provider_network }}
-          net_name:         {{ provider_network }}
+          net_name:    {{ provider_network }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    {{ provider_data_network }}
+          data_net_name: {{ provider_data_network }}
+{% endif %}
 {% else %}
           net:         { get_resource: net }
           subnet:      { get_resource: subnet }
@@ -749,6 +792,12 @@ resources:
               template: openshift-ansible-cluster_id-net
               params:
                 cluster_id: {{ stack_name }}
+{% if openshift_use_flannel|default(False)|bool %}
+          attach_data_net: true
+          data_net:    { get_resource: data_net }
+          data_subnet: { get_resource: data_subnet }
+          data_net_name: openshift-ansible-{{ stack_name }}-data-net
+{% endif %}
 {% endif %}
           secgrp:
 # TODO(bogdando) filter only required node rules into infra-secgrp
