@@ -263,6 +263,69 @@ variables for the `inventory/group_vars/OSEv3.yml`, `all.yml`:
     deployment_type: origin
     openshift_deployment_type: "{{ deployment_type }}"
 
+
+### Use an existing Cinder volume for the OpenShift registry
+
+You can optionally use an existing Cinder volume for the storage of
+your OpenShift registry.
+
+To do that, you need to have a Cinder volume (you can create one by
+running:
+
+    openstack volume create --size <volume size in gb> <volume name>
+
+The volume needs to have a file system created before you put it to
+use. We can do prepare it for you if you put this in inventory/group_vars/all.yml:
+
+    prepare_and_format_registry_volume: true
+
+**NOTE:** doing so **will destroy any data that's currently on the volume**!
+
+You can also run the registry setup playbook directly:
+
+   ansible-playbook -i inventory playbooks/provisioning/openstack/prepare-and-format-cinder-volume.yaml
+
+(the provisioning phase must be completed, first)
+
+
+To instruct openshift-ansible to actually use the volume, you must
+first configure it with the OpenStack credentials by putting the
+following to `OSEv3.yml`:
+
+    ## Openstack credentials
+    #openshift_cloudprovider_kind=openstack
+    #openshift_cloudprovider_openstack_auth_url=http://openstack.example.com:35357/v2.0/
+    #openshift_cloudprovider_openstack_username=username
+    #openshift_cloudprovider_openstack_password=password
+    #openshift_cloudprovider_openstack_domain_id=domain_id
+    #openshift_cloudprovider_openstack_domain_name=domain_name
+    #openshift_cloudprovider_openstack_tenant_id=tenant_id
+    #openshift_cloudprovider_openstack_tenant_name=tenant_name
+    #openshift_cloudprovider_openstack_region=region
+
+(only set the values you need from e.g. your keystonerc or
+clouds.yaml)
+
+You can read the (OpenShift documentation on configuring
+OpenStack)[openstack] for more information.
+
+[openstack]: https://docs.openshift.org/latest/install_config/configuring_openstack.html
+
+
+Next we need to instruct openshift-ansible to use the Cinder volume
+for it's registry. Again in `OSEv3.yml`:
+
+    ## Use Cinder volume for Openshift registry:
+    #openshift_hosted_registry_storage_kind: openstack
+    #openshift_hosted_registry_storage_access_modes: ['ReadWriteOnce']
+    #openshift_hosted_registry_storage_openstack_filesystem: xfs
+    #openshift_hosted_registry_storage_openstack_volumeID: e0ba2d73-d2f9-4514-a3b2-a0ced507fa05
+    #openshift_hosted_registry_storage_volume_size: 10Gi
+
+The **Cinder volume ID**, **filesystem** and **volume size** variables must
+correspond to the values in your volume.
+
+
 ### Configure static inventory and access via a bastion node
 
 Example inventory variables:
