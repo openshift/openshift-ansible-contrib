@@ -1,0 +1,18 @@
+---
+- hosts: OSEv3
+  gather_facts: False
+  become: True
+  tasks:
+    - name: Apply post-install iptables hacks for Flannel SDN (the best effort)
+      when: openshift_use_flannel|default(False)|bool
+      block:
+        - name: Save iptables rules to a backup file
+          shell: iptables-save > /etc/sysconfig/iptables.orig-$(date +%Y%m%d%H%M%S)
+
+        - name: Add iptables rules for flannel SDN and docker
+          shell: >
+            iptables -I DOCKER 1 -w -p all -j ACCEPT;
+            iptables -t nat -I POSTROUTING 1 -w -o {{flannel_interface|default('eth1')}} -j MASQUERADE
+
+        - name: Persist modified iptables rules
+          shell: iptables-save > /etc/sysconfig/iptables
