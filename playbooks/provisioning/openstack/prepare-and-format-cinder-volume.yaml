@@ -3,10 +3,10 @@
   gather_facts: False
   become: False
   tasks:
-  - debug: var=prepare_and_format_registry_volume
   - set_fact:
       cinder_volume: "{{ hostvars[groups.masters[0]].openshift_hosted_registry_storage_openstack_volumeID }}"
       cinder_fs: "{{ hostvars[groups.masters[0]].openshift_hosted_registry_storage_openstack_filesystem }}"
+
   - name: Attach the volume to the VM
     os_server_volume:
       state: present
@@ -23,9 +23,6 @@
   gather_facts: False
   become: True
   tasks:
-  - debug: var=openshift_hosted_registry_storage_openstack_volumeID
-  - debug: var=openshift_hosted_registry_storage_openstack_filesystem
-  
   - name: Wait for the device to appear
     wait_for: path={{ hostvars['localhost'].attached_device }}
 
@@ -34,8 +31,6 @@
       prefix: cinder-volume
       state: directory
     register: cinder_mount_dir
-
-  - debug: var=cinder_mount_dir.path
 
   - name: Format the device
     filesystem:
@@ -73,11 +68,6 @@
   gather_facts: False
   become: False
   tasks:
-  - ping:
-  - debug: var=prepare_and_format_registry_volume
-  - debug: var=cinder_volume
-  - debug: var=cinder_fs
-
   - name: Detach the volume from the VM
     os_server_volume:
       state: absent
