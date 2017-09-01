@@ -72,5 +72,5 @@
 - name: copy generated inventory file to users $HOME directory
   template:
     src: ../static-inventory
-    dest: /home/ec2-user/inventory
+    dest: ~/inventory
     remote_src: false
