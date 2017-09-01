@@ -257,6 +257,26 @@
         "DestinationSecurityGroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] }
       }
     },
+    "ElasticApi": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "9200",
+        "ToPort": "9200",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "InfraElbSG", "GroupId" ] }
+      }
+    },
+    "ElasticClient": {
+      "Type": "AWS::EC2::SecurityGroupIngress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "9300",
+        "ToPort": "9300",
+        "SourceSecurityGroupId": { "Fn::GetAtt": [ "InfraElbSG", "GroupId" ] }
+      }
+    },
     "MasterExtElbEgressAPI": {
       "Type": "AWS::EC2::SecurityGroupEgress",
       "Properties":{
