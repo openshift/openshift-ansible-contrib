@@ -128,7 +128,6 @@
 	  "InstanceType": {"Ref": "InstanceType"},
 	  "SecurityGroupIds": [{"Ref": "NodeSg"}],
           "SubnetId" : {"Ref": "PrivateSubnet1"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns1"},{"Ref": "PublicHostedZone"}]]}
@@ -187,7 +186,6 @@
 	  "SecurityGroupIds": [{"Ref": "NodeSg"}],
 	  "SecurityGroupIds": [{"Ref": "NodeSg"}],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns2"},{"Ref": "PublicHostedZone"}]]}
@@ -245,7 +243,6 @@
 	  "InstanceType": {"Ref": "InstanceType"},
 	  "SecurityGroupIds": [{"Ref": "NodeSg"}],
           "SubnetId" : {"Ref": "PrivateSubnet3"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", [{"Ref": "GlusterNodeDns3"},{"Ref": "PublicHostedZone"}]]}

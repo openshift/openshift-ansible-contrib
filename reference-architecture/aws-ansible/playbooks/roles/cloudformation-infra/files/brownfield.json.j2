@@ -635,40 +635,6 @@
             ]
       }
     },
-    "NodePolicy": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Version": "2012-10-17",
-          "Statement": [
-            {
-              "Effect": "Allow",
-              "Principal": { "Service": [ "ec2.amazonaws.com" ] },
-              "Action": [ "sts:AssumeRole" ]
-            }
-          ]
-        },
-        "Policies": [
-          {
-            "PolicyName": "node-describe",
-            "PolicyDocument": {
-              "Version" : "2012-10-17",
-              "Statement": [
-                {
-                  "Effect": "Allow",
-                  "Action": [
-                     "ec2:Describe*",
-                     "ec2:AttachVolume",
-                     "ec2:DetachVolume"
-                  ], 
-                  "Resource": "*"
-                }
-              ]
-            }
-          }
-        ]
-      }
-    },
     "MasterPolicy": {
       "Type": "AWS::IAM::Role",
       "Properties": {
@@ -706,12 +672,6 @@
       "Type": "AWS::IAM::InstanceProfile",
       "Properties": {
         "Roles": [ { "Ref": "MasterPolicy" } ]
-      }
-    },
-    "NodeInstanceProfile": {
-      "Type": "AWS::IAM::InstanceProfile",
-      "Properties": {
-        "Roles": [ { "Ref": "NodePolicy" } ]
       }
     },
     "RegistryBucket": {
@@ -1022,7 +982,6 @@
 	      "InstanceType": {"Ref": "InfraInstanceType"},
 		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet1"},
-		  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node01",{"Ref": "PublicHostedZone"}]]}
@@ -1068,7 +1027,6 @@
 	      "InstanceType": {"Ref": "InfraInstanceType"},
 		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
-		  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node02",{"Ref": "PublicHostedZone"}]]}
@@ -1114,7 +1072,6 @@
 	  "InstanceType": {"Ref": "InfraInstanceType"},
 	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet3"},
-	  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node03",{"Ref": "PublicHostedZone"}]]}
@@ -1158,7 +1115,6 @@
 {% endif %}
     "AppNode{{ '%02d' % idx }}" : {
        "Type" : "AWS::EC2::Instance",
-       "DependsOn": ["NodeInstanceProfile"],
        "Properties" : {
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "NodeUserData"},
@@ -1166,7 +1122,6 @@
           "InstanceType": {"Ref": "AppNodeInstanceType"},
           "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet{{ rotator }}"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
           { "Key": "Name",
             "Value": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "PublicHostedZone"}]]}
@@ -1258,10 +1213,6 @@
     "BastionSGId" : {
       "Value" : { "Fn::GetAtt": [ "BastionSg", "GroupId" ]},
       "Description" : "Bastion SG id"
-    },
-    "NodeARN" : {
-      "Value" : { "Ref": "NodeInstanceProfile" },
-      "Description": "ARN for the Node instance profile"
     },
     "S3UserAccessId" : {
       "Value" : { "Ref" : "CFNKeys" },

@@ -87,7 +87,6 @@
 	  "InstanceType": {"Ref": "InstanceType"},
 	  "SecurityGroupIds": [{"Ref": "NodeSg"}, {"Ref": "InfraSg"}],
           "SubnetId" : {"Ref": "Subnet"},
-          "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Ref": "NodeName"}

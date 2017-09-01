@@ -53,8 +53,6 @@ import sys
 ### Miscellaneous options
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',
               show_default=True)
-@click.option('--iam-role', help='Specify the name of the existing IAM Instance profile',
-              show_default=True)
 @click.option('--node-sg', help='Specify the already existing node security group id',
               show_default=True)
 @click.option('--existing-stack', help='Specify the name of the existing CloudFormation stack')
@@ -85,7 +83,6 @@ def launch_refarch_env(region=None,
                     openshift_sdn=None,
                     iops=None,
                     node_sg=None,
-                    iam_role=None,
                     existing_stack=None,
                     use_cloudformation_facts=False,
                     verbose=0):
@@ -111,12 +108,6 @@ def launch_refarch_env(region=None,
     rhsm_password = click.prompt("RHSM password?", hide_input=True)
   if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name for OpenShift?")
-
-  # Prompt for vars if they are not defined
-  if use_cloudformation_facts and iam_role is None:
-    iam_role = "Computed by Cloudformations"
-  elif iam_role is None:
-    iam_role = click.prompt("Specify the IAM Role of the node?")
 
   if use_cloudformation_facts and node_sg is None:
     node_sg = "Computed by Cloudformations"
@@ -196,7 +187,6 @@ def launch_refarch_env(region=None,
       click.echo('\trhsm_password: *******')
       click.echo('\trhsm_pool: %s' % rhsm_pool)
       click.echo('\tcontainerized: %s' % containerized)
-      click.echo('\tiam_role: %s' % iam_role)
       click.echo('\texisting_stack: %s' % existing_stack)
       click.echo("")
 
@@ -285,7 +275,6 @@ def launch_refarch_env(region=None,
     	  rhsm_pool="%s" \
     	  containerized=%s \
     	  node_type=glusterfs \
-    	  iam_role=%s \
     	  key_path=/dev/null \
     	  create_key=%s \
     	  create_vpc=%s \
@@ -310,7 +299,6 @@ def launch_refarch_env(region=None,
                     	rhsm_password,
                     	rhsm_pool,
                     	containerized,
-                    	iam_role,
                     	create_key,
                     	create_vpc,
                     	deploy_glusterfs,
