@@ -42,7 +42,6 @@
       with_items:
       - "{{ new_app_nodes }}"
 
-
     - name: Add cluster nodes w/o floating IPs to inventory
       with_items: "{{ registered_nodes|difference(registered_nodes_floating) }}"
       add_host:
