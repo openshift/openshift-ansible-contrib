@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  become: no
+  pre_tasks:
+  - name: set fact
+    set_fact:
+      openshift_master_cluster_hostname: "{{ openshift_master_cluster_public_hostname }}"
+  - name: set fact
+    set_fact:
+      openshift_master_cluster_public_hostname: "{{ openshift_master_cluster_public_hostname }}"
+  - name: set fact
+    set_fact:
+      openshift_master_cluster_hostname: "{{ openshift_master_cluster_hostname }}"
+  - name: master group
+    add_host:
+      name: "{{ item }}"
+      groups: single_master
+    with_items: "{{ groups['masters'].0 }}"
+
+- include: ../../playbooks/post-validation.yaml
