@@ -194,7 +194,6 @@
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
-      NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
       NodeType: "{{ node_type }}"
     tags:
       KubernetesCluster: "{{ stack_name }}"
@@ -222,7 +221,6 @@
       NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
-      NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
       NodeType: "{{ node_type }}"
     tags:
       KubernetesCluster: "{{ stack_name }}"
@@ -263,7 +261,6 @@
       Iops: "{{ iops }}"
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
-      NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
       NodeType: glusterfs
     tags:
       KubernetesCluster: "{{ stack_name }}"
@@ -297,7 +294,6 @@
       GlusterVolType: "{{ glusterfs_volume_type }}"
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
-      NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
       NodeType: glusterfs
     tags:
       KubernetesCluster: "{{ stack_name }}"

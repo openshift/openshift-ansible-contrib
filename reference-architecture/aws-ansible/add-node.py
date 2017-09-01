@@ -43,8 +43,6 @@ import sys
 ### Miscellaneous options
 @click.option('--containerized', default='False', help='Containerized installation of OpenShift',
               show_default=True)
-@click.option('--iam-role', help='Specify the name of the existing IAM Instance profile',
-              show_default=True)
 @click.option('--shortname', help='Specify the hostname of the system',
               show_default=True)
 @click.option('--node-sg', help='Specify the already existing node security group id',
@@ -79,7 +77,6 @@ def launch_refarch_env(region=None,
                     rhsm_pool=None,
                     containerized=None,
                     node_type=None,
-                    iam_role=None,
                     infra_elb_name=None,
                     existing_stack=None,
                     openshift_sdn=None,
@@ -107,12 +104,6 @@ def launch_refarch_env(region=None,
     rhsm_password = click.prompt("RHSM password?", hide_input=True)
   if deployment_type in ['openshift-enterprise'] and rhsm_pool is None:
     rhsm_pool = click.prompt("RHSM Pool ID or Subscription Name?")
-
-  # Prompt for vars if they are not defined
-  if use_cloudformation_facts and iam_role is None:
-    iam_role = "Computed by Cloudformations"
-  elif iam_role is None:
-    iam_role = click.prompt("Specify the IAM Role of the node?")
 
  # If no keypair is specified fail:
   if subnet_id is None:
@@ -188,7 +179,6 @@ def launch_refarch_env(region=None,
       click.echo('\trhsm_pool: %s' % rhsm_pool)
       click.echo('\tcontainerized: %s' % containerized)
       click.echo('\tnode_type: %s' % node_type)
-      click.echo('\tiam_role: %s' % iam_role)
       click.echo('\tinfra_elb_name: %s' % infra_elb_name)
       click.echo('\texisting_stack: %s' % existing_stack)
       click.echo('\topenshift_sdn: %s' % openshift_sdn)
@@ -286,7 +276,6 @@ def launch_refarch_env(region=None,
         rhsm_pool="%s" \
         containerized=%s \
         node_type=%s \
-        iam_role=%s \
         key_path=/dev/null \
         infra_elb_name=%s \
         create_key=%s \
@@ -312,7 +301,6 @@ def launch_refarch_env(region=None,
                         rhsm_pool,
                         containerized,
                         node_type,
-                        iam_role,
                         infra_elb_name,
                         create_key,
                         create_vpc,
