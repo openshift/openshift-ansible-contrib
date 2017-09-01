@@ -12,6 +12,7 @@
         acl_entry: "{{ acl_list }}"
         zone:
           - dns_domain: "{{ full_dns_domain }}"
+        forwarder: "{{ public_dns_nameservers }}"
   when: external_nsupdate_keys['private'] is undefined
 
 - name: "Generate the public view"

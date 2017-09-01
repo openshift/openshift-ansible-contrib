@@ -85,6 +85,8 @@ default hostname (usually the role name) is used.
 The `public_dns_nameservers` is a list of DNS servers accessible from all
 the created Nova servers. These will be serving as your DNS forwarders for
 external FQDNs that do not belong to the cluster's DNS domain and its subdomains.
+If you're unsure what to put in here, you can try the google or opendns servers,
+but note that some organizations may be blocking them.
 
 The `openshift_use_dnsmasq` controls either dnsmasq is deployed or not.
 By default, dnsmasq is deployed and comes as the hosts' /etc/resolv.conf file
