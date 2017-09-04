@@ -288,9 +288,8 @@ You can also run the registry setup playbook directly:
 (the provisioning phase must be completed, first)
 
 
-To instruct openshift-ansible to actually use the volume, you must
-first configure it with the OpenStack credentials by putting the
-following to `OSEv3.yml`:
+To instruct OpenShift to actually use the volume, you must first configure it
+with the OpenStack credentials by putting the following to `OSEv3.yml`:
 
     ## Openstack credentials
     #openshift_cloudprovider_kind=openstack
@@ -303,8 +302,13 @@ following to `OSEv3.yml`:
     #openshift_cloudprovider_openstack_tenant_name=tenant_name
     #openshift_cloudprovider_openstack_region=region
 
-(only set the values you need from e.g. your keystonerc or
-clouds.yaml)
+Note that these credentials may be different from the ones you used for
+provisioning (say for quota or access control reasons). To use the same
+OpenStack credentials for both, take a look at the `sample-inventory`. It shows
+how to read the values from your shell environment.
+
+Make sure to only set the values you need from (e.g. your keystonerc or
+clouds.yaml). Some of the options ar keystone V2 or V3 specific.
 
 You can read the (OpenShift documentation on configuring
 OpenStack)[openstack] for more information.

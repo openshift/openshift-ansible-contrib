@@ -12,14 +12,12 @@ osm_default_node_selector: 'region=primary'
 
 ## Openstack credentials
 #openshift_cloudprovider_kind=openstack
-#openshift_cloudprovider_openstack_auth_url=http://openstack.example.com:35357/v2.0/
-#openshift_cloudprovider_openstack_username=username
-#openshift_cloudprovider_openstack_password=password
-#openshift_cloudprovider_openstack_domain_id=domain_id
-#openshift_cloudprovider_openstack_domain_name=domain_name
-#openshift_cloudprovider_openstack_tenant_id=tenant_id
-#openshift_cloudprovider_openstack_tenant_name=tenant_name
-#openshift_cloudprovider_openstack_region=region
+#openshift_cloudprovider_openstack_auth_url: "{{ lookup('env','OS_AUTH_URL') }}"
+#openshift_cloudprovider_openstack_username: "{{ lookup('env','OS_USERNAME') }}"
+#openshift_cloudprovider_openstack_password: "{{ lookup('env','OS_PASSWORD') }}"
+#openshift_cloudprovider_openstack_tenant_name: "{{ lookup('env','OS_TENANT_NAME') }}"
+#openshift_cloudprovider_openstack_region="{{ lookup('env', 'OS_REGION_NAME') }}"
+
 
 
 ## Use Cinder volume for Openshift registry:
