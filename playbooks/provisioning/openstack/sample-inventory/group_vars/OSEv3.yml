@@ -19,7 +19,6 @@ osm_default_node_selector: 'region=primary'
 #openshift_cloudprovider_openstack_region="{{ lookup('env', 'OS_REGION_NAME') }}"
 
 
-
 ## Use Cinder volume for Openshift registry:
 #openshift_hosted_registry_storage_kind: openstack
 #openshift_hosted_registry_storage_access_modes: ['ReadWriteOnce']
