@@ -94,6 +94,8 @@ default hostname (usually the role name) is used.
 The `public_dns_nameservers` is a list of DNS servers accessible from all
 the created Nova servers. These will be serving as your DNS forwarders for
 external FQDNs that do not belong to the cluster's DNS domain and its subdomains.
+If you're unsure what to put in here, you can try the google or opendns servers,
+but note that some organizations may be blocking them.
 
 The `openshift_use_dnsmasq` controls either dnsmasq is deployed or not.
 By default, dnsmasq is deployed and comes as the hosts' /etc/resolv.conf file
@@ -227,6 +229,24 @@ under the ansible group named `ext_lb`:
     openshift_master_cluster_hostname: "{{ groups.ext_lb.0 }}"
     openshift_master_cluster_public_hostname: "{{ groups.ext_lb.0 }}"
 
+#### Provider Network
+
+Normally, the playbooks create a new Neutron network and subnet and attach
+floating IP addresses to each node. If you have a provider network set up, this
+is all unnecessary as you can just access servers that are placed in the
+provider network directly.
+
+To use a provider network, set its name in `openstack_provider_network_name` in
+`inventory/group_vars/all.yml`.
+
+If you set the provider network name, the `openstack_external_network_name` and
+`openstack_private_network_name` fields will be ignored.
+
+**NOTE**: this will not update the nodes' DNS, so running openshift-ansible
+right after provisioning will fail (unless you're using an external DNS server
+your provider network knows about). You must make sure your nodes are able to
+resolve each other by name.
+
 #### Security notes
 
 Configure required `*_ingress_cidr` variables to restrict public access
@@ -243,6 +263,18 @@ may want to turn off in order to speed up the provisioning tasks. This may
 be the case for development environments. When turned off, the servers will
 be provisioned omitting the ``yum update`` command. This brings security
 implications though, and is not recommended for production deployments.
+
+##### DNS servers security options
+
+Aside from `node_ingress_cidr` restricting public access to in-stack DNS
+servers, there are following (bind/named specific) DNS security
+options available:
+
+    named_public_recursion: 'no'
+    named_private_recursion: 'yes'
+
+External DNS servers, which is not included in the 'dns' hosts group,
+are not managed. It is up to you to configure such ones.
 
 ### Configure the OpenShift parameters
 
@@ -262,6 +294,15 @@ variables for the `inventory/group_vars/OSEv3.yml`, `all.yml`:
 
     deployment_type: origin
     openshift_deployment_type: "{{ deployment_type }}"
+
+#### Setting a custom entrypoint
+
+In order to set a custom entrypoint, update `openshift_master_cluster_public_hostname`
+
+    openshift_master_cluster_public_hostname: api.openshift.example.com
+
+Note than an empty hostname does not work, so if your domain is `openshift.example.com`,
+you cannot set this value to simply `openshift.example.com`.
 
 ### Configure static inventory and access via a bastion node
 
@@ -325,7 +366,19 @@ if requested, and DNS server, and ensures other OpenShift requirements to be met
 
 ### Running Custom Post-Provision Actions
 
-If you'd like to run post-provision actions, you can do so by creating a custom playbook. Here's one example that adds additional YUM repositories:
+A custom playbook can be run like this:
+
+```
+ansible-playbook --private-key ~/.ssh/openshift -i inventory/ openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/custom-playbook.yml
+```
+
+If you'd like to limit the run to one particular host, you can do so as follows:
+
+```
+ansible-playbook --private-key ~/.ssh/openshift -i inventory/ openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/custom-playbook.yml -l app-node-0.openshift.example.com
+```
+
+You can also create your own custom playbook. Here's one example that adds additional YUM repositories:
 
 ```
 ---
@@ -349,17 +402,13 @@ This example runs against app nodes. The list of options include:
   - masters
   - infra_hosts
 
-After writing your custom playbook, run it like this:
+Please consider contributing your custom playbook back to openshift-ansible-contrib!
 
-```
-ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ custom-playbook.yaml
-```
+A library of custom post-provision actions exists in `openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions`. Playbooks include:
 
-If you'd like to limit the run to one particular host, you can do so as follows:
+##### add-yum-repos.yml
 
-```
-ansible-playbook --private-key ~/.ssh/openshift -i myinventory/ custom-playbook.yaml -l app-node-0.openshift.example.com
-```
+[add-yum-repos.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-yum-repos.yml) adds a list of custom yum repositories to every node in the cluster.
 
 ### Install OpenShift
 
