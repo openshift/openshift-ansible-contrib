@@ -4,4 +4,4 @@
   roles:
   - instance-groups
 
-- include: ../../../../../openshift-ansible/playbooks/byo/openshift-cluster/upgrades/{{ openshift_vers }}/upgrade.yml
+- include: ../../../../../openshift-ansible/playbooks/byo/openshift-cluster/upgrades/{{ openshift_vers | default('v3_6') }}/upgrade.yml
