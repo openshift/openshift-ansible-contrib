@@ -1,6 +1,6 @@
 ---
 - name: get master ssl lb ip
-  command: gcloud --project {{ gcloud_project }} compute addresses describe {{ prefix }}-master-ssl-lb-ip --global --format='value(address)'
+  command: gcloud --project {{ gcloud_project }} compute addresses describe {{ prefix }}-master-https-lb-ip --global --format='value(address)'
   register: master_ssl_lb_ip
   changed_when: false
 

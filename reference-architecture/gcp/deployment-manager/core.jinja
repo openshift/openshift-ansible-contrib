@@ -310,7 +310,7 @@ resources:
     targetSize: {{ properties['node_instance_group_size'] }}
     region: {{ properties['region'] }}
   type: compute.v1.regionInstanceGroupManager
-- name: {{ properties['prefix'] }}-master-ssl-lb-health-check
+- name: {{ properties['prefix'] }}-master-https-lb-health-check
   properties:
     checkIntervalSec: 5
     description: ''
@@ -345,33 +345,37 @@ resources:
     timeoutSec: 5
     unhealthyThreshold: 2
   type: compute.v1.httpHealthCheck
-- name: {{ properties['prefix'] }}-master-ssl-lb-backend
+- name: {{ properties['prefix'] }}-master-https-lb-backend
   properties:
     healthChecks:
-    - $(ref.{{ properties['prefix'] }}-master-ssl-lb-health-check.selfLink)
+    - $(ref.{{ properties['prefix'] }}-master-https-lb-health-check.selfLink)
     loadBalancingScheme: EXTERNAL
     portName: {{ properties['prefix'] }}-web-console
-    protocol: SSL
+    protocol: HTTPS
+    timeoutSec: 300
     backends:
     - group: $(ref.{{ properties['prefix'] }}-master.instanceGroup)
   type: compute.v1.backendService
-- name: {{ properties['prefix'] }}-master-ssl-lb-target
+- name: {{ properties['prefix'] }}-master-https-lb-url-map
   properties:
-    proxyHeader: NONE
-    service: $(ref.{{ properties['prefix'] }}-master-ssl-lb-backend.selfLink)
+    defaultService: $(ref.{{ properties['prefix'] }}-master-https-lb-backend.selfLink)
+  type: compute.v1.urlMap
+- name: {{ properties['prefix'] }}-master-https-lb-target
+  properties:
+    urlMap: $(ref.{{ properties['prefix'] }}-master-https-lb-url-map.selfLink)
     sslCertificates:
-    - projects/{{env['project']}}/global/sslCertificates/{{ properties['prefix'] }}-master-ssl-lb-cert
-  type: compute.v1.targetSslProxy
-- name: {{ properties['prefix'] }}-master-ssl-lb-ip
+    - projects/{{env['project']}}/global/sslCertificates/{{ properties['prefix'] }}-master-https-lb-cert
+  type: compute.v1.targetHttpsProxy
+- name: {{ properties['prefix'] }}-master-https-lb-ip
   type: compute.v1.globalAddress
-- name: {{ properties['prefix'] }}-master-ssl-lb-rule
+- name: {{ properties['prefix'] }}-master-https-lb-rule
   properties:
     IPProtocol: TCP
     description: ''
-    IPAddress: $(ref.{{ properties['prefix'] }}-master-ssl-lb-ip.selfLink)
+    IPAddress: $(ref.{{ properties['prefix'] }}-master-https-lb-ip.selfLink)
     loadBalancingScheme: EXTERNAL
     portRange: {{ properties['console_port'] }}-{{ properties['console_port'] }}
-    target: $(ref.{{ properties['prefix'] }}-master-ssl-lb-target.selfLink)
+    target: $(ref.{{ properties['prefix'] }}-master-https-lb-target.selfLink)
   type: compute.v1.globalForwardingRule
 - name: {{ properties['prefix'] }}-master-network-lb-pool
   properties:
