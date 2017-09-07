@@ -36,11 +36,10 @@
         loop_var: node
 
     - name: Add new app nodes to the new_nodes section
+      with_items: "{{ new_app_nodes }}"
       add_host:
         name: "{{ item }}"
         groups: new_nodes
-      with_items:
-      - "{{ new_app_nodes }}"
 
     - name: set_fact for openstack inventory nodes with provider network
       set_fact:
