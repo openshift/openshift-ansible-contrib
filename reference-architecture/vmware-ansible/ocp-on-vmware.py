@@ -470,117 +470,106 @@ def launch_refarch_env(console_port=8443,
     else:
                 print line,
 
-  playbooks = ['playbooks/infrastructure.yaml']
   tags.append('ocp-install')
   tags.append('ocp-configure')
 
-  for playbook in playbooks:
-    # hide cache output unless in verbose mode
-    devnull='> /dev/null'
+  # remove any cached facts to prevent stale data during a re-run
+  command='rm -rf .ansible/cached_facts'
+  os.system(command)
 
-    if verbose > 0:
-      devnull=''
+  tags = ",".join(tags)
+  if clean is True:
+      tags = 'clean'
+  if tag:
+      tags = tag
 
-    # grab the default priv key from the user"
-    command='cp -f ~/.ssh/id_rsa ssh_key/ocp3-installer'
-    os.system(command)
-    command='cp -f ~/.ssh/id_rsa ssh_key/ocp-installer'
-    os.system(command)
-    # make sure the ssh keys have the proper permissions
-    command='chmod 600 ssh_key/ocp-installer'
-    os.system(command)
+  # grab the default priv key from the user"
+  command='cp -f ~/.ssh/id_rsa ssh_key/ocp-installer'
+  os.system(command)
+  # make sure the ssh keys have the proper permissions
+  command='chmod 600 ssh_key/ocp-installer'
+  os.system(command)
 
 
+  for tag in tags.split(','):
+      playbook = "playbooks/" + tag + ".yaml"
+      tags = 'all'
 
-    # remove any cached facts to prevent stale data during a re-run
-    command='rm -rf .ansible/cached_facts'
-    os.system(command)
-    tags = ",".join(tags)
-    if clean is True:
-        tags = 'clean'
-    if tag:
-        tags = tag
+      devnull='> /dev/null'
 
-    #if local:
-    #command='ansible-playbook'
-    #else:
-    #   command='docker run -t --rm --volume `pwd`:/opt/ansible:z -v ~/.ssh:/root/.ssh:z -v /tmp:/tmp:z --net=host ansible:2.2-latest'
-    if 'clean' in tags:
-        tags = 'all'
-        command='ansible-playbook '
-        playbook = 'playbooks/cleanup-vsphere.yaml'
-    else:
-        command='ansible-playbook'
-    command=command + ' --extra-vars "@./infrastructure.json" --tags %s -e \'vcenter_host=%s \
-    vcenter_username=%s \
-    vcenter_password=%s \
-    vcenter_template_name=%s \
-    vcenter_folder=%s \
-    vcenter_cluster=%s \
-    vcenter_datacenter=%s \
-    vcenter_datastore=%s \
-    vcenter_resource_pool=%s \
-    public_hosted_zone=%s \
-    app_dns_prefix=%s \
-    vm_dns=%s \
-    vm_gw=%s \
-    vm_netmask=%s \
-    vm_network=%s \
-    wildcard_zone=%s \
-    console_port=%s \
-    cluster_id=%s \
-    deployment_type=%s \
-    openshift_vers=%s \
-    rhsm_user=%s \
-    rhsm_password=%s \
-    rhel_subscription_server=%s \
-    rhsm_pool="%s" \
-    openshift_sdn=%s \
-    containerized=%s \
-    container_storage=%s \
-    openshift_hosted_metrics_deploy=%s \
-    lb_host=%s \
-    nfs_host=%s \
-    nfs_registry_mountpoint=%s \' %s' % ( tags,
-                    vcenter_host,
-                    vcenter_username,
-                    vcenter_password,
-                    vcenter_template_name,
-                    vcenter_folder,
-                    vcenter_cluster,
-                    vcenter_datacenter,
-                    vcenter_datastore,
-                    vcenter_resource_pool,
-                    public_hosted_zone,
-                    app_dns_prefix,
-                    vm_dns,
-                    vm_gw,
-                    vm_netmask,
-                    vm_network,
-                    wildcard_zone,
-                    console_port,
-                    cluster_id,
-                    deployment_type,
-                    openshift_vers,
-                    rhel_subscription_user,
-                    rhel_subscription_pass,
-                    rhel_subscription_server,
-                    rhel_subscription_pool,
-                    openshift_sdn,
-                    containerized,
-                    container_storage,
-                    openshift_hosted_metrics_deploy,
-                    lb_host,
-                    nfs_host,
-                    nfs_registry_mountpoint,
-                    playbook)
-    if verbose > 0:
-      command += " -" + "".join(['v']*verbose)
-      click.echo('We are running: %s' % command)
+      if verbose > 0:
+        devnull=''
 
-    status = os.system(command)
-    if os.WIFEXITED(status) and os.WEXITSTATUS(status) != 0:
-      return os.WEXITSTATUS(status)
+      command='ansible-playbook  --extra-vars "@./infrastructure.json" --tags %s -e \'vcenter_host=%s \
+      vcenter_username=%s \
+      vcenter_password=%s \
+      vcenter_template_name=%s \
+      vcenter_folder=%s \
+      vcenter_cluster=%s \
+      vcenter_datacenter=%s \
+      vcenter_datastore=%s \
+      vcenter_resource_pool=%s \
+      public_hosted_zone=%s \
+      app_dns_prefix=%s \
+      vm_dns=%s \
+      vm_gw=%s \
+      vm_netmask=%s \
+      vm_network=%s \
+      wildcard_zone=%s \
+      console_port=%s \
+      cluster_id=%s \
+      deployment_type=%s \
+      openshift_vers=%s \
+      rhsm_user=%s \
+      rhsm_password=%s \
+      rhel_subscription_server=%s \
+      rhsm_pool="%s" \
+      openshift_sdn=%s \
+      containerized=%s \
+      container_storage=%s \
+      openshift_hosted_metrics_deploy=%s \
+      lb_host=%s \
+      nfs_host=%s \
+      nfs_registry_mountpoint=%s \' %s' % ( tags,
+                          vcenter_host,
+                          vcenter_username,
+                          vcenter_password,
+                          vcenter_template_name,
+                          vcenter_folder,
+                          vcenter_cluster,
+                          vcenter_datacenter,
+                          vcenter_datastore,
+                          vcenter_resource_pool,
+                          public_hosted_zone,
+                          app_dns_prefix,
+                          vm_dns,
+                          vm_gw,
+                          vm_netmask,
+                          vm_network,
+                          wildcard_zone,
+                          console_port,
+                          cluster_id,
+                          deployment_type,
+                          openshift_vers,
+                          rhel_subscription_user,
+                          rhel_subscription_pass,
+                          rhel_subscription_server,
+                          rhel_subscription_pool,
+                          openshift_sdn,
+                          containerized,
+                          container_storage,
+                          openshift_hosted_metrics_deploy,
+                          lb_host,
+                          nfs_host,
+                          nfs_registry_mountpoint,
+                          playbook)
+      if verbose > 0:
+        command += " -" + "".join(['v']*verbose)
+        click.echo('We are running: %s' % command)
+
+      status = os.system(command)
+      if os.WIFEXITED(status) and os.WEXITSTATUS(status) != 0:
+        return os.WEXITSTATUS(status)
 
 if __name__ == '__main__':
 
