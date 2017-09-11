@@ -19,4 +19,4 @@
 
 - name: Create storage class
   command: "oc create -f ~/cloud-provider-storage-class.yaml"
-  when: "'{{ vmware_datastore }}' not in storage_class.stdout"
+  when: "'{{ vcenter_datastore }}' not in storage_class.stdout"
