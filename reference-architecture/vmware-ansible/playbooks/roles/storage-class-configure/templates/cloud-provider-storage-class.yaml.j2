@@ -1,8 +1,8 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: "{{ vmware_datastore }}"
+  name: "{{ vcenter_datastore }}"
 provisioner: kubernetes.io/vsphere-volume
 parameters:
     diskformat: zeroedthick
-    datastore: "{{ vmware_datastore }}"
+    datastore: "{{ vcenter_datastore }}"
