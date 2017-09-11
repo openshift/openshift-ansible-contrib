@@ -1,5 +1,4 @@
-
----                                                                                                                                                                                                              
+---
 - hosts: localhost
   gather_facts: yes
   ignore_errors: yes
@@ -15,7 +14,7 @@
   roles:
   - instance-groups
 
-- name: Perform post validation steps 
+- name: Perform post validation steps
   include: ../../../playbooks/post-validation.yaml
   vars:
     validate_etcd_short_hostname: true
