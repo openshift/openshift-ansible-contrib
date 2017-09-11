@@ -18,7 +18,8 @@
   - rhsm
   - vmware-guest-setup
   - docker-storage-setup
-- include: ../../../playbooks/add-node-prerequisite.yaml
+  - openshift-volume-quota
+- include: add-node-prerequisite.yaml
 
 - include: node-setup.yaml
 

@@ -9,5 +9,6 @@
   - rhsm
   - vmware-guest-setup
   - docker-storage-setup
+  - openshift-volume-quota
   - gluster-ports
-- include: ../../../playbooks/add-node-prerequisite.yaml
+- include: add-node-prerequisite.yaml

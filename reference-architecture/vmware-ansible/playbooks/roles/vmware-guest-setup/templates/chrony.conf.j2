@@ -1,8 +1,9 @@
 # This file is managed by Ansible
 
-server clock.corp.redhat.com iburst
-server clock.redhat.com iburst
-server clock2.redhat.com iburst
+server 0.rhel.pool.ntp.org
+server 1.rhel.pool.ntp.org
+server 2.rhel.pool.ntp.org
+server 3.rhel.pool.ntp.org
 
 driftfile /var/lib/chrony/drift
 makestep 10 3

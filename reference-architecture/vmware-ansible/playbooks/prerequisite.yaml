@@ -1,0 +1,26 @@
+---
+- hosts: cluster_hosts
+  gather_facts: yes
+  become: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - instance-groups
+  - rhsm
+
+- hosts: cluster_hosts
+  gather_facts: no
+  vars_files:
+  - vars/main.yaml
+  become: yes
+  roles:
+  - prerequisites
+
+- hosts: master
+  gather_facts: yes
+  vars_files:
+  - vars/main.yaml
+  become: yes
+  roles:
+  - master-prerequisites
+  - etcd-storage

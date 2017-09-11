@@ -1,0 +1,3 @@
+---
+vsphere_conf_dir: /etc/vsphere
+vsphere_conf: "{{vsphere_conf_dir }}/vsphere.conf"

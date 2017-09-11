@@ -14,6 +14,7 @@
         cluster: "{{ vcenter_cluster}}"
         resource_pool: "{{ vcenter_resource_pool }}"
         state: "present"
+        validate_certs: False
     - name: "Create folder structure on vCenter"
       vmware_folder:
         hostname: "{{ vcenter_host }}"
@@ -23,3 +24,4 @@
         cluster: "{{ vcenter_cluster}}"
         folder: "{{ vcenter_folder }}"
         state: "present"
+        validate_certs: False

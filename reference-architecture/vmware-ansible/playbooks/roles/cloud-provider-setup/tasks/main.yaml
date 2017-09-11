@@ -1,0 +1,13 @@
+---
+- name: create /etc/vsphere/
+  file:
+    state: directory
+    path: "{{ vsphere_conf_dir }}"
+
+- name: create the vsphere.conf file
+  template:
+    src: "{{ role_path }}/templates/vsphere.conf.j2"
+    dest: /etc/vsphere/vsphere.conf
+    owner: root
+    group: root
+    mode: 0644

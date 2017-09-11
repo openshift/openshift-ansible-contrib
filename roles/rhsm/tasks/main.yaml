@@ -27,7 +27,7 @@
         - rhsm_katello_url|trim != ''
 
     - name: "Is the system already registered?"
-      command: "subscription-manager status"
+      command: "subscription-manager version"
       register: subscribed
       ignore_errors: yes
 
@@ -40,7 +40,10 @@
         server_hostname: "{{ rhsm_satellite | default(omit) }}"
         activationkey: "{{ rhsm_activation_key | default(omit) }}"
         org_id: "{{ rhsm_org_id | default(omit) }}"
-      when: "'Current' not in subscribed.stdout"
+      when: "'not registered' in subscribed.stdout"
+      register: rhn
+      until: rhn|success
+      retries: 5
 
     - name: "Obtain currently enabled repos"
       shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'

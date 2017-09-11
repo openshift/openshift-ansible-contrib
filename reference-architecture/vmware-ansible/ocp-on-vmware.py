@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # set ts=4 sw=4 et
-import click, os, sys, fileinput, json, iptools, ldap, six
+import click, os, sys, fileinput, json, iptools, ldap, six, random
 from six.moves import configparser
 
 @click.command()
@@ -16,6 +16,7 @@ from six.moves import configparser
 @click.option('--clean', is_flag=True, help='Delete all nodes and unregister from RHN')
 
 def launch_refarch_env(console_port=8443,
+                    cluster_id=None,
                     deployment_type=None,
                     openshift_vers=None,
                     vcenter_host=None,
@@ -123,6 +124,7 @@ def launch_refarch_env(console_port=8443,
     if not config.has_option('vmware', k):
         config.set('vmware', k, str(v))
 
+  cluster_id = config.get('vmware', 'cluster_id')
   console_port = config.get('vmware', 'console_port')
   deployment_type = config.get('vmware','deployment_type')
   openshift_vers = config.get('vmware','openshift_vers')
@@ -324,6 +326,16 @@ def launch_refarch_env(console_port=8443,
     if not no_confirm:
          click.confirm('Continue using these values?', abort=True)
     # Create the inventory file and exit
+    if not cluster_id:
+        #create a unique cluster_id first
+        cluster_id = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(20))
+        config.set('vmware', 'cluster_id', cluster_id)
+        for line in fileinput.input(vmware_ini_path, inplace=True):
+            if line.startswith('cluster_id'):
+                print "cluster_id=" + str(cluster_id)
+            else:
+                print line,
+
     total_nodes=int(master_nodes)+int(app_nodes)+int(infra_nodes)+int(support_nodes)
 
     if vm_ipaddr_start is None:
@@ -351,10 +363,10 @@ def launch_refarch_env(console_port=8443,
         d['host_inventory'][nfs_host] = {}
         d['host_inventory'][nfs_host]['guestname'] = nfs_host
         d['host_inventory'][nfs_host]['ip4addr'] = ip4addr[0]
-        d['host_inventory'][nfs_host]['tag'] = "infra-nfs"
+        d['host_inventory'][nfs_host]['tag'] = str(cluster_id) + "-infra-nfs"
         d['infrastructure_hosts']["nfs_server"] = {}
         d['infrastructure_hosts']["nfs_server"]['guestname'] = nfs_host
-        d['infrastructure_hosts']["nfs_server"]['tag'] = "infra-nfs"
+        d['infrastructure_hosts']["nfs_server"]['tag'] =  str(cluster_id) + "-infra-nfs"
         support_list.append(nfs_host)
         bind_entry.append(nfs_host + "\tA\t" + ip4addr[0])
         del ip4addr[0]
@@ -365,10 +377,10 @@ def launch_refarch_env(console_port=8443,
         d['host_inventory'][lb_host] = {}
         d['host_inventory'][lb_host]['guestname'] = lb_host
         d['host_inventory'][lb_host]['ip4addr'] = wild_ip
-        d['host_inventory'][lb_host]['tag'] = "loadbalancer"
+        d['host_inventory'][lb_host]['tag'] =  str(cluster_id) + "-loadbalancer"
         d['infrastructure_hosts']["haproxy"] = {}
         d['infrastructure_hosts']["haproxy"]['guestname'] = lb_host
-        d['infrastructure_hosts']["haproxy"]['tag'] = "loadbalancer"
+        d['infrastructure_hosts']["haproxy"]['tag'] = str(cluster_id) + "-loadbalancer"
         support_list.append(lb_host)
         bind_entry.append(lb_host + "\tA\t" + wild_ip)
 
@@ -382,10 +394,10 @@ def launch_refarch_env(console_port=8443,
         d['host_inventory'][master_name] = {}
         d['host_inventory'][master_name]['guestname'] = master_name
         d['host_inventory'][master_name]['ip4addr'] = ip4addr[0]
-        d['host_inventory'][master_name]['tag'] = "master"
+        d['host_inventory'][master_name]['tag'] = str(cluster_id) + "-master"
         d['production_hosts'][master_name] = {}
         d['production_hosts'][master_name]['guestname'] = master_name
-        d['production_hosts'][master_name]['tag'] = "master"
+        d['production_hosts'][master_name]['tag'] =  str(cluster_id) + "-master"
         master_list.append(master_name)
         bind_entry.append(master_name + "\tA\t" + ip4addr[0])
         del ip4addr[0]
@@ -400,10 +412,10 @@ def launch_refarch_env(console_port=8443,
         d['host_inventory'][app_name] = {}
         d['host_inventory'][app_name]['guestname'] = app_name
         d['host_inventory'][app_name]['ip4addr'] = ip4addr[0]
-        d['host_inventory'][app_name]['tag'] = "app"
+        d['host_inventory'][app_name]['tag'] =  str(cluster_id) + "-app"
         d['production_hosts'][app_name] = {}
         d['production_hosts'][app_name]['guestname'] = app_name
-        d['production_hosts'][app_name]['tag'] = "app"
+        d['production_hosts'][app_name]['tag'] = str(cluster_id) + "-app"
         app_list.append(app_name)
         bind_entry.append(app_name + "\tA\t" + ip4addr[0])
         del ip4addr[0]
@@ -416,10 +428,10 @@ def launch_refarch_env(console_port=8443,
         d['host_inventory'][infra_name] = {}
         d['host_inventory'][infra_name]['guestname'] = infra_name
         d['host_inventory'][infra_name]['ip4addr'] = ip4addr[0]
-        d['host_inventory'][infra_name]['tag'] = "infra"
+        d['host_inventory'][infra_name]['tag'] =  str(cluster_id) + "-infra"
         d['production_hosts'][infra_name] = {}
         d['production_hosts'][infra_name]['guestname'] = infra_name
-        d['production_hosts'][infra_name]['tag'] = "infra"
+        d['production_hosts'][infra_name]['tag'] = str(cluster_id) + "-infra"
         infra_list.append(infra_name)
         bind_entry.append(infra_name + "        A       " + ip4addr[0])
         del ip4addr[0]
@@ -516,6 +528,7 @@ def launch_refarch_env(console_port=8443,
     vm_network=%s \
     wildcard_zone=%s \
     console_port=%s \
+    cluster_id=%s \
     deployment_type=%s \
     openshift_vers=%s \
     rhsm_user=%s \
@@ -546,6 +559,7 @@ def launch_refarch_env(console_port=8443,
                     vm_network,
                     wildcard_zone,
                     console_port,
+                    cluster_id,
                     deployment_type,
                     openshift_vers,
                     rhel_subscription_user,
