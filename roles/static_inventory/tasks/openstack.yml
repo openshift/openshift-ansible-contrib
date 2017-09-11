@@ -40,6 +40,7 @@
       add_host:
         name: "{{ item }}"
         groups: new_nodes
+      when: 'refresh_inventory|bool'
 
     - name: set_fact for openstack inventory nodes with provider network
       set_fact:
