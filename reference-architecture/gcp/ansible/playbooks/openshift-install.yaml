@@ -8,6 +8,15 @@
 - include: ../../../../../openshift-ansible/playbooks/byo/config.yml
 - include: ../../../../playbooks/empty-dir-quota.yaml
 
+- name: add ssd storage class
+  hosts: single_master
+  roles:
+  - role: openshift_default_storage_class
+    openshift_storageclass_default: false
+    openshift_storageclass_name: ssd
+    openshift_storageclass_parameters:
+      type: pd-ssd
+
 - name: post ocp deploy tasks for master nodes
   hosts: masters
   roles:
