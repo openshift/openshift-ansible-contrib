@@ -3,4 +3,5 @@
   set_fact:
     registered_nodes: '{{ registered_nodes | difference([ node ]) }}'
   when:
-  - 'node["name"] in new_app_nodes'
+    - '("app" in groups) and (groups["app"] | list != new_app_nodes | list)'
+    - 'node["name"] in new_app_nodes'
