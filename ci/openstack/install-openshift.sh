@@ -22,10 +22,10 @@ ansible-playbook --become --timeout 180 --user openshift --private-key ~/.ssh/id
 
 echo Waiting for the router to come up
 for i in $(seq 15); do
-    if ansible -i "$INVENTORY" masters --user openshift --private-key ~/.ssh/id_rsa -m shell -a 'oc get pod | grep router | grep Running'; then
+    if ansible -i "$INVENTORY" masters --user openshift --private-key ~/.ssh/id_rsa -m shell -a 'oc get pod | grep -v deploy | grep router | grep Running'; then
         echo Router is running
         break
-    elif ansible -i "$INVENTORY" masters --user openshift --private-key ~/.ssh/id_rsa -m shell -a 'oc get pod | grep router | grep Failed'; then
+    elif ansible -i "$INVENTORY" masters --user openshift --private-key ~/.ssh/id_rsa -m shell -a 'oc get pod | grep -v deploy | grep router | grep Failed'; then
         echo Router failed
         break
     else
