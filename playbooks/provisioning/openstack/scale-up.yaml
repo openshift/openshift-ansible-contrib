@@ -44,13 +44,13 @@
 - include: "{{ openshift_ansible_dir }}/playbooks/byo/config.yml"
   vars:
     openshift_ansible_dir: ../../../../openshift-ansible
-  when: 'groups["app"] | list == groups["new_nodes"] | list'
+  when: 'not groups["new_nodes"] | list'
 
 # Scaling up existing deployment
 - include: "{{ openshift_ansible_dir }}/playbooks/byo/openshift-node/scaleup.yml"
   vars:
     openshift_ansible_dir: ../../../../openshift-ansible
-  when: 'groups["app"] | list != groups["new_nodes"] | list'
+  when: 'groups["new_nodes"] | list'
 
 # Post-verification: Verify new number of nodes
 - hosts: masters[0]

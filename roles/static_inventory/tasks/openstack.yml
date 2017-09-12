@@ -35,12 +35,14 @@
       loop_control:
         loop_var: node
 
-    - name: Add new app nodes to the new_nodes section
+    - name: Add new app nodes to the new_nodes section (if a deployment already exists)
       with_items: "{{ new_app_nodes }}"
       add_host:
         name: "{{ item }}"
         groups: new_nodes
-      when: 'refresh_inventory|bool'
+      when:
+      - 'refresh_inventory|bool'
+      - '("app" in groups) and (groups["app"] | list != new_app_nodes | list)'
 
     - name: set_fact for openstack inventory nodes with provider network
       set_fact:
@@ -52,7 +54,7 @@
         - openstack_provider_network_name|default(None)
 
     - name: Add cluster nodes w/o floating IPs to inventory
-      with_items: "{{ registered_nodes|difference(registered_nodes_floating) }}"
+      with_items: "{{ registered_nodes|difference(registered_nodes_floating)|difference(new_app_nodes) }}"
       add_host:
         name: '{{ item.name }}'
         groups: '{{ item.metadata.group }}'
@@ -72,7 +74,7 @@
           {{ node[0].addresses[openstack_private_network|quote][0].addr }}
 
     - name: Add cluster nodes with floating IPs to inventory
-      with_items: "{{ registered_nodes_floating }}"
+      with_items: "{{ registered_nodes_floating|difference(new_app_nodes) }}"
       add_host:
         name: '{{ item.name }}'
         groups: '{{ item.metadata.group }}'
