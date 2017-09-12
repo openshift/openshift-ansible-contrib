@@ -4,4 +4,3 @@
     registered_nodes: 'registered_nodes | difference([ "{{ node }}" ])'
   when:
   - 'node["name"] in new_app_nodes'
-
