@@ -6,14 +6,14 @@ subscription-manager repos --enable=rhel-7-fast-datapath-rpms
 subscription-manager repos --enable=rhel-server-rhscl-7-rpms
 subscription-manager repos --enable=rhel-7-server-ose-3.6-rpms
 subscription-manager repos --enable=rhel-7-server-rpms
+subscription-manager repos --enable=rhel-7-server-extras-rpms
 
 
 echo "Enabling the python27 SCL and use it for most of our packaging needs"
 yum install -y python27 
-scl enable python27 bash
 
 echo "Installing the base packages that are needed for deployment minus the ones that are only on EPEL"
-yum install -y git atomic-openshift-utils python-ldap ansible-2.3
+yum install -y git atomic-openshift-utils python-click python-ldap ansible-2.3
 
 echo "Installing the EPEL repo and then EPEL packages needed"
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm

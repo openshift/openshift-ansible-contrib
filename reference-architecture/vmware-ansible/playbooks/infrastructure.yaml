@@ -1,5 +1,5 @@
 ---
-- include: stage.yaml
+- include: setup.yaml
   tags: ['setup']
 
 - include: nfs.yaml
