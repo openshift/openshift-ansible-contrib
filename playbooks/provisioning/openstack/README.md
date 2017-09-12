@@ -351,6 +351,18 @@ how to read the values from your shell environment.
 Make sure to only set the values you need from (e.g. your keystonerc or
 clouds.yaml). Some of the options ar keystone V2 or V3 specific.
 
+**NOTE**: If you're testing this on (DevStack)[devstack], you must
+explicitly set your Keystone API version to v2 (e.g.
+`OS_AUTH_URL=http://10.20.30.40/identity/v2.0`) instead of the default
+value provided by `openrc`. You may also encounter the following issue
+with Cinder:
+
+https://github.com/kubernetes/kubernetes/issues/50461
+
+
+[devstack]: https://docs.openstack.org/devstack/latest/
+
+
 You can read the (OpenShift documentation on configuring
 OpenStack)[openstack] for more information.
 
