@@ -1,6 +1,6 @@
 ---
 - name: Remove all new app nodes from registered_nodes
   set_fact:
-    registered_nodes: 'registered_nodes | difference([ "{{ node }}" ])'
+    registered_nodes: '{{ registered_nodes | difference([ node ]) }}'
   when:
   - 'node["name"] in new_app_nodes'
