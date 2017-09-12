@@ -20,13 +20,8 @@
       when: rhsm_user is defined and rhsm_user and sat_cfg.stat.exists == True
       ignore_errors: yes
 
-    - name: Do we already have the repos we need?
-      command: "yum repolist"
-      register: repolist
-      ignore_errors: yes
-
     - name: Is the host already registered?
-      command: "subscription-manager status"
+      command: "subscription-manager version"
       register: subscribed
       changed_when: no
       ignore_errors: yes
@@ -53,12 +48,12 @@
         password: "{{ rhsm_password }}"
         state: present
         pool: "{{ rhsm_pool }}"
-      when: "'Current' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
+      when: "'not registered' in subscribed.stdout or 'Current' not in subscribed.stdout and rhsm_user is defined and rhsm_user"
 
     - name: Check if subscription is attached
       command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"
       register: subscription_attached
-      when: rhsm_pool is defined
+      when: rhsm_pool is defined and rhsm_pool
       changed_when: no
 
     - block:
@@ -84,6 +79,6 @@
       yum:
         name: katello-agent
         state: present
-      when: rhsm_katello_url is defined and rhsm_katello_url and not skip_packages is defined
+      when: rhsm_katello_url is defined and rhsm_katello_url
 
   when: ansible_distribution == "RedHat"

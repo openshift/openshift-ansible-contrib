@@ -13,23 +13,33 @@ Internal DNS should be set up to reflect the number of nodes in the environment.
 The code in this repository handles all of the VMware specific components except for the installation of OpenShift. We rely on the OpenShift playbooks from the openshift-ansible-playbooks rpm. You will need the rpm installed on the workstation before using ocp-on-vmware.py.
 
 ```bash
-subscription-manager repos --enable rhel-7-server-optional-rpms
-subscription-manager repos --enable rhel-7-server-ose-3.6-rpms
+echo "Subscribing and enabling the repos we need for deployment"
+subscription-manager attach --pool=`subscription-manager list --available --pool-only --matches="Red Hat OpenShift Container Platform, Premium*" | tail -n1`
+subscription-manager repos --enable=rhel-7-fast-datapath-rpms
+subscription-manager repos --enable=rhel-server-rhscl-7-rpms
+subscription-manager repos --enable=rhel-7-server-ose-3.6-rpms
+subscription-manager repos --enable=rhel-7-server-rpms
+
+
+echo "Enabling the python27 SCL and use it for most of our packaging needs"
+yum install -y python27
+scl enable python27 bash
+
+echo "Installing the base packages that are needed for deployment minus the ones that are only on EPEL"
+yum install -y git atomic-openshift-utils python-ldap ansible-2.3
+
+echo "Installing the EPEL repo and then EPEL packages needed"
 rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-yum -y install atomic-openshift-utils \
-                  git \
-                  pyOpenSSL \
-                  PyYAML \
-                  python-click \
-                  python-httplib2
-                  python-iptools \
-                  python-ldap \
-                  python-netaddr \
-                  python-simplejson \
-                  python-six
+yum install -y python-iptools python2-pyvmomi
 
-git clone https://github.com/vmware/pyvmomi && cd pyvmomi/ && python setup.py install
+echo "Creating a ~/git directory and cloning the vmw-3.6 branch into it"
+mkdir ~/git/; cd ~/git/
+git clone -b vmw-3.6 https://github.com/openshift/openshift-ansible-contrib
 
+echo "Please fill in your variables ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.ini"
+echo "Create the initial inventory with the following command ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.py --create_inventory"
+echo "Create the OCP install vars with the following command ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.py --create_ocp_vars"
+echo "Lastly, run ~/git/openshift-ansible-contrib/reference-architecture/vmware-ansible/ocp-on-vmware.py to complete and test the OCP install"    
 ```
 
 ## Usage
@@ -48,7 +58,7 @@ cp ~/.ssh/id_rsa ~/git/openshift-ansible-contrib/reference-architecture/vmware-a
 Additionally, you will need to use ocp-on-vmware.py to configure your LDAP authentication credentials for the OpenShift install and to create your inventory to define the number of nodes for each **role**: *app, infra, master*. Also, the *create inventory* tag will help you with your DNS configuration and will allow you to assign a starting static IP address point for your configuration.
 
 ### VMware Template Name
-This is your VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.3. The template should have your public key listed in its authorized_keys section.
+This is your VMware template name. The template should be configured with open-vm-tools installed on RHEL 7.4. The template should have your public key listed in its authorized_keys section.
 
 ### New VMware Environment (Greenfield)
 When installing all components into your VMware environment perform the following. This will create the haproxy, the nfs server for the registry, and all the production OpenShift VMs. Additionally, the installer script will attempt to copy your existing public key to the VMs.
@@ -143,7 +153,7 @@ nfs_registry_mountpoint=/my-registry
 Configured values:
     console port: 8443
     deployment_type: openshift-enterprise
-    vcenter_host: 10.19.114.25
+    vcenter_host: 10.*.*.25
     vcenter_username: administrator@vsphere.local
     vcenter_password: *******
     vcenter_template_name: ocp-server-template-2.0.2

@@ -1,25 +1,12 @@
 ---
 - hosts: localhost
-  user: root
-  become: false
   ignore_errors: yes
   vars_files:
     - vars/main.yaml
   roles:
     - instance-groups
 
-- hosts: cluster_hosts
-  user: root
-  become: false
-  ignore_errors: yes
-  vars_files:
-    - vars/main.yaml
-  roles:
-    - rhsm-unregister
-
-- hosts: loadbalancer, infra-nfs
-  user: root
-  become: false
+- hosts: allnodes
   ignore_errors: yes
   vars_files:
     - vars/main.yaml
@@ -33,29 +20,18 @@
   vars_files:
     - vars/main.yaml
   tasks:
-    - name: Delete production VMs
+    - name: Delete all added VMs
       vmware_guest:
         hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
-        name: "{{ item.value.guestname }}"
+        validate_certs: False
+        name: "{{ hostvars[item].inventory_hostname }}"
         datacenter: "{{ vcenter_datacenter }}"
         folder: "/{{ vcenter_folder }}"
         state: absent
         force: true
-      with_dict: "{{production_hosts}}"
-
-    - name: Delete infrastructure VMs on vCenter
-      vmware_guest:
-        hostname: "{{ vcenter_host }}"
-        username: "{{ vcenter_username }}"
-        password: "{{ vcenter_password }}"
-        name: "{{ item.value.guestname }}"
-        datacenter: "{{ vcenter_datacenter }}"
-        folder: "/{{ vcenter_folder }}"
-        state: absent
-        force: true
-      with_dict: "{{infrastructure_hosts}}"
+      with_items: "{{ groups['allnodes'] }}"
 
 - hosts: localhost
   user: root
@@ -69,6 +45,7 @@
         hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
+        validate_certs: False
         datacenter: "{{ vcenter_datacenter }}"
         cluster: "{{ vcenter_cluster}}"
         resource_pool: "{{ vcenter_resource_pool }}"
@@ -78,6 +55,7 @@
         hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
+        validate_certs: False
         datacenter: "{{ vcenter_datacenter }}"
         cluster: "{{ vcenter_cluster}}"
         folder: "{{ vcenter_folder }}"

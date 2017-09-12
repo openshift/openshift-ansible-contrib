@@ -1,0 +1,20 @@
+---
+- hosts: localhost
+  gather_facts: yes
+  ignore_errors: yes
+  vars_files:
+  - vars/main.yaml
+  pre_tasks:
+  - name: set fact
+    set_fact:
+      openshift_master_cluster_public_hostname: "{{ openshift_master_cluster_public_hostname }}"
+  - name: set fact
+    set_fact:
+      openshift_master_cluster_hostname: "{{ openshift_master_cluster_hostname }}"
+  roles:
+  - instance-groups
+
+- name: Perform post validation steps
+  include: ../../../playbooks/post-validation.yaml
+  vars:
+    validate_etcd_short_hostname: true

@@ -29,6 +29,8 @@
         hostname: "{{ vcenter_host }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        folder: "/{{ vcenter_folder }}"
         name: "{{ item.value.guestname }}"
         state: absent
         force: true

@@ -1,27 +1,27 @@
 ---
-- include: stage-vsphere.yaml
-  tags: ['setup', 'stage', 'all-vms']
+- include: stage.yaml
+  tags: ['setup']
 
-- include: setup-nfs.yaml
-  tags: ['nfs', 'all-vms']
+- include: nfs.yaml
+  tags: ['nfs']
 
-- include: prod-ose.yaml
-  tags: ['prod', 'all-vms']
+- include: prod.yaml
+  tags: ['prod']
 
-- include: setup-haproxy.yaml
-  tags: ['haproxy', 'all-vms']
+- include: haproxy.yaml
+  tags: ['haproxy']
 
-- include: openshift-install.yaml
-  tags: ['ocp-install', 'all-ocp']
+- include: ocp-install.yaml
+  tags: ['ocp-install']
 
-- include: openshift-configure.yaml
-  tags: ['ocp-configure', 'all-ocp']
+- include: ocp-configure.yaml
+  tags: ['ocp-configure']
 
-- include: ../../../playbooks/post-validation.yaml
-  tags: ['ocp-demo', 'all-ocp']
+- include: ocp-demo.yaml
+  tags: ['ocp-demo']
 
-- include: openshift-minor-upgrade.yaml
-  tags: ['ocp-update']
+- include: ocp-upgrade.yaml
+  tags: ['ocp-upgrade']
 
-- include: cleanup-vsphere.yaml
+- include: clean.yaml
   tags: ['clean']

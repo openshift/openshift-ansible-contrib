@@ -18,12 +18,14 @@ class VMWareAddNode(object):
     __name__ = 'VMWareAddNode'
 
     openshift_vers=None
+    cluster_id=None
     vcenter_host=None
     vcenter_username=None
     vcenter_password=None
     vcenter_template_name=None
     vcenter_folder=None
     vcenter_datastore=None
+    vcenter_datacenter=None
     vcenter_cluster=None
     vcenter_datacenter=None
     vcenter_resource_pool=None
@@ -152,6 +154,7 @@ class VMWareAddNode(object):
         defaults = {'vmware': {
             'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
             'console_port':'8443',
+            'cluster_id':'',
             'container_storage':'none',
             'deployment_type':'openshift-enterprise',
             'openshift_vers':'v3_4',
@@ -161,6 +164,7 @@ class VMWareAddNode(object):
             'vcenter_template_name':'ocp-server-template-2.0.2',
             'vcenter_folder':'ocp',
             'vcenter_datastore':'',
+            'vcenter_datacenter':'',
             'vcenter_cluster':'',
             'vcenter_resource_pool':'/Resources/OCP3',
             'public_hosted_zone':'',
@@ -209,6 +213,7 @@ class VMWareAddNode(object):
                 config.set('vmware', k, str(v))
 
         self.console_port = config.get('vmware', 'console_port')
+        self.cluster_id = config.get('vmware', 'cluster_id')
         self.container_storage = config.get('vmware', 'container_storage')
         self.deployment_type = config.get('vmware','deployment_type')
         self.openshift_vers = config.get('vmware','openshift_vers')
@@ -218,6 +223,7 @@ class VMWareAddNode(object):
         self.vcenter_template_name = config.get('vmware', 'vcenter_template_name')
         self.vcenter_folder = config.get('vmware', 'vcenter_folder')
         self.vcenter_datastore = config.get('vmware', 'vcenter_datastore')
+        self.vcenter_datacenter = config.get('vmware', 'vcenter_datacenter')
         self.vcenter_cluster = config.get('vmware', 'vcenter_cluster')
         self.vcenter_datacenter = config.get('vmware', 'vcenter_datacenter')
         self.vcenter_resource_pool = config.get('vmware', 'vcenter_resource_pool')
@@ -257,11 +263,11 @@ class VMWareAddNode(object):
             if self.container_storage is None:
                 print "Please specify crs or cns in container_storage in the %s." % vmware_ini_path
             if 'crs' in self.container_storage:
-                self.rhel_subscription_pool = "Red Hat Gluster Storage*"
+                self.rhel_subscription_pool = "Red Hat Gluster Storage , Standard (16 Nodes)"
                 self.inventory_file = "crs-inventory.json"
             if 'cns' in self.container_storage:
                 self.inventory_file = "cns-inventory.json"
-        required_vars = {'public_hosted_zone':self.public_hosted_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
+        required_vars = {'cluster_id':self.cluster_id, 'public_hosted_zone':self.public_hosted_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
         for k, v in required_vars.items():
             if v == '':
                 err_count += 1
@@ -323,7 +329,7 @@ class VMWareAddNode(object):
             d['host_inventory'][guest_name] = {}
             d['host_inventory'][guest_name]['guestname'] = guest_name
             d['host_inventory'][guest_name]['ip4addr'] = unusedip4addr[0]
-            d['host_inventory'][guest_name]['tag'] = self.node_type
+            d['host_inventory'][guest_name]['tag'] = str(self.cluster_id) + '-' + self.node_type
             data = data + '{ "node" : { "hostnames": {"manage": [ "%s.%s" ],"storage": [ "%s" ]},"zone": %s },"devices": [ "/dev/sdd" ]}' % (  guest_name, self.public_hosted_zone,  unusedip4addr[0], i+1 )
             del unusedip4addr[0]
             if unusedip4addr:
@@ -420,6 +426,7 @@ class VMWareAddNode(object):
             vcenter_template_name=%s \
             vcenter_folder=%s \
             vcenter_datastore=%s \
+            vcenter_datacenter=%s \
             vcenter_cluster=%s \
             vcenter_datacenter=%s \
             vcenter_resource_pool=%s \
@@ -431,6 +438,7 @@ class VMWareAddNode(object):
             vm_network=%s \
             wildcard_zone=%s \
             console_port=%s \
+            cluster_id=%s \
             container_storage=%s \
             deployment_type=%s \
             openshift_vers=%s \
@@ -452,6 +460,7 @@ class VMWareAddNode(object):
                             self.vcenter_template_name,
                             self.vcenter_folder,
                             self.vcenter_datastore,
+                            self.vcenter_datacenter,
                             self.vcenter_cluster,
                             self.vcenter_datacenter,
                             self.vcenter_resource_pool,
@@ -463,6 +472,7 @@ class VMWareAddNode(object):
                             self.vm_network,
                             self.wildcard_zone,
                             self.console_port,
+                            self.cluster_id,
                             self.container_storage,
                             self.deployment_type,
                             self.openshift_vers,

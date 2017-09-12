@@ -1,0 +1,16 @@
+---
+- hosts: new_nodes
+  gather_facts: yes
+  become: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - rhsm
+
+- hosts: new_nodes
+  gather_facts: no
+  become: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - prerequisites

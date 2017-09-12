@@ -1,0 +1,11 @@
+[Global]
+user = "{{ vcenter_username }}"
+password = "{{ vcenter_password }}"
+server = "{{ vcenter_host }}" 
+port = 443
+insecure-flag = 1
+datacenter = {{ vcenter_datacenter }}
+datastore = {{ vcenter_datastore }}
+working-dir = /{{ vcenter_datacenter }}/vm/{{ vcenter_folder }}/
+[Disk]
+scsicontrollertype = pvscsi

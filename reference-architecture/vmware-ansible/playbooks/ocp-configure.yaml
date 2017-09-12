@@ -8,3 +8,11 @@
   - instance-groups
 
 - include: ../../../playbooks/empty-dir-quota.yaml
+
+- hosts: single_master
+  gather_facts: yes
+  vars_files:
+  - vars/main.yaml
+  roles:
+  - instance-groups
+  - storage-class-configure

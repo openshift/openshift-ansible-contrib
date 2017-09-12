@@ -1,19 +1,25 @@
 ---
+- name: Set cluster_id crs annoation
+  set_fact:
+    crs_annoation: "{{ cluster_id }}-crs"
+
 - name: Create CRS production VMs on vCenter
   vmware_guest:
     hostname: "{{ vcenter_host }}"
     username: "{{ vcenter_username }}"
     password: "{{ vcenter_password }}"
+    validate_certs: False
     name: "{{ item.value.guestname }}"
     cluster: "{{ vcenter_cluster}}"
     datacenter: "{{ vcenter_datacenter }}"
     resource_pool: "{{ vcenter_resource_pool }}"
     template: "{{vcenter_template_name}}"
     state: poweredon
+    wait_for_ip_address: true
     folder: "/{{ vcenter_folder }}"
-    annotation: "crs"
+    annotation: "{{ crs_annoation }}"
     disk:
-    - size_gb: 40
+    - size_gb: 60
       datastore: "{{ vcenter_datastore }}"
       type: thin
     - size_gb: 40
@@ -42,6 +48,6 @@
   when: "'crs' in item.value.guestname"
 
 - name: Add CRS production VMs to inventory
-  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="crs, production_group"
+  add_host: hostname="{{ item.value.guestname }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ crs_annoation }}, crs, production_group"
   with_dict: "{{host_inventory}}"
   when: "'crs' in item.value.guestname"

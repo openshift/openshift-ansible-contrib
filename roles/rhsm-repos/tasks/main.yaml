@@ -1,11 +1,20 @@
 ---
 - block:
-    - name: disable unneeded repos
-      command: subscription-manager repos --disable='*'
+    - name: "Obtain currently enabled repos"
+      shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
+      register: enabled_repos
 
-    - name: ensure proper repos are assigned
-      command: subscription-manager repos --enable={{ item }}
-      with_items: "{{ openshift_required_repos }}"
+    - name: "Disable repositories that should not be enabled"
+      shell: "subscription-manager repos --disable={{ item }}"
+      with_items:
+        - "{{ enabled_repos.stdout_lines | difference(openshift_required_repos) }}"
+
+    - name: "Enable specified repositories not already enabled"
+      command: "subscription-manager repos --enable={{ item }}"
+      with_items:
+        - "{{ openshift_required_repos | difference(enabled_repos.stdout_lines) }}"
+      register: subscribe_repos
+      until: subscribe_repos | succeeded
 
     - name: check to see if rhui exists
       stat:

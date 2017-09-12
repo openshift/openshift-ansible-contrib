@@ -46,7 +46,7 @@ ANSIBLE_LOG_PATH="${DIR}/ansible-$(date +%F_%T).log"
 export ANSIBLE_LOG_PATH
 
 function display_help {
-  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --redeploy | --static-inventory | --scaleup | --prereq | --gold-image | --infra | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
+  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --redeploy | --static-inventory | --validation | --minor-upgrade | --scaleup | --prereq | --gold-image | --infra | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
 
 Helper script to deploy infrastructure and OpenShift on Google Cloud Platform
 
@@ -61,6 +61,8 @@ Where:
                       it again. Warning: you will loose all your data
   --static-inventory  Generate static Ansible inventory file for existing infra.
                       It will be saved as 'ansible/static-inventory'
+  --validation        Run validation playbook
+  --minor-upgrade     Upgrade OpenShift to next minor release
   --scaleup           Scale up your OpenShift deployment. Update your
                       'config.yaml' file to set the desired number of nodes.
                       Supports scaling up of nodes as well as masters.
@@ -139,6 +141,16 @@ function static_inventory {
   run_playbook playbooks/create-inventory-file.yaml "$@"
 }
 
+# Run validation playbook
+function validation {
+  run_playbook playbooks/validation.yaml "$@"
+}
+
+# Run minor upgrade playbook
+function minor_upgrade {
+  run_playbook playbooks/openshift-minor-upgrade.yaml "$@"
+}
+
 # Main function which creates infrastructure and deploys OCP
 function main {
   prereq "$@"
@@ -194,6 +206,16 @@ while true; do
     --static-inventory )
       shift
       static_inventory "$@"
+      exit 0
+      ;;
+    --validation )
+      shift
+      validation "$@"
+      exit 0
+      ;;
+    --minor-upgrade )
+      shift
+      minor_upgrade "$@"
       exit 0
       ;;
     --clear-logs )

@@ -18,10 +18,11 @@
 - name: Add masters to requisite groups
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: masters, etcd, nodes, cluster_hosts
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
+    groups: allnodes, masters, etcd, nodes, cluster_hosts, master
     openshift_node_labels:
       role: master
-  with_items: "{{ groups['master'] }}"
+  with_items: "{{ groups[cluster_id + '-master'] }}"
 
 - name: Add a master to the single master group
   add_host:
@@ -29,33 +30,60 @@
     groups: single_master
     openshift_node_labels:
       role: master
-  with_items: "{{ groups['master'][0] }}"
+  with_items: "{{ groups[cluster_id + '-master'][0] }}"
 
 - name: Add infra instances to host group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: nodes, cluster_hosts, schedulable_nodes
+    groups: allnodes, nodes, cluster_hosts, schedulable_nodes, infra
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
     openshift_node_labels:
       role: infra
-  with_items: "{{ groups['infra'] }}"
+  with_items: "{{ groups[cluster_id + '-infra'] }}"
 
 - name: Add app instances to host group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: nodes, cluster_hosts, schedulable_nodes
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
+    groups: allnodes, nodes, cluster_hosts, schedulable_nodes, app
     openshift_node_labels:
       role: app
-  with_items: "{{ groups['app'] }}"
+  with_items: "{{ groups[cluster_id + '-app'] }}"
 
 - name: Add new node instances to host group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
-    groups: new_nodes
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
+    groups: allnodes, new_nodes
     openshift_node_labels:
       role: "{{ node_type }}"
   with_items: "{{ groups.tag_provision_node | default([]) }}"
   when:
     - add_node is defined
+
+- name: Add NFS instances to allnodes
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: allnodes
+  with_items: "{{ groups[cluster_id + '-infra-nfs'] }}"
+
+- name: Add loadbalancer instances to allnodes
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: allnodes
+  with_items: "{{ groups[cluster_id + '-loadbalancer'] }}"
+
+- name: Add cns instances to allnodes
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: allnodes
+  with_items: "{{ groups[cluster_id + '-storage'] | default([]) }}"
+
+- name: Add crs instances to allnodes
+  add_host:
+    name: "{{ hostvars[item].inventory_hostname }}"
+    groups: allnodes
+  with_items: "{{ groups[cluster_id + '-crs'] | default([]) }}"
 
 - name: Add cns instances to host group
   add_host:
@@ -63,7 +91,7 @@
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: storage
-  with_items: "{{ groups['storage'] }}"
+  with_items: "{{ groups[cluster_id + '-storage'] }}"
   when:
     - "'cns' in container_storage and add_node is defined and 'storage' in node_type"
 
@@ -71,7 +99,7 @@
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
     groups: storage, crs
-  with_items: "{{ groups['crs'] }}"
+  with_items: "{{ groups[cluster_id + '-crs'] }}"
   when:
     - "'crs' in container_storage and add_node is defined and 'storage' in node_type"
 
@@ -79,6 +107,6 @@
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
     groups: single_crs
-  with_items: "{{ groups['crs'][0] }}"
+  with_items: "{{ groups[cluster_id + '-crs'][0] }}"
   when:
     - "'crs' in container_storage and add_node is defined and 'storage' in node_type"

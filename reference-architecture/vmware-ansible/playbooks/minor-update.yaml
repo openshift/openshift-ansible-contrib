@@ -1,5 +1,5 @@
 ---
-- include: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/upgrades/{{ openshift_vers | default('v3_5') }}/upgrade.yml
+- include: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/upgrades/{{ openshift_vers | default('v3_6') }}/upgrade.yml
   vars:
     debug_level: 2
     openshift_debug_level: "{{ debug_level }}"

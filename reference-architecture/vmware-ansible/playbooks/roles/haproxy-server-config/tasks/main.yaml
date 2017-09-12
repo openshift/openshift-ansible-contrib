@@ -2,6 +2,11 @@
 - stat: path=/etc/haproxy/haproxy.cfg
   register: haproxy_cfg
 
+- name: Add production VMs to inventory
+  add_host: hostname="{{ item.value.guestname }}" ansible_fqdn="{{ item.value.guestname}}.{{ public_hosted_zone }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group"
+  with_dict: "{{ host_inventory }}"
+  when: "'master' in item.value.guestname or 'infra' in item.value.guestname"
+
 - name: Copy HAProxy configuration in place.
   template:
     src: haproxy.cfg.j2
