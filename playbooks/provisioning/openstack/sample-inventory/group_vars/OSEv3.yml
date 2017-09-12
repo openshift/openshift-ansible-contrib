@@ -11,7 +11,7 @@ openshift_master_cluster_public_hostname: "{{ groups.lb.0|default(groups.masters
 osm_default_node_selector: 'region=primary'
 
 openshift_hosted_router_wait: True
-aopenshift_hosted_registry_wait: True
+openshift_hosted_registry_wait: True
 
 ## Openstack credentials
 #openshift_cloudprovider_kind=openstack
