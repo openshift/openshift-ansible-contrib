@@ -41,7 +41,7 @@ master_https_cert_file: ''
 # How many instances should be created for each group
 master_instance_group_size: 3
 infra_node_instance_group_size: 3
-node_instance_group_size: 2
+node_instance_group_size: 3
 
 # Machine types
 bastion_machine_type: g1-small
