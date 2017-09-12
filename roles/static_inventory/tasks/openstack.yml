@@ -29,8 +29,8 @@
       set_fact:
         new_app_nodes: []
 
-    - name: Filter out unwanted nodes
-      include: filter_nodes.yaml
+    - name: Filter out new app nodes
+      include: filter_new_app_node_names.yaml
       with_items: "{{ registered_nodes }}"
       loop_control:
         loop_var: node
@@ -54,10 +54,9 @@
         - openstack_provider_network_name|default(None)
 
     - name: Add cluster nodes w/o floating IPs to inventory
-      with_items: "{{ registered_nodes|difference(registered_nodes_floating)|difference(new_app_nodes) }}"
+      with_items: "{{ registered_nodes|difference(registered_nodes_floating) }}"
       add_host:
         name: '{{ item.name }}'
-        groups: '{{ item.metadata.group }}'
         ansible_host: >-
           {% if use_bastion|bool -%}
           {{ item.name }}
@@ -74,10 +73,9 @@
           {{ node[0].addresses[openstack_private_network|quote][0].addr }}
 
     - name: Add cluster nodes with floating IPs to inventory
-      with_items: "{{ registered_nodes_floating|difference(new_app_nodes) }}"
+      with_items: "{{ registered_nodes_floating }}"
       add_host:
         name: '{{ item.name }}'
-        groups: '{{ item.metadata.group }}'
         ansible_host: >-
           {% if use_bastion|bool -%}
           {{ item.name }}
@@ -99,6 +97,20 @@
           {%- else -%}
           {{ item.public_v4 }}
           {%- endif %}
+
+    # Make sure that new nodes are only in new_nodes group
+    - name: Filter new nodes out of registered_nodes
+      include: filter_out_new_app_nodes.yaml
+      with_items: "{{ registered_nodes }}"
+      loop_control:
+        loop_var: node
+      when: 'new_app_nodes'
+
+    - name: Add the rest of cluster nodes to their groups
+      with_items: "{{ registered_nodes }}"
+      add_host:
+        name: '{{ item.name }}'
+        groups: '{{ item.metadata.group }}'
 
     - name: Add bastion node to inventory
       add_host:
