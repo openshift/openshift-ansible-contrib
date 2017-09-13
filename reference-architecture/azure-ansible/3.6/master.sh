@@ -37,9 +37,11 @@ DOCKERVG=$( parted -m /dev/sda print all 2>/dev/null | grep unknown | grep /dev/
 echo "DEVS=${DOCKERVG}" >> /etc/sysconfig/docker-storage-setup
 cat <<EOF > /etc/sysconfig/docker-storage-setup
 DEVS=$DOCKERVG
-VG=docker-vg
+VG=docker_vol
 DATA_SIZE=95%VG
-EXTRA_DOCKER_STORAGE_OPTIONS="--storage-opt dm.basesize=3G"
+STORAGE_DRIVER=overlay2
+CONTAINER_ROOT_LV_NAME=dockerlv
+CONTAINER_ROOT_LV_MOUNT_PATH=/var/lib/docker
 EOF
 
 cat <<EOF > /home/${USERNAME}/.ansible.cfg
