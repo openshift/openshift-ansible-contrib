@@ -28,7 +28,6 @@ PUBLIC_IP="$(curl --silent https://api.ipify.org)"
 
 
 cat << EOF >> extra-vars.yaml
-openstack_ssh_public_key: $KEYPAIR_NAME
 openstack_external_network_name: "38.145.32.0/22"
 openstack_default_image_name: "CentOS-7-x86_64-GenericCloud-1703"
 openstack_num_nodes: 1
@@ -68,7 +67,7 @@ echo
 echo INSTALL OPENSHIFT
 
 ansible-galaxy install -r playbooks/provisioning/openstack/galaxy-requirements.yaml -p roles
-ansible-playbook --timeout 180 --user openshift --private-key ~/.ssh/id_rsa -i "$INVENTORY" playbooks/provisioning/openstack/provision.yaml -e @extra-vars.yaml
+ansible-playbook --timeout 180 --user openshift -i "$INVENTORY" playbooks/provisioning/openstack/provision.yaml -e @extra-vars.yaml
 
 echo
 echo INVENTORY hosts file:
