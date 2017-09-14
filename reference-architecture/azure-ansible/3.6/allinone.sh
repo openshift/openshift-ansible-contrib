@@ -863,5 +863,6 @@ echo "${RESOURCEGROUP} Host is starting OpenShift Install" | mail -s "${RESOURCE
 /home/${AUSERNAME}/openshift-install.sh &> /home/${AUSERNAME}/openshift-install.out &
 chmod 755 /home/${AUSERNAME}/openshift-postinstall.sh
 /home/${AUSERNAME}/openshift-postinstall.sh &> /home/${AUSERNAME}/openshift-postinstall.out &
+sleep 300
 ansible-playbook /home/${AUSERNAME}/setup-sso.yml &> /home/${AUSERNAME}/setup-sso.out
 exit 0
