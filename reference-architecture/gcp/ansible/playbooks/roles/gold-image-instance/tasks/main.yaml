@@ -49,9 +49,7 @@
       name: '{{ item }}'
       state: present
     with_items:
-    - google-config
     - google-compute-engine
-    - google-compute-engine-init
     - cloud-init
     - docker
 
