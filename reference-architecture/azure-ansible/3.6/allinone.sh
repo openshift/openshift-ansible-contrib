@@ -723,6 +723,7 @@ echo "Setup Azure PV for metrics & logging"
 /home/${AUSERNAME}/create_azure_storage_container.sh sapvlm${RESOURCEGROUP} "loggingmetricspv"
 
 oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
+ansible-playbook /home/${AUSERNAME}/setup-sso.yml &> /home/${AUSERNAME}/setup-sso.out
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 touch /root/.openshiftcomplete
 touch /home/${AUSERNAME}/.openshiftcomplete
@@ -863,6 +864,4 @@ echo "${RESOURCEGROUP} Host is starting OpenShift Install" | mail -s "${RESOURCE
 /home/${AUSERNAME}/openshift-install.sh &> /home/${AUSERNAME}/openshift-install.out &
 chmod 755 /home/${AUSERNAME}/openshift-postinstall.sh
 /home/${AUSERNAME}/openshift-postinstall.sh &> /home/${AUSERNAME}/openshift-postinstall.out &
-sleep 300
-ansible-playbook /home/${AUSERNAME}/setup-sso.yml &> /home/${AUSERNAME}/setup-sso.out
 exit 0
