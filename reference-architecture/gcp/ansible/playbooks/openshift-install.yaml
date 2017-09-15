@@ -6,7 +6,6 @@
 
 - include: ../../../../playbooks/prerequisite.yaml
 - include: ../../../../../openshift-ansible/playbooks/byo/config.yml
-- include: ../../../../playbooks/empty-dir-quota.yaml
 
 - name: add ssd storage class
   hosts: single_master
