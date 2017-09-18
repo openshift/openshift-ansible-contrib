@@ -591,6 +591,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
       validate_certs: no
     register: create
   - debug: var=create.json.secret
+  - local_action: copy content={{create.json.secret}} dest=/tmp/ssosecret.var
   - fetch:
        src: "{{idm_dir}}/xpaas.crt"
        dest: "{{idm_dir}}/xpaas.crt"
@@ -598,6 +599,8 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
 - hosts: masters
   vars_files:
     - ssovars.yml
+  vars:
+     ssosecret: "{{lookup('file', '/tmp/ssosecret.var')}}"
   tasks:
   - set_fact: idm_dir="/home/{{sso_username}}/{{sso_project}}"
   - name: Copy xpass.conf to masters
@@ -620,7 +623,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
              apiVersion: v1
              kind: OpenIDIdentityProvider
              clientID: openshift
-             clientSecret: {{create.json.secret}}
+             clientSecret: {{ssosecret}}
              ca: xpaas.crt
              urls:
                authorize: https://login.{{sso_domain}}/auth/realms/cloud/protocol/openid-connect/auth
