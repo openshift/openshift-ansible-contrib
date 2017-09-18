@@ -448,7 +448,7 @@ EOF
 
 cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
 ---
-- hosts: masters[0]
+- hosts: localhost
   vars_files:
     - ssovars.yml
   vars:
