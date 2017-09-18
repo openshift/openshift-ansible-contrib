@@ -637,7 +637,10 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
                - email
 
   - service:
-      name: atomic-openshift-master
+      name: atomic-openshift-master-api
+      state: restarted
+  - service:
+      name: atomic-openshift-master-controllers
       state: restarted
   - name: Pause for service restart
     pause:
