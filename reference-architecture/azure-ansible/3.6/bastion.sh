@@ -448,7 +448,7 @@ EOF
 
 cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
 ---
-- hosts: localhost
+- hosts: masters[0]
   vars_files:
     - ssovars.yml
   vars:
@@ -481,7 +481,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
     file:
       state: absent
       path: "{{idm_dir}}"
-  - name: Create new idm directory
+  - name: C eate new idm directory
     file:
       state: directory
       path: "{{idm_dir}}"
@@ -591,6 +591,10 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
       validate_certs: no
     register: create
   - debug: var=create.json.secret
+  - fetch:
+       src: "{{idm_dir}}/xpaas.crt"
+       dest: "{{idm_dir}}/xpaas.crt"
+       flat: yes
 - hosts: masters
   vars_files:
     - ssovars.yml
