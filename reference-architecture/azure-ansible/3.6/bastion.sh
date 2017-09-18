@@ -595,6 +595,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
   vars_files:
     - ssovars.yml
   tasks:
+  - set_fact: idm_dir="/home/{{sso_username}}/{{sso_project}}"
   - name: Copy xpass.conf to masters
     copy:
       src:  "{{idm_dir}}/xpaas.crt"
