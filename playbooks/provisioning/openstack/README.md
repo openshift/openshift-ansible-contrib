@@ -308,6 +308,18 @@ In order to set a custom entrypoint, update `openshift_master_cluster_public_hos
 Note than an empty hostname does not work, so if your domain is `openshift.example.com`,
 you cannot set this value to simply `openshift.example.com`.
 
+
+### Specifying server group policies
+
+You can specify server group policies for infra and master nodes using the following
+parameters in `inventory/group_vars/all.yml`:
+
+    ## Specify server group policies for master and infra nodes. Nova must be configured to
+    ## enable these policies.
+    #openstack_master_server_group_policies: [affinity]
+    #openstack_infra_server_group_policies: [affinity]
+
+
 ### Creating and using a Cinder volume for the OpenShift registry
 
 You can optionally have the playbooks create a Cinder volume and set
