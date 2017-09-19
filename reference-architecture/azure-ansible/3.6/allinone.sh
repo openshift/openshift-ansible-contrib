@@ -470,23 +470,6 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
     yum:
       name: java-1.8.0-openjdk
       state: latest
-  - name: Add repository
-    yum_repository:
-      name: epel
-      description: EPEL YUM repo
-      baseurl: "https://dl.fedoraproject.org/pub/epel/7/x86_64"
-  - name: Import EPEL GPG Key
-    rpm_key:
-      key: /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}
-      state: present
-  - name: Install pwgen
-    yum:
-      name: pwgen
-      state: latest
-  - name: Remove repository (and clean up left-over metadata)
-    yum_repository:
-      name: epel
-      state: absent
   - name: Cleanup old idm directory
     file:
       state: absent
@@ -519,7 +502,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
   - name: Generate Project Id
     command: pwgen -A 5 1 --symbols > .projectid
     register: command_output
-  - set_fact: sso_projectid="{{command_output}}"
+  - set_fact: sso_projectid="{{sso_project}}"
   - set_fact: idm_xpassword="Xp-{{sso_password}}"
   - name: Create Openshift Project for SSO
     command: oc new-project "{{sso_project}}"
