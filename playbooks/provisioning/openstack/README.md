@@ -457,8 +457,8 @@ If you don't want to worry about the dependencies, you can use the
 It has all the dependencies installed, but you'll need to map your
 code and credentials to it. Assuming your SSH keys live in `~/.ssh`
 and everything else is in your current directory (i.e. `ansible.cfg`,
-`inventory`, `openshift-ansible`, `openshift-ansible-contrib`), this
-is how you run the deployment:
+`keystonerc`, `inventory`, `openshift-ansible`,
+`openshift-ansible-contrib`), this is how you run the deployment:
 
     sudo docker run -it -v ~/.ssh:/mnt/.ssh:Z \
         -v $PWD:/root/openshift:Z \
