@@ -38,6 +38,7 @@ export METRICS_INSTANCES="1"
 export LOGGING_ES_SIZE="10"
 export OPSLOGGING_ES_SIZE="10"
 export METRICS_CASSANDRASIZE="10"
+export APIHOST=$RESOURCEGROUP.$FULLDOMAIN
 echo "Show wildcard info"
 echo $WILDCARDFQDN
 echo $WILDCARDIP
@@ -443,7 +444,7 @@ cat > /home/${AUSERNAME}/ssovars.yml <<EOF
   sso_password: ${PASSWORD}
   sso_domain:   ${WILDCARDNIP}
   hostname_https: "login.{{sso_domain}}"
-  api_master:   ${WILDCARDFQDN}
+  api_master:   ${APIHOST}
 EOF
 
 cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
