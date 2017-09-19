@@ -34,7 +34,7 @@ You need to have an account in the [Google Cloud Platform](https://cloud.google.
 
 #### Google Cloud SDK
 
-Google provides repository which can be used to install Google Cloud SDK on RHEL 7 or Fedora based OS:
+Google provides a repository which can be used to install Google Cloud SDK on RHEL 7 or Fedora based OS:
 ```
 sudo tee -a /etc/yum.repos.d/google-cloud-sdk.repo << EOM
 [google-cloud-sdk]
@@ -83,7 +83,7 @@ However, the script supports couple of parameters which can modify its behavior.
 
 ## Additional supported operations
 
-Following section sums up couple of additional operation supported by the `ocp-on-gcp.sh` script.
+The following section sums up couple of additional operations supported by the `ocp-on-gcp.sh` script.
 
 ### Scaling up the OpenShift cluster
 
