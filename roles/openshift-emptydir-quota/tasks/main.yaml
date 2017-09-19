@@ -3,7 +3,7 @@
   replace:
     dest: /etc/origin/node/node-config.yaml
     regexp: '^(.*)perFSGroup: (\s+.*)?$'
-    replace: '\1 perFSGroup: 512Mi\2'
+    replace: '\1 perFSGroup: {{ node_local_quota_per_fsgroup }}\2'
     backup: yes
   notify:
   - restart openshift-node
