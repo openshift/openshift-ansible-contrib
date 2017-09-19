@@ -40,6 +40,14 @@
   roles:
   - instance-groups
 
+- include: ../../../../playbooks/prerequisite.yaml
 - include: ../../../../../openshift-ansible/playbooks/byo/openshift_facts.yml
 - include: ../../../../../openshift-ansible/playbooks/byo/openshift-master/scaleup.yml
+  when:
+  - groups['new_masters'] is defined
+  - groups['new_masters'] | length > 0
 - include: ../../../../../openshift-ansible/playbooks/byo/openshift-node/scaleup.yml
+  when:
+  - groups['new_nodes'] is defined
+  - groups['new_nodes'] | length > 0
+- include: openshift-post.yaml
