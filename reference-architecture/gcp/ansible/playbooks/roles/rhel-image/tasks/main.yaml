@@ -6,7 +6,7 @@
   ignore_errors: true
 
 - block:
-  - name: convert gcow2 image to raw image
+  - name: convert qcow2 image to raw image
     command: qemu-img convert -p -S 4096 -f qcow2 -O raw '{{ rhel_image_path }}' '{{ rhel_image_raw }}' creates='{{ rhel_image_raw }}'
 
   - name: archive raw image

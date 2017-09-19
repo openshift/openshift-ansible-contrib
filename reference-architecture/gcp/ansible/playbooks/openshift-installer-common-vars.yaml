@@ -3,16 +3,17 @@ debug_level: 2
 openshift_debug_level: '{{ debug_level }}'
 openshift_node_debug_level: '{{ debug_level }}'
 openshift_master_debug_level: '{{ debug_level }}'
+osm_cluster_network_cidr: 172.16.0.0/16
+osm_default_node_selector: 'role=app'
+osm_default_subdomain: '{{ wildcard_zone }}'
+osm_use_cockpit: true
 openshift_cloudprovider_kind: gce
-openshift_master_access_token_max_seconds: 2419200
 openshift_master_api_port: '{{ console_port }}'
 openshift_master_console_port: '{{ console_port }}'
-osm_cluster_network_cidr: 172.16.0.0/16
 openshift_master_cluster_method: native
-osm_default_subdomain: '{{ wildcard_zone }}'
 openshift_master_default_subdomain: '{{ osm_default_subdomain }}'
-osm_default_node_selector: 'role=app'
-osm_use_cockpit: true
+openshift_master_access_token_max_seconds: 2419200
+openshift_node_local_quota_per_fsgroup: 512Mi
 openshift_hosted_router_selector: 'role=infra'
 openshift_hosted_registry_selector: 'role=infra'
 openshift_hosted_registry_storage_kind: object
