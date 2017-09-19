@@ -512,7 +512,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
   - name: Create Openshift Project for SSO
     command: oc new-project "{{sso_project}}"
   - name: Create Service Account
-    command: "oc create serviceaccount {{sso_project}}-service-account"
+    command: "oc create serviceaccount {{sso_project}}-service-account -n {{ sso_project }}"
   - name: Add admin role to user
     command: "oc adm policy add-role-to-user admin {{sso_username}}"
   - name: Add view to user
