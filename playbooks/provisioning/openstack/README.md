@@ -15,7 +15,7 @@ etc.). The result is an environment ready for openshift-ansible.
 * Become (sudo) is not required.
 
 **NOTE**: You can use a Docker image with all dependencies set up.
-Find more in the (Deployment)[#deployment] section.
+Find more in the [Deployment section](#deployment).
 
 ### Optional Dependencies for localhost
 **Note**: When using rhel images, `rhel-7-server-openstack-10-rpms` repository is required in order to install these packages.
@@ -450,7 +450,7 @@ the dynamic inventory file in your ansible commands , like `-i openstack.py`.
 ### Using Docker on the Ansible host
 
 If you don't want to worry about the dependencies, you can use the
-(OpenStack Control Host image)[control-host-image].
+[OpenStack Control Host image][control-host-image].
 
 [control-host-image]: https://hub.docker.com/r/redhatcop/control-host-openstack/
 
