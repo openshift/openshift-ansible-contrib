@@ -556,7 +556,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
          SSO_SERVICE_USERNAME="{{sso_username}}"
          SSO_SERVICE_PASSWORD="{{sso_password}}"
          SSO_ADMIN_USERNAME=admin
-         SSO_ADMIN_PASSWORD="adm-{{sso_password}}"
+         SSO_ADMIN_PASSWORD="{{sso_password}}"
          SSO_TRUSTSTORE=truststore.jks
          SSO_TRUSTSTORE_PASSWORD="{{idm_xpassword}}"
 
