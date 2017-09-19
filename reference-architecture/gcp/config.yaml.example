@@ -50,7 +50,9 @@ infra_machine_type: n1-standard-2
 node_machine_type: n1-standard-2
 
 # OpenShift deployment type
+# Use 'origin' to deploy OpenShift Origin on top of CentOS 7
 openshift_deployment_type: openshift-enterprise
+# Deploy OpenShift within containers instead of RPMs?
 containerized: false
 
 # OpenShift SDN selection
@@ -61,8 +63,10 @@ os_sdn_network_plugin_name: 'redhat/openshift-ovs-multitenant'
 openshift_hosted_metrics_deploy: false
 openshift_hosted_metrics_storage_volume_size: 20Gi
 
-# OpenShift Identity providers. This is Google oauth example (hosted_domain is
+# OpenShift Identity Providers. This is Google oauth example (hosted_domain is
 # optional and restricts login to users only from the specified domain)
+# Any identity provider can be configured here, for documentation see
+# https://docs.openshift.com/container-platform/latest/install_config/configuring_authentication.html#identity-providers-ansible
 openshift_master_identity_providers:
 - name: 'google'
   kind: 'GoogleIdentityProvider'
