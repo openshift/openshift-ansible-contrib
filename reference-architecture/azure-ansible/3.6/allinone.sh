@@ -508,7 +508,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
   - name: Create Service Account
     command: "oc create serviceaccount {{sso_project}}-service-account"
   - name: Add admin role to user
-    command: "oadm policy add-role-to-user admin {{sso_username}}"
+    command: "oc adm policy add-role-to-user admin {{sso_username}}"
   - name: Add view to user
     command: "oc policy add-role-to-user view system:serviceaccount:${1}idm:{{sso_project}}-service-account"
   - name: Stage 1 - OpenSSL Request
@@ -590,7 +590,7 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
   vars_files:
     - ssovars.yml
   tasks:
-  - name: Copy xpass.conf to masters
+  - name: Copy xpass.crt to masters
     copy:
       src:  "{{idm_dir}}/xpaas.crt"
       dest: /etc/origin/master/xpaas.crt
