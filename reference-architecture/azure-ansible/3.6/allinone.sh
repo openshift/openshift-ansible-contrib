@@ -499,9 +499,6 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
   - name: Pause for cleanup of old install
     pause:
       minutes: 2
-  - name: Generate Project Id
-    command: pwgen -A 5 1 --symbols > .projectid
-    register: command_output
   - set_fact: sso_projectid="{{sso_project}}"
   - set_fact: idm_xpassword="Xp-{{sso_password}}"
   - name: Create Openshift Project for SSO
