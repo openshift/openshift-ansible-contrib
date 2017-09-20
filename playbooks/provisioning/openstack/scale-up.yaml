@@ -14,16 +14,17 @@
   # Since both number and names of app nodes are to be removed
   # localhost variables for these values need to be set
   - name: Store old number and names of app nodes locally (if there is an existing deployment)
+    when: '"masters" in groups'
+    register: set_fact_result
     set_fact:
       oc_old_num_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_num_nodes'].stdout }}"
       oc_old_app_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_app_nodes'].stdout_lines }}"
-    when: '"masters" in groups'
-    register: set_fact_result
-   - name: Set default values for old app nodes (if there is no existing deployment)
-     set_fact:
-       oc_old_num_nodes: 0
-       oc_old_app_nodes: []
-     when: 'set_fact_result | skipped'
+
+  - name: Set default values for old app nodes (if there is no existing deployment)
+    when: 'set_fact_result | skipped'
+    set_fact:
+      oc_old_num_nodes: 0
+      oc_old_app_nodes: []
 
   # Set how many nodes are to be added (1 by default)
   - name: Set how many nodes are to be added
