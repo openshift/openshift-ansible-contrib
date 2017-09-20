@@ -4,7 +4,7 @@
    new_app_nodes: '{{ new_app_nodes }} + [ {{ node }} ]'
   when:
   - 'node.name not in oc_old_app_nodes'
-  - 'item.metadata.sub-host-type == "app"'
+  - 'node.metadata.sub-host-type == "app"'
   register: result
 
 - name: If the node was added to new_nodes, remove it from registered nodes
