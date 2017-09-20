@@ -8,19 +8,26 @@
   - name: Get names of app nodes
     shell: oc get nodes -l autoscaling=app --no-headers=true | cut -f1 -d " "
     register: oc_old_app_nodes
-  
-# Get incrementation value
+
 - hosts: localhost
   tasks:
   # Since both number and names of app nodes are to be removed
   # localhost variables for these values need to be set
-  - name: Store old number and names of app nodes locally
+  - name: Store old number and names of app nodes locally (if there is an existing deployment)
     set_fact:
-      oc_old_num_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_num_nodes'].stdout | default(0) }}"
-      oc_old_app_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_app_nodes'] | default([]) }}"
+      oc_old_num_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_num_nodes'].stdout }}"
+      oc_old_app_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_app_nodes'].stdout_lines }}"
+    when: '"masters" in groups'
+    register: set_fact_result
+   - name: Set default values for old app nodes (if there is no existing deployment)
+     set_fact:
+       oc_old_num_nodes: 0
+       oc_old_app_nodes: []
+     when: 'set_fact_result | skipped'
+
+  # Set how many nodes are to be added (1 by default)
   - name: Set how many nodes are to be added
     set_fact:
-      # How many nodes are to be added (1 by default)
       increment_by: 1
   - name: Check that the number corresponds to scaling up (not down)
     assert:
@@ -65,4 +72,3 @@
         FAIL: Number of application nodes has not been increased accordingly
         (it should be {{ hostvars["localhost"]["oc_old_num_nodes"] | int + hostvars["localhost"]["increment_by"] | int }}
         but it is {{ oc_new_num_nodes.stdout | int }}).
-    when: oc_old_num_nodes is not defined

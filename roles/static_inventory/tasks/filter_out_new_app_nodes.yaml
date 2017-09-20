@@ -3,7 +3,7 @@
   set_fact:
    new_app_nodes: '{{ new_app_nodes }} + [ {{ node }} ]'
   when:
-  - 'node.name not in oc_old_app_nodes.stdout_lines'
+  - 'node.name not in oc_old_app_nodes'
   - 'item.metadata.sub-host-type == "app"'
   register: result
 
