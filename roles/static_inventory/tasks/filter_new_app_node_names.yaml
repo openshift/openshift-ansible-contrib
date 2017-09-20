@@ -1,8 +1,0 @@
----
-- name: Check if this node is new and it is an app node
-  set_fact:
-    new_app_nodes: '{{ new_app_nodes }} + [ "{{ node.name }}" ]'
-  when:
-  - 'node["metadata"]["sub-host-type"] == "app"'
-  - 'node["name"] not in new_app_nodes'
-  - '("app" not in groups) or (node["name"] not in groups["app"])'

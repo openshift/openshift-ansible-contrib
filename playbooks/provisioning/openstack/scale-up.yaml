@@ -12,6 +12,12 @@
 # Get incrementation value
 - hosts: localhost
   tasks:
+  # Since both number and names of app nodes are to be removed
+  # localhost variables for these values need to be set
+  - name: Store old number and names of app nodes locally
+    set_fact:
+      oc_old_num_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_num_nodes'].stdout | default(0) }}"
+      oc_old_app_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_app_nodes'] | default([]) }}"
   - name: Set how many nodes are to be added
     set_fact:
       # How many nodes are to be added (1 by default)
@@ -22,18 +28,9 @@
       msg: >
         FAIL: The value of increment_by must be at least 1
         (but it is {{ increment_by | int }}).
-  - name: Update openstack_num_nodes variable (if there was a deployment to begin with)
+  - name: Update openstack_num_nodes variable
     set_fact:
-      openstack_num_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_num_nodes'].stdout | int + increment_by | int }}"
-    when:
-    - "'masters' in groups"
-    - hostvars[groups["masters"][0]]["oc_old_num_nodes"] is defined
-    register: result
-
-  - name: Update openstack_num_nodes variable (if there was no deployment)
-    set_fact:
-      openstack_num_nodes: "{{ increment_by }}"
-    when: result | skipped
+      openstack_num_nodes: "{{ oc_old_num_nodes | int + increment_by | int }}"
 
 # Run provision.yaml with higher number of nodes to create a new app-node VM
 - include: provision.yaml
@@ -61,20 +58,11 @@
   - name: Get number of nodes
     shell: oc get nodes -l autoscaling=app --no-headers=true | wc -l
     register: oc_new_num_nodes
-  - name: Check that the actual result matches the defined value (if there was a deployment to begin with)
+  - name: Check that the actual result matches the defined value
     assert:
-      that: 'oc_new_num_nodes.stdout | int == (oc_old_num_nodes.stdout | int + hostvars["localhost"]["increment_by"] | int)'
+      that: 'oc_new_num_nodes.stdout | int == (hostvars["localhost"]["oc_old_num_nodes"] | int + hostvars["localhost"]["increment_by"] | int)'
       msg: >
         FAIL: Number of application nodes has not been increased accordingly
-        (it should be {{ oc_old_num_nodes.stdout | int + hostvars["localhost"]["increment_by"] | int }}
-        but it is {{ oc_new_num_nodes.stdout | int }}).
-    when: oc_old_num_nodes is defined
-
-  - name: Check that the actual result matches the defined value (if there was no deployment)
-    assert:
-      that: 'oc_new_num_nodes.stdout | int == hostvars["localhost"]["increment_by"] | int'
-      msg: >
-        FAIL: Number of application nodes has not been increased accordingly
-        (it should be {{ hostvars["localhost"]["increment_by"] | int }}
+        (it should be {{ hostvars["localhost"]["oc_old_num_nodes"] | int + hostvars["localhost"]["increment_by"] | int }}
         but it is {{ oc_new_num_nodes.stdout | int }}).
     when: oc_old_num_nodes is not defined
