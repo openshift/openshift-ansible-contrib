@@ -62,10 +62,24 @@ openstack_default_flavor: "m1.medium"
 #docker_lb_volume_size: "5"
 docker_volume_size: "15"
 
+
+## Create a Cinder volume and use it for the OpenShift registry.
+## NOTE: the openstack credentials and hosted registry options must be set in OSEv3.yml!
+#cinder_hosted_registry_name: cinder-registry
+#cinder_hosted_registry_size_gb: 10
+
+## Set up a filesystem on the cinder volume specified in `OSEv3.yaml`.
+## You need to specify the file system and volume ID in OSEv3 via
+## `openshift_hosted_registry_storage_openstack_filesystem` and
+## `openshift_hosted_registry_storage_openstack_volumeID`.
+## WARNING: This will delete any data on the volume!
+#prepare_and_format_registry_volume: False
+
 openstack_subnet_prefix: "192.168.99"
 
-# # Red Hat subscription
-rhsm_register: False
+## Red Hat subscription defaults to false which means we will not attempt to
+## subscribe the nodes
+#rhsm_register: False
 
 # # Using Red Hat Satellite:
 #rhsm_register: True

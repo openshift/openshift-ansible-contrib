@@ -14,6 +14,9 @@ etc.). The result is an environment ready for openshift-ansible.
 * python-dns / [dnspython](https://pypi.python.org/pypi/dnspython)
 * Become (sudo) is not required.
 
+**NOTE**: You can use a Docker image with all dependencies set up.
+Find more in the [Deployment section](#deployment).
+
 ### Optional Dependencies for localhost
 **Note**: When using rhel images, `rhel-7-server-openstack-10-rpms` repository is required in order to install these packages.
 
@@ -295,6 +298,7 @@ variables for the `inventory/group_vars/OSEv3.yml`, `all.yml`:
     deployment_type: origin
     openshift_deployment_type: "{{ deployment_type }}"
 
+
 #### Setting a custom entrypoint
 
 In order to set a custom entrypoint, update `openshift_master_cluster_public_hostname`
@@ -303,6 +307,106 @@ In order to set a custom entrypoint, update `openshift_master_cluster_public_hos
 
 Note than an empty hostname does not work, so if your domain is `openshift.example.com`,
 you cannot set this value to simply `openshift.example.com`.
+
+### Creating and using a Cinder volume for the OpenShift registry
+
+You can optionally have the playbooks create a Cinder volume and set
+it up as the OpenShift hosted registry.
+
+To do that you need specify the desired Cinder volume name and size in
+Gigabytes in `inventory/group_vars/all.yml`:
+
+    cinder_hosted_registry_name: cinder-registry
+    cinder_hosted_registry_size_gb: 10
+
+With this, the playbooks will create the volume and set up its
+filesystem. If there is an existing volume of the same name, we will
+use it but keep the existing data on it.
+
+To use the volume for the registry, you must first configure it with
+the OpenStack credentials by putting the following to `OSEv3.yml`:
+
+    openshift_cloudprovider_openstack_username: "{{ lookup('env','OS_USERNAME') }}"
+    openshift_cloudprovider_openstack_password: "{{ lookup('env','OS_PASSWORD') }}"
+    openshift_cloudprovider_openstack_auth_url: "{{ lookup('env','OS_AUTH_URL') }}"
+    openshift_cloudprovider_openstack_tenant_name: "{{ lookup('env','OS_TENANT_NAME') }}"
+
+This will use the credentials from your shell environment. If you want
+to enter them explicitly, you can. You can also use credentials
+different from the provisioning ones (say for quota or access control
+reasons).
+
+**NOTE**: If you're testing this on (DevStack)[devstack], you must
+explicitly set your Keystone API version to v2 (e.g.
+`OS_AUTH_URL=http://10.34.37.47/identity/v2.0`) instead of the default
+value provided by `openrc`. You may also encounter the following issue
+with Cinder:
+
+https://github.com/kubernetes/kubernetes/issues/50461
+
+You can read the (OpenShift documentation on configuring
+OpenStack)[openstack] for more information.
+
+[devstack]: https://docs.openstack.org/devstack/latest/
+[openstack]: https://docs.openshift.org/latest/install_config/configuring_openstack.html
+
+
+Next, we need to instruct OpenShift to use the Cinder volume for it's
+registry. Again in `OSEv3.yml`:
+
+    #openshift_hosted_registry_storage_kind: openstack
+    #openshift_hosted_registry_storage_access_modes: ['ReadWriteOnce']
+    #openshift_hosted_registry_storage_openstack_filesystem: xfs
+
+The filesystem value here will be used in the initial formatting of
+the volume.
+
+
+### Use an existing Cinder volume for the OpenShift registry
+
+You can also use a pre-existing Cinder volume for the storage of your
+OpenShift registry.
+
+To do that, you need to have a Cinder volume. You can create one by
+running:
+
+    openstack volume create --size <volume size in gb> <volume name>
+
+The volume needs to have a file system created before you put it to
+use.
+
+As with the automatically-created volume, you have to set up the
+OpenStack credentials in `inventory/group_vars/OSEv3.yml` as well as
+registry values:
+
+    #openshift_hosted_registry_storage_kind: openstack
+    #openshift_hosted_registry_storage_access_modes: ['ReadWriteOnce']
+    #openshift_hosted_registry_storage_openstack_filesystem: xfs
+    #openshift_hosted_registry_storage_openstack_volumeID: e0ba2d73-d2f9-4514-a3b2-a0ced507fa05
+    #openshift_hosted_registry_storage_volume_size: 10Gi
+
+Note the `openshift_hosted_registry_storage_openstack_volumeID` and
+`openshift_hosted_registry_storage_volume_size` values: these need to
+be added in addition to the previous variables.
+
+The **Cinder volume ID**, **filesystem** and **volume size** variables
+must correspond to the values in your volume. The volume ID must be
+the **UUID** of the Cinder volume, *not its name*.
+
+We can do formate the volume for you if you ask for it in
+`inventory/group_vars/all.yml`:
+
+    prepare_and_format_registry_volume: true
+
+**NOTE:** doing so **will destroy any data that's currently on the volume**!
+
+You can also run the registry setup playbook directly:
+
+   ansible-playbook -i inventory playbooks/provisioning/openstack/prepare-and-format-cinder-volume.yaml
+
+(the provisioning phase must be completed, first)
+
+
 
 ### Configure static inventory and access via a bastion node
 
@@ -342,6 +446,35 @@ floating IPs. In this mode you can not use a bastion node and should specify
 the dynamic inventory file in your ansible commands , like `-i openstack.py`.
 
 ## Deployment
+
+### Using Docker on the Ansible host
+
+If you don't want to worry about the dependencies, you can use the
+[OpenStack Control Host image][control-host-image].
+
+[control-host-image]: https://hub.docker.com/r/redhatcop/control-host-openstack/
+
+It has all the dependencies installed, but you'll need to map your
+code and credentials to it. Assuming your SSH keys live in `~/.ssh`
+and everything else is in your current directory (i.e. `ansible.cfg`,
+`keystonerc`, `inventory`, `openshift-ansible`,
+`openshift-ansible-contrib`), this is how you run the deployment:
+
+    sudo docker run -it -v ~/.ssh:/mnt/.ssh:Z \
+        -v $PWD:/root/openshift:Z \
+        -v $PWD/keystonerc:/root/.config/openstack/keystonerc.sh:Z \
+        redhatcop/control-host-openstack bash
+
+(feel free to replace `$PWD` with an actual path to your inventory and
+checkouts, but note that relative paths don't work)
+
+The first run may take a few minutes while the image is being
+downloaded. After that, you'll be inside the container and you can run
+the playbooks:
+
+    cd openshift
+    ansible-playbook openshift-ansible-contrib/playbooks/provisioning/openstack/provision.yaml
+
 
 ### Run the playbook
 

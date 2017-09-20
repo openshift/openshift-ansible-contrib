@@ -4,7 +4,7 @@ This repository contains the code used to deploy an OpenShift Container Platform
 
 ## Overview
 
-The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructure nodes and 2 application nodes in different availability zones.
+The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructure nodes and 3 application nodes in different availability zones.
 
 ![Architecture](images/arch.png)
 
@@ -14,7 +14,7 @@ Described usage is for RHEL 7 based operating system.
 
 ### Prerequisites
 
-The set of packages is required on the host running the Ansible playbooks:
+The set of packages is required on the host running the deployment:
 ```
 sudo yum update
 sudo yum install curl python which tar qemu-img openssl git ansible python-libcloud python2-jmespath java-1.8.0-openjdk-headless httpd-tools python2-passlib
@@ -30,11 +30,11 @@ For OpenShift Origin deployment, KVM Guest Image is not needed, CentOS 7 image a
 
 ### Setup Google Cloud Account and SDK
 
-You need to have account in the [Google Cloud Platform](https://cloud.google.com/). Unfortunately, it's not possible to use trial version of the account as it contains only one static IP address, but the ref. arch. requires two.
+You need to have an account in the [Google Cloud Platform](https://cloud.google.com/). Unfortunately, it's not possible to use trial version of the account as it contains only one static IP address, but the reference architecture requires two.
 
 #### Google Cloud SDK
 
-Google provides repositories which can be used to install Google Cloud SDK (this repo works also for Fedora):
+Google provides a repository which can be used to install Google Cloud SDK on RHEL 7 or Fedora based OS:
 ```
 sudo tee -a /etc/yum.repos.d/google-cloud-sdk.repo << EOM
 [google-cloud-sdk]
@@ -67,7 +67,7 @@ cp config.yaml.example config.yaml
 
 ### Setting variables
 
-Variables can be set to customize the OpenShift infrastructure and deployment. The most important variables can be found in the `config.yaml.example` file, but any Ansible variable used during the deployment can be placed in the `config.yaml` file, where it will override the default value. It's also possible to override Ansible variables directly on the command line when invoking the `ocp-on-gcp.sh` script, e.g. `./ocp-on-gcp.sh -e openshift_debug_level=4`
+Variables can be set to customize the OpenShift infrastructure and deployment. The most important variables can be found in the `config.yaml.example` file, but any Ansible variable used during the deployment can be placed in the `config.yaml` file, where it will override the default value. It's also possible to override Ansible variables directly on the command line when invoking the `ocp-on-gcp.sh` script, e.g. `./ocp-on-gcp.sh -e 'openshift_debug_level=4'`
 
 ### Launching the `ocp-on-gcp.sh` script
 
@@ -76,10 +76,34 @@ By default, running the script without parameters will create the infrastructure
 ./ocp-on-gcp.sh
 ```
 
-However, the script supports couple of options which can modify its behavior. For complete documentation see:
+However, the script supports couple of parameters which can modify its behavior. For complete documentation see:
 ```
 ./ocp-on-gcp.sh --help
 ```
+
+## Additional supported operations
+
+The following section sums up couple of additional operations supported by the `ocp-on-gcp.sh` script.
+
+### Scaling up the OpenShift cluster
+
+To scale up the OpenShift cluster, update the `config.yaml` file with desired number of nodes:
+
+```
+# How many instances should be created for each group
+master_instance_group_size: 3
+infra_node_instance_group_size: 4
+node_instance_group_size: 5
+```
+
+Scaling up masters, infrastructure and application nodes is supported. Adding more than one node at a time works as well. Scaling down is not supported.
+
+To perform the scale up once the config file is updated, run following:
+```
+./ocp-on-gcp.sh --scaleup
+```
+
+Note: Scaling of pods (router, registry..) running on infrastructure nodes is not performed during the scale up. It is expected that the administrator will perform the scale up once the new nodes are deployed. For example, to scale router run: `oc scale dc/router --replicas=4` from any master node.
 
 ### Static inventory
 
@@ -95,4 +119,14 @@ Afterwards, the static inventory will be placed in the `ansible` directory with 
 If you want to tear down the infrastructure to start over with different settings, or just to clean up the resources, you can use `--teardown` option:
 ```
 ./ocp-on-gcp.sh --teardown
+```
+
+### Multiple OpenShift deployments
+
+Multiple OpenShift deployments under single project in GCP are supported. Every OpenShift cluster then must have different `prefix` and DNS names configured in `config.yaml` file. It's possible to specify config file `ocp-on-gcp.sh` script uses with `-c | --config FILE` parameter, so deploying two different cluster can look like this:
+
+```
+./ocp-on-gcp.sh -c ../config-dev.yaml
+
+./ocp-on-gcp.sh -c ../config-prod.yaml
 ```

@@ -42,6 +42,7 @@
     openshift_master_api_port: "{{ console_port }}"
     openshift_master_console_port: "{{ console_port }}"
     openshift_master_logging_public_url: "https://kibana.{{ osm_default_subdomain }}"
+    openshift_node_local_quota_per_fsgroup: 512Mi
     osm_cluster_network_cidr: 172.16.0.0/16
     osm_use_cockpit: false
     osm_default_node_selector: "role=app"

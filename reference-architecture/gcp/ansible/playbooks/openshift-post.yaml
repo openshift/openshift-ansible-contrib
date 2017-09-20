@@ -1,0 +1,49 @@
+---
+- include: ../../../../playbooks/empty-dir-quota.yaml
+
+- name: add ssd storage class
+  hosts: single_master
+  roles:
+  - role: openshift_default_storage_class
+    openshift_storageclass_default: false
+    openshift_storageclass_name: ssd
+    openshift_storageclass_parameters:
+      type: pd-ssd
+
+- name: post ocp deploy tasks for master nodes
+  hosts: masters
+  roles:
+  - master-http-proxy
+  - role: os_firewall
+    os_firewall_allow:
+    - service: master http proxy
+      port: 8080/tcp
+
+- name: post ocp deploy tasks for infra nodes
+  hosts: infra_nodes
+  roles:
+  - role: os_firewall
+    os_firewall_allow:
+    - service: router liveness probe
+      port: 1936/tcp
+
+- name: post ocp deploy tasks for app nodes
+  hosts: app_nodes
+  roles:
+  - restrict-gce-metadata
+
+- name: mark instances with deployed openshift
+  hosts: localhost
+  tasks:
+  - name: mark instances
+    command: gcloud --project {{ gcloud_project }} compute instances add-metadata {{ item }} --zone {{ hostvars[item].gce_zone }} --metadata 'openshift_deployed={{ ansible_date_time.iso8601 }}'
+    with_items: '{{ groups["tag_" + prefix] }}'
+
+- include: validation.yaml
+
+- name: print message about the ocp console
+  hosts: localhost
+  tasks:
+  - name: print message about the ocp console url
+    debug:
+      msg: Deployment is complete. OpenShift Console can be found at https://{{ openshift_master_cluster_public_hostname }}/

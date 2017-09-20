@@ -1,0 +1,22 @@
+---
+- name: Copy cloud provider storage class file
+  template:
+    src: cloud-provider-storage-class.yaml.j2
+    dest: ~/cloud-provider-storage-class.yaml
+
+- name: Copy cloud provider storage class file to single master
+  fetch:
+    src: ~/cloud-provider-storage-class.yaml
+    dest: ~/cloud-provider-storage-class.yaml
+    flat: yes
+
+- name: Switch to default project
+  command: oc project default
+
+- name: Check to see if storage class is already created
+  command: "oc get storageclass"
+  register: storage_class
+
+- name: Create storage class
+  command: "oc create -f ~/cloud-provider-storage-class.yaml"
+  when: "'{{ vcenter_datastore }}' not in storage_class.stdout"
