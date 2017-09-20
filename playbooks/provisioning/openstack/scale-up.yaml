@@ -1,11 +1,14 @@
 ---
-# Get current number of app nodes
+# Get the needed information about the current deployment
 - hosts: masters[0]
   tasks:
   - name: Get number of app nodes
     shell: oc get nodes -l autoscaling=app --no-headers=true | wc -l
-    register: oc_old_result
-
+    register: oc_old_num_nodes
+  - name: Get names of app nodes
+    shell: oc get nodes -l autoscaling=app --no-headers=true | cut -f1 -d " "
+    register: oc_old_app_nodes
+  
 # Get incrementation value
 - hosts: localhost
   tasks:
@@ -21,10 +24,10 @@
         (but it is {{ increment_by | int }}).
   - name: Update openstack_num_nodes variable (if there was a deployment to begin with)
     set_fact:
-      openstack_num_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_result'].stdout | int + increment_by | int }}"
+      openstack_num_nodes: "{{ hostvars[groups['masters'][0]]['oc_old_num_nodes'].stdout | int + increment_by | int }}"
     when:
     - "'masters' in groups"
-    - hostvars[groups["masters"][0]]["oc_old_result"] is defined
+    - hostvars[groups["masters"][0]]["oc_old_num_nodes"] is defined
     register: result
 
   - name: Update openstack_num_nodes variable (if there was no deployment)
@@ -57,21 +60,21 @@
   tasks:
   - name: Get number of nodes
     shell: oc get nodes -l autoscaling=app --no-headers=true | wc -l
-    register: oc_new_result
+    register: oc_new_num_nodes
   - name: Check that the actual result matches the defined value (if there was a deployment to begin with)
     assert:
-      that: 'oc_new_result.stdout | int == (oc_old_result.stdout | int + hostvars["localhost"]["increment_by"] | int)'
+      that: 'oc_new_num_nodes.stdout | int == (oc_old_num_nodes.stdout | int + hostvars["localhost"]["increment_by"] | int)'
       msg: >
         FAIL: Number of application nodes has not been increased accordingly
-        (it should be {{ oc_old_result.stdout | int + hostvars["localhost"]["increment_by"] | int }}
-        but it is {{ oc_new_result.stdout | int }}).
-    when: oc_old_result is defined
+        (it should be {{ oc_old_num_nodes.stdout | int + hostvars["localhost"]["increment_by"] | int }}
+        but it is {{ oc_new_num_nodes.stdout | int }}).
+    when: oc_old_num_nodes is defined
 
   - name: Check that the actual result matches the defined value (if there was no deployment)
     assert:
-      that: 'oc_new_result.stdout | int == hostvars["localhost"]["increment_by"] | int'
+      that: 'oc_new_num_nodes.stdout | int == hostvars["localhost"]["increment_by"] | int'
       msg: >
         FAIL: Number of application nodes has not been increased accordingly
         (it should be {{ hostvars["localhost"]["increment_by"] | int }}
-        but it is {{ oc_new_result.stdout | int }}).
-    when: oc_old_result is not defined
+        but it is {{ oc_new_num_nodes.stdout | int }}).
+    when: oc_old_num_nodes is not defined

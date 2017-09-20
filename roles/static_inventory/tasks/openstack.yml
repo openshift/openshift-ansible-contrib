@@ -24,26 +24,6 @@
       when:
         - refresh_inventory|bool
 
-    # Add new nodes to new_nodes group
-    - name: Create new_app_nodes variable
-      set_fact:
-        new_app_nodes: []
-
-    - name: Filter out new app nodes
-      include: filter_new_app_node_names.yaml
-      with_items: "{{ registered_nodes }}"
-      loop_control:
-        loop_var: node
-
-    - name: Add new app nodes to the new_nodes section (if a deployment already exists)
-      with_items: "{{ new_app_nodes }}"
-      add_host:
-        name: "{{ item }}"
-        groups: new_nodes
-      when:
-        - 'refresh_inventory|bool'
-        - '("app" in groups) and (groups["app"] | list != new_app_nodes | list)'
-
     - name: set_fact for openstack inventory nodes with provider network
       set_fact:
         registered_nodes_floating: "{{ (registered_nodes_output.stdout | from_json) | json_query(q) }}"
@@ -98,15 +78,25 @@
           {{ item.public_v4 }}
           {%- endif %}
 
-    # Make sure that new nodes are only in new_nodes group
-    - name: Filter new nodes out of registered_nodes
+    # Split registered_nodes into old nodes and new app nodes
+    # Add new app nodes to new_nodes host group for upscaling
+    - name: Create new_app_nodes variable
+      set_fact:
+        new_app_nodes: []
+
+    - name: Filter new app nodes out of registered_nodes
       include: filter_out_new_app_nodes.yaml
       with_items: "{{ registered_nodes }}"
       loop_control:
         loop_var: node
-      when: 'new_app_nodes'
 
-    - name: Add the rest of cluster nodes to their groups
+    - name: Add new app nodes to the new_nodes section (if a deployment already exists)
+      with_items: "{{ new_app_nodes }}"
+      add_host:
+        name: "{{ item.name }}"
+        groups: new_nodes, app
+
+    - name: Add the rest of cluster nodes to their corresponding groups
       with_items: "{{ registered_nodes }}"
       add_host:
         name: '{{ item.name }}'
