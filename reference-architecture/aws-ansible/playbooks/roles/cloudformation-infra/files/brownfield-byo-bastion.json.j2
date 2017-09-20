@@ -252,6 +252,26 @@
         "DestinationSecurityGroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] }
       }
     },
+    "ElasticApi": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "InfraElbSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "9200",
+        "ToPort": "9200",
+        "DestinationSecurityGroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] }
+      }
+    },
+    "ElasticCluster": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "InfraElbSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "9300",
+        "ToPort": "9300",
+        "DestinationSecurityGroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] }
+      }
+    },
     "MasterExtElbEgressAPI": {
       "Type": "AWS::EC2::SecurityGroupEgress",
       "Properties":{
@@ -632,9 +652,7 @@
                 {
                   "Effect": "Allow",
                   "Action": [
-                     "ec2:Describe*",
-                     "ec2:AttachVolume",
-                     "ec2:DetachVolume"
+                     "ec2:DescribeInstance*"
                   ], 
                   "Resource": "*"
                 }
@@ -666,8 +684,14 @@
                 {
                   "Effect": "Allow",
                   "Action": [
-                     "ec2:*",
-                     "elasticloadbalancing:*"
+                     "ec2:DescribeVolume*",
+                     "ec2:CreateVolume",
+                     "ec2:CreateTags",
+                     "ec2:DescribeInstance*",
+                     "ec2:AttachVolume",
+                     "ec2:DetachVolume",
+                     "ec2:DeleteVolume",
+                     "elasticloadbalancing:DescribeLoadBalancers"
                   ],
                   "Resource": "*"
                 }
