@@ -221,7 +221,7 @@
       "Properties": {
         "GroupDescription": "Node",
         "VpcId": { "Ref": "Vpc" },
-        "Tags": [ {"Key": "Name", "Value": "ose_node_sg"} ]
+        "Tags": [ {"Key": "Name", "Value": "ose_node_sg"}, {"Key": "KubernetesCluster", "Value": { "Ref": "AWS::StackName" }}]
       }
     },
     "MasterSG": {
@@ -823,13 +823,16 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "MasterUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "MasterInstanceType"},
+          "InstanceType": {"Ref": "MasterInstanceType"},
           "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["MasterSG", "GroupId"] }, { "Fn::GetAtt" : ["EtcdSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet1"},
           "IamInstanceProfile": { "Ref": "MasterInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master01",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
             },
             { "Key": "openshift-role",
               "Value": "master"
@@ -877,13 +880,16 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "MasterUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "MasterInstanceType"},
+	  "InstanceType": {"Ref": "MasterInstanceType"},
           "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["MasterSG", "GroupId"] }, { "Fn::GetAtt" : ["EtcdSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
           "IamInstanceProfile": { "Ref": "MasterInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master02",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
             },
             { "Key": "openshift-role",
               "Value": "master"
@@ -939,6 +945,9 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master03",{"Ref": "PublicHostedZone"}]]}
             },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
+            },
             { "Key": "openshift-role",
               "Value": "master"
             }
@@ -993,6 +1002,9 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node01",{"Ref": "PublicHostedZone"}]]}
             },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
+            },
             { "Key": "openshift-role",
               "Value": "infra"
             }
@@ -1031,13 +1043,16 @@
           "ImageId" : {"Ref": "AmiId"},
           "UserData": {"Ref": "NodeUserData"},
           "KeyName" : {"Ref": "KeyName"},
-	      "InstanceType": {"Ref": "InfraInstanceType"},
-		  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
+	  "InstanceType": {"Ref": "InfraInstanceType"},
+	  "SecurityGroupIds": [{ "Fn::GetAtt" : ["NodeSG", "GroupId"] }, { "Fn::GetAtt" : ["InfraSG", "GroupId"] }],
           "SubnetId" : {"Ref": "PrivateSubnet2"},
-		  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
+	  "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node02",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
             },
             { "Key": "openshift-role",
               "Value": "infra"
@@ -1084,6 +1099,9 @@
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node03",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
             },
             { "Key": "openshift-role",
               "Value": "infra"
@@ -1134,9 +1152,12 @@
           "SubnetId" : {"Ref": "PrivateSubnet{{ rotator }}"},
           "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
-          { "Key": "Name",
-            "Value": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "PublicHostedZone"}]]}
-          },
+            { "Key": "Name",
+              "Value": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
+            },
             { "Key": "openshift-role",
               "Value": "app"
             }
