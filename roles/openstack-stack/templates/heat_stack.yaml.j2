@@ -504,11 +504,7 @@ resources:
     properties:
       count: {{ num_etcd }}
       resource_def:
-{% if use_bastion|bool %}
-        type: server_nofloating.yaml
-{% else %}
         type: server.yaml
-{% endif %}
         properties:
           name:
             str_replace:
@@ -544,7 +540,13 @@ resources:
             - { get_resource: {% if openstack_flat_secgrp|default(False)|bool %}flat-secgrp{% else %}etcd-secgrp{% endif %} }
             - { get_resource: common-secgrp }
 {% if not use_bastion|bool and not provider_network %}
-          floating_network: {{ external_network }}
+          floating_network:
+            if:
+              - attach_float_net
+              - {{ external_network }}
+              - null
+{% else %}
+          attach_float_net: false
 {% endif %}
           volume_size: {{ etcd_volume_size }}
 {% if not provider_network %}
@@ -622,11 +624,7 @@ resources:
     properties:
       count: {{ num_masters }}
       resource_def:
-{% if use_bastion|bool %}
-        type: server_nofloating.yaml
-{% else %}
         type: server.yaml
-{% endif %}
         properties:
           name:
             str_replace:
@@ -675,7 +673,13 @@ resources:
 {% endif %}
             - { get_resource: common-secgrp }
 {% if not use_bastion|bool and not provider_network %}
-          floating_network: {{ external_network }}
+          floating_network:
+            if:
+              - attach_float_net
+              - {{ external_network }}
+              - null
+{% else %}
+          attach_float_net: false
 {% endif %}
           volume_size: {{ master_volume_size }}
 {% if master_server_group_policies|length > 0 %}
@@ -694,11 +698,7 @@ resources:
       removal_policies:
       - resource_list: {{ nodes_to_remove }}
       resource_def:
-{% if use_bastion|bool %}
-        type: server_nofloating.yaml
-{% else %}
         type: server.yaml
-{% endif %}
         properties:
           name:
             str_replace:
@@ -744,7 +744,13 @@ resources:
             - { get_resource: {% if openstack_flat_secgrp|default(False)|bool %}flat-secgrp{% else %}node-secgrp{% endif %} }
             - { get_resource: common-secgrp }
 {% if not use_bastion|bool and not provider_network %}
-          floating_network: {{ external_network }}
+          floating_network:
+            if:
+              - attach_float_net
+              - {{ external_network }}
+              - null
+{% else %}
+          attach_float_net: false
 {% endif %}
           volume_size: {{ node_volume_size }}
 {% if not provider_network %}

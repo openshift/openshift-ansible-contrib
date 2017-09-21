@@ -95,9 +95,17 @@ parameters:
     label: Security groups
     description: Security group resources
 
+  attach_float_net:
+    type: boolean
+    default: {% if not provider_network %}true{% else %}false{% endif %}
+
+    label: Attach-float-net
+    description: A switch for floating network port connection
+
 {% if not provider_network %}
   floating_network:
     type: string
+    default: ''
     label: Floating network
     description: Network to allocate floating IP from
 {% endif %}
@@ -238,6 +246,7 @@ resources:
 
 {% if not provider_network %}
   floating-ip:
+    condition: { not: no_floating }
     type: OS::Neutron::FloatingIP
     properties:
       floating_network: { get_param: floating_network }
