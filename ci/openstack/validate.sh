@@ -16,6 +16,12 @@ grep -v '^nameserver' resolv.conf.orig > resolv.conf.openshift
 echo nameserver "$DNS_IP" >> resolv.conf.openshift
 sudo cp resolv.conf.openshift /etc/resolv.conf
 
+function restore_dns {
+    echo RESTORING DNS
+    sudo cp resolv.conf.orig /etc/resolv.conf
+}
+trap restore_dns EXIT
+
 mkdir -p bin
 scp -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null" openshift@master-0.$ENV_ID.example.com:/usr/bin/oc bin/
 ls -alh bin
