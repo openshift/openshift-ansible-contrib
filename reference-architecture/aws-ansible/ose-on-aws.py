@@ -28,9 +28,7 @@ import sys
               show_default=True)
 @click.option('--app-instance-type', default='t2.large', help='ec2 instance type',
               show_default=True)
-@click.option('--app-node-count', default='2', help='Number of Application Nodes',
-              show_default=True)
-@click.option('--bastion-instance-type', default='t2.micro', help='ec2 instance type',
+@click.option('--app-node-count', default='3', help='Number of Application Nodes',
               show_default=True)
 @click.option('--keypair', help='ec2 keypair name',
               show_default=True)
@@ -98,7 +96,6 @@ def launch_refarch_env(region=None,
                     node_instance_type=None,
                     app_instance_type=None,
                     app_node_count=None,
-                    bastion_instance_type=None,
                     keypair=None,
                     create_key=None,
                     key_path=None,
@@ -174,8 +171,8 @@ def launch_refarch_env(region=None,
     public_subnet_id3 = click.prompt('Specify the third Public subnet within the existing VPC')
 
   app_node_count = int(app_node_count)
-  if app_node_count > 4:
-    click.echo("Please choose a value between 1 and 4")
+  if app_node_count > 3:
+    click.echo("Please choose a value between 1 and 3")
     sys.exit(1)
 
   if master_instance_type in ['m4.large', 't2.micro', 't2.small', 't2.nano', 'm3.medium', 'm3.large', 'm3.xlarge']:
@@ -228,7 +225,6 @@ def launch_refarch_env(region=None,
   click.echo('\tnode_instance_type: %s' % node_instance_type)
   click.echo('\tapp_instance_type: %s' % app_instance_type)
   click.echo('\tapp_node_count: %d' % app_node_count)
-  click.echo('\tbastion_instance_type: %s' % bastion_instance_type)
   click.echo('\tkeypair: %s' % keypair)
   click.echo('\tcreate_key: %s' % create_key)
   click.echo('\tkey_path: %s' % key_path)
@@ -305,7 +301,6 @@ def launch_refarch_env(region=None,
     node_instance_type=%s \
     app_instance_type=%s \
     app_node_count=%d \
-    bastion_instance_type=%s \
     public_hosted_zone=%s \
     wildcard_zone=%s \
     console_port=%s \
@@ -344,7 +339,6 @@ def launch_refarch_env(region=None,
                     node_instance_type,
                     app_instance_type,
                     int(app_node_count),
-                    bastion_instance_type,
                     public_hosted_zone,
                     wildcard_zone,
                     console_port,
