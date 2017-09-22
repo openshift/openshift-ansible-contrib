@@ -1,6 +1,7 @@
 ---
 - name: Add all new app nodes to new_app_nodes
   when:
+  - 'oc_old_app_nodes is defined'
   - 'oc_old_app_nodes | list'
   - 'node.name not in oc_old_app_nodes'
   - 'node["metadata"]["sub-host-type"] == "app"'
