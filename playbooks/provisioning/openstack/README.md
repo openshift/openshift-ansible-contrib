@@ -544,6 +544,7 @@ This example runs against app nodes. The list of options include:
 - hosts: cluster_hosts
   tasks:
   - name: Attach additional RHN pool
+    become: true
     command: "/usr/bin/subscription-manager attach --pool=<pool ID>"
     register: attach_rhn_pool_result
     until: attach_rhn_pool_result.rc == 0
