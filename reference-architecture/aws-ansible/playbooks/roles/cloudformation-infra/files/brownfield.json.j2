@@ -226,7 +226,7 @@
       "Properties": {
         "GroupDescription": "Node",
         "VpcId": { "Ref": "Vpc" },
-        "Tags": [ {"Key": "Name", "Value": "ose_node_sg"} ]
+        "Tags": [ {"Key": "Name", "Value": "ose_node_sg"}, {"Key": "KubernetesCluster", "Value": { "Ref": "AWS::StackName" }}]
       }
     },
     "MasterSG": {
@@ -254,6 +254,26 @@
         "IpProtocol": "tcp",
         "FromPort": "443",
         "ToPort": "443",
+        "DestinationSecurityGroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] }
+      }
+    },
+    "ElasticApi": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "InfraElbSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "9200",
+        "ToPort": "9200",
+        "DestinationSecurityGroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] }
+      }
+    },
+    "ElasticCluster": {
+      "Type": "AWS::EC2::SecurityGroupEgress",
+      "Properties":{
+        "GroupId": { "Fn::GetAtt": [ "InfraElbSG", "GroupId" ] },
+        "IpProtocol": "tcp",
+        "FromPort": "9300",
+        "ToPort": "9300",
         "DestinationSecurityGroupId": { "Fn::GetAtt": [ "InfraSG", "GroupId" ] }
       }
     },
@@ -637,9 +657,7 @@
                 {
                   "Effect": "Allow",
                   "Action": [
-                     "ec2:Describe*",
-                     "ec2:AttachVolume",
-                     "ec2:DetachVolume"
+                     "ec2:DescribeInstance*"
                   ], 
                   "Resource": "*"
                 }
@@ -671,8 +689,28 @@
                 {
                   "Effect": "Allow",
                   "Action": [
-                     "ec2:*",
-                     "elasticloadbalancing:*"
+                     "ec2:DescribeVolume*",
+                     "ec2:CreateVolume",
+                     "ec2:CreateTags",
+                     "ec2:DescribeInstance*",
+                     "ec2:AttachVolume",
+                     "ec2:DetachVolume",
+                     "ec2:DeleteVolume",
+                     "ec2:DescribeSubnets",
+                     "ec2:CreateSecurityGroup",
+                     "ec2:DescribeSecurityGroups",
+                     "elasticloadbalancing:DescribeTags",
+                     "elasticloadbalancing:CreateLoadBalancerListeners",
+                     "ec2:DescribeRouteTables",
+                     "elasticloadbalancing:ConfigureHealthCheck",
+                     "ec2:AuthorizeSecurityGroupIngress",
+                     "elasticloadbalancing:DeleteLoadBalancerListeners",
+                     "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                     "elasticloadbalancing:DescribeLoadBalancers",
+                     "elasticloadbalancing:CreateLoadBalancer",
+                     "elasticloadbalancing:DeleteLoadBalancer",
+                     "elasticloadbalancing:ModifyLoadBalancerAttributes",
+                     "elasticloadbalancing:DescribeLoadBalancerAttributes"
                   ],
                   "Resource": "*"
                 }
@@ -845,6 +883,9 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master01",{"Ref": "PublicHostedZone"}]]}
             },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
+            },
             { "Key": "openshift-role",
               "Value": "master"
             }
@@ -898,6 +939,9 @@
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master02",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
             },
             { "Key": "openshift-role",
               "Value": "master"
@@ -953,6 +997,9 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-master03",{"Ref": "PublicHostedZone"}]]}
             },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
+            },
             { "Key": "openshift-role",
               "Value": "master"
             }
@@ -1007,6 +1054,9 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node01",{"Ref": "PublicHostedZone"}]]}
             },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
+            },
             { "Key": "openshift-role",
               "Value": "infra"
             }
@@ -1053,6 +1103,9 @@
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node02",{"Ref": "PublicHostedZone"}]]}
             },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
+            },
             { "Key": "openshift-role",
               "Value": "infra"
             }
@@ -1098,6 +1151,9 @@
           "Tags": [
             { "Key": "Name",
               "Value": {"Fn::Join": [".", ["ose-infra-node03",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
             },
             { "Key": "openshift-role",
               "Value": "infra"
@@ -1148,9 +1204,12 @@
           "SubnetId" : {"Ref": "PrivateSubnet{{ rotator }}"},
           "IamInstanceProfile": { "Ref": "NodeInstanceProfile" },
           "Tags": [
-          { "Key": "Name",
-            "Value": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "PublicHostedZone"}]]}
-          },
+            { "Key": "Name",
+             "Value": {"Fn::Join": [".", ["ose-app-node{{ '%02d' % idx }}",{"Ref": "PublicHostedZone"}]]}
+            },
+            { "Key": "KubernetesCluster",
+              "Value": { "Ref": "AWS::StackName" }
+            },
             { "Key": "openshift-role",
               "Value": "app"
             }

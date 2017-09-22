@@ -32,36 +32,21 @@
       KeyName: "{{ keypair }}"
       MasterInstanceType: "{{ master_instance_type }}"
       AmiId: "{{ ami }}"
-      BastionInstanceType: "{{ bastion_instance_type }}"
       BastionUserData: "{{ lookup('file', 'user_data_bastion.yml') | b64encode }}"
-      MasterRootVolSize: "50"
-      BastionRootVolSize: "10"
-      BastionRootVolType: gp2
-      MasterRootVolType: gp2
       MasterDockerVolSize: "{{ docker_storage }}"
       MasterDockerVolType: gp2
       MasterEtcdVolSize: "{{ etcd_storage }}"
       MasterEtcdVolType: gp2
-      MasterEmptyVolSize: "5"
-      MasterEmptyVolType: gp2
       MasterUserData: "{{ lookup('file', 'user_data_master.yml') | b64encode }}"
       InfraInstanceType: "{{ node_instance_type }}"
-      InfraRootVolSize: "50"
-      InfraRootVolType: gp2
       InfraDockerVolSize: "{{ docker_storage }}"
       InfraDockerVolType: gp2
-      NodeEmptyVolSize: "{{ emptydir_storage }}"
-      NodeEmptyVolType: gp2
       NodeUserData: "{{ lookup('file', 'user_data_node.yml') | b64encode }}"
       AppNodeInstanceType: "{{ app_instance_type }}"
-      NodeRootVolSize: "50"
-      NodeRootVolType: gp2
       NodeDockerVolSize: "{{ docker_storage }}"
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
-    tags:
-      KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "yes"
 
 - name: Create Brownfield Infrastructure
@@ -116,8 +101,6 @@
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
-    tags:
-      KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and byo_bastion == "no"
 
 - name: Create Brownfield Infrastructure with existing bastion
@@ -169,8 +152,6 @@
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
-    tags:
-      KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and byo_bastion == "yes"
 
 - name: Add App Node
