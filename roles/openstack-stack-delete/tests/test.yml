@@ -1,0 +1,10 @@
+---
+
+# Make sure to set the 'stack-name' variable before running this playbook
+
+- hosts: localhost
+  roles:
+  - role: openstack-stack-delete
+
+  
+
