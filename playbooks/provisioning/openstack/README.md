@@ -158,9 +158,7 @@ CIDR range otherwise. For example, by adding `--bip=192.168.2.1/24` to
 Also note that the flannel network will be provisioned on a separate isolated Neutron
 subnet defined from `osm_cluster_network_cidr` and having ports security disabled.
 Use the `openstack_private_data_network_name` variable to define the network
-name for the heat stack resource. Keep in mind that the external authoritative DNS
-server's acl must allow the given `osm_cluster_network_cidr` as well. For provisioned
-in-stack DNS servers, this is configred automatically.
+name for the heat stack resource.
 
 After the cluster deployment done, you should run an additional post installation
 step for flannel and docker iptables configuration:
