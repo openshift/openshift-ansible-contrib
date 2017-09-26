@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -euo pipefail
+set -euox pipefail
 
 source ci/openstack/vars.sh
 if [ "${RUN_OPENSTACK_CI:-}" != "true" ]; then

@@ -38,6 +38,7 @@ export METRICS_INSTANCES="1"
 export LOGGING_ES_SIZE="10"
 export OPSLOGGING_ES_SIZE="10"
 export METRICS_CASSANDRASIZE="10"
+export APIHOST=$RESOURCEGROUP.$FULLDOMAIN
 echo "Show wildcard info"
 echo $WILDCARDFQDN
 echo $WILDCARDIP
@@ -436,6 +437,225 @@ cat <<EOF > /home/${AUSERNAME}/postinstall.yml
 
 EOF
 
+cat > /home/${AUSERNAME}/ssovars.yml <<EOF
+---
+  sso_username: ${AUSERNAME}
+  sso_project: "sso"
+  sso_password: ${PASSWORD}
+  sso_domain:   ${WILDCARDNIP}
+  hostname_https: "login.{{sso_domain}}"
+  api_master:   ${APIHOST}
+EOF
+
+cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
+---
+- hosts: masters[0]
+  vars_files:
+    - ssovars.yml
+  vars:
+    description: "SSO Setup"
+    create_data:
+        clientId: "openshift"
+        name:     "OpenShift"
+        description: "OpenShift Console Authentication"
+        enabled: true
+        protocol: "openid-connect"
+        clientAuthenticatorType: "client-secret"
+        directAccessGrantsEnabled: true
+        redirectUris: ["https://{{api_master}}:8443/*"]
+        webOrigins: []
+        publicClient: false
+        consentRequired: false
+        frontchannelLogout: false
+        standardFlowEnabled: true
+  tasks:
+  - debug:
+      msg: "Domain: {{sso_domain}}"
+  - set_fact: idm_dir="/home/{{sso_username}}/{{sso_project}}"
+  - debug:
+      msg: "Idm dir {{ idm_dir }}"
+  - name: Install Java
+    yum:
+      name: java-1.8.0-openjdk
+      state: latest
+  - name: Cleanup old idm directory
+    file:
+      state: absent
+      path: "{{idm_dir}}"
+  - name: C eate new idm directory
+    file:
+      state: directory
+      path: "{{idm_dir}}"
+  - name: Delete service account
+    command: oc delete service account "{{sso_project}}-service_account"
+    ignore_errors: yes
+    register: result
+    failed_when:
+      - "result.rc > 10"
+  - name: Delete Secret
+    command: oc delete secret "{{sso_project}}-app-secret"
+    ignore_errors: yes
+    register: result
+    failed_when:
+      - "result.rc > 10"
+  - name: Delete Old Project
+    command: oc delete project "{{sso_project}}"
+    ignore_errors: yes
+    register: result
+    failed_when:
+      - "result.rc > 10"
+  - name: Pause for cleanup of old install
+    pause:
+      minutes: 2
+  - set_fact: sso_projectid="{{sso_project}}"
+  - set_fact: idm_xpassword="Xp-{{sso_password}}"
+  - name: Create Openshift Project for SSO
+    command: oc new-project "{{sso_project}}"
+  - name: Create Service Account
+    command: "oc create serviceaccount {{sso_project}}-service-account -n {{ sso_project }}"
+  - name: Add admin role to user
+    command: "oc adm policy add-role-to-user admin {{sso_username}}"
+  - name: Add view to user
+    command: "oc policy add-role-to-user view system:serviceaccount:${1}idm:{{sso_project}}-service-account"
+  - name: Stage 1 - OpenSSL Request
+    command: "openssl req -new  -passout pass:{{idm_xpassword}} -newkey rsa:4096 -x509 -keyout {{idm_dir}}/xpaas.key -out {{idm_dir}}/xpaas.crt -days 365 -subj /CN=xpaas-sso.ca"
+  - name: Stage 2 - GENKEYPAIR
+    command: "keytool  -genkeypair -deststorepass {{idm_xpassword}} -storepass {{idm_xpassword}} -keypass {{idm_xpassword}} -keyalg RSA -keysize 2048 -dname CN={{hostname_https}} -alias sso-https-key -keystore {{idm_dir}}/sso-https.jks"
+  - name: Stage 3 - CERTREQ
+    command: "keytool  -deststorepass {{idm_xpassword}} -storepass {{idm_xpassword}} -keypass {{idm_xpassword}} -certreq -keyalg rsa -alias sso-https-key -keystore {{idm_dir}}/sso-https.jks -file {{idm_dir}}/sso.csr"
+  - name: Stage 4 - X509
+    command: "openssl x509 -req -passin pass:{{idm_xpassword}} -CA {{idm_dir}}/xpaas.crt -CAkey {{idm_dir}}/xpaas.key -in {{idm_dir}}/sso.csr -out {{idm_dir}}/sso.crt -days 365 -CAcreateserial"
+  - name: Stage 5 - IMPORT CRT
+    command: "keytool  -noprompt -deststorepass {{idm_xpassword}} -import -file {{idm_dir}}/xpaas.crt  -storepass {{idm_xpassword}} -keypass {{idm_xpassword}} -alias xpaas.ca -keystore {{idm_dir}}/sso-https.jks"
+  - name: Stage 6 - IMPORT SSO
+    command: "keytool  -noprompt -deststorepass {{idm_xpassword}} -storepass {{idm_xpassword}} -keypass {{idm_xpassword}}  -import -file {{idm_dir}}/sso.crt -alias sso-https-key -keystore {{idm_dir}}/sso-https.jks"
+  - name: Stage 7 - IMPORT XPAAS
+    command: "keytool -noprompt -deststorepass {{idm_xpassword}} -storepass {{idm_xpassword}} -keypass {{idm_xpassword}}   -import -file {{idm_dir}}/xpaas.crt -alias xpaas.ca -keystore {{idm_dir}}/truststore.jks"
+  - name: Stage 8 - GENSECKEY
+    command: "keytool  -deststorepass {{idm_xpassword}} -storepass {{idm_xpassword}} -keypass {{idm_xpassword}} -genseckey -alias jgroups -storetype JCEKS -keystore {{idm_dir}}/jgroups.jceks"
+  - name: Stage 9 - OCCREATE SECRET
+    command: "oc create secret generic sso-app-secret --from-file={{idm_dir}}/jgroups.jceks --from-file={{idm_dir}}/sso-https.jks --from-file={{idm_dir}}/truststore.jks"
+  - name: Stage 10 - OCCREATE SECRET ADD
+    command: "oc secret add sa/{{sso_project}}-service-account secret/sso-app-secret"
+  - name: Stage 11 - Create App Parameters
+    blockinfile:
+       path: "{{idm_dir}}/sso.params"
+       create: yes
+       block: |
+         HOSTNAME_HTTP="nlogin.{{sso_domain}}"
+         HOSTNAME_HTTPS="login.{{sso_domain}}"
+         APPLICATION_NAME="{{sso_project}}"
+         HTTPS_KEYSTORE="sso-https.jks"
+         HTTPS_PASSWORD="{{idm_xpassword}}"
+         HTTPS_SECRET="sso-app-secret"
+         JGROUPS_ENCRYPT_KEYSTORE="jgroups.jceks"
+         JGROUPS_ENCRYPT_PASSWORD="{{idm_xpassword}}"
+         JGROUPS_ENCRYPT_SECRET="sso-app-secret"
+         SERVICE_ACCOUNT_NAME={{sso_project}}-service-account
+         SSO_REALM=cloud
+         SSO_SERVICE_USERNAME="{{sso_username}}"
+         SSO_SERVICE_PASSWORD="{{sso_password}}"
+         SSO_ADMIN_USERNAME=admin
+         SSO_ADMIN_PASSWORD="{{sso_password}}"
+         SSO_TRUSTSTORE=truststore.jks
+         SSO_TRUSTSTORE_PASSWORD="{{idm_xpassword}}"
+
+  - name: Stage 10 - OCCREATE SECRET ADD
+    command: oc new-app sso71-postgresql --param-file {{idm_dir}}/sso.params -l app=sso71-postgresql -l application=sso -l template=sso71-https
+  - set_fact: sso_token_url="https://login.{{sso_domain}}/auth/realms/cloud/protocol/openid-connect/token"
+  - name: Pause for app create
+    pause:
+      minutes: 4
+  - name: Login to SSO and Get Token
+    uri:
+      url: "{{sso_token_url}}"
+      method: POST
+      body: "grant_type=password&client_id=admin-cli&username={{sso_username}}&password={{sso_password}}"
+      return_content: yes
+      status_code: 200
+      validate_certs: no
+    register: login
+    until: login.status == 200
+    retries: 90
+    delay: 30
+  - debug: var=login.json.access_token
+  - name: Create SSO Client for Openshift
+    uri:
+      url: "https://login.{{sso_domain}}/auth/realms/cloud/clients-registrations/default"
+      method: POST
+      headers:
+           "Authorization": "bearer {{login.json.access_token}}"
+           "Content-Type": "application/json"
+      body: "{{ create_data | to_json }}"
+      return_content: yes
+      status_code: 201
+      validate_certs: no
+    register: create
+  - debug: var=create.json.secret
+  - local_action: copy content={{create.json.secret}} dest=/tmp/ssosecret.var
+  - fetch:
+       src: "{{idm_dir}}/xpaas.crt"
+       dest: "{{idm_dir}}/xpaas.crt"
+       flat: yes
+- hosts: masters
+  vars_files:
+    - ssovars.yml
+  vars:
+     ssosecret: "{{lookup('file', '/tmp/ssosecret.var')}}"
+  tasks:
+  - set_fact: idm_dir="/home/{{sso_username}}/{{sso_project}}"
+  - name: Copy xpass.crt to masters
+    copy:
+      src:  "{{idm_dir}}/xpaas.crt"
+      dest: /etc/origin/master/xpaas.crt
+      owner: root
+      mode: 0600
+  - name: Setup SSO Config
+    blockinfile:
+      backup: yes
+      dest: /etc/origin/master/master-config.yaml
+      insertafter: HTPasswdPasswordIdentityProvider
+      block: |1
+         - name: sso
+           challenge: false
+           login: true
+           mappingInfo: add
+           provider:
+             apiVersion: v1
+             kind: OpenIDIdentityProvider
+             clientID: openshift
+             clientSecret: {{ssosecret}}
+             ca: xpaas.crt
+             urls:
+               authorize: https://login.{{sso_domain}}/auth/realms/cloud/protocol/openid-connect/auth
+               token: https://login.{{sso_domain}}/auth/realms/cloud/protocol/openid-connect/token
+               userInfo: https://login.{{sso_domain}}/auth/realms/cloud/protocol/openid-connect/userinfo
+             claims:
+               id:
+               - sub
+               preferredUsername:
+               - preferred_username
+               name:
+               - name
+               email:
+               - email
+
+  - service:
+      name: atomic-openshift-master-api
+      state: restarted
+  - service:
+      name: atomic-openshift-master-controllers
+      state: restarted
+  - name: Pause for service restart
+    pause:
+      seconds: 10
+  - name: Add our user as cluster admin
+    command: oc adm policy add-cluster-role-to-user cluster-admin "{{sso_username}}"
+  - debug:
+      msg: "Completed"
+EOF
+
+
 npm install -g azure-cli
 azure telemetry --disable
 cat <<'EOF' > /home/${AUSERNAME}/create_azure_storage_container.sh
@@ -508,6 +728,7 @@ ansible master1 -b -m fetch -a "src=/etc/origin/master/ca.serial.txt dest=/tmp/c
 ansible masters -b -m copy -a "src=/tmp/ca.serial.txt dest=/etc/origin/master/ca.serial.txt mode=644 owner=root"
 curl https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/add_host.sh -o /home/${AUSERNAME}/add_host.sh -s
 chmod a+x /home/${AUSERNAME}/add_host.sh
+ansible-playbook /home/${AUSERNAME}/setup-sso.yml &> /home/${AUSERNAME}/setup-sso.out
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 touch /root/.openshiftcomplete
 touch /home/${AUSERNAME}/.openshiftcomplete

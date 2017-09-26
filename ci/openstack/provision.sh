@@ -73,12 +73,3 @@ ansible-playbook --timeout 180 --user openshift -i "$INVENTORY" playbooks/provis
 echo
 echo INVENTORY hosts file:
 cat $INVENTORY/hosts
-
-
-echo SET UP DNS
-
-cp /etc/resolv.conf resolv.conf.orig
-DNS_IP=$(openstack server show dns-0.$ENV_ID.example.com --format value --column addresses | awk '{print $2}')
-grep -v '^nameserver' resolv.conf.orig > resolv.conf.openshift
-echo nameserver "$DNS_IP" >> resolv.conf.openshift
-sudo cp resolv.conf.openshift /etc/resolv.conf
