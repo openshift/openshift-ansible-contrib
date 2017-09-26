@@ -1,0 +1,59 @@
+---
+- hosts: cluster_hosts
+  vars:
+    registries: []
+    insecure_registries: []
+    
+  tasks:
+  - name: Install atomic-registries package
+    yum:
+      name: atomic-registries
+      state: latest
+
+  - name: Get registry configuration file
+    local_action: stat path=/etc/containers/registries.conf
+    register: file_result
+
+  - name: Check if it exists
+    assert:
+      that: 'file_result.stat.exists'
+      msg: "Configuration file does not exist."
+
+  - name: Load configuration file
+    shell: cat /etc/containers/registries.conf
+    register: file_content
+    become: true
+
+  - name: Store file content into a variable
+    set_fact:
+      docker_conf: "{{ file_content.stdout | from_yaml }}"
+
+  - name: Add other registries (if there are existing ones)
+    set_fact:
+      docker_conf: "{{ docker_conf | combine({'registries': [docker_conf['registries'] + [registries]]}, recursive=True) }}"
+    when: '(registries | list) and (docker_conf.registries is defined)'
+
+   - name: Add other registries (if there are no existing ones)
+    set_fact:
+      docker_conf: "{{ docker_conf | combine({'registries': [registries]}, recursive=True) }}"
+    when: '(registries | list) and (docker_conf.registries is not defined)'
+  - debug: var=docker_conf
+
+  - name: Add insecure registries (if there are existing ones)
+    set_fact:
+      docker_conf: "{{ docker_conf | combine({'insecure_registries': [docker_conf['insecure_registries'] + insecure_registries ]}, recursive=True) }}"
+    when: '(insecure_registries | list) and (docker_conf.insecure_registries is defined)'
+
+  - name: Add insecure registries (if there are no existing ones)
+    set_fact:
+      docker_conf: "{{ docker_conf | combine({'insecure_registries': [insecure_registries]}, recursive=True) }}"
+    when: '(insecure_registries | list) and (docker_conf.insecure_registries is not defined)'
+  - debug: var=docker_conf
+
+  - name: Load variable back to file, restart Docker
+    copy:
+      content: "{{ docker_conf | to_yaml }}"
+      dest: /etc/containers/registries.conf
+    become: true
+    notify:
+    - restart docker
