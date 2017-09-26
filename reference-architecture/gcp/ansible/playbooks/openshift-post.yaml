@@ -1,7 +1,7 @@
 ---
 - include: ../../../../playbooks/empty-dir-quota.yaml
 
-- name: add ssd storage class
+- name: post ocp deploy tasks for single master node
   hosts: single_master
   roles:
   - role: openshift_default_storage_class
@@ -9,6 +9,9 @@
     openshift_storageclass_name: ssd
     openshift_storageclass_parameters:
       type: pd-ssd
+  tasks:
+  - name: set node selector for openshift-infra namespace
+    command: oc annotate --overwrite namespace openshift-infra openshift.io/node-selector='role=infra'
 
 - name: post ocp deploy tasks for master nodes
   hosts: masters
