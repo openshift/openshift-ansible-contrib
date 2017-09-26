@@ -33,7 +33,7 @@
       docker_conf: "{{ docker_conf | combine({'registries': [docker_conf['registries'] + [registries]]}, recursive=True) }}"
     when: '(registries | list) and (docker_conf.registries is defined)'
 
-   - name: Add other registries (if there are no existing ones)
+  - name: Add other registries (if there are no existing ones)
     set_fact:
       docker_conf: "{{ docker_conf | combine({'registries': [registries]}, recursive=True) }}"
     when: '(registries | list) and (docker_conf.registries is not defined)'
