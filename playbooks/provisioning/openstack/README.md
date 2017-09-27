@@ -242,18 +242,16 @@ provider network directly.
 To use a provider network, set its name in `openstack_provider_network_name` in
 `inventory/group_vars/all.yml`.
 
-When using Flannel SDN as a provider data network, set the dedicated flannel network
-name in `openstack_provider_data_network_name` as well. That network is used for
-the applications/workloads data and should be isolated from other provider networks.
-
-If you set the provider network name, the `openstack_external_network_name`,
-`openstack_private_network_name` and `openstack_private_data_network_name` fields
-will be ignored.
+If you set the provider network name, the `openstack_external_network_name` and
+`openstack_private_network_name` fields will be ignored.
 
 **NOTE**: this will not update the nodes' DNS, so running openshift-ansible
 right after provisioning will fail (unless you're using an external DNS server
 your provider network knows about). You must make sure your nodes are able to
 resolve each other by name.
+
+**NOTE**: Flannel SDN requires a dedicated containers data network and cannot
+work over a single provider network.
 
 #### Security notes
 
@@ -588,7 +586,7 @@ The `increment_by` variable is used to specify by how much the deployment should
 be scaled up (if none exists, it serves as a target number of application nodes).
 The path to `openshift-ansible` directory can be customised by the `openshift_ansible_dir`
 variable. Its value must be an absolute path to `openshift-ansible` and it cannot
-contain the '/' symbol at the end. 
+contain the '/' symbol at the end.
 
 Usage:
 

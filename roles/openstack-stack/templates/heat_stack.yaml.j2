@@ -634,12 +634,7 @@ resources:
           key_name:    {{ ssh_public_key }}
 {% if provider_network %}
           net:         {{ provider_network }}
-          net_name:    {{ provider_network }}
-{% if openshift_use_flannel|default(False)|bool %}
-          attach_data_net: true
-          data_net:    {{ provider_data_network }}
-          data_net_name: {{ provider_data_network }}
-{% endif %}
+          net_name:         {{ provider_network }}
 {% else %}
           net:         { get_resource: net }
           subnet:      { get_resource: subnet }
@@ -713,12 +708,7 @@ resources:
           key_name:    {{ ssh_public_key }}
 {% if provider_network %}
           net:         {{ provider_network }}
-          net_name:    {{ provider_network }}
-{% if openshift_use_flannel|default(False)|bool %}
-          attach_data_net: true
-          data_net:    {{ provider_data_network }}
-          data_net_name: {{ provider_data_network }}
-{% endif %}
+          net_name:         {{ provider_network }}
 {% else %}
           net:         { get_resource: net }
           subnet:      { get_resource: subnet }
@@ -778,12 +768,7 @@ resources:
           key_name:    {{ ssh_public_key }}
 {% if provider_network %}
           net:         {{ provider_network }}
-          net_name:    {{ provider_network }}
-{% if openshift_use_flannel|default(False)|bool %}
-          attach_data_net: true
-          data_net:    {{ provider_data_network }}
-          data_net_name: {{ provider_data_network }}
-{% endif %}
+          net_name:         {{ provider_network }}
 {% else %}
           net:         { get_resource: net }
           subnet:      { get_resource: subnet }
