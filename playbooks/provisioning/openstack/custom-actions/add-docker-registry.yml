@@ -29,6 +29,11 @@
     set_fact:
       docker_conf: "{{ file_content.stdout | from_yaml }}"
 
+  - name: Make sure that docker file content is a dictionary
+    set_fact:
+      docker_conf: {}
+    when: '(docker_conf is string) and (not docker_conf)'
+
   - name: Make sure that registries is a list
     when: 'registries is string'
     set_fact:
