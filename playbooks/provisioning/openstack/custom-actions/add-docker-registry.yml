@@ -52,13 +52,13 @@
   - name: Add other registries
     set_fact:
       docker_conf: "{{ docker_conf | combine({'registries': [docker_conf_registries + registries]}, recursive=True) }}"
-    when: 'registries'
+    when: 'registries|list'
   - debug: var=docker_conf
 
   - name: Add insecure registries
     set_fact:
       docker_conf: "{{ docker_conf | combine({'insecure_registries': [docker_conf_insecure_registries + insecure_registries ]}, recursive=True) }}"
-    when: 'insecure_registries'
+    when: 'insecure_registries|list'
   - debug: var=docker_conf
 
   - name: Load variable back to file, restart Docker
