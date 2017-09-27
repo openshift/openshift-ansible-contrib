@@ -46,8 +46,8 @@
 
   - name: Set docker file content to a unified format
     set_fact:
-      docker_conf_registries: "{% if docker_conf['registries'] is not defined %} [] {% elif docker_conf['registries'] is string %} [{{ docker_conf['registries'] }}] {% else %} {{ docker_conf['registries'] }} {% endif %}"
-      docker_conf_insecure_registries: "{% if docker_conf['insecure_registries'] is not defined %} [] {% elif docker_conf['insecure_registries'] is string %} [{{ docker_conf['insecure_registries'] }}] {% else %} {{ docker_conf['insecure_registries'] }} {% endif %}"
+      docker_conf_registries: "{% if docker_conf['registries'] is not defined %}" [] "{% elif docker_conf['registries'] is string %}" [ "{{ docker_conf['registries'] }}" ] "{% else %}" "{{ docker_conf['registries'] }}" "{% endif %}"
+      docker_conf_insecure_registries: "{% if docker_conf['insecure_registries'] is not defined %}" [] "{% elif docker_conf['insecure_registries'] is string %}" [ "{{ docker_conf['insecure_registries'] }}" ] "{% else %}" "{{ docker_conf['insecure_registries'] }}" "{% endif %}"
 
   - name: Add other registries
     set_fact:
