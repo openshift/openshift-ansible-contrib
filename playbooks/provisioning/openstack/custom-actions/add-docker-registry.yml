@@ -11,7 +11,8 @@
       state: latest
 
   - name: Get registry configuration file
-    local_action: stat path=/etc/containers/registries.conf
+    stat:
+      path: /etc/containers/registries.conf
     register: file_result
 
   - name: Check if it exists
@@ -28,26 +29,36 @@
     set_fact:
       docker_conf: "{{ file_content.stdout | from_yaml }}"
 
+  - name: Make sure that registries is a list
+    when: 'registries is string'
+    set_fact:
+       registries: "{{ [registries] }}"
+
+  - name: Make sure that insecure_registries is a list
+    when: 'insecure_registries is string'
+    set_fact:
+      insecure_registries: "{{ [insecure_registries] }}"
+
   - name: Add other registries (if there are existing ones)
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'registries': [docker_conf['registries'] + [registries]]}, recursive=True) }}"
-    when: '(registries | list) and (docker_conf.registries is defined)'
+      docker_conf: "{{ docker_conf | combine({'registries': [docker_conf['registries'] + registries]}, recursive=True) }}"
+    when: 'registries and (docker_conf.registries is defined)'
 
   - name: Add other registries (if there are no existing ones)
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'registries': [registries]}, recursive=True) }}"
-    when: '(registries | list) and (docker_conf.registries is not defined)'
+      docker_conf: "{{ docker_conf | combine({'registries': registries}, recursive=True) }}"
+    when: 'registries and (docker_conf.registries is not defined)'
   - debug: var=docker_conf
 
   - name: Add insecure registries (if there are existing ones)
     set_fact:
       docker_conf: "{{ docker_conf | combine({'insecure_registries': [docker_conf['insecure_registries'] + insecure_registries ]}, recursive=True) }}"
-    when: '(insecure_registries | list) and (docker_conf.insecure_registries is defined)'
+    when: 'insecure_registries and (docker_conf.insecure_registries is defined)'
 
   - name: Add insecure registries (if there are no existing ones)
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'insecure_registries': [insecure_registries]}, recursive=True) }}"
-    when: '(insecure_registries | list) and (docker_conf.insecure_registries is not defined)'
+      docker_conf: "{{ docker_conf | combine({'insecure_registries': insecure_registries}, recursive=True) }}"
+    when: 'insecure_registries and (docker_conf.insecure_registries is not defined)'
   - debug: var=docker_conf
 
   - name: Load variable back to file, restart Docker
