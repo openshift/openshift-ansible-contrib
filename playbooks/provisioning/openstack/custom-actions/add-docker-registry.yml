@@ -44,26 +44,21 @@
     set_fact:
       insecure_registries: "{{ [insecure_registries] }}"
 
-  - name: Add other registries (if there are existing ones)
+  - name: Set docker file content to a unified format
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'registries': [docker_conf['registries'] + registries]}, recursive=True) }}"
-    when: 'registries and (docker_conf.registries is defined)'
+      docker_conf_registries: {% if docker_conf['registries'] is not defined %} [] {% elif docker_conf['registries'] is string %} [docker_conf['registries']] {% else %} docker_conf['registries'] {% endif %}
+      docker_conf_insecure_registries: {% if docker_conf['insecure_registries'] is not defined %} [] {% elif docker_conf['insecure_registries'] is string %} [docker_conf['insecure_registries']] {% else %} docker_conf['insecure_registries'] {% endif %}
 
-  - name: Add other registries (if there are no existing ones)
+  - name: Add other registries
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'registries': registries}, recursive=True) }}"
-    when: 'registries and (docker_conf.registries is not defined)'
+      docker_conf: "{{ docker_conf | combine({'registries': [docker_conf_registries + registries]}, recursive=True) }}"
+    when: 'registries'
   - debug: var=docker_conf
 
-  - name: Add insecure registries (if there are existing ones)
+  - name: Add insecure registries
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'insecure_registries': [docker_conf['insecure_registries'] + insecure_registries ]}, recursive=True) }}"
-    when: 'insecure_registries and (docker_conf.insecure_registries is defined)'
-
-  - name: Add insecure registries (if there are no existing ones)
-    set_fact:
-      docker_conf: "{{ docker_conf | combine({'insecure_registries': insecure_registries}, recursive=True) }}"
-    when: 'insecure_registries and (docker_conf.insecure_registries is not defined)'
+      docker_conf: "{{ docker_conf | combine({'insecure_registries': [docker_conf_insecure_registries + insecure_registries ]}, recursive=True) }}"
+    when: 'insecure_registries'
   - debug: var=docker_conf
 
   - name: Load variable back to file, restart Docker
