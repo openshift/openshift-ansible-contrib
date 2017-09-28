@@ -647,7 +647,6 @@ resources:
           attach_data_net: true
           data_net:    { get_resource: data_net }
           data_subnet: { get_resource: data_subnet }
-          data_net_name: openshift-ansible-{{ stack_name }}-data-net
 {% endif %}
 {% endif %}
           secgrp:
@@ -721,7 +720,6 @@ resources:
           attach_data_net: true
           data_net:    { get_resource: data_net }
           data_subnet: { get_resource: data_subnet }
-          data_net_name: openshift-ansible-{{ stack_name }}-data-net
 {% endif %}
 {% endif %}
           secgrp:
@@ -781,7 +779,6 @@ resources:
           attach_data_net: true
           data_net:    { get_resource: data_net }
           data_subnet: { get_resource: data_subnet }
-          data_net_name: openshift-ansible-{{ stack_name }}-data-net
 {% endif %}
 {% endif %}
           secgrp:
