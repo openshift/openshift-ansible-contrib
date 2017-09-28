@@ -1,8 +1,0 @@
----
-
-- name: Delete OpenStack Heat Stack
-  os_stack:
-    name: "{{ stack_name }}"
-    state: absent
-    wait: yes
-
