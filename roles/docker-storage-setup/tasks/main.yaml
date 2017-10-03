@@ -9,7 +9,7 @@
         mode: 0644
 
   when:
-    - {{ ansible_distribution_version | version_compare('7.4', '>=') }}
+    - ansible_distribution_version | version_compare('7.4', '>=')
     - ansible_distribution == "RedHat"
 
 - block:
@@ -21,7 +21,9 @@
         group: root
         mode: 0644
 
-  when: {{ ansible_distribution_version | version_compare('7.4', '<') }}
+  when:
+    - ansible_distribution_version | version_compare('7.4', '<')
+    - ansible_distribution == "RedHat"
 
 - name: start docker
   service: name=docker state=started enabled=true
