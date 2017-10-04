@@ -1,2 +1,2 @@
 ---
-openshift_required_packages: ['iptables', 'iptables-services', 'atomic-openshift-node', 'NetworkManager', 'docker']
+openshift_required_packages: ['iptables', 'iptables-services', 'NetworkManager', 'docker']
