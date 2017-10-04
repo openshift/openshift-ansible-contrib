@@ -1,0 +1,51 @@
+---  
+- block:
+    - name: Install packages
+      yum: name={{ item }} state=present
+      with_items:
+      - keepalived
+      - psmisc
+   
+    - name: Allow connections between infrastructure nodes
+      template:
+        src: firewall.sh.j2
+        dest: /tmp/firewall.sh
+        mode: "u=rwx,g=,o="
+
+    - command: /tmp/firewall.sh
+    
+    - file: 
+        path: /tmp/firewall.sh
+        state: absent 
+
+    - name: Generate facts for play
+      set_fact:
+        openshift_master_cluster_public_ip: "{{ lb_ha_host }}"
+    
+    - name: Generate random internal password
+      shell: uuidgen
+      run_once: true
+      register: keepalived_internal_pass
+    
+    - name: Generate random external password
+      shell: uuidgen
+      run_once: true
+      register: keepalived_external_pass
+    
+    - name: Configure keepalived
+      template:
+        src: keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+    
+    - name: Start keepalived
+      service: 
+        name: keepalived
+        state: started
+        enabled: yes
+    
+    - service:
+        name: keepalived
+        state: restarted
+  when:                                                                                                                                                                                                                                 
+    - lb_ha_host is defined
+    - lb_ha_host|trim != ''

@@ -65,7 +65,7 @@
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
     groups: allnodes
-  with_items: "{{ groups[cluster_id + '-infra-nfs'] }}"
+  with_items: "{{ groups[cluster_id + '-networkfs'] }}"
 
 - name: Add loadbalancer instances to allnodes
   add_host:

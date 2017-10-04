@@ -17,3 +17,4 @@ openshift_required_repos:
 - rhel-7-server-extras-rpms
 - rhel-7-server-ose-3.{{ openshift_major_version }}-rpms
 - rhel-7-fast-datapath-rpms
+external_interface: ens192

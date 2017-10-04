@@ -281,7 +281,10 @@ class VMWareAddNode(object):
         print 'Configured inventory values:'
         for each_section in config.sections():
             for (key, val) in config.items(each_section):
-                print '\t %s:  %s' % ( key,  val )
+                if 'pass' in key:
+                    print '\t %s:  ******' % ( key )
+                else:
+                    print '\t %s:  %s' % ( key,  val )
         print '\n'
 
 
