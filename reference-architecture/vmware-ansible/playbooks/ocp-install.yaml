@@ -76,7 +76,7 @@
       insecure: true
       url:
       bindDN:
-      bindPassword: 
+      bindPassword:
     openshift_hosted_registry_storage_kind: nfs
     openshift_hosted_registry_storage_access_modes: ['ReadWriteMany']
     openshift_hosted_registry_storage_host:

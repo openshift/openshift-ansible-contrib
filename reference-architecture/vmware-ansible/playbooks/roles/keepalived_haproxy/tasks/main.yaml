@@ -3,36 +3,36 @@
     - name: Install packages
       yum: name={{ item }} state=present
       with_items:
-      - keepalived
-      - psmisc
-   
+        - keepalived
+        - psmisc
+
     - name: Determine interface name on single node
       set_fact:
         external_interface: "{{ ansible_default_ipv4.interface }}"
 
-    - name: Allow connections between haproxy nodes 
+    - name: Allow connections between haproxy nodes
       template:
         src: firewall.sh.j2
         dest: /tmp/firewall.sh
         mode: "u=rwx,g=,o="
 
     - command: /tmp/firewall.sh
-    
-    - file: 
+ 
+    - file:
         path: /tmp/firewall.sh
-        state: absent 
+        state: absent
 
     - name: Generate OCP public IP for play
       set_fact:
         openshift_master_cluster_public_ip: "{{ lb_ha_host }}"
-    
+ 
     - name: Generate random external password
       shell: uuidgen
       run_once: true
       register: keepalived_pass
-    
+ 
     - name: Start keepalived
-      service: 
+      service:
         name: keepalived
         state: started
         enabled: yes

@@ -9,7 +9,7 @@
         mode: 0644
 
   when:
-    - ansible_distribution_version | version_compare('7.4', '>=') 
+    - ansible_distribution_version | version_compare('7.4', '>=')
     - ansible_distribution == "RedHat"
 
 - block:
@@ -22,7 +22,7 @@
         mode: 0644
 
   when:
-    -  ansible_distribution_version != "7.4"
+    -  ansible_distribution_version | version_compare('7.4', '>=')
     -  ansible_distribution == "RedHat"
 
 - name: start docker
