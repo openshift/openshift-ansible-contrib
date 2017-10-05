@@ -17,7 +17,7 @@
         mode: "u=rwx,g=,o="
 
     - command: /tmp/firewall.sh
- 
+
     - file:
         path: /tmp/firewall.sh
         state: absent
@@ -25,12 +25,12 @@
     - name: Generate OCP public IP for play
       set_fact:
         openshift_master_cluster_public_ip: "{{ lb_ha_host }}"
- 
+
     - name: Generate random external password
       shell: uuidgen
       run_once: true
       register: keepalived_pass
- 
+
     - name: Start keepalived
       service:
         name: keepalived
@@ -42,7 +42,7 @@
         src: keepalived.conf.j2
         dest: /etc/keepalived/keepalived.conf
       notify: restart keepalived
- 
+
   when:
     - lb_ha_host is defined
     - lb_ha_host|trim != ''
