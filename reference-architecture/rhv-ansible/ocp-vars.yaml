@@ -1,7 +1,8 @@
 ---
 ##############################################################################
 ### Red Hat Virtualization Engine Connection
-engine_url:
+#engine_url: https://engine.example.com/ovirt-engine/api
+engine_url: 
 engine_user: admin@internal
 engine_password:
 # CA file copied from engine:/etc/pki/ovirt-engine/ca.pem; path is relative to playbook directory
