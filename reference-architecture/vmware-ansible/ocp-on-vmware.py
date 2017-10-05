@@ -97,7 +97,7 @@ class VMwareOnOCP(object):
             if line.startswith("      url:"):
                 print "      url:"
             elif line.startswith("      bindPassword:"):
-                print "      bindPassword: "
+                print "      bindPassword:"
             elif line.startswith("      bindDN:"):
                 print "      bindDN:"
             elif line.startswith("    wildcard_zone:"):
