@@ -86,7 +86,6 @@ openshift_master_htpasswd_users: {'admin': '$apr1$zAhyA9Ko$rBxBOwAwwtRuuaw8OtCwH
 ### Registry storage
 ## NFS
 openshift_hosted_registry_storage_kind: nfs
-openshift_hosted_registry_replicas: 2
 openshift_hosted_registry_selector: region=infra
 openshift_hosted_registry_storage_host: 192.168.155.10
 openshift_hosted_registry_storage_nfs_directory: /var/lib/exports
