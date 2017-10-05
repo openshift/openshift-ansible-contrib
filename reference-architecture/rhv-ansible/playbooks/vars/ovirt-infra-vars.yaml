@@ -12,8 +12,9 @@ data_center_name: Default
 ##########################
 template_cluster: "{{ rhv_cluster }}"
 template_name: rhel7
-template_memory: 4GiB
+template_memory: 8GiB
 template_cpu: 1
+template_disk_storage: "{{ rhv_data_storage }}"
 template_disk_size: 60GiB
 template_nics:
   - name: nic1
@@ -22,103 +23,88 @@ template_nics:
 
 master_vm:
   cluster: "{{ rhv_cluster }}"
-  ssh_key: "{{ root_ssh_key }}"
-  domain: "{{ public_hosted_zone }}"
   template: rhel7
   memory: 16GiB
   cores: 2
   high_availability: true
   disks:
     - size: 100GiB
-      name: docker_disk
       storage_domain: "{{ rhv_data_storage }}"
+      name: docker_disk
       interface: virtio
 
 node_vm:
   cluster: "{{ rhv_cluster }}"
-  ssh_key: "{{ root_ssh_key }}"
-  domain: "{{ public_hosted_zone }}"
-  template: rhel7
-  memory: 8GiB
-  cores: 1
-  disks:
-    - size: 100GiB
-      name: docker_disk
-      storage_domain: "{{ rhv_data_storage }}"
-      interface: virtio
-    - size: 50GiB
-      name: localvol_disk
-      storage_domain: "{{ rhv_data_storage }}"
-      interface: virtio
-
-infra_vm:
-  cluster: "{{ rhv_cluster }}"
-  ssh_key: "{{ root_ssh_key }}"
-  domain: "{{ public_hosted_zone }}"
   template: rhel7
   memory: 8GiB
   cores: 2
-  high_availability: true
   disks:
     - size: 100GiB
-      name: docker_disk
       storage_domain: "{{ rhv_data_storage }}"
+      name: docker_disk
       interface: virtio
     - size: 50GiB
-      name: localvol_disk
       storage_domain: "{{ rhv_data_storage }}"
+      name: localvol_disk
       interface: virtio
 
-lb_vm:
-  cluster: "{{ rhv_cluster }}"
-  ssh_key: "{{ root_ssh_key }}"
-  domain: "{{ public_hosted_zone }}"
-  template: rhel7
-  memory: 8GiB
-  cores: 1
-  high_availability: true
-  disks:
-    - size: 100GiB
-      name: docker_disk
-      storage_domain: "{{ rhv_data_storage }}"
-      interface: virtio
-    - size: 50GiB
-      name: localvol_disk
-      storage_domain: "{{ rhv_data_storage }}"
-      interface: virtio
 
 vms:
   # Node VMs
   - name: openshift-node-0
     tag: openshift_node
     profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "openshift-node-0.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
   - name: openshift-node-1
     tag: openshift_node
     profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "openshift-node-1.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
 
   # Infra VMs
   - name: openshift-infra-0
     tag: openshift_infra
-    profile: "{{ infra_vm }}"
+    profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "openshift-infra-0.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
   - name: openshift-infra-1
     tag: openshift_infra
-    profile: "{{ infra_vm }}"
+    profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "openshift-infra-1.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
 
   # Master VMs
   - name: openshift-master-0
     profile: "{{ master_vm }}"
     tag: openshift_master
+    cloud_init:
+      host_name: "openshift-master-0.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
   - name: openshift-master-1
     tag: openshift_master
     profile: "{{ master_vm }}"
+    cloud_init:
+      host_name: "openshift-master-1.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
   - name: openshift-master-2
     tag: openshift_master
     profile: "{{ master_vm }}"
+    cloud_init:
+      host_name: "openshift-master-2.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
 
   # Load balancer
   - name: openshift-lb
     tag: openshift_lb
-    profile: "{{ lb_vm }}"
+    profile: "{{ node_vm }}"
+    cloud_init:
+      host_name: "openshift-lb.{{ public_hosted_zone }}"
+      authorized_ssh_keys: "{{ root_ssh_key }}"
 
 affinity_groups:
   - name: masters_ag
