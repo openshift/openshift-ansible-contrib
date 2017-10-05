@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # set ts=4 sw=4 et
-import argparse, click, os, sys, fileinput, json, iptools, ldap, six, random, yaml
+import argparse, click, datetime,  os, sys, fileinput, json, iptools, ldap, six, random, yaml
 from argparse import RawTextHelpFormatter
 from six.moves import configparser
 
@@ -32,7 +32,7 @@ class VMwareOnOCP(object):
     rhel_subscription_server=None
     rhel_subscription_pool=None
     byo_lb=None
-    lb_config=None
+    lb_config=''
     lb_host=None
     lb_ha_host=None
     byo_nfs=None
@@ -73,7 +73,7 @@ class VMwareOnOCP(object):
             else:
                 if click.confirm('Overwrite the existing inventory file?'):
                     self._create_inventory_file()
-        if self.args.create_ocp_vars or self.lb_config == "False":
+        if self.args.create_ocp_vars or "load_balancer_hostname:" in self.lb_config:
             if self.no_confirm:
                 self._create_ocp_vars()
             else:
@@ -128,13 +128,64 @@ class VMwareOnOCP(object):
                 print line,
 
 
+        date = []
+        today = datetime.date.today()
+        date.append(today)
+        timestamp = str(date[0])
+        command = "cp ocp-on-vmware.ini ocp-on-vmware.%s" % timestamp
+        os.system(command)
+
+        for line in fileinput.input("ocp-on-vmware.ini", inplace=True):
+            if line.startswith("cluster_id="):
+                print "cluster_id="
+            elif line.startswith("vcenter_host="):
+                print "vcenter_host="
+            elif line.startswith("vcenter_password="):
+                print "vcenter_password="
+            elif line.startswith("vcenter_datastore="):
+                print "vcenter_datastore="
+            elif line.startswith("vcenter_cluster="):
+                print "vcenter_cluster="
+            elif line.startswith("vcenter_datacenter="):
+                print "vcenter_datacenter="
+            elif line.startswith("public_hosted_zone="):
+                print "public_hosted_zone="
+            elif line.startswith("vm_dns="):
+                print "vm_dns="
+            elif line.startswith("vm_gw="):
+                print "vm_gw="
+            elif line.startswith("vm_netmask="):
+                print "vm_netmask="
+            elif line.startswith("rhel_subscription_user="):
+                print "rhel_subscription_user="
+            elif line.startswith("rhel_subscription_pass="):
+                print "rhel_subscription_pass="
+            elif line.startswith("lb_ha_host="):
+                print "lb_ha_host="
+            elif line.startswith("master_nodes="):
+                print "master_nodes=3"
+            elif line.startswith("infra_nodes="):
+                print "infra_nodes=3"
+            elif line.startswith("app_nodes="):
+                print "app_nodes=3"
+            elif line.startswith("vm_ipaddr_start="):
+                print "vm_ipaddr_start="
+            elif line.startswith("ldap_user_password="):
+                print "ldap_user_password="
+            elif line.startswith("ldap_fqdn="):
+                print "ldap_fqdn="
+            elif line.startswith("container_storage="):
+                print "container_storage=none"
+            else:
+                print line,
+
     def _check_ocp_vars(self):
         ''' Check to see if the OCP vars have been changed'''
-        lb_present = os.popen("cat playbooks/ocp-install.yaml | grep load_balancer_hostname: | awk '{ print $2 }'").read()
-        if lb_present != '':
-            self.lb_config = "True"
-        else:
-            self.lb_config = "False"
+        for line in fileinput.input("playbooks/ocp-install.yaml"):
+            loadbalancer = line.strip()
+            if not loadbalancer.endswith("load_balancer_hostname:"):
+                continue
+            self.lb_config = loadbalancer
 
     def _parse_cli_args(self):
         ''' Command line argument processing '''
@@ -168,40 +219,25 @@ class VMwareOnOCP(object):
         defaults = {'vmware': {
             'ini_path': os.path.join(os.path.dirname(__file__), '%s.ini' % scriptbasename),
             'console_port':'8443',
-            'cluster_id':'',
             'container_storage':'none',
             'deployment_type':'openshift-enterprise',
             'openshift_vers':'v3_6',
-            'vcenter_host':'',
             'vcenter_username':'administrator@vsphere.local',
-            'vcenter_password':'',
             'vcenter_template_name':'ocp-server-template-2.0.2',
             'vcenter_folder':'ocp',
-            'vcenter_datastore':'',
-            'vcenter_datacenter':'',
-            'vcenter_cluster':'',
             'vcenter_resource_pool':'/Resources/OCP3',
-            'public_hosted_zone':'',
             'app_dns_prefix':'apps',
-            'vm_dns':'',
-            'vm_gw':'',
-            'vm_netmask':'',
             'vm_network':'VM Network',
-            'rhel_subscription_user':'',
-            'rhel_subscription_pass':'',
-            'rhel_subscription_server':'',
             'rhel_subscription_pool':'Red Hat OpenShift Container Platform, Premium*',
             'openshift_sdn':'redhat/openshift-ovs-subnet',
             'byo_lb':'False',
             'lb_host':'haproxy-',
-            'lb_ha_host':'',
             'byo_nfs':'False',
             'nfs_host':'nfs-0',
             'nfs_registry_mountpoint':'/exports',
             'master_nodes':'3',
             'infra_nodes':'2',
             'app_nodes':'3',
-            'vm_ipaddr_start':'',
             'ocp_hostname_prefix':'',
             'auth_type':'ldap',
             'ldap_user':'openshift',
@@ -268,7 +304,7 @@ class VMwareOnOCP(object):
         self.ldap_fqdn = config.get('vmware', 'ldap_fqdn')
         err_count=0
 
-        required_vars = {'cluster_id':self.cluster_id, 'public_hosted_zone':self.public_hosted_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
+        required_vars = {'public_hosted_zone':self.public_hosted_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
 
         for k, v in required_vars.items():
             if v == '':
@@ -279,6 +315,16 @@ class VMwareOnOCP(object):
             exit (1)
         self.wildcard_zone="%s.%s" % (self.app_dns_prefix, self.public_hosted_zone)
         self.support_nodes=0
+
+        if not self.cluster_id:
+        #create a unique cluster_id first
+            self.cluster_id = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(7))
+            config.set('vmware', 'cluster_id', self.cluster_id)
+            for line in fileinput.input(self.vmware_ini_path, inplace=True):
+                if line.startswith('cluster_id'):
+                    print "cluster_id=" + str(self.cluster_id)
+                else:
+                    print line,
 
         print 'Configured inventory values:'
         for each_section in config.sections():
@@ -308,15 +354,6 @@ class VMwareOnOCP(object):
         click.echo("")
         if not self.no_confirm:
             click.confirm('Continue using these values?', abort=True)
-        if not self.cluster_id:
-        #create a unique cluster_id first
-            self.cluster_id = ''.join(random.choice('0123456789abcdefghijklmnopqrstuvwxyz') for i in range(20))
-            config.set('vmware', 'cluster_id', self.cluster_id)
-            for line in fileinput.input(self.vmware_ini_path, inplace=True):
-                if line.startswith('cluster_id'):
-                    print "cluster_id=" + str(self.cluster_id)
-                else:
-                    print line,
 
         if self.byo_nfs == "False":
             self.support_nodes=self.support_nodes+1
@@ -466,7 +503,9 @@ class VMwareOnOCP(object):
 
             install_file = "playbooks/ocp-install.yaml"
             if self.lb_ha_host:
-                self.lb_host = self.lb_ha_host
+                lb_name = self.lb_ha_host
+            else:
+                lb_name = self.lb_host + "." + self.public_hosted_zone
 
             for line in fileinput.input(install_file, inplace=True):
             # Parse our ldap url
@@ -479,7 +518,7 @@ class VMwareOnOCP(object):
                 elif line.startswith("    wildcard_zone:"):
                     print "    wildcard_zone: " + self.app_dns_prefix + "." + self.public_hosted_zone
                 elif line.startswith("    load_balancer_hostname:"):
-                    print "    load_balancer_hostname: " + self.lb_host + "." + self.public_hosted_zone
+                    print "    load_balancer_hostname: " + lb_name
                 elif line.startswith("    deployment_type:"):
                     print "    deployment_type: " + self.deployment_type
                 elif line.startswith("    openshift_hosted_registry_storage_host:"):
@@ -558,6 +597,9 @@ class VMwareOnOCP(object):
             tags = 'clean'
         if self.tag:
             tags = self.tag
+
+        if self.lb_ha_host != '':
+            self.lb_host = self.lb_ha_host
 
         # grab the default priv key from the user"
         command='cp -f ~/.ssh/id_rsa ssh_key/ocp-installer'

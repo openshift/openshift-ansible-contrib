@@ -26,6 +26,6 @@ vrrp_instance OCP_EXT {
    }
    authentication {
       auth_type PASS
-      auth_pass {{ keepalived_external_pass.stdout }}
+      auth_pass {{ keepalived_pass.stdout }}
    }
 }

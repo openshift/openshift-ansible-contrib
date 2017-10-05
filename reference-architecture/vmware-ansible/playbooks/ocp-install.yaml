@@ -51,11 +51,11 @@
     openshift_router_selector: "role=infra"
     openshift_master_cluster_method: native
     openshift_cloudprovider_kind: vsphere
-    wildcard_zone:
+    wildcard_zone: apps.vcenter.e2e.bos.redhat.com
     osm_default_subdomain: "{{ wildcard_zone }}"
     openshift_master_default_subdomain: "{{osm_default_subdomain}}"
-    deployment_type:
-    load_balancer_hostname:
+    deployment_type: openshift-enterprise
+    load_balancer_hostname: 10.19.114.231
     openshift_master_cluster_hostname: "{{ load_balancer_hostname }}"
     openshift_master_cluster_public_hostname: "{{ load_balancer_hostname }}"
     os_sdn_network_plugin_name: "{{ openshift_sdn }}"
@@ -74,20 +74,20 @@
         preferredUsername:
         - uid
       insecure: true
-      url:
-      bindDN:
-      bindPassword:
+      url: ldap://e2e.bos.redhat.com:389/CN=Users,DC=e2e,DC=bos,DC=redhat,DC=com?sAMAccountName
+      bindDN: CN=openshift,CN=Users,DC=e2e,DC=bos,DC=redhat,DC=com
+      bindPassword: password
     openshift_hosted_registry_storage_kind: nfs
     openshift_hosted_registry_storage_access_modes: ['ReadWriteMany']
-    openshift_hosted_registry_storage_host:
-    openshift_hosted_registry_storage_nfs_directory:
+    openshift_hosted_registry_storage_host: nfs-0.vcenter.e2e.bos.redhat.com
+    openshift_hosted_registry_storage_nfs_directory: /exports
     openshift_hosted_registry_storage_volume_name: registry
     openshift_hosted_registry_storage_volume_size: 20Gi
     openshift_master_metrics_public_url: "https://metrics.{{ osm_default_subdomain }}/hawkular/metrics"
     openshift_hosted_metrics_storage_kind: nfs
     openshift_hosted_metrics_storage_access_modes: ['ReadWriteOnce']
-    openshift_hosted_metrics_storage_host:
-    openshift_hosted_metrics_storage_nfs_directory:
+    openshift_hosted_metrics_storage_host: nfs-0.vcenter.e2e.bos.redhat.com
+    openshift_hosted_metrics_storage_nfs_directory: /exports
     openshift_hosted_metrics_storage_volume_name: metrics
     openshift_hosted_metrics_storage_volume_size: 10Gi
 #openshift_master_identity_providers: "[{'name': 'allow_all', 'login': 'true', 'challenge': 'true', 'kind': 'AllowAllPasswordIdentityProvider'}]"

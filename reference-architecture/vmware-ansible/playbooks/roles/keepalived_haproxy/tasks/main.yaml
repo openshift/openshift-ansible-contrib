@@ -1,4 +1,4 @@
----  
+---
 - block:
     - name: Install packages
       yum: name={{ item }} state=present
@@ -6,7 +6,11 @@
       - keepalived
       - psmisc
    
-    - name: Allow connections between infrastructure nodes
+    - name: Determine interface name on single node
+      set_fact:
+        external_interface: "{{ ansible_default_ipv4.interface }}"
+
+    - name: Allow connections between haproxy nodes 
       template:
         src: firewall.sh.j2
         dest: /tmp/firewall.sh
@@ -18,34 +22,27 @@
         path: /tmp/firewall.sh
         state: absent 
 
-    - name: Generate facts for play
+    - name: Generate OCP public IP for play
       set_fact:
         openshift_master_cluster_public_ip: "{{ lb_ha_host }}"
-    
-    - name: Generate random internal password
-      shell: uuidgen
-      run_once: true
-      register: keepalived_internal_pass
     
     - name: Generate random external password
       shell: uuidgen
       run_once: true
-      register: keepalived_external_pass
-    
-    - name: Configure keepalived
-      template:
-        src: keepalived.conf.j2
-        dest: /etc/keepalived/keepalived.conf
+      register: keepalived_pass
     
     - name: Start keepalived
       service: 
         name: keepalived
         state: started
         enabled: yes
-    
-    - service:
-        name: keepalived
-        state: restarted
-  when:                                                                                                                                                                                                                                 
+
+    - name: Configure keepalived
+      template:
+        src: keepalived.conf.j2
+        dest: /etc/keepalived/keepalived.conf
+      notify: restart keepalived
+ 
+  when:
     - lb_ha_host is defined
     - lb_ha_host|trim != ''
