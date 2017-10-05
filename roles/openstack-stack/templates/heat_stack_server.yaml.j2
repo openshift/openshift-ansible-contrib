@@ -68,6 +68,11 @@ parameters:
     description: Subnet resource
 {% endif %}
 
+  api_lb_pool:
+    type: string
+    label: API LoadBalancer pool ID
+    description: API Loadbalancer pool resource
+
   secgrp:
     type: comma_delimited_list
     label: Security groups
@@ -172,6 +177,18 @@ resources:
         - subnet: { get_param: subnet }
 {% endif %}
       security_groups: { get_param: secgrp }
+
+  lb_member:
+    type: OS::Neutron::LBaaS::PoolMember
+    condition:
+      equals:
+        - get_param: type
+        - master
+    properties:
+      pool: { get_param: api_lb_pool }
+      protocol_port: {{ openshift_master_api_port|default(8443) }}
+      address: { get_attr: [server, first_address]}
+      subnet: { get_param: subnet }
 
 {% if not provider_network %}
   floating-ip:

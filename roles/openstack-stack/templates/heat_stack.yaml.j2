@@ -73,7 +73,92 @@ outputs:
 
 resources:
 
+  api_lb:
+    type: OS::Neutron::LBaaS::LoadBalancer
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-api-lb
+          params:
+            cluster_id: {{ stack_name }}
+      vip_address: {{ api_lbaas_ip }}
+      vip_subnet: { get_resource: service_subnet }
+
+  api_lb_listener:
+    type: OS::Neutron::LBaaS::Listener
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-api-lb-listener
+          params:
+            cluster_id: {{ stack_name }}
+      loadbalancer: { get_resource: api_lb }
+      protocol: HTTPS
+      protocol_port: 443
+
+  api_lb_pool:
+    type: OS::Neutron::LBaaS::Pool
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-api-lb-pool
+          params:
+            cluster_id: {{ stack_name }}
+      protocol: HTTPS
+      lb_algorithm: ROUND_ROBIN
+      listener: { get_resource: api_lb_listener }
+
 {% if not provider_network %}
+{% if use_kuryr|default(false)|bool %}
+  pod_net:
+    type: OS::Neutron::Net
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-pod-net
+          params:
+            cluster_id: {{ stack_name }}
+
+  pod_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: pod_net }
+      cidr: {{ pod_subnet_cidr }}
+      enable_dhcp: False
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-pod-subnet
+          params:
+            cluster_id: {{ stack_name }}
+      dns_nameservers:
+{% for nameserver in dns_nameservers %}
+        - {{ nameserver }}
+{% endfor %}
+
+  service_net:
+    type: OS::Neutron::Net
+    properties:
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-service-net
+          params:
+            cluster_id: {{ stack_name }}
+
+  service_subnet:
+    type: OS::Neutron::Subnet
+    properties:
+      network_id: { get_resource: service_net }
+      cidr: {{ service_subnet_cidr }}
+      gateway_ip: {{ service_subnet_gateway }}
+      enable_dhcp: False
+      name:
+        str_replace:
+          template: openshift-ansible-cluster_id-service-subnet
+          params:
+            cluster_id: {{ stack_name }}
+
+{% endif %}
+
   net:
     type: OS::Neutron::Net
     properties:
@@ -129,6 +214,33 @@ resources:
     properties:
       router_id: { get_resource: router }
       subnet_id: { get_resource: subnet }
+
+{% if use_kuryr|default(false)|bool %}
+  interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      subnet_id: { get_resource: pod_subnet }
+
+  service_router_port:
+      type: OS::Neutron::Port
+      properties:
+        network: { get_resource: service_net}
+        fixed_ips:
+          - subnet: { get_resource: service_subnet }
+            ip_address: {{ service_subnet_gateway }}
+        name:
+          str_replace:
+            template: openshift-ansible-cluster_id-service-subnet-router-port
+            params:
+              cluster_id: {{ stack_name }}
+  interface:
+    type: OS::Neutron::RouterInterface
+    properties:
+      router_id: { get_resource: router }
+      port: { get_resource: service_router_port }
+
+{% endif %}
 
 {% endif %}
 
