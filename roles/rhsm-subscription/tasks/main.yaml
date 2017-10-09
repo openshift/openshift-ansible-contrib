@@ -46,6 +46,7 @@
       redhat_subscription:
         username: "{{ rhsm_user }}"
         password: "{{ rhsm_password }}"
+        server_hostname: "{{ rhsm_server }}"
         state: present
         pool: "{{ rhsm_pool }}"
       when: "('not registered' in subscribed.stdout or 'Current' not in subscribed.stdout) and rhsm_user is defined and rhsm_user"
