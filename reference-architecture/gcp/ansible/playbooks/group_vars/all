@@ -28,3 +28,8 @@ gold_image_family: '{{ "rhel-guest-gold" if openshift_deployment_type == "opensh
 console_port: 443
 
 validate_etcd_short_hostname: true
+
+service_account: 'ocp-ansible'
+service_account_id: '{{ service_account }}@{{ gcloud_project }}.iam.gserviceaccount.com'
+service_account_name: 'OCP Ansible'
+credentials_file: '{{ inventory_dir }}/gce/hosts/project.json'

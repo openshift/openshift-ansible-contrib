@@ -5,6 +5,9 @@
     zone: '{{ public_hosted_zone }}'
     type: '{{ item.type }}'
     overwrite: true
+    service_account_email: '{{ service_account_id }}'
+    credentials_file: '{{ credentials_file }}'
+    project_id: '{{ gcloud_project }}'
     state: absent
   with_items:
   - record: '{{ openshift_master_cluster_public_hostname }}'

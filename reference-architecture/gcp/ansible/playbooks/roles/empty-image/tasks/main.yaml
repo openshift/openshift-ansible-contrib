@@ -37,10 +37,7 @@
     when: image_in_bucket_exists | failed
 
   - name: create gce image from the uploaded archive
-    gce_img:
-      name: '{{ empty_image_gce }}'
-      source: '{{ empty_image_in_bucket }}'
-      state: present
+    command: gcloud --project {{ gcloud_project }} compute images create {{ empty_image_gce }} --source-uri {{ empty_image_in_bucket }}
 
   - name: delete bucket with uploaded archive
     command: gsutil -m rm -r "{{ empty_image_bucket }}"

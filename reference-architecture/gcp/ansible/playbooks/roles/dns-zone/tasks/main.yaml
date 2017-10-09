@@ -3,6 +3,9 @@
   gcdns_zone:
     zone: '{{ public_hosted_zone }}'
     description: '{{ public_hosted_zone }} domain'
+    service_account_email: '{{ service_account_id }}'
+    credentials_file: '{{ credentials_file }}'
+    project_id: '{{ gcloud_project }}'
     state: present
   register: dns_created
 

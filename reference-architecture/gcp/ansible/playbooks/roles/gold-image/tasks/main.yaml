@@ -10,4 +10,7 @@
   gce_pd:
     name: '{{ prefix }}-tmp-instance'
     zone: '{{ gcloud_zone }}'
+    service_account_email: '{{ service_account_id }}'
+    credentials_file: '{{ credentials_file }}'
+    project_id: '{{ gcloud_project }}'
     state: absent
