@@ -52,24 +52,24 @@
 
   - name: Add other registries
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'registries': [docker_conf_registries + registries]}, recursive=True) }}"
+      docker_conf: "{{ docker_conf | combine({'registries': (docker_conf_registries + registries) | unique}, recursive=True) }}"
     when: 'registries_list is not defined'
     register: registries_merge_result
 
   - name: Add other registries (if registries had to be converted)
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'registries': [docker_conf_registries + registries_list]}, recursive=True) }}"
+      docker_conf: "{{ docker_conf | combine({'registries': (docker_conf_registries + registries_list) | unique}, recursive=True) }}"
     when: 'registries_merge_result|skipped'
 
   - name: Add insecure registries
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'insecure_registries': [docker_conf_insecure_registries + insecure_registries ]}, recursive=True) }}"
+      docker_conf: "{{ docker_conf | combine({'insecure_registries': (docker_conf_insecure_registries + insecure_registries) | unique }, recursive=True) }}"
     when: 'insecure_registries_list is not defined'
     register: insecure_registries_merge_result
 
   - name: Add insecure registries (if insecure_registries had to be converted)
     set_fact:
-      docker_conf: "{{ docker_conf | combine({'insecure_registries': [docker_conf_insecure_registries + insecure_registries_list ]}, recursive=True) }}"
+      docker_conf: "{{ docker_conf | combine({'insecure_registries': (docker_conf_insecure_registries + insecure_registries_list) | unique }, recursive=True) }}"
     when: 'insecure_registries_merge_result|skipped'
 
   - name: Load variable back to file
