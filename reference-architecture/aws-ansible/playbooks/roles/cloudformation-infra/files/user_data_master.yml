@@ -29,6 +29,7 @@ write_files:
     STORAGE_DRIVER=overlay2
     CONTAINER_ROOT_LV_NAME=dockerlv
     CONTAINER_ROOT_LV_MOUNT_PATH=/var/lib/docker
+    CONTAINER_ROOT_LV_SIZE=100%FREE
     ROOT_SIZE=45G
     GROWPART=true
   path: /etc/sysconfig/docker-storage-setup
