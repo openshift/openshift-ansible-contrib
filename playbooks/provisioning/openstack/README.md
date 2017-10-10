@@ -319,6 +319,8 @@ parameters in `inventory/group_vars/all.yml`:
     #openstack_master_server_group_policies: [affinity]
     #openstack_infra_server_group_policies: [affinity]
 
+The [Heat template documentation](https://docs.openstack.org/heat/pike/template_guide/openstack.html#OS::Nova::ServerGroup)
+lists allowed policy values.
 
 ### Creating and using a Cinder volume for the OpenShift registry
 
