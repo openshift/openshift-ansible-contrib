@@ -20,10 +20,6 @@
     changed_when: false
   - meta: refresh_inventory
 
-- name: gather facts from all systems
-  hosts: all
-  tasks: []
-
 - name: continue with the core infrastructure deployment, after the instances are created
   hosts: localhost
   roles:
