@@ -41,10 +41,10 @@
 
 # If you are not going to use a 'secrets.py' file, you can set the necessary
 # authorization parameters here.
-gce_service_account_email_address = {{ service_account_id }}
-gce_service_account_pem_file_path = {{ credentials_file }}
-gce_project_id = {{ gcloud_project }}
-gce_zone = {{ gcloud_region }}
+gce_service_account_email_address={{ service_account_id }}
+gce_service_account_pem_file_path={{ credentials_file }}
+gce_project_id={{ gcloud_project }}
+gce_zone={{ gcloud_region }}
 
 # Filter inventory based on on state. Leave undefined to return instances regardless of state.
 # example: Uncomment to only return inventory in the running or provisioning state
