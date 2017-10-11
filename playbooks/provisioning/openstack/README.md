@@ -511,7 +511,9 @@ If you'd like to limit the run to one particular host, you can do so as follows:
 ansible-playbook --private-key ~/.ssh/openshift -i inventory/ openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/custom-playbook.yml -l app-node-0.openshift.example.com
 ```
 
-You can also create your own custom playbook. Here's one example that adds additional YUM repositories:
+You can also create your own custom playbook. Here are a few examples:
+
+#### Adding additional YUM repositories
 
 ```
 ---
@@ -535,13 +537,30 @@ This example runs against app nodes. The list of options include:
   - masters
   - infra_hosts
 
+#### Adding extra Docker registry URLs
+
+This playbook is located in the [custom-actions](https://github.com/openshift/openshift-ansible-contrib/tree/master/playbooks/provisioning/openstack/custom-actions) directory.
+
+It adds URLs passed as arguments to the docker configuration program.
+Going into more detail, the configuration program (which is in the YAML format) is loaded into an ansible variable
+([line 31-34](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L31-L34))
+and in its structure, `registries` and `insecure_registries` sections are expanded with the newly added items
+([lines 61-80](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L60-L81)).
+The new content is then saved into the original file
+([lines 83-87](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L83-L87))
+and docker is restarted.
+
+Example usage:
+```
+ansible-playbook -i <inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml  --extra-vars '{"registries": "reg1", "insecure_registries": ["ins_reg1","ins_reg2"]}'
+```
+
 Please consider contributing your custom playbook back to openshift-ansible-contrib!
 
 A library of custom post-provision actions exists in `openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions`. Playbooks include:
 
-##### add-yum-repos.yml
-
-[add-yum-repos.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-yum-repos.yml) adds a list of custom yum repositories to every node in the cluster.
+* [add-yum-repos.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-yum-repos.yml): adds a list of custom yum repositories to every node in the cluster
+* [add-docker-registry.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml): adds a list of docker registries to the docker configuration on every node in the cluster
 
 ### Install OpenShift
 
