@@ -315,9 +315,10 @@ You can specify server group policies for infra and master nodes using the follo
 parameters in `inventory/group_vars/all.yml`:
 
     ## Specify server group policies for master and infra nodes. Nova must be configured to
-    ## enable these policies.
-    #openstack_master_server_group_policies: [affinity]
-    #openstack_infra_server_group_policies: [affinity]
+    ## enable these policies. 'anti-affinity' will ensure that each VM is launched on a
+    ## different physical host.
+    #openstack_master_server_group_policies: [anti-affinity]
+    #openstack_infra_server_group_policies: [anti-affinity]
 
 The [Heat template documentation](https://docs.openstack.org/heat/pike/template_guide/openstack.html#OS::Nova::ServerGroup)
 lists allowed policy values.
