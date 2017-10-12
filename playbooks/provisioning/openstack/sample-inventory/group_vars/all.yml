@@ -36,6 +36,7 @@ openstack_default_image_name: "centos7"
 openstack_num_masters: 1
 openstack_num_infra: 1
 openstack_num_nodes: 2
+openstack_num_etcd: 1
 
 # # Used Flavors
 # # - set specific flavors for roles by uncommenting corresponding lines
