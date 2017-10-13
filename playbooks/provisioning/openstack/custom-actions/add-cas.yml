@@ -1,0 +1,14 @@
+---
+- hosts: cluster_hosts
+  vars:
+    ca_files: []
+  tasks:
+  - name: Copy CAs to the trusted CAs location
+    with_items: "{{ ca_files }}"
+    copy:
+      src: "{{ item }}"
+      dest: /etc/pki/ca-trust/source/anchors/
+  - name: Update trusted CAs
+    command: 'update-ca-trust enable && update-ca-trust extract'
+    become: yes
+
