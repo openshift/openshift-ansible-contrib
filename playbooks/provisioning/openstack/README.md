@@ -584,12 +584,38 @@ This playbook runs against all cluster nodes. In order to help prevent slow conn
 problems, the task is retried 10 times in case of initial failure.
 Note that in order for this example to work in your deployment, your servers must use the RHEL image.
 
+#### Adding extra CAs to the trust chain
+
+```
+---
+- hosts: cluster_hosts
+  become: true
+  vars:
+    ca_files: []
+  tasks:
+  - name: Copy CAs to the trusted CAs location
+    with_items: "{{ ca_files }}"
+    copy:
+      src: "{{ item }}"
+      dest: /etc/pki/ca-trust/source/anchors/
+  - name: Update trusted CAs
+    shell: 'update-ca-trust enable && update-ca-trust extract'
+```
+
+Example usage:
+```
+ansible-playbook -i <inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/add-cas.yml --extra-vars '{"ca_files": ["ca1.crt", "ca2.crt"]}'
+```
+
+This playbook copies passed CAs to the trust chain location and updates the trust chain on each selected host.
+
 Please consider contributing your custom playbook back to openshift-ansible-contrib!
 
 A library of custom post-provision actions exists in `openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions`. Playbooks include:
 
 * [add-yum-repos.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-yum-repos.yml): adds a list of custom yum repositories to every node in the cluster
 * [add-rhn-pools.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-rhn-pools.yml): attaches a list of additional RHN pools to every node in the cluster
+* [add-cas.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-rhn-pools.yml): adds a list of CAs to the trust chain on every node in the cluster
 
 ### Install OpenShift
 

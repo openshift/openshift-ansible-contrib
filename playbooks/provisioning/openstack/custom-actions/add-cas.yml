@@ -1,5 +1,6 @@
 ---
 - hosts: cluster_hosts
+  become: true
   vars:
     ca_files: []
   tasks:
@@ -9,6 +10,4 @@
       src: "{{ item }}"
       dest: /etc/pki/ca-trust/source/anchors/
   - name: Update trusted CAs
-    command: 'update-ca-trust enable && update-ca-trust extract'
-    become: yes
-
+    shell: 'update-ca-trust enable && update-ca-trust extract'
