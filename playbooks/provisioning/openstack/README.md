@@ -604,7 +604,7 @@ Note that in order for this example to work in your deployment, your servers mus
 
 Example usage:
 ```
-ansible-playbook -i <inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/add-cas.yml --extra-vars '{"ca_files": [<absolute path for ca1 file>, <absolute path for ca2 file>]}'
+ansible-playbook -i <inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/add-cas.yml --extra-vars '{"ca_files": [<absolute path to ca1 file>, <absolute path to ca2 file>]}'
 ```
 
 This playbook copies passed CAs to the trust chain location and updates the trust chain on each selected host.
