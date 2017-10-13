@@ -1,6 +1,6 @@
 <!-- Thanks for filing an issue! Before hitting the button, please answer these questions.-->
 
-Is this a **[BUG REPORT](#bug-request-info)** or a **[FEATURE REQUEST](#feature-request-info)** ?:
+Is this a **BUG REPORT** or a **FEATURE REQUEST** ? (choose one):
 
 <!--
 If this is a BUG REPORT, please:
@@ -51,7 +51,7 @@ explain why.
 
 An introduction paragraph with "[tl;dr]" info.
 
-##  Problem Description
+## Problem Description
 
 What problem is being solved by the proposed feature?
 
@@ -59,11 +59,11 @@ What are the use cases for End User vs Deployer?
 
 Also describe the target cloud provider.
 
-##  Proposed Change
+## Proposed Change
 
 Describe the change you would like to make.
 
-### Overview 
+### Overview
 
 ### Alternatives
 
