@@ -308,6 +308,21 @@ In order to set a custom entrypoint, update `openshift_master_cluster_public_hos
 Note than an empty hostname does not work, so if your domain is `openshift.example.com`,
 you cannot set this value to simply `openshift.example.com`.
 
+
+### Specifying server group policies
+
+You can specify server group policies for infra and master nodes using the following
+parameters in `inventory/group_vars/all.yml`:
+
+    ## Specify server group policies for master and infra nodes. Nova must be configured to
+    ## enable these policies. 'anti-affinity' will ensure that each VM is launched on a
+    ## different physical host.
+    #openstack_master_server_group_policies: [anti-affinity]
+    #openstack_infra_server_group_policies: [anti-affinity]
+
+The [Heat template documentation](https://docs.openstack.org/heat/pike/template_guide/openstack.html#OS::Nova::ServerGroup)
+lists allowed policy values.
+
 ### Creating and using a Cinder volume for the OpenShift registry
 
 You can optionally have the playbooks create a Cinder volume and set
@@ -360,6 +375,19 @@ registry. Again in `OSEv3.yml`:
 
 The filesystem value here will be used in the initial formatting of
 the volume.
+
+If you're using the dynamic inventory, you must uncomment these two values as
+well:
+
+    #openshift_hosted_registry_storage_openstack_volumeID: "{{ lookup('os_cinder', cinder_hosted_registry_name).id }}"
+    #openshift_hosted_registry_storage_volume_size: "{{ cinder_hosted_registry_size_gb }}Gi"
+
+But note that they use the `os_cinder` lookup plugin we provide, so you must
+tell Ansible where to find it either in `ansible.cfg` (the one we provide is
+configured properly) or by exporting the
+`ANSIBLE_LOOKUP_PLUGINS=openshift-ansible-contrib/lookup_plugins` environment
+variable.
+
 
 
 ### Use an existing Cinder volume for the OpenShift registry
@@ -537,6 +565,25 @@ This example runs against app nodes. The list of options include:
   - masters
   - infra_hosts
 
+#### Attaching additional RHN pools
+
+```
+---
+- hosts: cluster_hosts
+  tasks:
+  - name: Attach additional RHN pool
+    become: true
+    command: "/usr/bin/subscription-manager attach --pool=<pool ID>"
+    register: attach_rhn_pool_result
+    until: attach_rhn_pool_result.rc == 0
+    retries: 10
+    delay: 1
+```
+
+This playbook runs against all cluster nodes. In order to help prevent slow connectivity
+problems, the task is retried 10 times in case of initial failure.
+Note that in order for this example to work in your deployment, your servers must use the RHEL image.
+
 #### Adding extra Docker registry URLs
 
 This playbook is located in the [custom-actions](https://github.com/openshift/openshift-ansible-contrib/tree/master/playbooks/provisioning/openstack/custom-actions) directory.
@@ -560,6 +607,7 @@ Please consider contributing your custom playbook back to openshift-ansible-cont
 A library of custom post-provision actions exists in `openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions`. Playbooks include:
 
 * [add-yum-repos.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-yum-repos.yml): adds a list of custom yum repositories to every node in the cluster
+* [add-rhn-pools.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-rhn-pools.yml): attaches a list of additional RHN pools to every node in the cluster
 * [add-docker-registry.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml): adds a list of docker registries to the docker configuration on every node in the cluster
 
 ### Install OpenShift
@@ -586,6 +634,27 @@ for the `openstack_private_ssh_key`. You should also update the control node's
 In order to access UI, the ssh-tunnel service will be created and started on the
 control node. Make sure to remove these changes and the service manually, when not
 needed anymore.
+
+## Scale Deployment up/down
+
+### Scaling up
+
+One can scale up the number of application nodes by executing the ansible playbook
+`openshift-ansible-contrib/playbooks/provisioning/openstack/scale-up.yaml`.
+This process can be done even if there is currently no deployment available.
+The `increment_by` variable is used to specify by how much the deployment should
+be scaled up (if none exists, it serves as a target number of application nodes).
+The path to `openshift-ansible` directory can be customised by the `openshift_ansible_dir`
+variable. Its value must be an absolute path to `openshift-ansible` and it cannot
+contain the '/' symbol at the end. 
+
+Usage:
+
+```
+ansible-playbook -i <path to inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/scale-up.yaml` [-e increment_by=<number>] [-e openshift_ansible_dir=<path to openshift-ansible>]
+```
+
+Note: This playbook works only without a bastion node (`openstack_use_bastion: False`).
 
 ## License
 

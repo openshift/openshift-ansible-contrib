@@ -98,7 +98,7 @@ Configured values:
     vcenter_cluster: devel
     vcenter_datacenter: Boston
     vcenter_resource_pool: OCP3
-    public_hosted_zone: vcenter.example.com
+    dns_zone: vcenter.example.com
     app_dns_prefix: apps
     vm_dns: 10.x.x.5
     vm_gw: 10.x.x.254
@@ -165,7 +165,7 @@ Configured values:
     vcenter_cluster: devel
     vcenter_datacenter: Boston
     vcenter_resource_pool: OCP3
-    public_hosted_zone: vcenter.e2e.bos.redhat.com
+    dns_zone: vcenter.e2e.bos.redhat.com
     app_dns_prefix: apps
     vm_dns: 10.19.114.5
     vm_gw: 10.19.115.254

@@ -191,7 +191,7 @@ common_azure()
   if [ $TYPE == 'node' ]
   then
     # Get last 2 numbers and add 1
-    LASTNUMBER=$((${LASTVM: -2}+1))
+    LASTNUMBER=$((10#${LASTVM: -2}+1))
     # Format properly XX
     NEXT=$(printf %02d $LASTNUMBER)
   else
@@ -215,7 +215,7 @@ add_node_openshift(){
   echo "Adding the new node to the ansible inventory..."
   sudo sed -i "/\[new_nodes\]/a ${VMNAME} openshift_hostname=${VMNAME} openshift_node_labels=\"{'role':'${ROLE}','zone':'default','logging':'true'}\"" /etc/ansible/hosts
   echo "Preparing the host..."
-  ansible new_nodes -m shell -a "curl -s https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/node.sh | bash -x" >/dev/null
+  ansible new_nodes -m shell -a "curl -s https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/3.5/node.sh | bash -x" >/dev/null
   export ANSIBLE_HOST_KEY_CHECKING=False
   ansible-playbook -l new_nodes /home/${USER}/subscribe.yml
   ansible-playbook -l new_nodes -e@vars.yml /home/${USER}/azure-config.yml
@@ -232,7 +232,7 @@ add_master_openshift(){
   sudo sed -i "/\[new_nodes\]/a ${VMNAME} openshift_hostname=${VMNAME} openshift_node_labels=\"{'role':'${ROLE}','zone':'default','logging':'true'}\" openshift_schedulable=false" /etc/ansible/hosts
   sudo sed -i "/\[new_masters\]/a ${VMNAME} openshift_hostname=${VMNAME} openshift_node_labels=\"{'role':'${ROLE}','zone':'default','logging':'true'}\"" /etc/ansible/hosts
   echo "Preparing the host..."
-  ansible new_masters -m shell -a "curl -s https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/master.sh | bash -x"
+  ansible new_masters -m shell -a "curl -s https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/3.5/master.sh | bash -x"
   # Copy ssh files as master.sh does
   ansible master1 -m fetch -a "src=/home/${USER}/.ssh/id_rsa.pub dest=/tmp/key.pub flat=true" >/dev/null
   ansible master1 -m fetch -a "src=/home/${USER}/.ssh/id_rsa dest=/tmp/key flat=true" >/dev/null

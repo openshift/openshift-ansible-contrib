@@ -1,4 +1,0 @@
----
-service_account: 'ocp-ansible'
-service_account_id: '{{ service_account }}@{{ gcloud_project }}.iam.gserviceaccount.com'
-service_account_name: 'OCP Ansible'

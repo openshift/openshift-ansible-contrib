@@ -45,10 +45,10 @@
       netmask: "{{ vm_netmask }}"
       gateway: "{{ vm_gw }}"
     customization:
-      domain: "{{public_hosted_zone}}"
+      domain: "{{dns_zone}}"
       dns_servers:
       - "{{ vm_dns }}"
-      dns_suffix: "{{public_hosted_zone}}"
+      dns_suffix: "{{dns_zone}}"
       hostname: "{{ item.value.guestname}}"
   with_dict: "{{host_inventory}}"
   when: "'master' in item.value.guestname"
@@ -86,10 +86,10 @@
       netmask: "{{ vm_netmask }}"
       gateway: "{{ vm_gw }}"
     customization:
-      domain: "{{public_hosted_zone}}"
+      domain: "{{dns_zone}}"
       dns_servers:
       - "{{ vm_dns }}"
-      dns_suffix: "{{public_hosted_zone}}"
+      dns_suffix: "{{dns_zone}}"
       hostname: "{{ item.value.guestname}}"
   with_dict: "{{host_inventory}}"
   when: "'infra' in item.value.guestname"
@@ -127,15 +127,15 @@
       netmask: "{{ vm_netmask }}"
       gateway: "{{ vm_gw }}"
     customization:
-      domain: "{{public_hosted_zone}}"
+      domain: "{{dns_zone}}"
       dns_servers:
       - "{{ vm_dns }}"
-      dns_suffix: "{{public_hosted_zone}}"
+      dns_suffix: "{{dns_zone}}"
       hostname: "{{ item.value.guestname}}"
   with_dict: "{{host_inventory}}"
   when: "'app' in item.value.guestname"
 
 - name: Add production VMs to inventory
-  add_host: hostname="{{ item.value.guestname }}" ansible_fqdn="{{ item.value.guestname }}.{{ public_hosted_zone }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group"
+  add_host: hostname="{{ item.value.guestname }}" ansible_fqdn="{{ item.value.guestname }}.{{ dns_zone }}" ansible_ssh_host="{{ item.value.ip4addr }}" groups="{{ item.value.tag }}, production_group"
   with_dict: "{{host_inventory}}"
   when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"

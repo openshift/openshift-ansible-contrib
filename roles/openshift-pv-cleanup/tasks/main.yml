@@ -1,0 +1,15 @@
+---
+
+- name: Get all projects
+  command: >
+    oc get projects -o jsonpath='{ .items[*].metadata.name }'
+  register: projects
+
+- name: Delete all persistent volume claims in cluster
+  command: >
+    oc delete pvc --all -n {{ item }}
+  with_items: "{{ projects.stdout.split(' ') }}"
+
+- name: Delete all persistent volumes in cluster
+  command: >
+    oc delete pvc --all

@@ -487,7 +487,7 @@ oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
 # Workaround for BZ1469358
 ansible master1 -b -m fetch -a "src=/etc/origin/master/ca.serial.txt dest=/tmp/ca.serial.txt flat=true"
 ansible masters -b -m copy -a "src=/tmp/ca.serial.txt dest=/etc/origin/master/ca.serial.txt mode=644 owner=root"
-curl https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/add_host.sh -o add_host.sh -s
+curl https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/3.5/add_host.sh -o add_host.sh -s
 chmod a+x ./add_host.sh
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 touch /root/.openshiftcomplete

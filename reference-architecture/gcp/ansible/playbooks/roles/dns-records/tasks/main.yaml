@@ -22,6 +22,9 @@
     record_data: '{{ item.record_data }}'
     ttl: 3600
     overwrite: true
+    service_account_email: '{{ service_account_id }}'
+    credentials_file: '{{ credentials_file }}'
+    project_id: '{{ gcloud_project }}'
     state: present
   with_items:
   - record: '{{ openshift_master_cluster_public_hostname }}'

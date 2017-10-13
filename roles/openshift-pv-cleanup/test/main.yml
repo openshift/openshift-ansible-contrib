@@ -1,0 +1,5 @@
+---
+
+- hosts: seed-hosts
+  roles:
+  - openshift-pv-cleanup

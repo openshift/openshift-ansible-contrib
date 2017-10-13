@@ -1,63 +1,69 @@
 ---
+##############################################################################
 ### Red Hat Virtualization Engine Connection
+#engine_url: https://engine.example.com/ovirt-engine/api
 engine_url:
 engine_user: admin@internal
 engine_password:
 # CA file copied from engine:/etc/pki/ovirt-engine/ca.pem; path is relative to playbook directory
 engine_cafile: ../ca.pem
 
+##############################################################################
 ### Red Hat Virtualization VM Image
 ## For CentOS 7:
 #qcow_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
 ## For RHEL: Find KVM Guest Image in Downloads -> RHEL on https://access.redhat.com/ and use before the link expires:
-#qcow_url:https://access.cdn.redhat.com//content/origin/files/<removed>/rhel-guest-image-7.3-35.x86_64.qcow2?_auth_=<removed>
+#qcow_url:https://access.cdn.redhat.com//content/origin/files/<omitted>/rhel-server-7.4-x86_64-kvm.qcow2?_auth_=<omitted>
 ## Alternatively, download the above KVM image, and re-host it on a local satellite:
-#qcow_url: https://satellite.example.com/pub/rhel-guest-image-7.3-35.x86_64.qcow2
+#qcow_url: https://satellite.example.com/pub/rhel-server-7.4-x86_64-kvm.qcow2
 qcow_url:
 
-# Name of cluster to install on
+## Name of cluster to install on
 rhv_cluster: Default
 
-# Name of RHV storage domain to create disks
-rhv_data_storage: my_data_storage
+## Name of RHV storage domain to create disks
+rhv_data_storage: vmstore
 
-### Choose a subscription method:
+##############################################################################
+### Red Hat Content Subscriptions
 ## For subscriptions to Satellite:
-#
 rhsm_satellite: satellite.example.com
 rhsm_activation_key: vm-key
 rhsm_org_id: Default_Organization
 rhsm_pool: none
 rhsm_katello_url: http://satellite.example.com/pub/katello-ca-consumer-latest.noarch.rpm
-#
+
 ## For subscriptions to Red Hat's CDN
 ## Userid/Password could be moved to a vault file and encrypted for safety, see the following link for details:
 ## http://docs.ansible.com/ansible/playbooks_vault.html
-#
 #rhsm_pool: OpenShift Enterprise, Premium*
 #rhsm_user:
 #rhsm_password:
 
-### Add PUBLIC ssh key here for access to all nodes.
+##############################################################################
+### PUBLIC SSH key for access to all nodes.
 ## Use ssh-agent or a passwordless key in ~/.ssh/id_rsa for the PRIVATE key.
 root_ssh_key:
 
+##############################################################################
 ### Openshift variables
 ## Choices of deployment type: openshift-enterprise, origin
 deployment_type: openshift-enterprise
-openshift_vers: v3_5
+openshift_vers: v3_6
 containerized: false
 console_port: 8443
 
-# DNS entries, requires wildcard *.{{app_dns_prefix}}.{{public_hosted_zone}} points to
-# IP of {{load_balancer_hostname}}
+##############################################################################
+### DNS entries
+## Wildcard *.{{app_dns_prefix}}.{{public_hosted_zone}} must point to IP of LB
 public_hosted_zone: example.com
 app_dns_prefix: apps
 load_balancer_hostname: openshift-lb.{{public_hosted_zone}}
 openshift_master_cluster_hostname: "{{load_balancer_hostname}}"
 openshift_master_cluster_public_hostname: openshift.{{public_hosted_zone}}
 
-# OpenShift Identity Providers
+##############################################################################
+### OpenShift Identity Provider
 # htpasswd shown here, other options documented at
 # https://docs.openshift.com/container-platform/3.5/install_config/configuring_authentication.html
 openshift_master_identity_providers:
@@ -76,8 +82,11 @@ openshift_master_htpasswd_users: {'admin': '$apr1$zAhyA9Ko$rBxBOwAwwtRuuaw8OtCwH
 # or
 #openshift_master_htpasswd_file=<path to local pre-generated htpasswd file>
 
-# NFS for registry storage
+##############################################################################
+### Registry storage
+## NFS
 openshift_hosted_registry_storage_kind: nfs
+openshift_hosted_registry_selector: region=infra
 openshift_hosted_registry_storage_host: 192.168.155.10
 openshift_hosted_registry_storage_nfs_directory: /var/lib/exports
 openshift_hosted_registry_storage_volume_name: registryvol

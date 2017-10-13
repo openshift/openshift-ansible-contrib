@@ -1,0 +1,137 @@
+---
+- name: "Obtain currently enabled repos"
+  shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
+  register: enabled_repos
+
+- name: "Enable specified repositories not already enabled"
+  command: "subscription-manager repos --enable={{ item }}"
+  with_items:
+    - "{{ openshift_deploy_repos | difference(enabled_repos.stdout_lines) }}"
+  register: subscribe_repos
+  until: subscribe_repos | succeeded
+
+- name: "Be sure all pre-req provider packages are installed"
+  yum: name={{item}} state=installed
+  with_items:
+    - "{{ openshift_deploy_packages }}"
+
+- block:
+    - name: "Establish gcp pre-req packages"
+      set_fact:
+        openshift_deploy_packages_by_provider: ['qemu-img', 'python-libcloud', 'python2-jmespath', 'python2-passlib', 'python2-libcloud', 'java-1.8.0-openjdk-headless', 'httpd-tools', ' python2-passlib']
+
+    - name: "Be sure all pre-req gcp packages are installed"
+      yum: name={{item}} state=installed
+      with_items:
+        - "{{ openshift_deploy_packages_by_provider }}"
+  when: "'gcp' in provider"
+
+- block:
+    - name: "Search for SSH key"
+      stat:
+        path: "~/.ssh/id_rsa"
+      register: ssh_key
+
+    - name: "Create SSH key if its missing"
+      command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
+      when: "not ssh_key.stat.exists"
+
+    - name: "Obtain currently enabled repos for rhv"
+      shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
+      register: enabled_repos
+
+    - name: "Enable rhv mgmt repo for rhv"
+      command: "subscription-manager repos --enable=rhel-7-server-rhv-4-mgmt-agent-rpms"
+      when: "'rhv' not in enabled_repos.stdout"
+
+    - name: "Establish rhv pre-req packages"
+      set_fact:
+        openshift_deploy_packages_by_provider: ['ovirt-engine-sdk-python']
+
+    - name: "Be sure all pre-req rhv packages are installed"
+      yum: name={{item}} state=installed
+      with_items:
+        - "{{ openshift_deploy_packages_by_provider }}"
+
+    - name: "Confirm location of openshift-ansible-contrib for rhv"
+      stat:
+        path: "~/git/openshift-ansible-contrib"
+      register: contrib
+
+    - name: "Confirm location of ovirt for rhv doesn't already exist"
+      stat:
+        path: "~/git/ovirt-ansible"
+      register: ovirt
+
+    - name: "Git clone required rhv repo"
+      git:
+        repo: "https://github.com/ovirt/ovirt-ansible"
+        dest: "~/git/ovirt-ansible"
+      when: "contrib.stat.exists and not ovirt.stat.exists"
+  when: "'rhv' in provider"
+
+- block:
+    - name: "Search for SSH key"
+      stat:
+        path: "~/.ssh/id_rsa"
+      register: ssh_key
+
+    - name: "Create SSH key if its missing"
+      command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
+      when: "not ssh_key.stat.exists"
+
+    - name: "Obtain currently enabled repos for vsphere"
+      shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
+      register: enabled_repos
+
+    - name: "Enable SCL Repo for vsphere"
+      command: "subscription-manager repos --enable=rhel-server-rhscl-7-rpms"
+      when: "'rhscl' not in enabled_repos.stdout"
+
+    - name: "Set facts for vsphere non EPEL packages"
+      set_fact:
+        openshift_deploy_packages_by_provider: ['python-click', 'python-ldap', 'python27']
+
+    - name: "Be sure all vsphere pre-req provider packages are installed"
+      yum: name={{item}} state=installed
+      with_items:
+        - "{{ openshift_deploy_packages_by_provider }}"
+
+    - name: "Set facts for vsphere EPEL packages"
+      set_fact:
+        openshift_deploy_epel_packages_by_provider: ['python-iptools', 'python2-pyvmomi']
+  when: "'vsphere' in provider"
+
+- block:
+    - name: "Set facts for aws EPEL packages"
+      set_fact:
+        openshift_deploy_epel_packages_by_provider: ['python2-boto', 'python-netaddr', 'python2-boto3']
+  when: "'aws' in provider"
+
+- block:
+    - name: Check if EPEL repo is already configured.
+      stat: path={{ epel_repofile_path }}
+      register: epel_repofile_result
+
+    - name: Install EPEL repo.
+      yum:
+        name: "{{ epel_repo_url }}"
+        state: present
+      register: result
+      until: '"failed" not in result'
+      retries: 5
+      delay: 10
+      when: not epel_repofile_result.stat.exists
+
+    - name: Import EPEL GPG key.
+      rpm_key:
+        key: "{{ epel_repo_gpg_key_url }}"
+        state: present
+      when: not epel_repofile_result.stat.exists
+      ignore_errors: "{{ ansible_check_mode }}"
+
+    - name: be sure all pre-req provider EPEL packages are installed
+      yum: name={{item}} state=installed
+      with_items:
+        - "{{ openshift_deploy_epel_packages_by_provider }}"
+  when: "'vsphere' in provider or 'aws' in provider"

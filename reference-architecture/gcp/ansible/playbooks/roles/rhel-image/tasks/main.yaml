@@ -31,11 +31,7 @@
     when: image_in_bucket_exists | failed
 
   - name: create gce image from the uploaded archive
-    gce_img:
-      name: '{{ rhel_image_gce }}'
-      family: '{{ rhel_image_gce_family }}'
-      source: '{{ rhel_image_in_bucket }}'
-      state: present
+    command: gcloud --project {{ gcloud_project }} compute images create {{ rhel_image_gce }} --source-uri {{ rhel_image_in_bucket }} --family {{ rhel_image_gce_family }}
 
   - name: delete bucket with uploaded archive
     command: gsutil -m rm -r {{ rhel_image_bucket }}

@@ -54,7 +54,7 @@ class VMWareAddNode(object):
     rhel_subscription_user=None
     rhel_subscription_pass=None
     rhel_subscription_pool=None
-    public_hosted_zone=None
+    dns_zone=None
     app_dns_prefix=None
     admin_key=None
     user_key=None
@@ -167,7 +167,7 @@ class VMWareAddNode(object):
             'vcenter_datacenter':'',
             'vcenter_cluster':'',
             'vcenter_resource_pool':'/Resources/OCP3',
-            'public_hosted_zone':'',
+            'dns_zone':'',
             'app_dns_prefix':'apps',
             'vm_dns':'',
             'vm_gw':'',
@@ -227,7 +227,7 @@ class VMWareAddNode(object):
         self.vcenter_cluster = config.get('vmware', 'vcenter_cluster')
         self.vcenter_datacenter = config.get('vmware', 'vcenter_datacenter')
         self.vcenter_resource_pool = config.get('vmware', 'vcenter_resource_pool')
-        self.public_hosted_zone= config.get('vmware', 'public_hosted_zone')
+        self.dns_zone= config.get('vmware', 'dns_zone')
         self.app_dns_prefix = config.get('vmware', 'app_dns_prefix')
         self.vm_dns = config.get('vmware', 'vm_dns')
         self.vm_gw = config.get('vmware', 'vm_gw')
@@ -267,7 +267,7 @@ class VMWareAddNode(object):
                 self.inventory_file = "crs-inventory.json"
             if 'cns' in self.container_storage:
                 self.inventory_file = "cns-inventory.json"
-        required_vars = {'cluster_id':self.cluster_id, 'public_hosted_zone':self.public_hosted_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
+        required_vars = {'cluster_id':self.cluster_id, 'dns_zone':self.dns_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
         for k, v in required_vars.items():
             if v == '':
                 err_count += 1
@@ -275,13 +275,16 @@ class VMWareAddNode(object):
         if err_count > 0:
             print "Please fill out the missing variables in %s " %  vmware_ini_path
             exit (1)
-        self.wildcard_zone="%s.%s" % (self.app_dns_prefix, self.public_hosted_zone)
+        self.wildcard_zone="%s.%s" % (self.app_dns_prefix, self.dns_zone)
         self.support_nodes=0
 
         print 'Configured inventory values:'
         for each_section in config.sections():
             for (key, val) in config.items(each_section):
-                print '\t %s:  %s' % ( key,  val )
+                if 'pass' in key:
+                    print '\t %s:  ******' % ( key )
+                else:
+                    print '\t %s:  %s' % ( key,  val )
         print '\n'
 
 
@@ -330,7 +333,7 @@ class VMWareAddNode(object):
             d['host_inventory'][guest_name]['guestname'] = guest_name
             d['host_inventory'][guest_name]['ip4addr'] = unusedip4addr[0]
             d['host_inventory'][guest_name]['tag'] = str(self.cluster_id) + '-' + self.node_type
-            data = data + '{ "node" : { "hostnames": {"manage": [ "%s.%s" ],"storage": [ "%s" ]},"zone": %s },"devices": [ "/dev/sdd" ]}' % (  guest_name, self.public_hosted_zone,  unusedip4addr[0], i+1 )
+            data = data + '{ "node" : { "hostnames": {"manage": [ "%s.%s" ],"storage": [ "%s" ]},"zone": %s },"devices": [ "/dev/sdd" ]}' % (  guest_name, self.dns_zone,  unusedip4addr[0], i+1 )
             del unusedip4addr[0]
             if unusedip4addr:
                 data = data + ","
@@ -359,7 +362,7 @@ class VMWareAddNode(object):
         print 'Inventory file created: %s' % self.inventory_file
 
         if self.byo_lb == "no":
-            lb_host_fqdn = "%s.%s" % (self.lb_host, self.public_hosted_zone)
+            lb_host_fqdn = "%s.%s" % (self.lb_host, self.dns_zone)
             self.lb_host = lb_host_fqdn
 
             if self.ocp_hostname_prefix is not None:
@@ -430,7 +433,7 @@ class VMWareAddNode(object):
             vcenter_cluster=%s \
             vcenter_datacenter=%s \
             vcenter_resource_pool=%s \
-            public_hosted_zone=%s \
+            dns_zone=%s \
             app_dns_prefix=%s \
             vm_dns=%s \
             vm_gw=%s \
@@ -464,7 +467,7 @@ class VMWareAddNode(object):
                             self.vcenter_cluster,
                             self.vcenter_datacenter,
                             self.vcenter_resource_pool,
-                            self.public_hosted_zone,
+                            self.dns_zone,
                             self.app_dns_prefix,
                             self.vm_dns,
                             self.vm_gw,

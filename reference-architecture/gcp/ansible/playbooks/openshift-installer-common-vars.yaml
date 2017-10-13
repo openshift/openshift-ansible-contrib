@@ -23,5 +23,7 @@ openshift_hosted_registry_pullthrough: true
 openshift_hosted_registry_acceptschema2: true
 openshift_hosted_registry_enforcequota: true
 openshift_hosted_metrics_storage_kind: dynamic
-openshift_master_metrics_public_url: 'https://metrics.{{ osm_default_subdomain }}/hawkular/metrics'
+openshift_metrics_hawkular_nodeselector: { 'role': 'infra' }
+openshift_metrics_cassandra_nodeselector: { 'role': 'infra' }
+openshift_metrics_heapster_nodeselector: { 'role': 'infra' }
 openshift_disable_check: docker_storage,memory_availability

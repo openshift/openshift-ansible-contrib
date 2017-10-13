@@ -53,6 +53,7 @@
       shell: "subscription-manager repos --disable={{ item }}"
       with_items:
         - "{{ enabled_repos.stdout_lines | difference(openshift_required_repos) }}"
+      when: provider is not defined
 
     - name: "Enable specified repositories not already enabled"
       command: "subscription-manager repos --enable={{ item }}"

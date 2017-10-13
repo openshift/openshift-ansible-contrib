@@ -20,6 +20,7 @@ DATA_SIZE=95%VG
 STORAGE_DRIVER=overlay2
 CONTAINER_ROOT_LV_NAME=dockerlv
 CONTAINER_ROOT_LV_MOUNT_PATH=/var/lib/docker
+CONTAINER_ROOT_LV_SIZE=100%FREE
 EOF
 
 sed -i -e 's/ResourceDisk.EnableSwap.*/ResourceDisk.EnableSwap=n/g' /etc/waagent.conf

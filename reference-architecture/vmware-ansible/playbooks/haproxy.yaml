@@ -4,6 +4,7 @@
     - vars/main.yaml
   roles:
     - create-vm-haproxy
+    - instance-groups
 
 - name: Deploy ha proxy server
   hosts: haproxy_group
@@ -23,11 +24,14 @@
 
 - name: Configure ha proxy server files
   hosts: haproxy_group, master, infra
-  serial: 1
-  remote_user: root
-  gather_facts: yes
   vars_files:
     - vars/main.yaml
   roles:
-    - instance-groups
     - haproxy-server-config
+
+- name: Configure ha proxy server files
+  hosts: haproxy_group
+  vars_files:
+    - vars/main.yaml
+  roles:
+    - keepalived_haproxy

@@ -32,10 +32,10 @@
       netmask: "{{ vm_netmask }}"
       gateway: "{{ vm_gw }}"
     customization:
-      domain: "{{public_hosted_zone}}"
+      domain: "{{dns_zone}}"
       dns_servers:
       - "{{ vm_dns }}"
-      dns_suffix: "{{public_hosted_zone}}"
+      dns_suffix: "{{dns_zone}}"
       hostname: "{{ item.value.guestname}}"
   with_dict: "{{host_inventory}}"
   when: "'master' in item.value.guestname or 'app' in item.value.guestname or 'infra' in item.value.guestname"
