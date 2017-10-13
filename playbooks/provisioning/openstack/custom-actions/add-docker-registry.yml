@@ -27,7 +27,6 @@
   - name: Load configuration file
     shell: cat /etc/containers/registries.conf
     register: file_content
-    become: true
 
   - name: Store file content into a variable
     set_fact:
@@ -76,7 +75,6 @@
       docker_conf: "{{ docker_conf | combine({'insecure_registries': (docker_conf_insecure_registries + insecure_registries_list) | unique }, recursive=True) }}"
 
   - name: Load variable back to file
-    become: true
     copy:
       content: "{{ docker_conf | to_yaml }}"
       dest: /etc/containers/registries.conf
