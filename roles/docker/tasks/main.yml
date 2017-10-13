@@ -18,7 +18,7 @@
 - name: "Set Docker Storage fact if already configured"
   set_fact:
     docker_storage_setup: true
-  when: pvs.stdout | search('{{ docker_storage_block_device }}.*{{ docker_storage_volume_group }}')
+  when: pvs.stdout | search(docker_storage_block_device ~ '.*' ~ docker_storage_volume_group)
 
 - name: "Configure Docker Storage Setup"
   template:
