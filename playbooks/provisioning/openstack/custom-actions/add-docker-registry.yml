@@ -48,10 +48,10 @@
     set_fact:
       insecure_registries_list: [ "{{ insecure_registries }}" ]
 
-  - name: Set docker file content to a unified format
+  - name: Set default values if there are no registries defined
     set_fact:
-      docker_conf_registries: "{{ [] if docker_conf['registries'] is not defined else [ docker_conf['registries'] ] if docker_conf['registries'] is string else docker_conf['registries'] }}"
-      docker_conf_insecure_registries: "{{ [] if docker_conf['insecure_registries'] is not defined else  [ docker_conf['insecure_registries'] ] if docker_conf['insecure_registries'] is string else docker_conf['insecure_registries'] }}"
+      docker_conf_registries: "{{ [] if docker_conf['registries'] is not defined else docker_conf['registries'] }}"
+      docker_conf_insecure_registries: "{{ [] if docker_conf['insecure_registries'] is not defined else docker_conf['insecure_registries'] }}"
 
   - name: Add other registries
     when: 'registries_list is not defined'
@@ -90,4 +90,3 @@
     service:
       name: docker
       state: restarted
-

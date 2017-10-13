@@ -590,11 +590,11 @@ This playbook is located in the [custom-actions](https://github.com/openshift/op
 
 It adds URLs passed as arguments to the docker configuration program.
 Going into more detail, the configuration program (which is in the YAML format) is loaded into an ansible variable
-([lines 31-34](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L31-L34))
+([lines 27-30](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L27-L30))
 and in its structure, `registries` and `insecure_registries` sections are expanded with the newly added items
-([lines 61-80](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L60-L81)).
+([lines 56-76](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L56-L76)).
 The new content is then saved into the original file
-([lines 83-87](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L83-L87))
+([lines 78-82](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L78-L82))
 and docker is restarted.
 
 Example usage:
