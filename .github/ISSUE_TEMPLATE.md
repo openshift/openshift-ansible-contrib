@@ -18,7 +18,7 @@ might close your issue.  If we're wrong, PLEASE feel free to reopen it and
 explain why.
 -->
 
-# BUG REQUEST INFO
+# BUG REPORT INFO
 
 ### Environment
 
