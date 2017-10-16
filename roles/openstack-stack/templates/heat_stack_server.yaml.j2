@@ -97,7 +97,7 @@ parameters:
 
   attach_float_net:
     type: boolean
-    default: {% if not provider_network %}true{% else %}false{% endif %}
+    default: true
 
     label: Attach-float-net
     description: A switch for floating network port connection
@@ -163,8 +163,9 @@ outputs:
 {% endif %}
         - addr
 
-{% if openshift_use_flannel|default(False)|bool %}
 conditions:
+  no_floating: {not: { get_param: attach_float_net} }
+{% if openshift_use_flannel|default(False)|bool %}
   no_data_subnet: {not: { get_param: attach_data_net} }
 {% endif %}
 

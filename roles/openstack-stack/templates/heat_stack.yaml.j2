@@ -71,6 +71,9 @@ outputs:
     value: { get_attr: [ dns, private_ip ] }
 {% endif %}
 
+conditions:
+  no_floating: {% if provider_network or use_bastion|bool %}true{% else %}false{% endif %}
+
 resources:
 
 {% if not provider_network %}
@@ -539,13 +542,12 @@ resources:
           secgrp:
             - { get_resource: {% if openstack_flat_secgrp|default(False)|bool %}flat-secgrp{% else %}etcd-secgrp{% endif %} }
             - { get_resource: common-secgrp }
-{% if not use_bastion|bool and not provider_network %}
           floating_network:
             if:
-              - attach_float_net
-              - {{ external_network }}
+              - no_floating
               - null
-{% else %}
+              - {{ external_network }}
+{% if use_bastion|bool or provider_network %}
           attach_float_net: false
 {% endif %}
           volume_size: {{ etcd_volume_size }}
@@ -672,13 +674,12 @@ resources:
 {% endif %}
 {% endif %}
             - { get_resource: common-secgrp }
-{% if not use_bastion|bool and not provider_network %}
           floating_network:
             if:
-              - attach_float_net
-              - {{ external_network }}
+              - no_floating
               - null
-{% else %}
+              - {{ external_network }}
+{% if use_bastion|bool or provider_network %}
           attach_float_net: false
 {% endif %}
           volume_size: {{ master_volume_size }}
@@ -743,13 +744,12 @@ resources:
           secgrp:
             - { get_resource: {% if openstack_flat_secgrp|default(False)|bool %}flat-secgrp{% else %}node-secgrp{% endif %} }
             - { get_resource: common-secgrp }
-{% if not use_bastion|bool and not provider_network %}
           floating_network:
             if:
-              - attach_float_net
-              - {{ external_network }}
+              - no_floating
               - null
-{% else %}
+              - {{ external_network }}
+{% if use_bastion|bool or provider_network %}
           attach_float_net: false
 {% endif %}
           volume_size: {{ node_volume_size }}
