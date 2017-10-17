@@ -586,28 +586,13 @@ Note that in order for this example to work in your deployment, your servers mus
 
 #### Adding extra CAs to the trust chain
 
-```
----
-- hosts: cluster_hosts
-  become: true
-  vars:
-    ca_files: []
-  tasks:
-  - name: Copy CAs to the trusted CAs location
-    with_items: "{{ ca_files }}"
-    copy:
-      src: "{{ item }}"
-      dest: /etc/pki/ca-trust/source/anchors/
-  - name: Update trusted CAs
-    shell: 'update-ca-trust enable && update-ca-trust extract'
-```
+This playbook is also located in the [custom-actions](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions) directory.
+It copies passed CAs to the trust chain location and updates the trust chain on each selected host.
 
 Example usage:
 ```
 ansible-playbook -i <inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/add-cas.yml --extra-vars '{"ca_files": [<absolute path to ca1 file>, <absolute path to ca2 file>]}'
 ```
-
-This playbook copies passed CAs to the trust chain location and updates the trust chain on each selected host.
 
 Please consider contributing your custom playbook back to openshift-ansible-contrib!
 
