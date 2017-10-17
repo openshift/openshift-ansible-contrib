@@ -3,7 +3,7 @@ openshift_deploy_repos: ['rhel-7-server-rpms', 'rhel-7-server-extras-rpms', 'rhe
 # openshift_deploy_repos_by_provider
 # VMW - 'rhel-server-rhscl-7-rpms'
 
-openshift_deploy_packages: ['python27', 'git', 'atomic-openshift-utils']
+openshift_deploy_packages: ['git', 'atomic-openshift-utils']
 # ALL - 'git', 'ansible', 'atomic-openshift-utils'
 
 # openshift_deploy_packages_by_provider
@@ -15,6 +15,7 @@ openshift_deploy_epel_packages: ['python2-boto', 'python-netaddr', 'python2-boto
 # openshift_deploy_epel_packages_by_provider
 # AWS - 'python2-boto', 'python-netaddr', 'python2-boto3'
 # VMW - 'python-iptools', 'python2-pyvmomi'
+# GCP - 'python2-libcloud', 'python2-jmespath'
 
 epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
 epel_repo_gpg_key_url: "/etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"

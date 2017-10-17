@@ -250,6 +250,9 @@ right after provisioning will fail (unless you're using an external DNS server
 your provider network knows about). You must make sure your nodes are able to
 resolve each other by name.
 
+**NOTE**: Flannel SDN requires a dedicated containers data network and cannot
+work over a single provider network.
+
 #### Security notes
 
 Configure required `*_ingress_cidr` variables to restrict public access
@@ -266,6 +269,10 @@ may want to turn off in order to speed up the provisioning tasks. This may
 be the case for development environments. When turned off, the servers will
 be provisioned omitting the ``yum update`` command. This brings security
 implications though, and is not recommended for production deployments.
+
+Flannel network used for user applications and workloads data should be
+isolated from other networks as it has Neutron ports security disabled.
+Openshift master, compute and infra nodes will be connected to that network.
 
 ##### DNS servers security options
 
@@ -584,6 +591,23 @@ This playbook runs against all cluster nodes. In order to help prevent slow conn
 problems, the task is retried 10 times in case of initial failure.
 Note that in order for this example to work in your deployment, your servers must use the RHEL image.
 
+#### Adding extra Docker registry URLs
+
+This playbook is located in the [custom-actions](https://github.com/openshift/openshift-ansible-contrib/tree/master/playbooks/provisioning/openstack/custom-actions) directory.
+
+It adds URLs passed as arguments to the docker configuration program.
+Going into more detail, the configuration program (which is in the YAML format) is loaded into an ansible variable
+([lines 27-30](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L27-L30))
+and in its structure, `registries` and `insecure_registries` sections are expanded with the newly added items
+([lines 56-76](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L56-L76)).
+The new content is then saved into the original file
+([lines 78-82](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml#L78-L82))
+and docker is restarted.
+
+Example usage:
+```
+ansible-playbook -i <inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml  --extra-vars '{"registries": "reg1", "insecure_registries": ["ins_reg1","ins_reg2"]}'
+
 #### Adding extra CAs to the trust chain
 
 This playbook is also located in the [custom-actions](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions) directory.
@@ -600,6 +624,7 @@ A library of custom post-provision actions exists in `openshift-ansible-contrib/
 
 * [add-yum-repos.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-yum-repos.yml): adds a list of custom yum repositories to every node in the cluster
 * [add-rhn-pools.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-rhn-pools.yml): attaches a list of additional RHN pools to every node in the cluster
+* [add-docker-registry.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml): adds a list of docker registries to the docker configuration on every node in the cluster
 * [add-cas.yml](https://github.com/openshift/openshift-ansible-contrib/blob/master/playbooks/provisioning/openstack/custom-actions/add-rhn-pools.yml): adds a list of CAs to the trust chain on every node in the cluster
 
 ### Install OpenShift
@@ -638,7 +663,7 @@ The `increment_by` variable is used to specify by how much the deployment should
 be scaled up (if none exists, it serves as a target number of application nodes).
 The path to `openshift-ansible` directory can be customised by the `openshift_ansible_dir`
 variable. Its value must be an absolute path to `openshift-ansible` and it cannot
-contain the '/' symbol at the end. 
+contain the '/' symbol at the end.
 
 Usage:
 

@@ -9,8 +9,17 @@ in order to create a highly available OpenShift Container Platform environment.
 
 ## Prerequisites
 
+### Preparing the Deployment Host
+The following commands should be issued from the deployment host
+
+```
+# yum install -y git ansible
+$ cd ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
+$ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=rhv
+```
+
 ### oVirt Ansible roles
-A copy of the [oVirt Ansible](https://github.com/ovirt/ovirt-ansible) repository should be cloned in a directory
+A copy of the [oVirt Ansible](https://github.com/ovirt/ovirt-ansible) repository will be cloned in a directory
 alongside this repository. Roles from within the ovirt-ansible repository will be called by playbooks in this one.
 
 ### Dynamic Inventory

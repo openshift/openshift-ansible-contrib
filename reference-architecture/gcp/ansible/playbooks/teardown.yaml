@@ -1,6 +1,14 @@
 ---
+- name: check if ssh proxy is configured
+  hosts: localhost
+  tasks:
+  - name: check if ssh proxy is configured
+    command: grep -q 'OPENSHIFT ON GCP BLOCK' {{ ssh_config_file }}
+    register: ssh_proxy_check
+    ignore_errors: true
+
 - include: unregister.yaml
-  when: hostvars[prefix + '-bastion'] is defined
+  when: hostvars['localhost'].ssh_proxy_check | succeeded
 
 - name: teardown the created infrastructure
   hosts: localhost

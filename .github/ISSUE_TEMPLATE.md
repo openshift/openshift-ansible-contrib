@@ -1,6 +1,6 @@
 <!-- Thanks for filing an issue! Before hitting the button, please answer these questions.-->
 
-**Is this a BUG REPORT or FEATURE REQUEST?** (choose one):
+Is this a **BUG REPORT** or a **FEATURE REQUEST** ? (choose one):
 
 <!--
 If this is a BUG REPORT, please:
@@ -10,7 +10,7 @@ If this is a BUG REPORT, please:
 If this is a FEATURE REQUEST, please:
   - Describe *in detail* the feature/behavior/change you'd like to see. Note,
     for simple and tiny features or change requests we encourage you opening
-    a pull request with a proposed implementaion.
+    a pull request with a proposed implementation.
 
 In both cases, be ready for followup questions, and please respond in a timely
 manner.  If we can't reproduce a bug or think a feature already exists, we
@@ -18,75 +18,80 @@ might close your issue.  If we're wrong, PLEASE feel free to reopen it and
 explain why.
 -->
 
-# BUG REQUEST INFO:
+# BUG REPORT INFO
 
-**Environment**:
-- **Cloud provider:**
+### Environment
 
-- **OS (`printf "$(uname -srm)\n$(cat /etc/os-release)\n"`):**
+- **Cloud provider**:  
 
-- **Version of Ansible:** (`ansible --version`):
+- **OS details** (`printf "$(uname -srm)\n$(cat /etc/os-release)\n"`):  
 
-- **Version of Jinja:** (`pip freeze | grep -i jinja`)
+- **Version of Ansible** (`ansible --version`):  
 
-- **Version of Shade:** (`pip freeze | grep -i shade`)
+- **Version of Jinja** (`pip freeze | grep -i jinja`):  
 
+- **Version of Shade** (`pip freeze | grep -i shade`):  
 
-**Openstack-ansible-contrib version (commit) (`git rev-parse --short HEAD`):**
-
-
-**Copy of used inventory files and custom variables (please omit your secrets!):**
+- **The openstack-ansible-contrib version (commit)** (`git rev-parse --short HEAD`):  
 
 
-**Command used to invoke ansible**:
+**Copy of inventory files and custom variables used (please omit your secrets!)**:  
 
 
-**Output of ansible run**:
+**Command used to invoke ansible**:  
+
+
+**Output of ansible run**:  
 <!-- We recommend using snippets services like https://gist.github.com/ etc. -->
 
-**Anything else do we need to know**:
+**Anything else do we need to know**:  
 
-# FEATURE REQUEST INFO:
+
+# FEATURE REQUEST INFO
 
 An introduction paragraph with "[tl;dr]" info.
 
-## **Problem Description**
+## Problem Description
 
 What problem is being solved by the proposed feature?
-What use cases are for End User vs Deployer? Describe the target Cloud provider
-as well.
 
-## **Proposed Change**
+What are the use cases for End User vs Deployer?
 
-### *Overview*
+Also describe the target cloud provider.
 
-### *Alternatives*
+## Proposed Change
 
-### *Security Impact*
+Describe the change you would like to make.
 
-### *Other End User Impact*
+### Overview
 
-### *Performance Impact*
+### Alternatives
 
-### *Other Deployer Impact*
+### Security Impact
 
-### *Developer Impact*
+### Other End User Impact
 
-### *Documentation Impact*
+### Performance Impact
 
-## **Implementation**
+### Other Deployer Impact
+
+### Developer Impact
+
+### Documentation Impact
+
+## Implementation
 
 Describe your plan for implementation steps and potential
 assignees/contributors.
 
-## **Acceptance criteria**
+## Acceptance criteria
 
 Provide a definition of done and acceptance criteria.
 
-## **Testing**
+## Testing
 
 Describe how to test this, including manual steps, if any.
 
-## **Dependencies**
+## Dependencies
 
-## **References**
+## References

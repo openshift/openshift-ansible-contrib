@@ -11,17 +11,18 @@
     - pre
     - rhsm
 
-- include: ../../../playbooks/openshift-storage.yaml
-  vars:
-    docker_dev: "/dev/vdb"
-    local_volumes_device: "/dev/vdc"
+- hosts: nodes
+  roles:
+    - role: docker-storage-setup
+      docker_dev: '/dev/vdb'
   tags:
     - pre
     - storage
 
-- hosts: masters
+- hosts: schedulable_nodes
   roles:
-    - {"role": docker-storage-setup, "docker_dev": "/dev/vdb"}
+    - role: openshift-volume-quota
+      local_volumes_device: '/dev/vdc'
   tags:
     - pre
     - storage

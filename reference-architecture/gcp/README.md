@@ -13,11 +13,11 @@ The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructu
 Described usage is for RHEL 7 based operating system.
 
 ### Prerequisites
-
-The set of packages is required on the host running the deployment:
+The following commands should be issued from the deployment host:
 ```
-sudo yum update
-sudo yum install curl python which tar qemu-img openssl git ansible python-libcloud python2-jmespath java-1.8.0-openjdk-headless httpd-tools python2-passlib
+# yum install -y git ansible
+$ cd ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
+$ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=gcp
 ```
 
 Note: You need to have GNU tar because the BSD version will not work. Also, it may be necessary to update qemu-img if the package is already installed. If the package is not updated, errors may occur when uploading the RHEL image to GCP.
@@ -58,9 +58,8 @@ More information about the Google Cloud SDK (with info about repositories for ot
 
 ### Clone this repository
 
-Now clone this repository to your local directory and copy the `config.yaml.example` file to `config.yaml`:
+Now copy the `config.yaml.example` file to `config.yaml`:
 ```
-git clone https://github.com/openshift/openshift-ansible-contrib.git
 cd openshift-ansible-contrib/reference-architecture/gcp
 cp config.yaml.example config.yaml
 ```
