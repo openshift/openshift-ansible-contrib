@@ -607,6 +607,7 @@ and docker is restarted.
 Example usage:
 ```
 ansible-playbook -i <inventory> openshift-ansible-contrib/playbooks/provisioning/openstack/custom-actions/add-docker-registry.yml  --extra-vars '{"registries": "reg1", "insecure_registries": ["ins_reg1","ins_reg2"]}'
+```
 
 #### Adding extra CAs to the trust chain
 
