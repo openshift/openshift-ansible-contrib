@@ -64,7 +64,6 @@ resources:
           diskType: pd-ssd
       {% endif %}
       machineType: {{ properties['master_machine_type'] }}
-      {% if properties['containerized'] %}
       metadata:
         items:
         - key: user-data
@@ -75,7 +74,7 @@ resources:
                 DOCKER_STORAGE_OPTIONS='--storage-driver overlay2'
               path: /etc/sysconfig/docker-storage
               permissions: '0644'
-
+            {% if properties['containerized'] %}
             fs_setup:
             - label: docker
               filesystem: xfs
@@ -83,13 +82,10 @@ resources:
               partition: none
 
             mounts:
-            - [ '/dev/disk/by-id/google-docker', '/var/lib/docker', 'xfs', 'defaults', '0', '0'
-
+            - [ '/dev/disk/by-id/google-docker', '/var/lib/docker', 'xfs', 'defaults', '0', '0' ]
+            {% endif %}
             runcmd:
             - [ /usr/sbin/restorecon, -R, /var/lib/docker ]
-      {% else %}
-      metadata: {}
-      {% endif %}
       networkInterfaces:
       - accessConfigs:
         - name: external-nat

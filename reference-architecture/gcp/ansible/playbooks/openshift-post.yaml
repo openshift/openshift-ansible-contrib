@@ -11,7 +11,7 @@
       type: pd-ssd
   tasks:
   - name: set node selector for openshift-infra namespace
-    command: oc annotate --overwrite namespace openshift-infra openshift.io/node-selector='role=infra'
+    shell: PATH="${PATH}:/usr/local/bin:/usr/local/sbin"; oc annotate --overwrite namespace openshift-infra openshift.io/node-selector='role=infra'
 
 - name: post ocp deploy tasks for master nodes
   hosts: masters
