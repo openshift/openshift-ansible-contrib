@@ -4,7 +4,7 @@ This repository contains a series of directories containing code used to deploy 
 
 For documentation, please see the following links
 
-AWS https://access.redhat.com/articles/2623521
+AWS https://access.redhat.com/articles/3157251
 
 GCP https://access.redhat.com/articles/2751521
 

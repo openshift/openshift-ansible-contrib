@@ -18,7 +18,11 @@
 - block:
     - name: "Establish gcp pre-req packages"
       set_fact:
-        openshift_deploy_packages_by_provider: ['qemu-img', 'python-libcloud', 'python2-jmespath', 'python2-passlib', 'python2-libcloud', 'java-1.8.0-openjdk-headless', 'httpd-tools', ' python2-passlib']
+        openshift_deploy_packages_by_provider: ['qemu-img', 'curl', 'tar', 'which', 'openssl', 'python2-passlib', 'java-1.8.0-openjdk-headless', 'httpd-tools', 'python2-passlib']
+
+    - name: "Set facts for gcp EPEL packages"
+      set_fact:
+        openshift_deploy_epel_packages_by_provider: ['python2-libcloud', 'python2-jmespath']
 
     - name: "Be sure all pre-req gcp packages are installed"
       yum: name={{item}} state=installed
@@ -134,4 +138,4 @@
       yum: name={{item}} state=installed
       with_items:
         - "{{ openshift_deploy_epel_packages_by_provider }}"
-  when: "'vsphere' in provider or 'aws' in provider"
+  when: "'vsphere' in provider or 'aws' in provider or 'gcp' in provider"

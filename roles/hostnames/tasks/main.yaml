@@ -7,8 +7,25 @@
   set_fact:
     new_fqdn: "{{ new_hostname }}.{{ full_dns_domain }}"
 
+# Ansible 2.5 fixed the hostname module for RHEL 7.5:  https://github.com/ansible/ansible/pull/31839
+- name: Checking if this version of Ansible has a fix for the hostname module
+  set_fact:
+    hostname_module_fixed: "{{ ansible_version['full'] | version_compare('2.5', '>=') }}"
+
+# The hostname module does not work on RHEL version 7.5 with Ansible versions < 2.5
+- name: Checking if this version of RHEL is affected by the hostname problem
+  set_fact:
+    rhel75: "{{ (ansible_distribution == 'RedHat') and (ansible_distribution_version | version_compare('7.5', '>=')) }}"
+
 - name: Setting hostname and DNS domain
   hostname: name="{{ new_fqdn }}"
+  # Use the hostname module when not on RHEL 7.5 or on the version of Ansible that fixed the hostname module.
+  when: not rhel75 or hostname_module_fixed
+
+- name: Setting hostname and DNS domain using the command module
+  command: "hostname {{ new_fqdn }}"
+  # Use the command module when RHEL 7.5 or later, and when Ansible does not contain the hostname module fix.
+  when: rhel75 and not hostname_module_fixed
 
 - name: Check for cloud.cfg
   stat: path=/etc/cloud/cloud.cfg

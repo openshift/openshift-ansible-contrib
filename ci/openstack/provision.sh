@@ -22,7 +22,7 @@ echo CONFIGURE THE INVENTORY
 
 export INVENTORY="$PWD/playbooks/provisioning/openstack/sample-inventory"
 
-mv "$INVENTORY"/ansible.cfg .
+cp playbooks/provisioning/openstack/ansible.cfg .
 
 PUBLIC_IP="$(curl --silent https://api.ipify.org)"
 

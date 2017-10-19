@@ -57,6 +57,16 @@ end
 NETWORK_BASE = '192.168.50'
 INTEGRATION_START_SEGMENT = 20
 
+def quote_labels(labels)
+    # Quoting logic for ansible host_vars has changed in Vagrant 2.0
+    # See: https://github.com/hashicorp/vagrant/commit/ac75e409a3470897d56a0841a575e981d60e2e3d
+    if Vagrant::VERSION.to_i >= 2
+      return '{' + labels.map{|k, v| "\"#{k}\": \"#{v}\""}.join(', ') + '}'
+    else
+      return '"{' + labels.map{|k, v| "'#{k}': '#{v}'"}.join(', ') + '}"'
+    end
+end
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 #  if Vagrant.has_plugin?("vagrant-cachier")
@@ -175,21 +185,30 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     ansible_host_vars = {
       master1:  {
         openshift_ip: '192.168.50.20',
-        openshift_node_labels: "\"{'region': 'infra', 'zone': 'default'}\"",
+        openshift_node_labels: quote_labels(
+          region: 'infra',
+          zone: 'default',
+        ),
         openshift_schedulable: true,
         ansible_host: '192.168.50.20',
         ansible_ssh_private_key_file: "/home/vagrant/.ssh/master1.key"
       },
       node1: {
         openshift_ip: '192.168.50.21',
-        openshift_node_labels: "\"{'region': 'primary', 'zone': 'east'}\"",
+        openshift_node_labels: quote_labels(
+          region: 'primary',
+          zone: 'east',
+        ),
         openshift_schedulable: true,
         ansible_host: '192.168.50.21',
         ansible_ssh_private_key_file: "/home/vagrant/.ssh/node1.key"
       },
       node2: {
         openshift_ip: '192.168.50.22',
-        openshift_node_labels: "\"{'region': 'primary', 'zone': 'west'}\"",
+        openshift_node_labels: quote_labels(
+          region: 'primary',
+          zone: 'west',
+        ),
         openshift_schedulable: true,
         ansible_host: '192.168.50.22',
         ansible_ssh_private_key_file: "/home/vagrant/.ssh/node2.key"
