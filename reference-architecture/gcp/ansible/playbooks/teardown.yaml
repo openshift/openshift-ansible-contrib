@@ -1,22 +1,9 @@
 ---
-- name: check if ssh proxy is configured
-  hosts: localhost
-  tasks:
-  - name: check if ssh proxy is configured
-    command: grep -q 'OPENSHIFT ON GCP BLOCK' {{ ssh_config_file }}
-    register: ssh_proxy_check
-    ignore_errors: true
-
-- include: unregister.yaml
-  when: hostvars['localhost'].ssh_proxy_check | succeeded
+- include: soft-teardown.yaml
 
 - name: teardown the created infrastructure
   hosts: localhost
   roles:
-  - registry-bucket-delete
-  - dns-records-delete
-  - role: deployment-delete
-    deployment_name: core
   - ssl-certificate-delete
   - role: deployment-delete
     deployment_name: tmp-instance
@@ -24,7 +11,6 @@
   - ssh-config-tmp-instance-delete
   - role: deployment-delete
     deployment_name: network
-  - ssh-proxy-delete
   - role: deployment-delete
     deployment_name: gold-image
     deployment_name_with_prefix: '{{ prefix }}-{{ deployment_name }}{{ "-origin" if openshift_deployment_type == "origin" else "" }}'

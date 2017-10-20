@@ -46,7 +46,7 @@ ANSIBLE_LOG_PATH="${DIR}/ansible-$(date +%F_%T).log"
 export ANSIBLE_LOG_PATH
 
 function display_help {
-  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --redeploy | --static-inventory | --validation | --minor-upgrade | --scaleup | --prereq | --gold-image | --infra | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
+  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --soft-teardown | --redeploy | --soft-redeploy | --static-inventory | --validation | --minor-upgrade | --scaleup | --prereq | --gold-image | --infra | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
 
 Helper script to deploy infrastructure and OpenShift on Google Cloud Platform
 
@@ -57,8 +57,16 @@ Where:
   -h | --help         Display this help text
   --teardown          Teardown the OpenShift and the infrastructure.
                       Warning: you will loose all your data
+  --soft-teardown     Soft-Teardown the OpenShift and the infrastructure.
+                      Not all resources will be removed, just enough to do clean
+                      redeployment. Saves some time.
+                      Warning: you will loose all your data
   --redeploy          Teardown the OpenShift and the infrastructure and deploy
                       it again. Warning: you will loose all your data
+  --soft-redeploy     Soft-Teardown the OpenShift and the infrastructure
+                      and deploy it again. Not all resources will be removed,
+                      just enough to do clean redeployment. Saves some time.
+                      Warning: you will loose all your data
   --static-inventory  Generate static Ansible inventory file for existing infra.
                       It will be saved as 'ansible/static-inventory'
   --validation        Run validation playbook
@@ -136,6 +144,12 @@ function teardown {
   run_playbook playbooks/teardown.yaml "$@"
 }
 
+# Soft-Teardown infrastructure
+function soft_teardown {
+  ask_for_confirmation 'Are you sure you want to destroy OpenShift and the infrastructure? You will loose all your data.'
+  run_playbook playbooks/soft-teardown.yaml "$@"
+}
+
 # Create static inventory file
 function static_inventory {
   run_playbook playbooks/create-inventory-file.yaml "$@"
@@ -197,9 +211,20 @@ while true; do
       teardown "$@"
       exit 0
       ;;
+    --soft-teardown )
+      shift
+      soft_teardown "$@"
+      exit 0
+      ;;
     --redeploy )
       shift
       teardown "$@"
+      main "$@"
+      exit 0
+      ;;
+    --soft-redeploy )
+      shift
+      soft_teardown "$@"
       main "$@"
       exit 0
       ;;
