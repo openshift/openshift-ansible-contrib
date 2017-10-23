@@ -5,10 +5,3 @@
   when:
     - openstack_provider_network_name is defined
     - openstack_private_data_network_name is defined
-
-- name: Check the flannel network configuration
-  fail:
-    msg: "A dedicated containers data network is only supported with Flannel SDN"
-  when:
-    - openstack_private_data_network_name is defined
-    - not openshift_use_flannel|default(False)|bool
