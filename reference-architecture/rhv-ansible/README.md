@@ -36,7 +36,12 @@ A copy of `ovirt4.py` from the Ansible project is provided under the inventory d
 
 ### Red Hat Virtualization Certificate
 A copy of the `/etc/pki/ovirt-engine/ca.pem` from the RHV engine will need to be added to the
-`reference-architecture/rhv-ansible` directory.
+`reference-architecture/rhv-ansible` directory. Replace the example server in the following command to download the certificate:
+
+```
+$ curl --output ca.pem 'http://engine.example.com/ovirt-engine/services/pki-resource?resource=ca-certificate&format=X509-PEM-CA'
+
+```
 
 ### RHEL QCOW2 Image
 The ovirt-ansible role, ovirt-image-template requires a URL to download a QCOW2 KVM image to use as
