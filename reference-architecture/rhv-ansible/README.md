@@ -1,19 +1,28 @@
-# The Reference Architecture OpenShift on RHV
+# Reference Architecture:  OpenShift Container Platform on Red Hat Virtualization
 This repository contains the Ansible playbooks used to deploy 
 an OpenShift Container Platform environment on Red Hat Virtualization
 
 ## Overview
-This reference environment provides a comprehensive example demonstrating how Red Hat OpenShift Container Platform
+This reference architecture provides a comprehensive example demonstrating how Red Hat OpenShift Container Platform
 can be set up to take advantage of the native high availability capabilities of Kubernetes and Red Hat Virtualization
 in order to create a highly available OpenShift Container Platform environment.
 
 ## Prerequisites
 
 ### Preparing the Deployment Host
-The following commands should be issued from the deployment host
+
+Ensure the deployment host (aka workstation host) is running Red Hat Enterprise
+Linux 7 and is registered and subscribed to at least the following channels:
+
+* rhel-7-server-rpms
+* rhel-7-server-extras-rpms
+
+The following commands should be issued from the deployment host (by preference from a
+regular user account with sudo access):
 
 ```
-# yum install -y git ansible
+$ sudo yum install -y git ansible
+$ mkdir -p ~/git
 $ cd ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
 $ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=rhv
 ```
