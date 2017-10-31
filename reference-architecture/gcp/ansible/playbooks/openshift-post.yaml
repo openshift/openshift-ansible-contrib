@@ -1,5 +1,6 @@
 ---
 - include: ../../../../playbooks/empty-dir-quota.yaml
+- include: ../../../../playbooks/openshift-storage.yaml
 
 - name: post ocp deploy tasks for single master node
   hosts: single_master
