@@ -3,7 +3,7 @@
   service: name=docker state=stopped
 
 - block:
-    - name: create the docker-storage config file
+    - name: create the docker-storage-setup overlayfs config file
       template:
         src: "{{ role_path }}/templates/docker-storage-setup-overlayfs.j2"
         dest: /etc/sysconfig/docker-storage-setup
@@ -15,7 +15,7 @@
     - ansible_distribution == "RedHat"
 
 - block:
-    - name: create the docker-storage-setup config file
+    - name: create the docker-storage-setup devicemapper config file
       template:
         src: "{{ role_path }}/templates/docker-storage-setup-dm.j2"
         dest: /etc/sysconfig/docker-storage-setup
@@ -27,7 +27,7 @@
     - ansible_distribution == "RedHat"
 
 - block:
-    - name: create the docker-storage-setup config file for CentOS
+    - name: create the docker-storage-setup devicemapper config file for CentOS
       template:
         src: "{{ role_path }}/templates/docker-storage-setup-dm.j2"
         dest: /etc/sysconfig/docker-storage-setup
