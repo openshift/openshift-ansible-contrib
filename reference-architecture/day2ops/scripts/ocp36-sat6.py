@@ -67,7 +67,7 @@ class ocpSat6(object):
             os.system(cmd)
 
         print "The following vars should exist in your OpenShift install playbook"
-        cmd="hammer --username --password %s organization list" % (self.args.username, self.args.password)
+        cmd="hammer --username %s --password %s organization list" % (self.args.username, self.args.password)
         result = subprocess.check_output(cmd, shell=True)
         lines = result.splitlines()
         for line in lines:
