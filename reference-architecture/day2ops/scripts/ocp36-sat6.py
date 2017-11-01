@@ -29,40 +29,45 @@ class ocpSat6(object):
         parser = argparse.ArgumentParser(description='Add all OCP images for disconnected installation to satellite 6', add_help=True)
         parser.add_argument('--orgid', action='store', default='1',help='Satellite organization ID to create new product for OCP images in')
         parser.add_argument('--productname', action='store', default='ocp36',help='Satellite product name to use to create OCP images')
-        parser.add_argument('--password', action='store', help='Password for hammer CLI')
+        parser.add_argument('--username', action='store', default='admin', help='Satellite 6 username for hammer CLI')
+        parser.add_argument('--password', action='store', help='Satellite 6 Password for hammer CLI')
+        parser.add_argument('--no_confirm', action='store_true', help='Satellite 6 Password for hammer CLI')
         self.args = parser.parse_args()
 
         if not self.args.password:
             self.args.password = getpass.getpass(prompt='Please enter the password to use for the admin account in hammer CLI: ')
 
     def _syncData(self):
-        print "Sync repo data? (This may take a while)"
-        go = raw_input("Continue? y/n:\n")
-        if 'y' not in go:
-            exit(0)
 
-        cmd="hammer --password %s product synchronize --name %s --organization-id %s" % (self.args.password, self.args.productname, self.args.orgid)
+        if not self.args.no_confirm:
+            print "Sync repo data? (This may take a while)"
+            go = raw_input("Continue? y/n:\n")
+            if 'y' not in go:
+                exit(0)
+
+        cmd="hammer --username %s --password %s product synchronize --name %s --organization-id %s" % (self.args.username, self.args.password, self.args.productname, self.args.orgid)
         os.system(cmd)
 
     def _addData(self):
 
-        print "Adding OCP images to org ID: %s with the product name: %s" % (self.args.orgid, self.args.productname)
-        go = raw_input("Continue? y/n:\n")
-        if 'y' not in go:
-            exit(0)
+        if not self.args.no_confirm:
+            print "Adding OCP images to org ID: %s with the product name: %s" % (self.args.orgid, self.args.productname)
+            go = raw_input("Continue? y/n:\n")
+            if 'y' not in go:
+                exit(0)
 
         print "Adding product with name: %s" % self.args.productname
 
-        cmd="hammer --password %s product create --name %s --organization-id %s" % (self.args.password, self.args.productname, self.args.orgid)
+        cmd="hammer --username %s --password %s product create --name %s --organization-id %s" % (self.args.username, self.args.password, self.args.productname, self.args.orgid)
         os.system(cmd)
 
         print "Adding openshift3 images"
         for image in self.openshift3Images:
-            cmd='hammer --password %s repository create --name %s --organization-id %s --content-type docker --url "https://registry.access.redhat.com" --docker-upstream-name %s --product %s' % ( self.args.password, image, self.args.orgid, image, self.args.productname )
+            cmd='hammer --username %s --password %s repository create --name %s --organization-id %s --content-type docker --url "https://registry.access.redhat.com" --docker-upstream-name %s --product %s' % (self.args.username,  self.args.password, image, self.args.orgid, image, self.args.productname )
             os.system(cmd)
 
         print "The following vars should exist in your OpenShift install playbook"
-        cmd="hammer --password %s organization list" % self.args.password
+        cmd="hammer --username --password %s organization list" % (self.args.username, self.args.password)
         result = subprocess.check_output(cmd, shell=True)
         lines = result.splitlines()
         for line in lines:
