@@ -2,6 +2,11 @@
 - name: stop docker
   service: name=docker state=stopped
 
+- name: remove any existing docker-storage config file
+  file:
+    path: /etc/sysconfig/docker-storage
+    state: absent
+
 - block:
     - name: create the docker-storage-setup overlayfs config file
       template:
@@ -41,6 +46,7 @@
 
 - name: Install Docker
   package: name=docker state=present
+  when: ansible_pkg_mgr != "unknown"
 
 - name: start docker
   service: name=docker state=restarted enabled=true
