@@ -63,6 +63,14 @@ os_sdn_network_plugin_name: 'redhat/openshift-ovs-multitenant'
 openshift_hosted_metrics_deploy: false
 openshift_hosted_metrics_storage_volume_size: 20Gi
 
+# Deploy OpenShift Logging
+# Please note that ElasticSearch pod needs 8Gi of free RAM on a node, so you
+# will probably need at least 'n1-standard-4' size for infra nodes. Alternatively
+# for evaluation purposes, you can set 'openshift_logging_es_memory_limit'
+# variable to cca 4Gi, so it fits on the 'n1-standard-2' size of infra nodes.
+openshift_hosted_logging_deploy: false
+openshift_logging_es_pvc_size: 100Gi
+
 # OpenShift Identity Providers. This is Google oauth example (hosted_domain is
 # optional and restricts login to users only from the specified domain)
 # Any identity provider can be configured here, for documentation see

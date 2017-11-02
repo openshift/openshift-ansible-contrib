@@ -103,9 +103,11 @@ resources:
     description: ''
     network: $(ref.{{ properties['prefix'] }}-network.selfLink)
     sourceTags:
+    - {{ properties['prefix'] }}-master
     - {{ properties['prefix'] }}-node
     - {{ properties['prefix'] }}-infra-node
     targetTags:
+    - {{ properties['prefix'] }}-master
     - {{ properties['prefix'] }}-node
     - {{ properties['prefix'] }}-infra-node
   type: compute.v1.firewall

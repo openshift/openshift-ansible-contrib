@@ -40,6 +40,13 @@ openshift_hosted_metrics_storage_kind={{ openshift_hosted_metrics_storage_kind }
 openshift_metrics_hawkular_nodeselector={{ openshift_metrics_hawkular_nodeselector | to_json }}
 openshift_metrics_cassandra_nodeselector={{ openshift_metrics_cassandra_nodeselector | to_json }}
 openshift_metrics_heapster_nodeselector={{ openshift_metrics_heapster_nodeselector | to_json }}
+openshift_hosted_logging_deploy={{ openshift_hosted_logging_deploy }}
+openshift_logging_es_pvc_size={{ openshift_logging_es_pvc_size }}
+openshift_logging_es_pvc_dynamic={{ openshift_logging_es_pvc_dynamic }}
+openshift_logging_es_cluster_size={{ openshift_logging_es_cluster_size }}
+openshift_logging_es_nodeselector={{ openshift_logging_es_nodeselector | to_json }}
+openshift_logging_kibana_nodeselector={{ openshift_logging_kibana_nodeselector | to_json }}
+openshift_logging_curator_nodeselector={{ openshift_logging_curator_nodeselector | to_json }}
 openshift_disable_check={{ openshift_disable_check }}
 openshift_master_identity_providers={{ openshift_master_identity_providers | to_json }}
 

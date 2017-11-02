@@ -26,4 +26,9 @@ openshift_hosted_metrics_storage_kind: dynamic
 openshift_metrics_hawkular_nodeselector: { 'role': 'infra' }
 openshift_metrics_cassandra_nodeselector: { 'role': 'infra' }
 openshift_metrics_heapster_nodeselector: { 'role': 'infra' }
+openshift_logging_es_pvc_dynamic: true
+openshift_logging_es_cluster_size: '{{ infra_node_instance_group_size }}'
+openshift_logging_es_nodeselector: { 'role': 'infra' }
+openshift_logging_kibana_nodeselector: { 'role': 'infra' }
+openshift_logging_curator_nodeselector: { 'role': 'infra' }
 openshift_disable_check: memory_availability
