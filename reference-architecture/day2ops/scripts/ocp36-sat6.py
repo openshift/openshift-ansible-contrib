@@ -31,7 +31,7 @@ class ocpSat6(object):
         parser.add_argument('--productname', action='store', default='ocp36',help='Satellite product name to use to create OCP images')
         parser.add_argument('--username', action='store', default='admin', help='Satellite 6 username for hammer CLI')
         parser.add_argument('--password', action='store', help='Satellite 6 Password for hammer CLI')
-        parser.add_argument('--no_confirm', action='store_true', help='Satellite 6 Password for hammer CLI')
+        parser.add_argument('--no_confirm', action='store_true', help='Do not ask for confirmation')
         self.args = parser.parse_args()
 
         if not self.args.password:
