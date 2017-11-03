@@ -46,7 +46,7 @@
 
 - name: Install Docker
   package: name=docker state=present
-  when: ansible_pkg_mgr != "unknown"
+  when: not openshift.common.is_atomic | bool
 
 - name: start docker
   service: name=docker state=restarted enabled=true
