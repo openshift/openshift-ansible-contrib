@@ -50,3 +50,23 @@
 
 - name: start docker
   service: name=docker state=restarted enabled=true
+
+- block:
+    - name: (Atomic) Remove extra docker lv
+      lvol:
+        lv: docker-pool
+        vg: atomicos
+        state: absent
+        force: yes
+    - name: (Atomic) Grow root lv to fill vg
+      lvol:
+        lv: root
+        vg: atomicos
+        size: +100%FREE
+    - name: (Atomic) Grow root fs to match lv
+      filesystem:
+        dev: /dev/mapper/atomicos-root
+        fstype: xfs
+        resizefs: yes
+  when: openshift.common.is_atomic | bool
+...
