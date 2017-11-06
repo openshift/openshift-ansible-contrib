@@ -68,5 +68,8 @@
         dev: /dev/mapper/atomicos-root
         fstype: xfs
         resizefs: yes
+    - name: (Atomic) Force Ansible to re-gather disk facts
+      setup:
+        filter: 'ansible_mounts'
   when: openshift.common.is_atomic | bool
 ...
