@@ -52,7 +52,7 @@
   service: name=docker state=restarted enabled=true
 
 - block:
-    - name: (Atomic) Remove extra docker lv
+    - name: (Atomic) Remove extra docker lv from root vg
       lvol:
         lv: docker-pool
         vg: atomicos
