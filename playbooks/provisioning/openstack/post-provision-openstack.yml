@@ -7,7 +7,7 @@
     - when: not openstack_use_bastion|default(False)|bool
       wait_for_connection:
     - when: openstack_use_bastion|default(False)|bool
-      delegate_to: bastion
+      delegate_to: "{{ groups['bastions'][0] }}"
       wait_for_connection:
 
 - hosts: cluster_hosts

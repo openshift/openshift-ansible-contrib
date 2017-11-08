@@ -104,9 +104,9 @@
 
     - name: Add bastion node to inventory
       add_host:
-        name: bastion
+        name: '{{ registered_bastion_nodes[0].name }}'
         groups: bastions
-        ansible_host: '{{ registered_bastion_nodes[0].public_v4 }}'
+        ansible_host: '{{ registered_bastion_nodes[0].name }}'
         ansible_fqdn: '{{ registered_bastion_nodes[0].name }}'
         ansible_user: '{{ ssh_user }}'
         ansible_private_key_file: '{{ private_ssh_key }}'

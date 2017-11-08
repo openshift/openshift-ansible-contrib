@@ -4,7 +4,7 @@
     ssh_proxy_command: >-
       ssh {{ ssh_options }}
       -i {{ private_ssh_key }}
-      {{ ssh_user }}@{{ hostvars['bastion'].ansible_host }}
+      {{ ssh_user }}@{{ hostvars[groups.bastions[0]].public_v4 }}
 
 - name: regenerate ssh config
   template:

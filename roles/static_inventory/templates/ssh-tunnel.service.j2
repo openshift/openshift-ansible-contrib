@@ -8,7 +8,7 @@ ExecStart=/usr/bin/ssh -NT -o \
    UserKnownHostsFile=/dev/null -o \
    StrictHostKeyChecking=no -o \
    ExitOnForwardFailure=no -i \
-   {{ private_ssh_key }} {{ ssh_user }}@{{ hostvars['bastion'].ansible_host }} \
+   {{ private_ssh_key }} {{ ssh_user }}@{{ hostvars[groups.bastions[0]].public_v4 }} \
    -L 0.0.0.0:{{ ui_port }}:{{ target_ip }}:{{ ui_port }}
 
 
