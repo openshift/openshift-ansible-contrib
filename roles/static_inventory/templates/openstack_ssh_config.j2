@@ -1,9 +1,9 @@
 Host *
     IdentitiesOnly yes
 
-Host bastion
-    Hostname {{ hostvars['bastion'].ansible_host }}
-    IdentityFile {{ hostvars['bastion'].ansible_private_key_file }}
+Host {{ groups.bastions[0] }}
+    Hostname {{ hostvars[groups.bastions[0]].public_v4 }}
+    IdentityFile {{ hostvars[groups.bastions[0]].ansible_private_key_file }}
     User {{ ssh_user }}
     StrictHostKeyChecking no
     UserKnownHostsFile=/dev/null
