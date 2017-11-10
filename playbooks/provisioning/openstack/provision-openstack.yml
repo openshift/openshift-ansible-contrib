@@ -14,7 +14,7 @@
         - cinder_hosted_registry_size_gb is defined
     - role: static_inventory
       when: openstack_inventory|default('static') == 'static'
-      inventory_path: "{{ openstack_inventory_path|default(inventory_dir) }}"
+      inventory_path: "{{ openstack_inventory_path|default(lookup('env','PWD') + '/inventory') }}"
       private_ssh_key: "{{ openstack_private_ssh_key|default('') }}"
       ssh_config_path: "{{ openstack_ssh_config_path|default('/tmp/ssh.config.openshift.ansible' + '.' + stack_name) }}"
       ssh_user: "{{ ansible_user }}"
