@@ -1128,6 +1128,8 @@ oc adm policy add-cluster-role-to-user cluster-admin ${AUSERNAME}
 ansible master1 -b -m fetch -a "src=/etc/origin/master/ca.serial.txt dest=/tmp/ca.serial.txt flat=true"
 ansible masters -b -m copy -a "src=/tmp/ca.serial.txt dest=/etc/origin/master/ca.serial.txt mode=644 owner=root"
 sleep 240
+oc login -u system:admin
+oc replace -n openshift -f https://raw.githubusercontent.com/jboss-openshift/application-templates/ose-v1.3.7/jboss-image-streams.json
 ansible-playbook /home/${AUSERNAME}/setup-sso.yml &> /home/${AUSERNAME}/setup-sso.out
 cat /home/${AUSERNAME}/openshift-install.out | tr -cd [:print:] |  mail -s "${RESOURCEGROUP} Install Complete" ${RHNUSERNAME} || true
 touch /root/.openshiftcomplete
