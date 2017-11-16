@@ -58,22 +58,25 @@ secrets(){
 }
 
 dcs(){
-  echo "Exporting deploymentconfigs to ${PROJECT}/dcs.json"
-  oc get --export -o=json dc -n ${PROJECT} | jq '.items[] |
-    del(.status,
-        .metadata.uid,
-        .metadata.selfLink,
-        .metadata.resourceVersion,
-        .metadata.creationTimestamp,
-        .metadata.generation,
-        .spec.triggers[].imageChangeParams.lastTriggeredImage
-        )' > ${PROJECT}/dcs.json
-  if [ !$(cat ${PROJECT}/dcs.json | jq '.spec.triggers[].type' | grep -q "ImageChange") ]; then
-    echo "Patching DC..."
-    OLD_IMAGE=$(cat ${PROJECT}/dcs.json | jq '.spec.template.spec.containers[].image' | tr -d "\"")
-    NEW_IMAGE=$(cat ${PROJECT}/dcs.json | jq '.spec.triggers[].imageChangeParams.from.name // empty' | tr -d "\"")
-    sed -i -e "s#$OLD_IMAGE#$NEW_IMAGE#g" ${PROJECT}/dcs.json
+  echo "Exporting deploymentconfigs to ${PROJECT}/dc_*.json"
+  DCS=$(oc get dc -n ${PROJECT} -o jsonpath="{.items[*].metadata.name}")
+  for dc in ${DCS}; do
+    oc get --export -o=json dc ${dc} -n ${PROJECT} | jq '
+      del(.status,
+          .metadata.uid,
+          .metadata.selfLink,
+          .metadata.resourceVersion,
+          .metadata.creationTimestamp,
+          .metadata.generation,
+          .spec.triggers[].imageChangeParams.lastTriggeredImage
+          )' > ${PROJECT}/dc_${dc}.json
+    if [ !$(cat ${PROJECT}/dc_${dc}.json | jq '.spec.triggers[].type' | grep -q "ImageChange") ]; then
+      echo "Patching DC..."
+      OLD_IMAGE=$(cat ${PROJECT}/dc_${dc}.json | jq '.spec.template.spec.containers[].image' | tr -d "\"")
+      NEW_IMAGE=$(cat ${PROJECT}/dc_${dc}.json | jq '.spec.triggers[].imageChangeParams.from.name // empty' | tr -d "\"")
+      sed -e "s#$OLD_IMAGE#$NEW_IMAGE#g" ${PROJECT}/dc_${dc}.json > ${PROJECT}/dc_${dc}_patched.json
     fi
+  done
 }
 
 bcs(){
