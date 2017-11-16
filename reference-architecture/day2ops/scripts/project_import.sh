@@ -30,8 +30,8 @@ do
 done
 
 PROJECT=$1
-oc new-project ${PROJECT}
-sleep 5
+oc create -f ${PROJECT}/ns.json -n ${PROJECT}
+sleep 2
 oc create -f ${PROJECT}/rolebindings.json -n ${PROJECT}
 oc create -f ${PROJECT}/secrets.json -n ${PROJECT}
 oc create -f ${PROJECT}/serviceaccounts.json -n ${PROJECT}
@@ -39,7 +39,6 @@ oc create -f ${PROJECT}/templates.json -n ${PROJECT}
 oc create -f ${PROJECT}/svcs.json -n ${PROJECT}
 oc create -f ${PROJECT}/iss.json -n ${PROJECT}
 oc create -f ${PROJECT}/pvcs.json -n ${PROJECT}
-oc create -f ${PROJECT}/ns.json -n ${PROJECT}
 oc create -f ${PROJECT}/cms.json -n ${PROJECT}
 oc create -f ${PROJECT}/bcs.json -n ${PROJECT}
 oc create -f ${PROJECT}/builds.json -n ${PROJECT}
