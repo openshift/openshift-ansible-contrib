@@ -71,10 +71,12 @@ dcs(){
           .spec.triggers[].imageChangeParams.lastTriggeredImage
           )' > ${PROJECT}/dc_${dc}.json
     if [ !$(cat ${PROJECT}/dc_${dc}.json | jq '.spec.triggers[].type' | grep -q "ImageChange") ]; then
-      echo "Patching DC..."
-      OLD_IMAGE=$(cat ${PROJECT}/dc_${dc}.json | jq '.spec.template.spec.containers[].image' | tr -d "\"")
-      NEW_IMAGE=$(cat ${PROJECT}/dc_${dc}.json | jq '.spec.triggers[].imageChangeParams.from.name // empty' | tr -d "\"")
-      sed -e "s#$OLD_IMAGE#$NEW_IMAGE#g" ${PROJECT}/dc_${dc}.json > ${PROJECT}/dc_${dc}_patched.json
+      for container in $(cat ${PROJECT}/dc_${dc}.json | jq -r '.spec.triggers[] | select(.type == "ImageChange") .imageChangeParams.containerNames[]'); do
+        echo "Patching DC..."
+        OLD_IMAGE=$(cat ${PROJECT}/dc_${dc}.json | jq --arg cname ${container} -r '.spec.template.spec.containers[] | select(.name == $cname)| .image')
+        NEW_IMAGE=$(cat ${PROJECT}/dc_${dc}.json | jq -r '.spec.triggers[] | select(.type == "ImageChange") .imageChangeParams.from.name // empty')
+        sed -e "s#$OLD_IMAGE#$NEW_IMAGE#g" ${PROJECT}/dc_${dc}.json > ${PROJECT}/dc_${dc}_patched.json
+      done
     fi
   done
 }
