@@ -562,8 +562,10 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
          SSO_TRUSTSTORE=truststore.jks
          SSO_TRUSTSTORE_PASSWORD="{{idm_xpassword}}"
 
-  - name: Stage 10 - OCCREATE SECRET ADD
+  - name: Stage 12 - OCCREATE SECRET ADD
     command: oc new-app sso71-postgresql --param-file {{idm_dir}}/sso.params -l app=sso71-postgresql -l application=sso -l template=sso71-https
+  - name: Stage 13 - add xml pv
+    command: oc volume dc/sso --add --claim-size 512M --type=emptyDir --mount-path /opt/eap/standalone/configuration/standalone_xml_history --name standalone-xml-history
   - set_fact: sso_token_url="https://login.{{sso_domain}}/auth/realms/cloud/protocol/openid-connect/token"
   - name: Pause for app create
     pause:
