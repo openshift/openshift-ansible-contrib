@@ -251,7 +251,6 @@ advanced configuration:
 [bastion]: ./advanced-configuration.md#configure-static-inventory-and-access-via-a-bastion-node
 
 
-
 ## License
 
 Like the rest of the openshift-ansible-contrib repository, the code

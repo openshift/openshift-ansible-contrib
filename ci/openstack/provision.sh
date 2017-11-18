@@ -68,7 +68,7 @@ echo
 echo INSTALL OPENSHIFT
 
 ansible-galaxy install -r playbooks/provisioning/openstack/galaxy-requirements.yaml -p roles
-ansible-playbook --timeout 180 --user openshift -i "$INVENTORY" playbooks/provisioning/openstack/provision.yaml -e @extra-vars.yaml
+ansible-playbook --timeout 180 --user openshift -i "$INVENTORY" playbooks/provisioning/openstack/provision.yaml -e openstack_inventory_path="$INVENTORY" -e @extra-vars.yaml
 
 echo
 echo INVENTORY hosts file:

@@ -10,7 +10,7 @@
 # Enable iptables service on app nodes to persist custom rules (flannel SDN)
 # FIXME(bogdando) w/a https://bugzilla.redhat.com/show_bug.cgi?id=1490820
 - hosts: app
-  gather_facts: False
+  gather_facts: True
   become: True
   vars:
     os_firewall_allow:
@@ -42,14 +42,14 @@
       block:
         - name: set allow/masquerade rules for for flannel/docker
           shell: >-
-            (iptables-save | grep -q custom-flannel-docker-1) ||
+            (iptables-save | grep -q flannel-ocp-allow-docker-traffic) ||
             iptables -A DOCKER -w
             -p all -j ACCEPT
-            -m comment --comment "custom-flannel-docker-1";
-            (iptables-save | grep -q custom-flannel-docker-2) ||
+            -m comment --comment "flannel-ocp-allow-docker-traffic";
+            (iptables-save | grep -q flannel-ocp-masquerade) ||
             iptables -t nat -A POSTROUTING -w
             -o {{flannel_interface|default('eth1')}}
-            -m comment --comment "custom-flannel-docker-2"
+            -m comment --comment "flannel-ocp-masquerade"
             -j MASQUERADE
 
         # NOTE(bogdando) the rules will not be restored, when iptables service unit is disabled & masked

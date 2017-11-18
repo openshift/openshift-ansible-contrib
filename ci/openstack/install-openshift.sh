@@ -17,7 +17,7 @@ export INVENTORY="$PWD/playbooks/provisioning/openstack/sample-inventory"
 
 echo INSTALL OPENSHIFT
 
-ansible-playbook --become --timeout 180 --user openshift -i "$INVENTORY" ../openshift-ansible/playbooks/byo/config.yml -e @extra-vars.yaml
+ansible-playbook --become --timeout 180 --user openshift -i "$INVENTORY" ../openshift-ansible/playbooks/byo/config.yml -e openstack_inventory_path="$INVENTORY" -e @extra-vars.yaml
 
 
 echo Waiting for the router to come up

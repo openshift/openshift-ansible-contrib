@@ -15,7 +15,7 @@ python:
 env:
   global:
     - CI_CONCURRENT_JOBS=1
-    - OPENSHIFT_ANSIBLE_COMMIT=master
+    - OPENSHIFT_ANSIBLE_COMMIT=openshift-ansible-3.7.2-1-8-g56b529e
   matrix:
     - RUN_OPENSTACK_CI=false
     - RUN_OPENSTACK_CI=true
