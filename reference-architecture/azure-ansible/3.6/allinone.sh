@@ -532,6 +532,8 @@ cat > /home/${AUSERNAME}/setup-sso.yml <<EOF
     command: "oc create secret generic sso-app-secret --from-file={{idm_dir}}/jgroups.jceks --from-file={{idm_dir}}/sso-https.jks --from-file={{idm_dir}}/truststore.jks"
   - name: Stage 10 - OCCREATE SECRET ADD
     command: "oc secret add sa/{{sso_project}}-service-account secret/sso-app-secret"
+  - name: Stage 10.1 - add xml pv
+    command: oc volume dc/sso --add --claim-size 512M --mount-path /opt/eap/standalone/configuration/standalone_xml_history --name standalone-xml-history
   - name: Stage 11 - Create App Parameters
     blockinfile:
        path: "{{idm_dir}}/sso.params"
