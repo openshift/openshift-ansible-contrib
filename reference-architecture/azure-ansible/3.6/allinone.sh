@@ -680,6 +680,12 @@ parameters:
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/openshift-install.sh
+if mkdir ~/openshift-install.lock; then
+  echo "Locking succeeded" >&2
+else
+  echo "Lock failed - exit" >&2
+  exit 1
+fi
 export ANSIBLE_HOST_KEY_CHECKING=False
 sleep 120
 ansible all --module-name=ping > ansible-preinstall-ping.out || true
