@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if mkdir ~/allinone.lock; then
+  echo "Locking succeeded" >&2
+else
+  echo "Lock failed - exit" >&2
+  exit 1
+fi
 export MYARGS=$@
 IFS=' ' read -r -a array <<< "$MYARGS"
 export RESOURCEGROUP=$1
