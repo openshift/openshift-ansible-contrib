@@ -2,10 +2,10 @@
 {% for host in groups['all'] %}
 {% if hostvars[host].get('ansible_connection', '') == 'local' %}
 {{ host }} ansible_connection=local
-{% else %}
+{% elif host and 'ansible_host' in hostvars[host] %}
 
-{{ host }}{% if 'ansible_host' in hostvars[host]
-%} ansible_host={{ hostvars[host]['ansible_host'] }}{% endif %}
+{{ host }} ansible_host={{ hostvars[host]['ansible_host'] }}
+{%- if 'openshift_hostname' in hostvars[host]
 {% if 'private_v4' in hostvars[host]
 %} private_v4={{ hostvars[host]['private_v4'] }}{% endif %}
 {% if 'public_v4' in hostvars[host]

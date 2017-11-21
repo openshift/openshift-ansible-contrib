@@ -9,7 +9,7 @@ Host bastion
     UserKnownHostsFile=/dev/null
 
 {% for host in groups['all'] | difference(groups['bastions'][0]) %}
-
+{% if host and 'ansible_host' in hostvars[host] %}
 Host {{ host }}
     Hostname {{ hostvars[host].ansible_host }}
     ProxyCommand {{ ssh_proxy_command  }} -W {{ hostvars[host].private_v4 }}:22
@@ -18,4 +18,5 @@ Host {{ host }}
     StrictHostKeyChecking no
     UserKnownHostsFile=/dev/null
 
+{% endif %}
 {% endfor %}
