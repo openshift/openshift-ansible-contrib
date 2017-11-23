@@ -72,12 +72,18 @@ if __name__ == '__main__':
             'ansible_host': ssh_ip_address
         }
 
+        vars['openshift_public_hostname'] = server.name
+        if 'private_fqdn' in server.metadata:
+            vars['openshift_hostname'] = server.metadata.private_fqdn
+
         public_v4 = server.public_v4 or server.private_v4
         if public_v4:
-            vars['public_v4'] = public_v4
+            vars['public_v4'] = server.public_v4
+            vars['openshift_public_ip'] = server.public_v4
         # TODO(shadower): what about multiple networks?
         if server.private_v4:
             vars['private_v4'] = server.private_v4
+            vars['openshift_ip'] = server.private_v4
 
         node_labels = server.metadata.get('node_labels')
         if node_labels:

@@ -3,6 +3,20 @@ env_id: "openshift"
 public_dns_domain: "example.com"
 public_dns_nameservers: []
 
+# FIXME(bogdando) transitioning variable names for compatibility with
+# https://github.com/openshift/openshift-ansible/pull/6039 namespaces
+# remove it once resubmitted by the new location in openshift-ansible
+openshift_openstack_clusterid: "{{ env_id }}"
+openshift_openstack_public_dns_domain: "{{ public_dns_domain }}"
+
+# Allows to override the suffix provided in openshift_openstack_clusterid
+# and the private DNS domain.
+openshift_openstack_public_hostname_suffix: "{{ openshift_openstack_clusterid }}"
+openshift_openstack_private_hostname_suffix: "{{ openshift_openstack_clusterid }}"
+openshift_openstack_private_dns_domain: "{{ openshift_openstack_public_dns_domain }}"
+openshift_openstack_full_public_dns_domain: "{{ (openshift_openstack_public_hostname_suffix|trim == '') | ternary(openshift_openstack_public_dns_domain, openshift_openstack_public_hostname_suffix + '.' + openshift_openstack_public_dns_domain) }}"
+openshift_openstack_full_private_dns_domain: "{{ (openshift_openstack_private_hostname_suffix|trim == '') | ternary(openshift_openstack_private_dns_domain, openshift_openstack_private_hostname_suffix + '.' + openshift_openstack_private_dns_domain) }}"
+
 # Used Hostnames
 # - set custom hostnames for roles by uncommenting corresponding lines
 #openstack_master_hostname: "master"
@@ -149,7 +163,7 @@ ansible_user: openshift
 # The Nova keypair's private SSH key to access inventory nodes.
 #openstack_private_ssh_key: ~/.ssh/id_rsa
 # The path for the SSH config to access all nodes
-#openstack_ssh_config_path: /tmp/ssh.config.openshift.ansible.{{ env_id }}.{{ public_dns_domain }}
+#openstack_ssh_config_path: /tmp/ssh.config.openshift.ansible.{{ openshift_openstack_full_public_dns_domain }}
 
 # If you want to use the VM storage instead of Cinder volumes, set this to `true`.
 # NOTE: this is for testing only! Your data will be gone once the VM disappears!

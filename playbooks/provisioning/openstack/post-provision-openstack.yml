@@ -21,13 +21,6 @@
 - name: OpenShift Pre-Requisites (part 1)
   include: pre-install.yml
 
-- name: Assign hostnames
-  hosts: cluster_hosts
-  gather_facts: False
-  become: true
-  roles:
-    - role: hostnames
-
 - name: Subscribe DNS Host to allow for configuration below
   hosts: dns
   gather_facts: False

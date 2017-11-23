@@ -12,12 +12,20 @@
 
 - name: Setting Common Facts
   set_fact:
-    env_id: "{{ env_id | default(default_env_id) }}"
+    openshift_openstack_clusterid: "{{ openshift_openstack_clusterid | default(default_env_id) }}"
+    openshift_openstack_public_dns_domain: "{{ public_dns_domain }}"
   delegate_to: localhost
 
-- name: Updating DNS domain to include env_id (if not empty)
+- name: Setting DNS hostnames suffixes
   set_fact:
-    full_dns_domain: "{{ (env_id|trim == '') | ternary(public_dns_domain, env_id + '.' + public_dns_domain) }}"
+    openshift_openstack_public_hostname_suffix: "{{ openshift_openstack_public_hostname_suffix|default(openshift_openstack_clusterid) }}"
+    openshift_openstack_private_hostname_suffix: "{{ openshift_openstack_private_hostname_suffix|default(openshift_openstack_clusterid) }}"
+  delegate_to: localhost
+
+- name: Updating DNS domain to include cluster id (if not empty)
+  set_fact:
+    openshift_openstack_full_public_dns_domain: "{{ (openshift_openstack_public_hostname_suffix|trim == '') | ternary(openshift_openstack_public_dns_domain, openshift_openstack_public_hostname_suffix + '.' + openshift_openstack_public_dns_domain) }}"
+    openshift_openstack_full_private_dns_domain: "{{ (openshift_openstack_private_hostname_suffix|trim == '') | ternary(openshift_openstack_private_dns_domain, openshift_openstack_private_hostname_suffix + '.' + openshift_openstack_private_dns_domain) }}"
   delegate_to: localhost
 
 - name: Set the APP domain for OpenShift use
@@ -27,7 +35,7 @@
 
 - name: Set the default app domain for routing purposes
   set_fact:
-    openshift_master_default_subdomain: "{{ openshift_app_domain }}.{{ full_dns_domain }}"
+    openshift_master_default_subdomain: "{{ openshift_app_domain }}.{{ openshift_openstack_full_public_dns_domain }}"
   delegate_to: localhost
   when:
   - openshift_master_default_subdomain is undefined

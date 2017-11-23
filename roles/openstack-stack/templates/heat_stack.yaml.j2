@@ -521,6 +521,9 @@ resources:
               params:
                 cluster_id: {{ stack_name }}
                 k8s_type: {{ etcd_hostname | default('etcd') }}
+{% if openshift_openstack_private_dns_domain != openshift_openstack_public_dns_domain %}
+          private_fqdn: {{ etcd_hostname | default('etcd') }}-%index%.{{ openshift_openstack_private_dns_domain }}
+{% endif %}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -590,6 +593,9 @@ resources:
               params:
                 cluster_id: {{ stack_name }}
                 k8s_type: {{ lb_hostname | default('lb') }}
+{% if openshift_openstack_private_dns_domain != openshift_openstack_public_dns_domain %}
+          private_fqdn: {{ lb_hostname | default('lb') }}-%index%.{{ openshift_openstack_private_dns_domain }}
+{% endif %}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -640,6 +646,9 @@ resources:
               params:
                 cluster_id: {{ stack_name }}
                 k8s_type: {{ master_hostname | default('master')}}
+{% if openshift_openstack_private_dns_domain != openshift_openstack_public_dns_domain %}
+          private_fqdn: {{ master_hostname | default('master') }}-%index%.{{ openshift_openstack_private_dns_domain }}
+{% endif %}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -713,6 +722,9 @@ resources:
               params:
                 cluster_id: {{ stack_name }}
                 sub_type_k8s_type: {{ node_hostname | default('app-node') }}
+{% if openshift_openstack_private_dns_domain != openshift_openstack_public_dns_domain %}
+          private_fqdn: {{ node_hostname | default('app-node') }}-%index%.{{ openshift_openstack_private_dns_domain }}
+{% endif %}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -777,6 +789,9 @@ resources:
               params:
                 cluster_id: {{ stack_name }}
                 sub_type_k8s_type: {{ infra_hostname | default('infranode') }}
+{% if openshift_openstack_private_dns_domain != openshift_openstack_public_dns_domain %}
+          private_fqdn: {{ infra_hostname | default('infranode') }}-%index%.{{ openshift_openstack_private_dns_domain }}
+{% endif %}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:
@@ -850,6 +865,9 @@ resources:
               params:
                 cluster_id: {{ stack_name }}
                 k8s_type: {{ dns_hostname | default('dns') }}
+{% if openshift_openstack_private_dns_domain != openshift_openstack_public_dns_domain %}
+          private_fqdn: {{ dns_hostname | default('dns') }}-%index%.{{ openshift_openstack_private_dns_domain }}
+{% endif %}
           cluster_env: {{ public_dns_domain }}
           cluster_id:  {{ stack_name }}
           group:

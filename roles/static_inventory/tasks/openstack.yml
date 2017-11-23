@@ -51,6 +51,11 @@
         private_v4: >-
           {% set node = registered_nodes | json_query("[?name=='" + item.name + "']") -%}
           {{ node[0].addresses[openstack_private_network|quote][0].addr }}
+        openshift_ip: >-
+          {% set node = registered_nodes | json_query("[?name=='" + item.name + "']") -%}
+          {{ node[0].addresses[openstack_private_network|quote][0].addr }}
+        openshift_hostname: '{{ item.metadata.private_fqdn|default(omit) }}'
+        openshift_public_hostname: '{{ item.name }}'
 
     - name: Add cluster nodes with floating IPs to inventory
       with_items: "{{ registered_nodes_floating }}"
@@ -77,6 +82,17 @@
           {%- else -%}
           {{ item.public_v4 }}
           {%- endif %}
+        openshift_ip: >-
+          {% set node = registered_nodes | json_query("[?name=='" + item.name + "']") -%}
+          {{ node[0].addresses[openstack_private_network|quote][0].addr }}
+        openshift_public_ip: >-
+          {% if openstack_provider_network_name|default(None) -%}
+          {{ item.private_v4 }}
+          {%- else -%}
+          {{ item.public_v4 }}
+          {%- endif %}
+        openshift_hostname: '{{ item.metadata.private_fqdn|default(omit) }}'
+        openshift_public_hostname: '{{ item.name }}'
 
     # Split registered_nodes into old nodes and new app nodes
     # Add new app nodes to new_nodes host group for upscaling
