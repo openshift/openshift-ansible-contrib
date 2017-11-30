@@ -53,6 +53,7 @@
     - cloud-init
     - docker
     - iptables-services
+    - rng-tools
 
   - name: add disk_setup to cloud_config_modules
     lineinfile:
@@ -67,6 +68,11 @@
   - name: unregister the system
     include_role:
       name: rhsm-unregister
+
+  - name: enable rngd service
+    service:
+      name: rngd
+      enabled: true
 
   rescue:
   - name: unregister the system
