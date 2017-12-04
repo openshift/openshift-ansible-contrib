@@ -1,4 +1,10 @@
 ---
+- debug:
+    msg: |
+      Static SSH config is DEPRACATED and not supported any more!
+      Use https://github.com/openshift/openshift-ansible/blob/master/playbooks/openstack/sample-inventory/inventory.py
+      instead.
+
 - name: set ssh proxy command prefix for accessing nodes via bastion
   set_fact:
     ssh_proxy_command: >-

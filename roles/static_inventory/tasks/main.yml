@@ -1,4 +1,10 @@
 ---
+- debug:
+    msg: |
+      Static inventory is DEPRACATED and not supported any more!
+      Use https://github.com/openshift/openshift-ansible/blob/master/playbooks/openstack/sample-inventory/inventory.py
+      instead.
+
 - name: Remove any existing inventory
   file:
     path: "{{ inventory_path }}/hosts"
