@@ -43,9 +43,17 @@ oc create -f ${PROJECTPATH}/pvcs.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/cms.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/bcs.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/builds.json -n ${PROJECT}
-for dc in ${PROJECTPATH}/dc_*_patched.json
+for dc in ${PROJECTPATH}/dc_*.json
 do
-  oc create -f ${dc} -n ${PROJECT}
+  dcfile=$(echo ${dc##*/})
+  [[ ${dcfile} == dc_*_patched.json ]] && continue
+  DCNAME=$(echo ${dcfile} | sed "s/dc_\(.*\)\.json$/\1/")
+  if [ -s ${PROJECTPATH}/dc_${DCNAME}_patched.json ]
+  then
+    oc create -f ${PROJECTPATH}/dc_${DCNAME}_patched.json -n ${PROJECT}
+  else
+    oc create -f ${dc} -n ${PROJECT}
+  fi
 done
 oc create -f ${PROJECTPATH}/rcs.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/pods.json -n ${PROJECT}
