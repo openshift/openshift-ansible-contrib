@@ -1,7 +1,7 @@
 ---
 - debug:
-    msg: |
-      Static SSH config is DEPRACATED and not supported any more!
+    msg: >
+      Static SSH config and bastion is DEPRACATED and not supported any more!
       Use https://github.com/openshift/openshift-ansible/blob/master/playbooks/openstack/sample-inventory/inventory.py
       instead.
 
