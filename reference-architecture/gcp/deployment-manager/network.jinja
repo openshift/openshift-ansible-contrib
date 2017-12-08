@@ -127,20 +127,6 @@ resources:
     - {{ properties['prefix'] }}-node
     - {{ properties['prefix'] }}-infra-node
   type: compute.v1.firewall
-- name: {{ properties['prefix'] }}-infra-node-internal
-  properties:
-    allowed:
-    - IPProtocol: tcp
-      ports:
-      - '5000'
-    description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
-    sourceTags:
-    - {{ properties['prefix'] }}-node
-    - {{ properties['prefix'] }}-infra-node
-    targetTags:
-    - {{ properties['prefix'] }}-infra-node
-  type: compute.v1.firewall
 - name: {{ properties['prefix'] }}-infra-node-external
   properties:
     allowed:
