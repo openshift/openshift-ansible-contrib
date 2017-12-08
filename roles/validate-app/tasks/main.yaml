@@ -11,14 +11,14 @@
       shell: "{{ openshift.common.client_binary }} new-app {{ app }}"
 
     - name: Wait for build to complete
-      shell: "{{ openshift.common.client_binary }} get pod | grep -v deploy | awk '/{{ app }}-1-build/{ print $3 }'"
+      shell: "{{ openshift.common.client_binary }} get pod | grep -v deploy | awk '/{{ app }}-[0-9]-build/{ print $3 }'"
       register: build_output
       until: build_output.stdout | search("Completed")
       retries: 30
       delay: 15
 
     - name: Wait for App to be running
-      shell: "{{ openshift.common.client_binary }} get pod | grep -v deploy | grep -v build  | awk '/{{ app }}-1-*/{print $3}'"
+      shell: "{{ openshift.common.client_binary }} get pod | grep -v deploy | grep -v build  | awk '/{{ app }}-[0-9]-*/{print $3}'"
       register: deployer_output
       until: deployer_output.stdout | search("Running")
       retries: 30
