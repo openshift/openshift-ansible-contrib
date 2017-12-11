@@ -45,7 +45,7 @@ wildcardzone: "myapps"
 
 # Optional (default values are set in playbooks/roles/azure-deploy/default/main.yaml)
 # The ARM template that will be deployed
-# templatelink: "https://raw.githubusercontent.com/openshift/openshift-ansible-contrib/master/reference-architecture/azure-ansible/azuredeploy.json"
+# templatelink: "https://raw.githubusercontent.com/trinimbus/openshift-ansible-contrib/master/reference-architecture/azure-ansible/azuredeploy.json"
 # From 3 to 30 nodes
 # numberofnodes: 3
 # image: "rhel"
