@@ -2,7 +2,7 @@
 # Variables shared by multiple playbooks and roles, which are not interesting
 # to user
 
-openshift_major_version: 6
+openshift_major_version: 7
 openshift_ansible_branch: release-3.{{ openshift_major_version }}
 openshift_required_repos:
 - rhel-7-server-rpms
