@@ -46,7 +46,7 @@ ANSIBLE_LOG_PATH="${DIR}/ansible-$(date +%F_%T).log"
 export ANSIBLE_LOG_PATH
 
 function display_help {
-  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --soft-teardown | --redeploy | --soft-redeploy | --static-inventory | --validation | --minor-upgrade | --scaleup | --prereq | --gold-image | --infra | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
+  echo "./$(basename "$0") [ -c | --config FILE ] [ -q | --quiet ] [ -h | --help | --teardown | --soft-teardown | --redeploy | --soft-redeploy | --static-inventory | --validation | --minor-upgrade | --scaleup | --prereq | --gold-image | --infra | --playbook PLAYBOOK | --clear-logs ] [ OPTIONAL ANSIBLE OPTIONS ]
 
 Helper script to deploy infrastructure and OpenShift on Google Cloud Platform
 
@@ -79,6 +79,8 @@ Where:
                       to the GCP, DNS zone, runs validation tests, etc.
   --gold-image        Run prerequisite playbook and create gold image in GCP
   --infra             Create complete infrastructure without deploying OpenShift
+  --playbook          Run custom playbook from ansible/playbooks dir provided as
+                      first parameter
   --clear-logs        Delete all Ansible logs created by this script
 
 If no action option is specified, the script will create the infrastructure
@@ -241,6 +243,13 @@ while true; do
     --minor-upgrade )
       shift
       minor_upgrade "$@"
+      exit 0
+      ;;
+    --playbook )
+      shift
+      pb="$1"
+      shift
+      run_playbook "playbooks/${pb}" "$@"
       exit 0
       ;;
     --clear-logs )
