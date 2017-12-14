@@ -40,20 +40,24 @@
       name: PyYAML
       state: present
 
+  - name: uninstall unnecessary package
+    package:
+      name: rhevm-guest-agent-common
+      state: absent
+
   - name: update instance
     include_role:
       name: update-instances
 
   - name: install required packages
     package:
-      name: '{{ item }}'
+      name:
+        - google-compute-engine
+        - cloud-init
+        - docker
+        - iptables-services
+        - rng-tools
       state: present
-    with_items:
-    - google-compute-engine
-    - cloud-init
-    - docker
-    - iptables-services
-    - rng-tools
 
   - name: add disk_setup to cloud_config_modules
     lineinfile:
