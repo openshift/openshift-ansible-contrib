@@ -52,11 +52,11 @@
   - name: install required packages
     package:
       name:
-        - google-compute-engine
-        - cloud-init
-        - docker
-        - iptables-services
-        - rng-tools
+      - google-compute-engine
+      - cloud-init
+      - docker
+      - iptables-services
+      - rng-tools
       state: present
 
   - name: add disk_setup to cloud_config_modules
