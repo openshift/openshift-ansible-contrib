@@ -28,6 +28,8 @@ deployment_type={{ deployment_type | default('openshift-enterprise') }}
 os_sdn_network_plugin_name={{ openshift_sdn | default('redhat/openshift-ovs-subnet') }}
 openshift_master_identity_providers=[{'name': 'github', 'challenge': 'false', 'login': 'true', 'kind': 'GitHubIdentityProvider', 'mapping_method': 'claim', 'clientID': '{{ github_client_id }}', 'clientSecret': '{{ github_client_secret }}', 'organizations': {'['{{ github_organization }}']'}}]
 osm_use_cockpit=true
+openshift_clusterid={{ stack_name }}
+openshift_cloudprovider_aws_single_cluster=false
 containerized={{ containerized | default('false') }}
 openshift_hosted_registry_storage_kind=object
 openshift_hosted_registry_storage_provider=s3
@@ -40,6 +42,25 @@ openshift_hosted_registry_storage_s3_rootdirectory=/registry
 openshift_hosted_registry_pullthrough=true
 openshift_hosted_registry_acceptschema2=true
 openshift_hosted_registry_enforcequota=true
+
+# metrics
+openshift_hosted_metrics_storage_kind=dynamic
+openshift_hosted_metrics_storage_volume_size="{{ openshift_hosted_metrics_storage_volume_size }}"
+openshift_metrics_hawkular_nodeselector={"role":"infra"}
+openshift_metrics_cassandra_nodeselector={"role":"infra"}
+openshift_metrics_heapster_nodeselector={"role":"infra"}
+openshift_hosted_metrics_deploy={{ openshift_hosted_metrics_deploy }}
+
+# logging
+openshift_hosted_logging_deploy={{ openshift_hosted_logging_deploy }}
+openshift_logging_es_pvc_dynamic=true
+openshift_logging_es_pvc_size="{{ openshift_hosted_logging_storage_volume_size }}"
+openshift_logging_es_cluster_size=3
+openshift_logging_es_nodeselector={"role":"infra"}
+openshift_logging_kibana_nodeselector={"role":"infra"}
+openshift_logging_curator_nodeselector={"role":"infra"}
+
+
 
 [masters]
 

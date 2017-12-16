@@ -47,6 +47,8 @@
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
+    tags:
+      clusterid: "{{ stack_name }}"
   when: create_vpc == "yes"
 
 - name: Create Brownfield Infrastructure
@@ -101,6 +103,8 @@
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
+    tags:
+      clusterid: "{{ stack_name }}"
   when: create_vpc == "no" and byo_bastion == "no"
 
 - name: Create Brownfield Infrastructure with existing bastion
@@ -152,6 +156,8 @@
       NodeDockerVolType: gp2
       S3BucketName: "{{ s3_bucket_name }}"
       S3User: "{{ s3_username }}"
+    tags:
+      clusterid: "{{ stack_name }}"
   when: create_vpc == "no" and byo_bastion == "yes"
 
 - name: Add App Node
@@ -178,6 +184,7 @@
       NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
       NodeType: "{{ node_type }}"
     tags:
+      clusterid: "{{ stack_name }}"
       KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and add_node == "yes" and node_type == "app"
 
@@ -206,6 +213,7 @@
       NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
       NodeType: "{{ node_type }}"
     tags:
+      clusterid: "{{ stack_name }}"
       KubernetesCluster: "{{ stack_name }}"
   when: create_vpc == "no" and add_node == "yes" and node_type == "infra"
 
@@ -247,6 +255,7 @@
       NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
       NodeType: glusterfs
     tags:
+      clusterid: "{{ stack_name }}"
       KubernetesCluster: "{{ stack_name }}"
   when: deploy_glusterfs == "true" and glusterfs_volume_type == "io1" or create_vpc == "no" and add_node == "yes" and node_type == "glusterfs" and glusterfs_volume_type == "io1"
 
@@ -281,6 +290,7 @@
       NodeInstanceProfile: "{{ stack['ansible_facts']['cloudformation'][stack_name]['stack_outputs']['NodeARN'] | default(iam_role) }}"
       NodeType: glusterfs
     tags:
+      clusterid: "{{ stack_name }}"
       KubernetesCluster: "{{ stack_name }}"
   when: deploy_glusterfs == "true" and glusterfs_volume_type != "io1" or create_vpc == "no" and add_node == "yes" and node_type == "glusterfs" and glusterfs_volume_type != "io1"
 
@@ -311,6 +321,9 @@
       GlusterVolSize: "{{ glusterfs_volume_size }}"
       GlusterVolType: "{{ glusterfs_volume_type }}"
       Iops: "{{ iops }}"
+    tags:
+      clusterid: "{{ stack_name }}"
+      KubernetesCluster: "{{ stack_name }}"
   when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and glusterfs_volume_type == "io1"
 
 - name: Add CRS Gluster Nodes
@@ -339,4 +352,7 @@
       NodeRootVolType: gp2
       GlusterVolSize: "{{ glusterfs_volume_size }}"
       GlusterVolType: "{{ glusterfs_volume_type }}"
+    tags:
+      clusterid: "{{ stack_name }}"
+      KubernetesCluster: "{{ stack_name }}"
   when: deploy_crs is defined and create_vpc == "no" and deploy_crs == "yes" and glusterfs_volume_type != "io1"
