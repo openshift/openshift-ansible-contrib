@@ -28,10 +28,10 @@
   set_fact:
     private_records: "{{ private_records | default([]) + [ { 'type': 'A', 'hostname': '*.' + (openshift_master_default_subdomain | replace('.' + nsupdate_zone_private, '')), 'ip': hostvars[item]['private_v4'] } ] }}"
   when:
-  - openshift_master_default_subdomain is defined
-  - openshift_master_default_subdomain|trim != ''
+    - openshift_master_default_subdomain is defined
+    - openshift_master_default_subdomain|trim != ''
   with_items:
-  - "{{ groups['infra_hosts'] }}"
+    - "{{ groups['infra_hosts'] }}"
 
 - name: "Add public master cluster hostname records to the private A records (single master)"
   set_fact:
@@ -81,19 +81,19 @@
   set_fact:
     public_records: "{{ public_records | default([]) + [ { 'type': 'A', 'hostname': (hostvars[item]['ansible_fqdn'] | replace('.' + nsupdate_zone_public, '')), 'ip': hostvars[item]['public_v4'] } ] }}"
   with_items:
-  - "{{ groups['cluster_hosts'] }}"
+    - "{{ groups['cluster_hosts'] }}"
   when:
-  - hostvars[item]['public_v4'] is defined
+    - hostvars[item]['public_v4'] is defined
 
 - name: "Add wildcard records to the public A records"
   set_fact:
     public_records: "{{ public_records | default([]) + [ { 'type': 'A', 'hostname': '*.' + (openshift_master_default_subdomain | replace('.' + nsupdate_zone_public, '')), 'ip': hostvars[item]['public_v4'] } ] }}"
   with_items:
-  - "{{ groups['infra_hosts'] }}"
+    - "{{ groups['infra_hosts'] }}"
   when:
-  - openshift_master_default_subdomain is defined
-  - openshift_master_default_subdomain|trim != ''
-  - hostvars[item]['public_v4'] is defined
+    - openshift_master_default_subdomain is defined
+    - openshift_master_default_subdomain|trim != ''
+    - hostvars[item]['public_v4'] is defined
 
 - name: "Add public master cluster hostname records to the public A records (single master)"
   set_fact:
