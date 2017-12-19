@@ -16,6 +16,7 @@
     nsupdate_server_private: "{{ hostvars[groups['dns'][0]].public_v4 }}"
     nsupdate_key_secret_private: "{{ hostvars[groups['dns'][0]].nsupdate_keys['private-' + full_dns_domain].key_secret }}"
     nsupdate_key_algorithm_private: "{{ hostvars[groups['dns'][0]].nsupdate_keys['private-' + full_dns_domain].key_algorithm }}"
+    nsupdate_zone_private: "{{ full_dns_domain }}"
   when:
     - nsupdate_server_private is undefined
 
@@ -74,6 +75,7 @@
     nsupdate_server_public: "{{ hostvars[groups['dns'][0]].public_v4 }}"
     nsupdate_key_secret_public: "{{ hostvars[groups['dns'][0]].nsupdate_keys['public-' + full_dns_domain].key_secret }}"
     nsupdate_key_algorithm_public: "{{ hostvars[groups['dns'][0]].nsupdate_keys['public-' + full_dns_domain].key_algorithm }}"
+    nsupdate_zone_public: "{{ full_dns_domain }}"
   when:
     - nsupdate_server_public is undefined
 
