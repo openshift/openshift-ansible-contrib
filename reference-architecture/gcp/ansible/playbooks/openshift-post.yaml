@@ -25,14 +25,6 @@
   - name: move registry console to infra nodes
     # workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1425022
     command: "{{ openshift.common.client_binary }} patch dc registry-console -n default -p '{{ infra_selector | to_json }}'"
-  - name: fix openshift-template-service-broker namespace node selector
-    # workaround for https://github.com/openshift/origin/issues/17611
-    command: "{{ openshift.common.client_binary }} annotate --overwrite namespace openshift-template-service-broker openshift.io/node-selector=''"
-    ignore_errors: true
-  - name: fix openshift-template-service-broker apiserver daemonset node selector
-    # workaround for https://github.com/openshift/origin/issues/17611
-    command: "{{ openshift.common.client_binary }} patch daemonset apiserver -n openshift-template-service-broker -p '{{ infra_selector | to_json }}'"
-    ignore_errors: true
 
 - name: post ocp deploy tasks for master nodes
   hosts: masters

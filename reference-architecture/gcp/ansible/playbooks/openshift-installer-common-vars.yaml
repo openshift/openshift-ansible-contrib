@@ -31,4 +31,5 @@ openshift_logging_es_cluster_size: '{{ infra_node_instance_group_size }}'
 openshift_logging_es_nodeselector: { 'role': 'infra' }
 openshift_logging_kibana_nodeselector: { 'role': 'infra' }
 openshift_logging_curator_nodeselector: { 'role': 'infra' }
+template_service_broker_selector: { 'role': 'infra' }
 openshift_disable_check: memory_availability
