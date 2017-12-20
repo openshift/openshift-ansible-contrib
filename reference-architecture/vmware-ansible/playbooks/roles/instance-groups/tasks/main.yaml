@@ -76,18 +76,21 @@
 - name: Add cns instances to allnodes
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
     groups: allnodes
   with_items: "{{ groups[cluster_id + '-storage'] | default([]) }}"
 
 - name: Add crs instances to allnodes
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
     groups: allnodes
   with_items: "{{ groups[cluster_id + '-crs'] | default([]) }}"
 
 - name: Add cns instances to host group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
     groups: nodes, cluster_hosts, schedulable_nodes
     openshift_node_labels:
       role: storage
@@ -98,6 +101,7 @@
 - name: Add crs nodes to the storage group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
     groups: storage, crs
   with_items: "{{ groups[cluster_id + '-crs'] }}"
   when:
@@ -106,6 +110,7 @@
 - name: Add a crs node to the single crs group
   add_host:
     name: "{{ hostvars[item].inventory_hostname }}"
+    openshift_hostname: "{{ hostvars[item].inventory_hostname }}"
     groups: single_crs
   with_items: "{{ groups[cluster_id + '-crs'][0] }}"
   when:
