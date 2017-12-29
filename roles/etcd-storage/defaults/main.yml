@@ -1,0 +1,3 @@
+---
+# defaults file for etcd-storage
+etcd_dev: /dev/sde

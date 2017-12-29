@@ -1,0 +1,11 @@
+---
+- name: Check if /var/lib/etcd is already mounted.
+  check_mode: no
+  failed_when: false
+  register: etcd_volume_ok
+  command: |
+    grep  /var/lib/etcd /proc/mounts
+
+- name: Skip role if /var/lib/etcd is mounted.
+  when: etcd_volume_ok.rc != 0
+  import_tasks: etcd_volume.yml

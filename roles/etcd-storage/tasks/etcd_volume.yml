@@ -1,0 +1,55 @@
+---
+
+- name: Stop etcd
+  service:
+    name: etcd
+    state: stopped
+
+- name: Fail if etcd is started. Cannot hot-change datadir.
+  check_mode: no
+  changed_when: false
+  failed_when: etcd_status.rc == 0
+  register: etcd_status
+  shell: |
+    systemctl status etcd.service
+
+- name: Create vg for etcd
+  lvg:
+    vg: etcd_vg
+    pvs: "{{etcd_dev}}"
+
+- name: create lv for etcd
+  lvol:
+    vg: etcd_vg
+    lv: etcd_lv
+    size: 95%FREE
+    shrink: no
+
+- name: create fs for etcd
+  filesystem:
+    fstype: xfs
+    dev: /dev/etcd_vg/etcd_lv
+
+- name: Stop etcd before remount
+  service:
+    name: etcd
+    state: stopped
+
+- name: ensure mountpoint has the right permissions
+  file:
+    dest: /var/lib/etcd
+    owner: etcd
+    group: etcd
+    state: directory
+
+- name: create fstab entry
+  mount:
+    path: /var/lib/etcd
+    fstype: xfs
+    src: /dev/etcd_vg/etcd_lv
+    state: mounted
+    opts: defaults
+
+- name: Recover /var/lib/etcd context
+  shell: |
+    restorecon -Rv /var/lib/etcd

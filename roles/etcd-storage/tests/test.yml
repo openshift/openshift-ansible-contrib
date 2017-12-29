@@ -1,0 +1,6 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - role: etcd-storage
+      etcd_dev: /dev/sdd
