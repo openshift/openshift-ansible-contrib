@@ -481,6 +481,11 @@ class VMwareOnOCP(object):
         if not self.no_confirm:
             click.confirm('Continue using these values?', abort=True)
 
+        if self.lb_ha_ip:
+                lb_name = self.lb_ha_ip
+        else:
+            lb_name = self.lb_host + "." + self.dns_zone
+
         if self.auth_type == 'ldap':
             l_bdn = ""
 
@@ -508,11 +513,7 @@ class VMwareOnOCP(object):
                 url = "ldap://" + self.ldap_fqdn + ":389/" + url_base + "?sAMAccountName"
 
             install_file = "playbooks/ocp-install.yaml"
-            if self.lb_ha_ip:
-                lb_name = self.lb_ha_ip
-            else:
-                lb_name = self.lb_host + "." + self.dns_zone
-
+            
             for line in fileinput.input(install_file, inplace=True):
             # Parse our ldap url
                 if line.startswith("      url:"):
@@ -550,15 +551,30 @@ class VMwareOnOCP(object):
                 else:
                     print line,
 
-            if self.auth_type == 'none':
-                playbooks = ["playbooks/ocp-install.yaml", "playbooks/minor-update.yaml"]
-                for ocp_file in playbooks:
-                    for line in fileinput.input(ocp_file, inplace=True):
-                        if line.startswith('#openshift_master_identity_providers:'):
-                            line = line.replace('#', '    ')
-                            print line
-                        else:
-                            print line,
+        if self.auth_type == 'none':
+            playbooks = ["playbooks/ocp-install.yaml", "playbooks/minor-update.yaml"]
+            for ocp_file in playbooks:
+                for line in fileinput.input(ocp_file, inplace=True):
+                    if line.startswith("    wildcard_zone:"):
+                        print "    wildcard_zone: " + self.app_dns_prefix + "." + self.dns_zone
+                    elif line.startswith("    load_balancer_hostname:"):
+                        print "    load_balancer_hostname: " + lb_name
+                    elif line.startswith("    deployment_type:"):
+                        print "    deployment_type: " + self.deployment_type
+                    elif line.startswith("    openshift_hosted_registry_storage_host:"):
+                        print "    openshift_hosted_registry_storage_host: " + self.nfs_host + "." + self.dns_zone
+                    elif line.startswith("    openshift_hosted_registry_storage_nfs_directory:"):
+                        print "    openshift_hosted_registry_storage_nfs_directory: " + self.nfs_registry_mountpoint
+                    elif line.startswith("    openshift_hosted_metrics_storage_host:"):
+                        print "    openshift_hosted_metrics_storage_host: " + self.nfs_host + "." + self.dns_zone
+                    elif line.startswith("    openshift_hosted_metrics_storage_nfs_directory:"):
+                        print "    openshift_hosted_metrics_storage_nfs_directory: " + self.nfs_registry_mountpoint
+                    elif line.startswith('#openshift_master_identity_providers:'):
+                        line = line.replace('#', '    ')
+                        print line
+                    else:
+                        print line,
+
         if self.args.create_ocp_vars:
             exit(0)
 
