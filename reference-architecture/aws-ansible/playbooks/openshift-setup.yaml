@@ -67,9 +67,20 @@
     openshift_metrics_heapster_nodeselector: {"role":"infra"}
 
     # logging
+    openshift_hosted_logging_storage_kind: dynamic
     openshift_logging_es_pvc_dynamic: true
     openshift_logging_es_pvc_size: "{{ openshift_hosted_logging_storage_volume_size }}"
     openshift_logging_es_cluster_size: 3
     openshift_logging_es_nodeselector: {"role":"infra"}
     openshift_logging_kibana_nodeselector: {"role":"infra"}
     openshift_logging_curator_nodeselector: {"role":"infra"}
+
+    # template service broker
+    template_service_broker_selector: {"role": "infra"}
+
+    # ansible service broker
+    ansible_service_broker_image_prefix: "ansibleplaybookbundle/{{ 'origin-' if deployment_type == 'origin' else '' }}"
+    ansible_service_broker_image_tag: sprint140
+    ansible_service_broker_etcd_image_tag: v3.2.11
+
+    etcd_version: 3.2.5
