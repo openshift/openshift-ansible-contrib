@@ -4,6 +4,11 @@
 The reference architecture supports the creation of either a multi-node full HA
 production cluster or a single node designed for exploration of OpenShift on Azure.
 
+Reference architectures documentation are located:
+
+* [Deploying Red Hat OpenShift Container Platform 3.6 on Microsoft Azure](https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_red_hat_openshift_container_platform_3.6_on_microsoft_azure/)
+* [Deploying Red Hat OpenShift Container Platform 3.5 on Microsoft Azure](https://access.redhat.com/documentation/en-us/reference_architectures/2017/html/deploying_red_hat_openshift_container_platform_3.5_on_microsoft_azure/index)
+
 When creating the Red Hat OpenShift Container Platform on Azure, you will need a SSH RSA key for access.
 
 ## SSH Key Generation
