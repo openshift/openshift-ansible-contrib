@@ -42,7 +42,8 @@
     register: stack_output_raw
 
   - set_fact:
-      stack_output: "{{ stack_output_raw.stdout|from_json }}"
+      # Need "safe" to create an Ansible safe dictionary object.
+      stack_output: "{{ stack_output_raw.stdout|safe }}"
 
   - name: Add the master to the inventory
     add_host:
