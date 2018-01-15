@@ -4,12 +4,11 @@ This repository contains a series of directories containing code used to deploy 
 
 For documentation, please see the following links
 
-AWS https://access.redhat.com/articles/3157251
+* AWS - [Deploying and Managing OpenShift Container Platform 3.6 on Amazon Web Services](https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_and_managing_openshift_container_platform_3.6_on_amazon_web_services/)
+* GCP - [Deploying Red Hat OpenShift Container Platform 3 on Google Cloud Platform](https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_and_managing_openshift_container_platform_3_on_google_cloud_platform/)
+* VMWare - [Deploying and Managing OpenShift Container Platform 3.6 on VMware vSphere](https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_a_red_hat_openshift_container_platform_3_on_vmware_vcenter_6/)
+* OSP - [Deploying and Managing Red Hat OpenShift Container Platform 3.6 on Red Hat OpenStack Platform 10](https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_and_managing_red_hat_openshift_container_platform_3.6_on_red_hat_openstack_platform_10/)
+* Azure - [Deploying OpenShift Container Platform 3.6 on Microsoft Azure](https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_red_hat_openshift_container_platform_3.6_on_microsoft_azure/)
+* RHV - [Deploying Red Hat OpenShift Container Platform 3.6 on Red Hat Virtualization 4](https://access.redhat.com/documentation/en-us/reference_architectures/2017/html-single/deploying_red_hat_openshift_container_platform_3.6_on_red_hat_virtualization_4/)
 
-GCP https://access.redhat.com/articles/2751521
-
-VMware https://access.redhat.com/articles/2745171
-
-OSP https://access.redhat.com/articles/3133011
-
-Azure https://access.redhat.com/articles/3030691
+For a list of more reference architectures, see [OpenShift Container Platform reference architectures](https://access.redhat.com/documentation/en-us/reference_architectures/?category=openshift%2520container%2520platform)
