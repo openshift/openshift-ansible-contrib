@@ -30,8 +30,8 @@ options {
   forward only;
   forwarders { {% for ipaddr in forwarders %} {{ ipaddr }} ; {% endfor %} } ;
 
-	// dnssec-enable yes;
-	// dnssec-validation yes;
+	dnssec-enable no;
+	dnssec-validation no;
 
 	/* Path to ISC DLV key */
 	/* In case you want to use ISC DLV, please uncomment the following line. */
