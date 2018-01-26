@@ -1178,7 +1178,9 @@ wget http://master1:8443/api > healtcheck.out
 ansible all -b -m command -a "nmcli con modify eth0 ipv4.dns-search $(domainname -d)"
 ansible all -b -m service -a "name=NetworkManager state=restarted"
 ansible-playbook  /home/${AUSERNAME}/azure-config.yml
-
+sleep 30
+oc create -f /home/${AUSERNAME}/scgeneric.yml
+sleep 120
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
 mkdir .kube
@@ -1250,7 +1252,6 @@ then
   ansible-playbook -e "openshift_logging_install_logging=\${DEPLOYLOGGING} openshift_logging_use_ops=\${DEPLOYOPSLOGGING}" /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml
 fi
 
-oc create -f /home/${AUSERNAME}/scgeneric.yml
 EOF
 
 cat <<'EOF' > /home/${AUSERNAME}/create_pv.sh
