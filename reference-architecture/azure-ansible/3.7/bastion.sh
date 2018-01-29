@@ -204,7 +204,8 @@ EOF
 
 cat > /home/${AUSERNAME}/azure-config.yml <<EOF
 #!/usr/bin/ansible-playbook
-- hosts: all
+
+- hosts: masters
   gather_facts: no
   vars_files:
   - vars.yml
@@ -212,7 +213,24 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
   vars:
     azure_conf_dir: /etc/azure
     azure_conf: "{{ azure_conf_dir }}/azure.conf"
-  tasks:
+    master_conf: /etc/origin/master/master-config.yaml
+  handlers:
+  - name: restart atomic-openshift-master-controllers
+    systemd:
+      state: restarted
+      name: atomic-openshift-master-controllers
+
+  - name: restart atomic-openshift-master-api
+    systemd:
+      state: restarted
+      name: atomic-openshift-master-api
+
+  - name: restart atomic-openshift-node
+    systemd:
+      state: restarted
+      name: atomic-openshift-node
+
+  post_tasks:
   - name: make sure /etc/azure exists
     file:
       state: directory
@@ -229,6 +247,86 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
         }
+    notify:
+    - restart atomic-openshift-master-api
+    - restart atomic-openshift-master-controllers
+    - restart atomic-openshift-node
+
+  - name: insert the azure disk config into the master
+    modify_yaml:
+      dest: "{{ master_conf }}"
+      yaml_key: "{{ item.key }}"
+      yaml_value: "{{ item.value }}"
+    with_items:
+    - key: kubernetesMasterConfig.apiServerArguments.cloud-config
+      value:
+      - "{{ azure_conf }}"
+
+    - key: kubernetesMasterConfig.apiServerArguments.cloud-provider
+      value:
+      - azure
+
+    - key: kubernetesMasterConfig.controllerArguments.cloud-config
+      value:
+      - "{{ azure_conf }}"
+
+    - key: kubernetesMasterConfig.controllerArguments.cloud-provider
+      value:
+      - azure
+    notify:
+    - restart atomic-openshift-master-api
+    - restart atomic-openshift-master-controllers
+#
+- hosts: nodes
+  gather_facts: no
+  vars_files:
+  - vars.yml
+  become: yes
+  vars:
+    azure_conf_dir: /etc/azure
+    azure_conf: "{{ azure_conf_dir }}/azure.conf"
+    node_conf: /etc/origin/node/node-config.yaml
+  handlers:
+  - name: restart atomic-openshift-node
+    systemd:
+      state: restarted
+      name: atomic-openshift-node
+  post_tasks:
+  - name: make sure /etc/azure exists
+    file:
+      state: directory
+      path: "{{ azure_conf_dir }}"
+
+  - name: populate /etc/azure/azure.conf
+    copy:
+      dest: "{{ azure_conf }}"
+      content: |
+        {
+          "aadClientID" : "{{ g_aadClientId }}",
+          "aadClientSecret" : "{{ g_aadClientSecret }}",
+          "subscriptionID" : "{{ g_subscriptionId }}",
+          "tenantID" : "{{ g_tenantId }}",
+          "resourceGroup": "{{ g_resourceGroup }}",
+        }
+    notify:
+    - restart atomic-openshift-node
+
+  - name: insert the azure disk config into the node
+    modify_yaml:
+      dest: "{{ node_conf }}"
+      yaml_key: "{{ item.key }}"
+      yaml_value: "{{ item.value }}"
+    with_items:
+    - key: kubeletArguments.cloud-config
+      value:
+      - "{{ azure_conf }}"
+
+    - key: kubeletArguments.cloud-provider
+      value:
+      - azure
+    notify:
+    - restart atomic-openshift-node
+
 EOF
 
 cat <<EOF > /etc/ansible/hosts
@@ -240,9 +338,10 @@ new_nodes
 new_masters
 
 [OSEv3:vars]
-osm_controller_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
-osm_api_server_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
-openshift_node_kubelet_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf'], 'enable-controller-attach-detach': ['true']}
+#osm_controller_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
+#osm_api_server_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf']}
+#openshift_node_kubelet_args={'cloud-provider': ['azure'], 'cloud-config': ['/etc/azure/azure.conf'], 'enable-controller-attach-detach': ['true']}
+openshift_enable_service_catalog=false
 debug_level=2
 console_port=8443
 docker_udev_workaround=True
@@ -1063,6 +1162,7 @@ metadata:
 provisioner: kubernetes.io/azure-disk
 parameters:
   storageAccount: sapv${RESOURCEGROUP}
+  location: ${LOCATION}
 EOF
 
 cat <<EOF > /home/${AUSERNAME}/openshift-install.sh
@@ -1070,7 +1170,7 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 sleep 120
 ansible all --module-name=ping > ansible-preinstall-ping.out || true
 ansible-playbook  /home/${AUSERNAME}/subscribe.yml
-ansible-playbook  /home/${AUSERNAME}/azure-config.yml
+
 echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Bastion BYO Install" ${RHNUSERNAME} || true
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null
 
@@ -1078,7 +1178,7 @@ wget http://master1:8443/api > healtcheck.out
 
 ansible all -b -m command -a "nmcli con modify eth0 ipv4.dns-search $(domainname -d)"
 ansible all -b -m service -a "name=NetworkManager state=restarted"
-
+ansible-playbook  /home/${AUSERNAME}/azure-config.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
 mkdir .kube
@@ -1089,6 +1189,8 @@ cp /tmp/kube-config /home/${AUSERNAME}/.kube/config
 chown --recursive ${AUSERNAME} /home/${AUSERNAME}/.kube
 rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients
+echo "Setup storage profile"
+oc create -f /home/${AUSERNAME}/scgeneric.yml
 echo "setup registry for azure"
 oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'
@@ -1150,7 +1252,6 @@ then
   ansible-playbook -e "openshift_logging_install_logging=\${DEPLOYLOGGING} openshift_logging_use_ops=\${DEPLOYOPSLOGGING}" /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-cluster/openshift-logging.yml
 fi
 
-oc create -f /home/${AUSERNAME}/scgeneric.yml
 EOF
 
 cat <<'EOF' > /home/${AUSERNAME}/create_pv.sh
