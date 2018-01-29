@@ -379,6 +379,14 @@ class VMWareAddNode(object):
             if not click.confirm('Continue adding nodes with these values?'):
                 sys.exit(0)
 
+        # grab the default priv key from the user"
+        command='cp -f ~/.ssh/id_rsa ssh_key/ocp-installer'
+        os.system(command)
+
+        # make sure the ssh keys have the proper permissions
+        command='chmod 600 ssh_key/ocp-installer'
+        os.system(command)
+
         if 'cns' in self.container_storage and 'storage' in self.node_type:
             if 'None' in self.tag:
                 # do the full install and config minus the cleanup
