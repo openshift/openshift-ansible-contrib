@@ -1,6 +1,7 @@
 ---
 - name: stop docker
   service: name=docker state=stopped
+  ignore_errors: yes
 
 - name: remove any existing docker-storage config file
   file:
