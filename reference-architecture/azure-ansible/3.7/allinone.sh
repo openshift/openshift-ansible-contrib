@@ -388,6 +388,13 @@ openshift_install_examples=true
 deployment_type=openshift-enterprise
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
 openshift_master_manage_htpasswd=false
+# Setup azure blob registry storage
+openshift_hosted_registry_storage_kind=object
+openshift_hosted_registry_storage_provider=azure_blob
+openshift_hosted_registry_storage_azure_blob_accountname=${REGISTRYSTORAGENAME}
+openshift_hosted_registry_storage_azure_blob_accountkey=${REGISTRYKEY}
+openshift_hosted_registry_storage_azure_blob_container=registry
+openshift_hosted_registry_storage_azure_blob_realm=${LOCATION}
 
 # default selectors for router and registry services
 openshift_router_selector='role=app'
@@ -785,6 +792,8 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 sleep 120
 ansible all --module-name=ping > ansible-preinstall-ping.out || true
 ansible-playbook  /home/${AUSERNAME}/subscribe.yml
+echo "Setup Azure PV"
+/home/${AUSERNAME}/create_azure_storage_container.sh sapv${RESOURCEGROUP} "vhds"
 echo "${RESOURCEGROUP} Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Host starting BYO Install" ${RHNUSERNAME} || true
 ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null
 
@@ -809,12 +818,10 @@ cp /tmp/kube-config /home/${AUSERNAME}/.kube/config
 chown --recursive ${AUSERNAME} /home/${AUSERNAME}/.kube
 rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients
-echo "setup registry for azure"
-oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
-oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"app"}}}}}'
-sleep 30
-echo "Setup Azure PV"
-/home/${AUSERNAME}/create_azure_storage_container.sh sapv${RESOURCEGROUP} "vhds"
+#echo "setup registry for azure"
+#oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
+#oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"app"}}}}}'
+#sleep 30
 
 echo "Setup Azure PV for metrics & logging"
 /home/${AUSERNAME}/create_azure_storage_container.sh sapvlm${RESOURCEGROUP} "loggingmetricspv"
