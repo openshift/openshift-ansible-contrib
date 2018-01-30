@@ -394,7 +394,7 @@ openshift_hosted_registry_storage_provider=azure_blob
 openshift_hosted_registry_storage_azure_blob_accountname=${REGISTRYSTORAGENAME}
 openshift_hosted_registry_storage_azure_blob_accountkey=${REGISTRYKEY}
 openshift_hosted_registry_storage_azure_blob_container=registry
-openshift_hosted_registry_storage_azure_blob_realm=${LOCATION}
+openshift_hosted_registry_storage_azure_blob_realm=openshift
 
 # default selectors for router and registry services
 openshift_router_selector='role=app'
@@ -794,6 +794,7 @@ ansible all --module-name=ping > ansible-preinstall-ping.out || true
 ansible-playbook  /home/${AUSERNAME}/subscribe.yml
 echo "Setup Azure PV"
 /home/${AUSERNAME}/create_azure_storage_container.sh sapv${RESOURCEGROUP} "vhds"
+/home/${AUSERNAME}/create_azure_storage_container.sh sareg${RESOURCEGROUP} "registry"
 echo "${RESOURCEGROUP} Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Host starting BYO Install" ${RHNUSERNAME} || true
 ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null
 
