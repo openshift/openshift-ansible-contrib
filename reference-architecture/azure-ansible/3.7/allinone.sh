@@ -394,7 +394,7 @@ openshift_hosted_registry_storage_provider=azure_blob
 openshift_hosted_registry_storage_azure_blob_accountname=${REGISTRYSTORAGENAME}
 openshift_hosted_registry_storage_azure_blob_accountkey=${REGISTRYKEY}
 openshift_hosted_registry_storage_azure_blob_container=registry
-openshift_hosted_registry_storage_azure_blob_realm=openshift
+openshift_hosted_registry_storage_azure_blob_realm=core.windows.net
 
 # default selectors for router and registry services
 openshift_router_selector='role=app'
