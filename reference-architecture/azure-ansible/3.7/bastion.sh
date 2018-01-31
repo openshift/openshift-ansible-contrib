@@ -363,6 +363,13 @@ openshift_install_examples=true
 deployment_type=openshift-enterprise
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/origin/master/htpasswd'}]
 openshift_master_manage_htpasswd=false
+# Setup azure blob registry storage
+openshift_hosted_registry_storage_kind=object
+openshift_hosted_registry_storage_provider=azure_blob
+openshift_hosted_registry_storage_azure_blob_accountname=${REGISTRYSTORAGENAME}
+openshift_hosted_registry_storage_azure_blob_accountkey=${REGISTRYKEY}
+openshift_hosted_registry_storage_azure_blob_container=registry
+openshift_hosted_registry_storage_azure_blob_realm=core.windows.net
 
 os_sdn_network_plugin_name=${OPENSHIFTSDN}
 
@@ -1171,6 +1178,8 @@ sleep 120
 ansible all --module-name=ping > ansible-preinstall-ping.out || true
 ansible-playbook  /home/${AUSERNAME}/subscribe.yml
 
+/home/${AUSERNAME}/create_azure_storage_container.sh sareg${RESOURCEGROUP} "registry"
+
 echo "${RESOURCEGROUP} Bastion Host is starting ansible BYO" | mail -s "${RESOURCEGROUP} Bastion BYO Install" ${RHNUSERNAME} || true
 ansible-playbook  /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml < /dev/null
 
@@ -1191,8 +1200,6 @@ rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients
 echo "Setup storage profile"
 oc create -f /home/${AUSERNAME}/scgeneric.yml
-echo "setup registry for azure"
-oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
 oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'
 sleep 30
 echo "Setup Azure PV"

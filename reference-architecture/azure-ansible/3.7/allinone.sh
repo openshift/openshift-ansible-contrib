@@ -820,10 +820,8 @@ cp /tmp/kube-config /home/${AUSERNAME}/.kube/config
 chown --recursive ${AUSERNAME} /home/${AUSERNAME}/.kube
 rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients
-#echo "setup registry for azure"
-#oc env dc docker-registry -e REGISTRY_STORAGE=azure -e REGISTRY_STORAGE_AZURE_ACCOUNTNAME=$REGISTRYSTORAGENAME -e REGISTRY_STORAGE_AZURE_ACCOUNTKEY=$REGISTRYKEY -e REGISTRY_STORAGE_AZURE_CONTAINER=registry
-#oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"app"}}}}}'
-#sleep 30
+oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"app"}}}}}'
+sleep 30
 
 echo "Setup Azure PV for metrics & logging"
 /home/${AUSERNAME}/create_azure_storage_container.sh sapvlm${RESOURCEGROUP} "loggingmetricspv"
