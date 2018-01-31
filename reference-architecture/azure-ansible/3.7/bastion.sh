@@ -1187,6 +1187,8 @@ wget http://master1:8443/api > healtcheck.out
 
 ansible all -b -m command -a "nmcli con modify eth0 ipv4.dns-search $(domainname -d)"
 ansible all -b -m service -a "name=NetworkManager state=restarted"
+oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'
+sleep 15
 ansible-playbook  /home/${AUSERNAME}/azure-config.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
@@ -1200,7 +1202,6 @@ rm -f /tmp/kube-config
 yum -y install atomic-openshift-clients
 echo "Setup storage profile"
 oc create -f /home/${AUSERNAME}/scgeneric.yml
-oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'
 sleep 30
 echo "Setup Azure PV"
 /home/${AUSERNAME}/create_azure_storage_container.sh sapv${RESOURCEGROUP} "vhds"
