@@ -1,4 +1,8 @@
 ---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
 - name: "Setting Docker Facts"
   set_fact:
     docker_storage_block_device: "{{ docker_storage_block_device | default(default_docker_storage_block_device) }}"
@@ -11,6 +15,7 @@
     update_cache: yes
   notify:
     - enable docker
+  when: not openshift.common.is_atomic
 
 - name: "Check for existing Docker Storage device"
   command: pvs

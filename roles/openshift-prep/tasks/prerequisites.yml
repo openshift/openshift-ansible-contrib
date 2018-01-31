@@ -1,26 +1,31 @@
 ---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
 - name: "Cleaning yum repositories"
   command: "yum clean all"
+  when: not openshift.common.is_atomic
 
 - name: "Install required packages"
   yum:
     name: "{{ item }}"
     state: latest
   with_items: "{{ required_packages }}"
-  when: manage_packages|bool
+  when: (manage_packages|bool and not openshift.common.is_atomic)
 
 - name: "Install debug packages (optional)"
   yum:
     name: "{{ item }}"
     state: latest
   with_items: "{{ debug_packages }}"
-  when: install_debug_packages|bool
+  when: (install_debug_packages|bool and not it_atomic)
 
 - name: "Update all packages (this can take a very long time)"
   yum:
     name: '*'
     state: latest
-  when: manage_packages|bool
+  when: (manage_packages|bool and update_packages|bool and not openshift.common.is_atomic)
 
 - name: "Verify hostname"
   shell: hostnamectl status | awk "/Static hostname/"'{ print $3 }'
@@ -29,7 +34,7 @@
 - name: "Set hostname if required"
   hostname:
     name: "{{ ansible_fqdn }}"
-  when: hostname_fqdn.stdout != ansible_fqdn
+  when: hostname_fqdn.stdout != ansible_fqdn and not openshift.common.is_atomic
 
 - name: "Verify SELinux is enforcing"
   fail:

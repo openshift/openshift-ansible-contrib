@@ -1,8 +1,13 @@
 ---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
 - name: install NetworkManager
   package:
     name: NetworkManager
     state: present
+  when: not openshift.common.is_atomic
 
 - name: configure NetworkManager
   lineinfile:
