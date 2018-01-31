@@ -1,4 +1,8 @@
 ---
+- name: Gather facts
+  openshift_facts:
+    role: common
+
 - name: Setting Hostname Fact
   set_fact:
     new_hostname: "{{ custom_hostname | default(inventory_hostname_short) }}"
@@ -20,12 +24,12 @@
 - name: Setting hostname and DNS domain
   hostname: name="{{ new_fqdn }}"
   # Use the hostname module when not on RHEL 7.5 or on the version of Ansible that fixed the hostname module.
-  when: not rhel75 or hostname_module_fixed
+  when: (not rhel75 or hostname_module_fixed) and not openshift.common.is_atomic
 
 - name: Setting hostname and DNS domain using the command module
   command: "hostname {{ new_fqdn }}"
   # Use the command module when RHEL 7.5 or later, and when Ansible does not contain the hostname module fix.
-  when: rhel75 and not hostname_module_fixed
+  when: (rhel75 and not hostname_module_fixed) and not openshift.common.is_atomic
 
 - name: Check for cloud.cfg
   stat: path=/etc/cloud/cloud.cfg
