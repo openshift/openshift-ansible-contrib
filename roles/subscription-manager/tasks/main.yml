@@ -5,6 +5,10 @@
   when:
     - rhsm_password is not defined or rhsm_password is none or rhsm_password|trim == ''
 
+- name: Gather facts
+  openshift_facts:
+    role: common
+
 - name: "Initializing Subscription Manager authentication method"
   set_fact:
     rhsm_authentication: false
@@ -64,6 +68,26 @@
     - rhsm_satellite is defined
     - rhsm_satellite is not none
     - rhsm_satellite|trim != ''
+    - not openshift.common.is_atomic
+- name: Manually configure satellite on Atomic"
+  get_url:
+    url: http://{{ rhsm_satellite }}/pub/katello-rhsm-consumer
+    dest: /usr/local/bin/katello-rhsm-consumer
+    mode: 755
+  when:
+    - not registered
+    - rhsm_satellite is defined
+    - rhsm_satellite is not none
+    - rhsm_satellite|trim != ''
+    - openshift.common.is_atomic
+- name: Manually run RHSM configuration script on Atomic
+  command: /usr/local/bin/katello-rhsm-consumer
+  when:
+    - not registered
+    - rhsm_satellite is defined
+    - rhsm_satellite is not none
+    - rhsm_satellite|trim != ''
+    - openshift.common.is_atomic
 
 - name: "Register to Satellite using activation key"
   command: "/usr/bin/subscription-manager register --activationkey={{ rhsm_activationkey }} --org='{{ rhsm_org }}'"
