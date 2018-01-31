@@ -1,0 +1,34 @@
+heat_template_version: 2016-10-14
+
+description: OpenShift LBaaS member
+
+parameters:
+  ip_v4s:
+    type: comma_delimited_list
+    description: List of IPs
+    label: list_of_members_ip
+  pool:
+    type: string
+    description: Pool ID
+    label: pool_id
+  subnet:
+    type: string
+    description: Subnet ID
+    label: subnet_id
+  protocol_port:
+    type: string
+    description: Protocol Port
+    label: protocol_port
+  index: 
+    type: number 
+    description: Index into ips list 
+    label: index 
+
+resources:
+  pool_member:
+    type: OS::Neutron::LBaaS::PoolMember
+    properties:
+      pool: { get_param: pool }
+      address: { get_param: [ip_v4s, { get_param: index } ] } 
+      subnet: { get_param: subnet }
+      protocol_port: { get_param: protocol_port }

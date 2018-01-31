@@ -47,6 +47,15 @@
   when:
     - hostvars[groups.masters[0]].openshift_master_cluster_public_hostname is defined
     - openstack_num_masters > 1
+    - openstack_lb != "external"
+
+- name: "Add public master cluster hostname records to the private A records (multi-master) external loadbalancer"
+  set_fact:
+    private_records: "{{ private_records | default([]) + [ { 'type': 'A', 'hostname': (hostvars[groups.masters[0]].openshift_master_cluster_public_hostname | replace(nsupdate_zone_private, ''))[:-1], 'ip': external_loadbalancer_master['private_v4'] } ] }}"
+  when:
+    - hostvars[groups.masters[0]].openshift_master_cluster_public_hostname is defined
+    - openstack_num_masters > 1
+    - openstack_lb == "external"
 
 - name: "Generate the private Add section for DNS"
   set_fact:
@@ -96,6 +105,15 @@
     - openshift_master_default_subdomain is defined
     - openshift_master_default_subdomain|trim != ''
     - hostvars[item]['public_v4'] is defined
+    - external_loadbalancer_app is not defined
+
+- name: "Add wildcard records to the public A records external loadbalancer"
+  set_fact:
+    public_records: "{{ public_records | default([]) + [ { 'type': 'A', 'hostname': '*.' + (openshift_master_default_subdomain | replace('.' + nsupdate_zone_public, '')), 'ip': external_loadbalancer_app['public_v4'] } ] }}"
+  when:
+    - openshift_master_default_subdomain is defined
+    - openshift_master_default_subdomain|trim != ''
+    - external_loadbalancer_app is defined
 
 - name: "Add public master cluster hostname records to the public A records (single master)"
   set_fact:
@@ -119,6 +137,15 @@
   when:
     - hostvars[groups.masters[0]].openshift_master_cluster_public_hostname is defined
     - openstack_num_masters > 1
+    - openstack_lb != "external"
+- name: "Add public master cluster hostname records to the public A records (multi-master) external loadbalancer"
+  set_fact:
+    public_records: "{{ public_records | default([]) + [ { 'type': 'A', 'hostname': (hostvars[groups.masters[0]].openshift_master_cluster_public_hostname | replace(nsupdate_zone_public, ''))[:-1], 'ip': external_loadbalancer_master['public_v4'] } ] }}"
+  when:
+    - hostvars[groups.masters[0]].openshift_master_cluster_public_hostname is defined
+    - openstack_num_masters > 1
+    - openstack_lb == "external"
+    - external_loadbalancer_master is defined
 
 - name: "Generate the public Add section for DNS"
   set_fact:

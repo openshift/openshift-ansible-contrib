@@ -3,7 +3,6 @@ heat_template_version: 2016-10-14
 description: OpenShift cluster
 
 parameters:
-
 outputs:
 
   etcd_names:
@@ -53,6 +52,29 @@ outputs:
   infra_floating_ips:
     description: Floating IPs of the nodes
     value: { get_attr: [ infra_nodes, floating_ip ] }
+{% if openstack_lb == 'external' and num_masters|int > 1 %}
+  external_lb_master_floatingip:
+   description: IP of master LB in multimaster mode
+   value: { get_attr: [ external_lb_master_floating_ip, floating_ip_address ] }
+{% endif %}
+
+{% if openstack_lb == 'external' %}
+  loadbalancer_ip:
+    description: LBaaS IP
+    value: { get_attr: [ external_lb_app_floating_ip, floating_ip_address ] }
+{% endif %}
+  console_url:
+    description: URL of the console
+    value: https://console.{{ stack_name }}:{{ openshift_master_console_port|default(8443) }}
+  console_ip:
+    description: IP of the console
+{% if num_masters|int > 1 and openstack_lb != 'external'%}
+    value: { get_attr: [ loadbalancer, resource.0.floating_ip ] } 
+{% elif num_masters|int > 1 and openstack_lb == 'external' %}
+    value: { get_attr: [ external_lb_master_floating_ip, floating_ip_address ] }
+{% else %}
+    value: { get_attr: [ masters, resource.0.floating_ip ] }    
+{% endif %}
 
 {% if num_dns|int > 0 %}
   dns_name:
@@ -75,6 +97,15 @@ conditions:
   no_floating: {% if provider_network or use_bastion|bool %}true{% else %}false{% endif %}
 
 resources:
+  sec_group:
+    type: OS::Neutron::SecurityGroup
+    properties:
+      name: lbaas_sg
+      rules:
+      - remote_ip_prefix: 0.0.0.0/0
+        protocol: tcp
+        port_range_min: 80
+        port_range_max: 80
 
 {% if not provider_network %}
   net:
@@ -148,6 +179,167 @@ resources:
     properties:
       router_id: { get_resource: router }
       subnet_id: { get_resource: subnet }
+
+{% endif %}
+{% if openstack_lb == 'external' and num_masters|int > 1 %}
+  external_lb_master:
+    depends_on:
+      - subnet
+      - router
+    type: OS::Neutron::LBaaS::LoadBalancer
+    properties:
+      name: lb-master-{{ stack_name }}
+      vip_subnet: { get_resource: subnet }
+
+  external_lb_master_api_listener_https:
+    depends_on: external_lb_master
+    type: OS::Neutron::LBaaS::Listener
+    properties:
+      loadbalancer: { get_resource: external_lb_master }
+      protocol: HTTPS
+      protocol_port: {{ openshift_master_api_port|default(8443) }}
+
+  external_lb_master_api_pool_https:
+    depends_on: external_lb_master_api_listener_https
+    type: OS::Neutron::LBaaS::Pool
+    properties:
+      lb_algorithm: ROUND_ROBIN
+      protocol: HTTPS
+      listener: { get_resource: external_lb_master_api_listener_https}
+
+  external_lb_master_floating_ip:
+    depends_on: router
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: {{ external_network }}
+      port_id: { get_attr: [external_lb_master, vip_port_id ]}
+
+  external_lb_masters_api_members:
+    depends_on: external_lb_master_api_pool_https
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ num_masters }}
+      resource_def:
+        type: lbaas_member.yaml
+        properties:
+          index: "%index%"
+          pool: { get_resource: external_lb_master_api_pool_https }
+          ip_v4s: { get_attr: [ masters, private_ip ] }
+          subnet: { get_resource: subnet }
+          protocol_port: {{ openshift_master_api_port|default(8443) }}
+
+
+{% if openshift_master_console_port|default(8443) != openshift_master_api_port|default(8443) %}
+  external_lb_master_console_listener_https:
+    depends_on: external_lb_master
+    type: OS::Neutron::LBaaS::Listener
+    properties:
+      loadbalancer: { get_resource: external_lb_master }
+      protocol: HTTPS
+      protocol_port: {{ openshift_master_console_port|default(8443) }}
+
+  external_lb_master_console_pool_https:
+    depends_on: external_lb_master_console_listener_https
+    type: OS::Neutron::LBaaS::Pool
+    properties:
+      lb_algorithm: ROUND_ROBIN
+      protocol: HTTPS
+      listener: { get_resource: external_lb_master_console_listener_https}
+
+  external_lb_masters_console_members:
+    depends_on: external_lb_master_console_pool_https
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ num_masters }}
+      resource_def:
+        type: lbaas_member.yaml
+        properties:
+          index: "%index%"
+          pool: { get_resource: external_lb_master_console_pool_https }
+          ip_v4s: { get_attr: [ masters, private_ip ] }
+          subnet: { get_resource: subnet }
+          protocol_port: {{ openshift_master_console_port|default(8443) }}
+{% endif %}
+
+
+{% endif %}
+
+{% if openstack_lb == 'external' %}
+  external_lb_app:
+    depends_on:
+      - subnet
+      - router
+    type: OS::Neutron::LBaaS::LoadBalancer
+    properties:
+      name: lb-apps-{{ stack_name }}
+      vip_subnet: { get_resource: subnet }
+
+  external_lb_app_listener_http:
+    depends_on: external_lb_app
+    type: OS::Neutron::LBaaS::Listener
+    properties:
+      loadbalancer: { get_resource: external_lb_app }
+      protocol: HTTP
+      protocol_port: 80
+
+  external_lb_app_listener_https:
+    depends_on: external_lb_app
+    type: OS::Neutron::LBaaS::Listener
+    properties:
+      loadbalancer: { get_resource: external_lb_app }
+      protocol: HTTPS
+      protocol_port: 443
+
+  external_lb_app_pool_http:
+    depends_on: external_lb_app_listener_http
+    type: OS::Neutron::LBaaS::Pool
+    properties:
+      lb_algorithm: ROUND_ROBIN
+      protocol: HTTP
+      listener: { get_resource: external_lb_app_listener_http }
+
+  external_lb_app_pool_https:
+    depends_on: external_lb_app_listener_https
+    type: OS::Neutron::LBaaS::Pool
+    properties:
+      lb_algorithm: ROUND_ROBIN
+      protocol: HTTPS
+      listener: { get_resource: external_lb_app_listener_https }
+
+  external_lb_app_http_members:
+    depends_on: external_lb_app_pool_http
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ num_infra }}
+      resource_def:
+        type: lbaas_member.yaml
+        properties:
+          index: "%index%"
+          pool: { get_resource: external_lb_app_pool_http }
+          ip_v4s: { get_attr: [ infra_nodes, private_ip ] }
+          subnet: { get_resource: subnet }
+          protocol_port: 80
+
+  external_lb_app_https_members:
+    depends_on: external_lb_app_pool_https
+    type: OS::Heat::ResourceGroup
+    properties:
+      count: {{ num_infra }}
+      resource_def:
+        type: lbaas_member.yaml
+        properties:
+          index: "%index%"
+          pool: { get_resource: external_lb_app_pool_https }
+          ip_v4s: { get_attr: [ infra_nodes, private_ip ] }
+          subnet: { get_resource: subnet }
+          protocol_port: 443
+
+  external_lb_app_floating_ip:
+    depends_on: router
+    type: OS::Neutron::FloatingIP
+    properties:
+      floating_network: {{ external_network }}
+      port_id: { get_attr: [external_lb_app, vip_port_id ]}
 
 {% endif %}
 
@@ -577,6 +769,7 @@ resources:
       policies: {{ infra_server_group_policies }}
 {% endif %}
 {% if num_masters|int > 1 %}
+{% if openstack_lb != 'external' %}
   loadbalancer:
     type: OS::Heat::ResourceGroup
     properties:
@@ -624,6 +817,7 @@ resources:
 {% if not provider_network %}
     depends_on:
       - interface
+{% endif %}
 {% endif %}
 {% endif %}
 

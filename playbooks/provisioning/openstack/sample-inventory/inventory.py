@@ -5,11 +5,36 @@ from __future__ import print_function
 import json
 
 import shade
-
+import os
+from keystoneauth1 import identity
+from keystoneauth1 import session
+from neutronclient.v2_0 import client
 
 if __name__ == '__main__':
     cloud = shade.openstack_cloud()
+    auth = identity.Password(auth_url=os.environ["OS_AUTH_URL"],
+                         username=os.environ["OS_USERNAME"],
+                         password=os.environ["OS_PASSWORD"],
+                         user_domain_name=os.environ["OS_PROJECT_DOMAIN_ID"],
+                         project_domain_name=os.environ["OS_PROJECT_DOMAIN_ID"],
+                         project_name=os.environ["OS_USERNAME"])
+    sess = session.Session(auth=auth)
+    neutron = client.Client(session=sess)
+    osp_external_loadbalancers = neutron.list_lbaas_loadbalancers()
+    external_loadbalancer_master = None
+    external_loadbalancer_app = None
 
+    external_loadbalancers = { 'external_loadbalancers' : [] }
+    for external_loadbalancer in osp_external_loadbalancers['loadbalancers']:
+      if external_loadbalancer['name'].find('lb-master') > -1:
+        external_loadbalancer_master = {'external_loadbalancer_master': { 'private_v4': external_loadbalancer['vip_address'] }}
+        if neutron.list_floatingips(port_id=external_loadbalancer['vip_port_id'])['floatingips']:
+          external_loadbalancer_master['external_loadbalancer_master'].update({'public_v4': neutron.list_floatingips(port_id=external_loadbalancer['vip_port_id'])['floatingips'][0]['floating_ip_address']})
+      if external_loadbalancer['name'].find('lb-app') > -1:
+        external_loadbalancer_app = {'external_loadbalancer_app': { 'private_v4': external_loadbalancer['vip_address'] }}
+        if neutron.list_floatingips(port_id=external_loadbalancer['vip_port_id'])['floatingips']:
+          external_loadbalancer_app['external_loadbalancer_app'].update({'public_v4': neutron.list_floatingips(port_id=external_loadbalancer['vip_port_id'])['floatingips'][0]['floating_ip_address']})
+        
     inventory = {}
 
     # TODO(shadower): filter the servers based on the `OPENSHIFT_CLUSTER`
@@ -69,7 +94,7 @@ if __name__ == '__main__':
     for server in cluster_hosts:
         ssh_ip_address = server.public_v4 or server.private_v4
         vars = {
-            'ansible_host': ssh_ip_address
+            'ansible_host': ssh_ip_address,
         }
 
         public_v4 = server.public_v4 or server.private_v4
@@ -84,5 +109,11 @@ if __name__ == '__main__':
             vars['openshift_node_labels'] = node_labels
 
         inventory['_meta']['hostvars'][server.name] = vars
+    inventory['all'] = { 'vars': {} }
+    if external_loadbalancer_master:
+      inventory['all']['vars'].update(external_loadbalancer_master)    
+    if external_loadbalancer_app:
+      inventory['all']['vars'].update(external_loadbalancer_app)  
 
     print(json.dumps(inventory, indent=4, sort_keys=True))
+
