@@ -1189,7 +1189,7 @@ ansible all -b -m command -a "nmcli con modify eth0 ipv4.dns-search $(domainname
 ansible all -b -m service -a "name=NetworkManager state=restarted"
 oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'
 sleep 15
-ansible-playbook  /home/${AUSERNAME}/azure-config.yml
+#ansible-playbook  /home/${AUSERNAME}/azure-config.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
 mkdir .kube
