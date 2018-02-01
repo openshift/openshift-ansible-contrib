@@ -207,6 +207,7 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
 
 - hosts: masters
   gather_facts: no
+  serial: 1
   vars_files:
   - vars.yml
   become: yes
@@ -231,6 +232,8 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
       name: atomic-openshift-node
 
   post_tasks:
+  - pause:
+      minutes: 1
   - name: make sure /etc/azure exists
     file:
       state: directory
@@ -278,6 +281,7 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
     - restart atomic-openshift-master-controllers
 #
 - hosts: nodes
+  serial: 1
   gather_facts: no
   vars_files:
   - vars.yml
@@ -292,6 +296,8 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
       state: restarted
       name: atomic-openshift-node
   post_tasks:
+  - pause:
+      minutes: 1
   - name: make sure /etc/azure exists
     file:
       state: directory
@@ -1189,7 +1195,7 @@ ansible all -b -m command -a "nmcli con modify eth0 ipv4.dns-search $(domainname
 ansible all -b -m service -a "name=NetworkManager state=restarted"
 oc patch dc registry-console -p '{"spec":{"template":{"spec":{"nodeSelector":{"role":"infra"}}}}}'
 sleep 15
-#ansible-playbook  /home/${AUSERNAME}/azure-config.yml
+ansible-playbook  /home/${AUSERNAME}/azure-config.yml
 ansible-playbook /home/${AUSERNAME}/postinstall.yml
 cd /root
 mkdir .kube
