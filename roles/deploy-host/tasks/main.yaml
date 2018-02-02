@@ -39,16 +39,17 @@
       command: "subscription-manager repos --enable=rhel-7-server-rhv-4-mgmt-agent-rpms"
       when: "'rhv' not in enabled_repos.stdout"
 
+    - name: "Enable oVirt repository"
+      command: 'yum -y install http://resources.ovirt.org/pub/yum-repo/ovirt-release42.rpm'
+
     - name: "Establish rhv pre-req packages"
       set_fact:
-        openshift_deploy_packages_by_provider: ['python-ovirt-engine-sdk4']
+        openshift_deploy_packages_by_provider: ['python-ovirt-engine-sdk4', 'ovirt-ansible-roles']
 
     - name: "Be sure all pre-req rhv packages are installed"
       yum: name={{item}} state=installed
       with_items:
         - "{{ openshift_deploy_packages_by_provider }}"
-    - name: "Install oVirt roles from Galaxy"
-      command: "ansible-galaxy install ovirt.ovirt-ansible-roles"
   when: "'rhv' in provider"
 
 - block:
