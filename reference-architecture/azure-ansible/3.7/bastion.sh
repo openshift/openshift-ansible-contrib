@@ -215,21 +215,6 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
     azure_conf_dir: /etc/azure
     azure_conf: "{{ azure_conf_dir }}/azure.conf"
     master_conf: /etc/origin/master/master-config.yaml
-  handlers:
-  - name: restart atomic-openshift-master-controllers
-    systemd:
-      state: restarted
-      name: atomic-openshift-master-controllers
-
-  - name: restart atomic-openshift-master-api
-    systemd:
-      state: restarted
-      name: atomic-openshift-master-api
-
-  - name: restart atomic-openshift-node
-    systemd:
-      state: restarted
-      name: atomic-openshift-node
 
   post_tasks:
   - pause:
@@ -250,10 +235,6 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
         }
-    notify:
-    - restart atomic-openshift-master-api
-    - restart atomic-openshift-master-controllers
-    - restart atomic-openshift-node
 
   - name: insert the azure disk config into the master
     modify_yaml:
@@ -276,9 +257,18 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
     - key: kubernetesMasterConfig.controllerArguments.cloud-provider
       value:
       - azure
-    notify:
-    - restart atomic-openshift-master-api
-    - restart atomic-openshift-master-controllers
+
+    - name: restart openvswitch.service
+      shell: systemctl restart openvswitch.service
+
+    - name: restart atomic-openshift-master-controllers
+      shell: systemctl restart atomic-openshift-master-controllers
+
+    - name: restart atomic-openshift-master-api
+      shell: systemctl restart atomic-openshift-master-api
+
+    - name: restart atomic-openshift-node
+      shell: systemctl restart atomic-openshift-node
 #
 - hosts: nodes
   serial: 1
@@ -290,11 +280,6 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
     azure_conf_dir: /etc/azure
     azure_conf: "{{ azure_conf_dir }}/azure.conf"
     node_conf: /etc/origin/node/node-config.yaml
-  handlers:
-  - name: restart atomic-openshift-node
-    systemd:
-      state: restarted
-      name: atomic-openshift-node
   post_tasks:
   - pause:
       minutes: 1
@@ -314,8 +299,6 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
           "tenantID" : "{{ g_tenantId }}",
           "resourceGroup": "{{ g_resourceGroup }}",
         }
-    notify:
-    - restart atomic-openshift-node
 
   - name: insert the azure disk config into the node
     modify_yaml:
@@ -330,8 +313,12 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
     - key: kubeletArguments.cloud-provider
       value:
       - azure
-    notify:
-    - restart atomic-openshift-node
+
+    - name: restart openvswitch.service
+      shell: systemctl restart openvswitch.service
+
+    - name: restart atomic-openshift-node
+      shell: systemctl restart atomic-openshift-node
 
 EOF
 
