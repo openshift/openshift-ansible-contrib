@@ -216,9 +216,7 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
     azure_conf: "{{ azure_conf_dir }}/azure.conf"
     master_conf: /etc/origin/master/master-config.yaml
 
-  post_tasks:
-  - pause:
-      minutes: 1
+  tasks:
   - name: make sure /etc/azure exists
     file:
       state: directory
@@ -258,17 +256,20 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
       value:
       - azure
 
-    - name: restart openvswitch.service
-      shell: systemctl restart openvswitch.service
+   - name: restart openvswitch.service
+    shell: systemctl restart openvswitch.service
 
-    - name: restart atomic-openshift-master-controllers
-      shell: systemctl restart atomic-openshift-master-controllers
+  - name: restart atomic-openshift-master-controllers
+    shell: systemctl restart atomic-openshift-master-controllers
 
-    - name: restart atomic-openshift-master-api
-      shell: systemctl restart atomic-openshift-master-api
+  - name: restart atomic-openshift-master-api
+    shell: systemctl restart atomic-openshift-master-api
 
-    - name: restart atomic-openshift-node
-      shell: systemctl restart atomic-openshift-node
+  - name: restart atomic-openshift-node
+    shell: systemctl restart atomic-openshift-node
+
+  - pause:
+      minutes: 1
 #
 - hosts: nodes
   serial: 1
@@ -280,9 +281,7 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
     azure_conf_dir: /etc/azure
     azure_conf: "{{ azure_conf_dir }}/azure.conf"
     node_conf: /etc/origin/node/node-config.yaml
-  post_tasks:
-  - pause:
-      minutes: 1
+  tasks:
   - name: make sure /etc/azure exists
     file:
       state: directory
@@ -314,11 +313,14 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
       value:
       - azure
 
-    - name: restart openvswitch.service
-      shell: systemctl restart openvswitch.service
+  - name: restart openvswitch.service
+    shell: systemctl restart openvswitch.service
 
-    - name: restart atomic-openshift-node
-      shell: systemctl restart atomic-openshift-node
+  - name: restart atomic-openshift-node
+    shell: systemctl restart atomic-openshift-node
+
+  - pause:
+      minutes: 1
 
 EOF
 
