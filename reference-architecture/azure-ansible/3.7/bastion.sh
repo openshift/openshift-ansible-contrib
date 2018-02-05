@@ -256,7 +256,7 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
       value:
       - azure
 
-   - name: restart openvswitch.service
+  - name: restart openvswitch.service
     shell: systemctl restart openvswitch.service
 
   - name: restart atomic-openshift-master-controllers
