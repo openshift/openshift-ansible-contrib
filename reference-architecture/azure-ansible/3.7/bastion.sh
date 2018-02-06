@@ -321,7 +321,14 @@ cat > /home/${AUSERNAME}/azure-config.yml <<EOF
 
   - pause:
       minutes: 1
-
+- hosts: all
+  gather_facts: no
+  vars_files:
+  - vars.yml
+  become: yes
+  tasks:
+  - name: restart openvswitch.service
+    shell: systemctl restart openvswitch.service
 EOF
 
 cat <<EOF > /etc/ansible/hosts
