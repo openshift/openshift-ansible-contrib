@@ -3,34 +3,44 @@
   gather_facts: yes
   roles:
     - instance-groups
-  tags:
-    - always
-
-- include: ../../../playbooks/prerequisite.yaml
-  tags:
-    - pre
-    - rhsm
 
 - hosts: nodes
+  gather_facts: yes
   roles:
+    - rhsm-timeout
+    - role: atomic-update
+      when: openshift.common.is_atomic
+
+- hosts: nodes
+  gather_facts: no
+  serial: 1
+  roles:
+    - role: rhsm-subscription
+      when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+            ansible_distribution == "RedHat" and ( rhsm_user is defined or rhsm_activation_key is defined)
+
+- hosts: nodes
+  gather_facts: no
+  roles:
+    - role: rhsm-repos
+      when: deployment_type in ["enterprise", "atomic-enterprise", "openshift-enterprise"] and
+          ansible_distribution == "RedHat" and ( rhsm_user is defined or rhsm_activation_key is defined)
     - role: docker-storage-setup
       docker_dev: '/dev/vdb'
-  tags:
-    - pre
-    - storage
+    - prerequisites
+
+- hosts: masters
+  gather_facts: yes
+  roles:
+    - master-prerequisites
 
 - hosts: schedulable_nodes
   roles:
     - role: openshift-volume-quota
       local_volumes_device: '/dev/vdc'
-  tags:
-    - pre
-    - storage
 
 - name: call openshift includes for installer
   include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
-  tags:
-    - byo
   vars:
     debug_level: 2
     openshift_debug_level: "{{ debug_level }}"

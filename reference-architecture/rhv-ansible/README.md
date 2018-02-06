@@ -28,10 +28,9 @@ $ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.y
 ```
 
 ### oVirt Ansible roles
-[oVirt Ansible roles](https://github.com/ovirt/ovirt-ansible) will be installed from
-[Ansible Galaxy](https://galaxy.ansible.com/)
-into your system's Ansible role path, typically `/etc/ansible/roles`. These are required for playbooks to interact
-with RHV to create VMs.
+[oVirt Ansible roles](https://github.com/ovirt/ovirt-ansible) will be installed
+into your system's Ansible role path, typically `/usr/share/ansible/roles`.
+These are required for playbooks to interact with RHV/oVirt to create VMs.
 
 ### Dynamic Inventory
 A copy of `ovirt4.py` from the Ansible project is provided under the inventory directory. This script will, given credentials to a RHV 4 engine, populate the Ansible inventory with facts about all virtual machines in the cluster. In order to use this dynamic inventory, see the `ovirt.ini.example` file, either providing the relevant Python secrets via environment variables, or by copying it to `ovirt.ini` and filling in the values.
