@@ -1,7 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  gather_facts: no
-  roles:
-  - cfn-outputs
-  - inventory-file-creation

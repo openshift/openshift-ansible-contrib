@@ -1,3 +1,0 @@
----
-- name: run gdeploy
-  command: '/usr/bin/gdeploy -c /root/gdeploy.conf'

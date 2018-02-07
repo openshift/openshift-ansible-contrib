@@ -1,7 +1,0 @@
----
-rhel_image_dir: '{{ rhel_image_path | dirname }}'
-rhel_image_raw: '{{ rhel_image_dir }}/disk.raw'
-rhel_image_archive: '{{ rhel_image_dir }}/{{ rhel_image }}.tar.gz'
-rhel_image_bucket: gs://{{ gcloud_project }}-rhel-guest-raw-image
-rhel_image_in_bucket: '{{ rhel_image_bucket }}/{{ rhel_image_archive | basename }}'
-rhel_image_gce_family: 'rhel-guest-clean'

@@ -1,4 +1,0 @@
----
-- name: delete empty gce image
-  command: gcloud --project {{ gcloud_project }} compute images delete {{ empty_image_gce }}
-  ignore_errors: true

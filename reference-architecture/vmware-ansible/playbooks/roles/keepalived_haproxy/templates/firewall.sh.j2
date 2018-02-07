@@ -1,6 +1,0 @@
-#!/bin/bash
-{% for host in groups['haproxy_group'] %}
-iptables -A INPUT -s {{ hostvars[host].ansible_default_ipv4 }} -j ACCEPT
-{% endfor %}
-
-iptables-save > /etc/sysconfig/iptables

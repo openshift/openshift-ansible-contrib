@@ -1,5 +1,0 @@
----
-- name: restart openshift-node
-  service:
-    name: "{{ openshift.common.service_type }}-node"
-    state: restarted

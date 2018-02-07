@@ -1,5 +1,0 @@
----
-- name: create static inventory file
-  template:
-    src: inventory.j2
-    dest: ../static-inventory

@@ -1,8 +1,0 @@
----
-- name: wait until the instance group {{ instance_group }} is ready
-  command: gcloud --project {{ gcloud_project }} compute instance-groups managed describe {{ instance_group }} --region {{ gcloud_region }} --format 'yaml(targetSize, currentActions.none)'
-  register: instance_group_size_and_action_none
-  until: (instance_group_size_and_action_none.stdout | from_yaml).targetSize == (instance_group_size_and_action_none.stdout | from_yaml).currentActions.none
-  retries: 20
-  delay: 5
-  changed_when: false

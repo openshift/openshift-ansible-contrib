@@ -1,8 +1,0 @@
----
-- name: Add gluster instances to host group
-  add_host:
-    name: "{{ hostvars[item].ec2_tag_Name }}"
-    groups: crs, storage
-  with_items: "{{ groups['tag_StorageType_crs'] }}"
-  when:
-    - hostvars[item]['ec2_tag_aws_cloudformation_stack_name'] == "{{ stack_name }}-{{ glusterfs_stack_name }}"
