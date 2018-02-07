@@ -1,6 +1,0 @@
----
-- name: Install git
-  package:
-    name: git
-    state: latest
-  when: not openshift.common.is_atomic | bool

@@ -1,3 +1,0 @@
----
-- name: restart heketi
-  service: name=heketi state=restarted

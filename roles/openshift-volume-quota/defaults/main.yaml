@@ -1,5 +1,0 @@
----
-local_volumes_device: "/dev/sdc"
-local_volumes_fstype: "xfs"
-local_volumes_fsopts: "gquota"
-local_volumes_path: "/var/lib/origin/openshift.local.volumes"

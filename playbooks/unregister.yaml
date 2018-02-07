@@ -1,6 +1,0 @@
----
-- hosts: cluster_hosts
-  gather_facts: yes
-  become: yes
-  roles:
-  - rhsm-unregister

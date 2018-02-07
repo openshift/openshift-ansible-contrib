@@ -1,7 +1,0 @@
----
-- hosts: localhost
-  connection: local
-  gather_facts: no
-  become: true
-  roles:
-    - { role: prepare, tags: ['prepare'] }

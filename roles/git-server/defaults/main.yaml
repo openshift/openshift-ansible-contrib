@@ -1,6 +1,0 @@
----
-git_repo_home: "/opt/git"
-git_user: "git"
-
-# List of Authorized Keys to Add
-git_user_authorized_keys:

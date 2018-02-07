@@ -1,4 +1,0 @@
----
-- include: gold-image.yaml
-- include: core-infra.yaml
-- include: openshift-install.yaml

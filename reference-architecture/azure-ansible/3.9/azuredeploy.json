@@ -1,0 +1,1401 @@
+{
+  "$schema" : "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion" : "1.0.0.0",
+  "parameters" : {
+    "adminUsername" : {
+      "type" : "string",
+      "minLength" : 1,
+      "metadata" : {
+        "description" : "User name for the Virtual Machine and OpenShift Webconsole."
+      }
+    },
+    "adminPassword" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "User password for the OpenShift Webconsole"
+      }
+    },
+    "sshKeyData" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "SSH RSA public key file as a string."
+      }
+    },
+    "WildcardZone" : {
+      "type" : "string",
+      "minLength" : 1,
+      "metadata" : {
+        "description" : "Globally unique wildcard DNS domain for app access."
+      }
+    },
+    "numberOfNodes" : {
+      "type" : "int",
+      "defaultValue" : 3,
+      "minValue" : 3,
+      "maxValue" : 30,
+      "metadata" : {
+        "description" : "Number of OpenShift Nodes to deploy (max 30)"
+      }
+    },
+    "image" : {
+      "type" : "string",
+      "allowedValues" : [
+        "rhel"
+      ],
+      "defaultValue" : "rhel",
+      "metadata" : {
+        "description" : "OS to use.Red Hat Enterprise Linux"
+      }
+    },
+    "masterVMSize" : {
+      "type" : "string",
+      "defaultValue" : "Standard_DS4_v2",
+      "allowedValues" : [
+        "Standard_A2",
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_A5",
+        "Standard_A6",
+        "Standard_A7",
+        "Standard_A8",
+        "Standard_A9",
+        "Standard_A10",
+        "Standard_A11",
+        "Standard_D2",
+        "Standard_D3",
+        "Standard_D4",
+        "Standard_D11",
+        "Standard_D12",
+        "Standard_D13",
+        "Standard_D14",
+        "Standard_D2_v2",
+        "Standard_D3_v2",
+        "Standard_D4_v2",
+        "Standard_D5_v2",
+        "Standard_D11_v2",
+        "Standard_D12_v2",
+        "Standard_D13_v2",
+        "Standard_D14_v2",
+        "Standard_E2_v3",
+        "Standard_E4_v3",
+        "Standard_E8_v3",
+        "Standard_E16_v3",
+        "Standard_E32_v3",
+        "Standard_E64_v3",
+        "Standard_E2s_v3",
+        "Standard_E4s_v3",
+        "Standard_E8s_v3",
+        "Standard_E16s_v3",
+        "Standard_E32s_v3",
+        "Standard_E64s_v3",
+        "Standard_G1",
+        "Standard_G2",
+        "Standard_G3",
+        "Standard_G4",
+        "Standard_G5",
+        "Standard_DS2",
+        "Standard_DS3",
+        "Standard_DS4",
+        "Standard_DS11",
+        "Standard_DS12",
+        "Standard_DS13",
+        "Standard_DS14",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2",
+        "Standard_DS11_v2",
+        "Standard_DS12_v2",
+        "Standard_DS13_v2",
+        "Standard_DS14_v2",
+        "Standard_GS1",
+        "Standard_GS2",
+        "Standard_GS3",
+        "Standard_GS4",
+        "Standard_GS5"
+      ],
+      "metadata" : {
+        "description" : "The size of the Master Virtual Machine."
+      }
+    },
+    "infranodeVMSize" : {
+      "type" : "string",
+      "defaultValue" : "Standard_DS4_v2",
+      "allowedValues" : [
+        "Standard_A2",
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_A5",
+        "Standard_A6",
+        "Standard_A7",
+        "Standard_A8",
+        "Standard_A9",
+        "Standard_A10",
+        "Standard_A11",
+        "Standard_D2",
+        "Standard_D3",
+        "Standard_D4",
+        "Standard_D11",
+        "Standard_D12",
+        "Standard_D13",
+        "Standard_D14",
+        "Standard_D2_v2",
+        "Standard_D3_v2",
+        "Standard_D4_v2",
+        "Standard_D5_v2",
+        "Standard_D11_v2",
+        "Standard_D12_v2",
+        "Standard_D13_v2",
+        "Standard_D14_v2",
+        "Standard_E2_v3",
+        "Standard_E4_v3",
+        "Standard_E8_v3",
+        "Standard_E16_v3",
+        "Standard_E32_v3",
+        "Standard_E64_v3",
+        "Standard_E2s_v3",
+        "Standard_E4s_v3",
+        "Standard_E8s_v3",
+        "Standard_E16s_v3",
+        "Standard_E32s_v3",
+        "Standard_E64s_v3",
+        "Standard_G1",
+        "Standard_G2",
+        "Standard_G3",
+        "Standard_G4",
+        "Standard_G5",
+        "Standard_DS2",
+        "Standard_DS3",
+        "Standard_DS4",
+        "Standard_DS11",
+        "Standard_DS12",
+        "Standard_DS13",
+        "Standard_DS14",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2",
+        "Standard_DS11_v2",
+        "Standard_DS12_v2",
+        "Standard_DS13_v2",
+        "Standard_DS14_v2",
+        "Standard_GS1",
+        "Standard_GS2",
+        "Standard_GS3",
+        "Standard_GS4",
+        "Standard_GS5"
+      ],
+      "metadata" : {
+        "description" : "The size of the Infranode Virtual Machine."
+      }
+    },
+    "nodeVMSize" : {
+      "type" : "string",
+      "defaultValue" : "Standard_DS4_v2",
+      "allowedValues" : [
+        "Standard_A2",
+        "Standard_A3",
+        "Standard_A4",
+        "Standard_A5",
+        "Standard_A6",
+        "Standard_A7",
+        "Standard_A8",
+        "Standard_A9",
+        "Standard_A10",
+        "Standard_A11",
+        "Standard_D2",
+        "Standard_D3",
+        "Standard_D4",
+        "Standard_D11",
+        "Standard_D12",
+        "Standard_D13",
+        "Standard_D14",
+        "Standard_D2_v2",
+        "Standard_D3_v2",
+        "Standard_D4_v2",
+        "Standard_D5_v2",
+        "Standard_D11_v2",
+        "Standard_D12_v2",
+        "Standard_D13_v2",
+        "Standard_D14_v2",
+        "Standard_E2_v3",
+        "Standard_E4_v3",
+        "Standard_E8_v3",
+        "Standard_E16_v3",
+        "Standard_E32_v3",
+        "Standard_E64_v3",
+        "Standard_E2s_v3",
+        "Standard_E4s_v3",
+        "Standard_E8s_v3",
+        "Standard_E16s_v3",
+        "Standard_E32s_v3",
+        "Standard_E64s_v3",
+        "Standard_G1",
+        "Standard_G2",
+        "Standard_G3",
+        "Standard_G4",
+        "Standard_G5",
+        "Standard_DS2",
+        "Standard_DS3",
+        "Standard_DS4",
+        "Standard_DS11",
+        "Standard_DS12",
+        "Standard_DS13",
+        "Standard_DS14",
+        "Standard_DS2_v2",
+        "Standard_DS3_v2",
+        "Standard_DS4_v2",
+        "Standard_DS5_v2",
+        "Standard_DS11_v2",
+        "Standard_DS12_v2",
+        "Standard_DS13_v2",
+        "Standard_DS14_v2",
+        "Standard_GS1",
+        "Standard_GS2",
+        "Standard_GS3",
+        "Standard_GS4",
+        "Standard_GS5"
+      ],
+      "metadata" : {
+        "description" : "The size of the each Node Virtual Machine."
+      }
+    },
+    "rhsmUsernamePasswordOrActivationKey" : {
+      "type" : "string",
+      "minLength" : 1,
+      "defaultValue" : "usernamepassword",
+      "allowedValues" : [
+        "usernamepassword",
+        "activationkey"
+      ],
+      "metadata" : {
+        "description" : "Select whether you want to use your Red Hat Subscription Manager Username and Password or Organization ID and Activation Key to register the RHEL instance to your Red Hat Subscription."
+      }
+    },
+    "RHNUserName" : {
+      "type" : "string",
+      "minLength" : 1,
+      "metadata" : {
+        "description" : "Red Hat Subscription User Name or Email Address or Organization ID"
+      }
+    },
+    "RHNPassword" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "Red Hat Subscription Password or Activation Key"
+      }
+    },
+    "SubscriptionPoolId" : {
+      "type" : "string",
+      "minLength" : 1,
+      "metadata" : {
+        "description" : "Pool ID of the Red Hat subscritpion to use"
+      }
+    },
+    "sshPrivateData" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "SSH RSA private key file as a base64 string."
+      }
+    },
+    "aadClientId" : {
+      "type" : "string",
+      "metadata" : {
+        "description" : "Azure AD Client Id"
+      }
+    },
+    "aadClientSecret" : {
+      "type" : "securestring",
+      "metadata" : {
+        "description" : "Azure AD Client Secret"
+      }
+    },
+    "OpenShiftSDN" : {
+      "type" : "string",
+      "defaultValue" : "redhat/openshift-ovs-multitenant",
+      "allowedValues" : [
+        "redhat/openshift-ovs-subnet",
+        "redhat/openshift-ovs-multitenant"
+      ],
+      "metadata" : {
+        "description" : "The supported SDN plugin to be used in OCP."
+      }
+    },
+    "metrics" : {
+      "type" : "bool",
+      "defaultValue" : true,
+      "metadata" : {
+        "description" : "Enable OCP metrics"
+      }
+    },
+    "logging" : {
+      "type" : "bool",
+      "defaultValue" : true,
+      "metadata" : {
+        "description" : "Enable OCP aggregated logging"
+      }
+    },
+    "opslogging" : {
+      "type" : "bool",
+      "defaultValue" : false,
+      "metadata" : {
+        "description" : "Enable OCP aggregated logging for ops"
+      }
+    }
+  },
+  "variables" : {
+    "gituser" : "openshift",
+    "branch" : "master",
+    "version" : "3.7",
+    "baseTemplateUrl" : "[concat('https://raw.githubusercontent.com/',variables('gituser'),'/openshift-ansible-contrib/',variables('branch'),'/reference-architecture/azure-ansible/',variables('version'),'/')]",
+    "baseVMachineTemplateUriInfranode" : "[concat(variables('baseTemplateUrl'), 'infranode.json')]",
+    "baseVMachineTemplateUriNode" : "[concat(variables('baseTemplateUrl'), 'node.json')]",
+    "baseVMachineTemplateUriMaster" : "[concat(variables('baseTemplateUrl'), 'master.json')]",
+    "location" : "[resourceGroup().location]",
+    "virtualNetworkName" : "openshiftVnet",
+    "addressPrefix" : "10.0.0.0/16",
+    "infranodesubnetName" : "infranodeSubnet",
+    "infranodesubnetPrefix" : "10.0.2.0/24",
+    "nodesubnetName" : "nodeSubnet",
+    "nodesubnetPrefix" : "10.0.1.0/24",
+    "mastersubnetName" : "masterSubnet",
+    "mastersubnetPrefix" : "10.0.0.0/24",
+    "infranodeStorageName" : "[concat('sainf', resourceGroup().name)]",
+    "nodeStorageName" : "[concat('sanod', resourceGroup().name)]",
+    "masterStorageName" : "[concat('samas', resourceGroup().name)]",
+    "vhdStorageType" : "Premium_LRS",
+    "vnetId" : "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+    "infranodeSubnetRef" : "[concat(variables('vnetId'), '/subnets/', variables('infranodesubnetName'))]",
+    "nodeSubnetRef" : "[concat(variables('vnetId'), '/subnets/', variables('nodesubnetName'))]",
+    "masterSubnetRef" : "[concat(variables('vnetId'), '/subnets/', variables('mastersubnetName'))]",
+    "rhel" : {
+      "publisher" : "Redhat",
+      "offer" : "RHEL",
+      "sku" : "7-RAW",
+      "version" : "latest"
+    },
+    "baseVMachineTemplateUriBastion" : "[concat(variables('baseTemplateUrl'), 'bastion.json')]",
+    "vmSizesMap" : {
+      "Standard_A2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A4" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A5" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A6" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A7" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A8" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A9" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A10" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_A11" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D1" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D4" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D11" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D12" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D13" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D14" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D1_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D2_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D3_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D4_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D5_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D11_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D12_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D13_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_D14_v2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E2_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E4_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E8_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E16_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E32_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E64_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E2s_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E4s_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E8s_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E16s_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E32s_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_E64s_v3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G1" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G2" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G3" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G4" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_G5" : {
+        "storageAccountType" : "Standard_LRS"
+      },
+      "Standard_DS1" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS3" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS4" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS11" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS12" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS13" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS14" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS1_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS2_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS3_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS4_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS5_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS11_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS12_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS13_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS14_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_DS15_v2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS1" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS2" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS3" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS4" : {
+        "storageAccountType" : "Premium_LRS"
+      },
+      "Standard_GS5" : {
+        "storageAccountType" : "Premium_LRS"
+      }
+    },
+    "tenantId" : "[subscription().tenantId]",
+    "bastionVMSize" : "Standard_DS1_v2",
+    "masterLoadBalancerName" : "[concat('MasterLb',resourceGroup().name)]",
+    "masterPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', resourceGroup().name)]",
+    "masterLbId" : "[resourceId('Microsoft.Network/loadBalancers', variables('masterLoadBalancerName'))]",
+    "masterLbFrontEndConfigId" : "[concat(variables('masterLbId'), '/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "masterLbBackendPoolId" : "[concat(variables('masterLbId'),'/backendAddressPools/loadBalancerBackend')]",
+    "masterLbHttpProbeId" : "[concat(variables('masterLbId'),'/probes/httpProbe')]",
+    "masterLb8443ProbeId" : "[concat(variables('masterLbId'),'/probes/8443Probe')]",
+    "infraLoadBalancerName" : "[concat(parameters('WildcardZone'), 'lb')]",
+    "infraPublicIpAddressId" : "[resourceId('Microsoft.Network/publicIPAddresses', parameters('WildcardZone'))]",
+    "infraLbId" : "[resourceId('Microsoft.Network/loadBalancers', variables('infraLoadBalancerName'))]",
+    "infraLbFrontEndConfigId" : "[concat(variables('infraLbId'), '/frontendIPConfigurations/loadBalancerFrontEnd')]",
+    "infraLbBackendPoolId" : "[concat(variables('infraLbId'),'/backendAddressPools/loadBalancerBackend')]",
+    "infraLbHttpProbeId" : "[concat(variables('infraLbId'),'/probes/httpProbe')]",
+    "infraLbHttpsProbeId" : "[concat(variables('infraLbId'),'/probes/httpsProbe')]",
+    "infraLbCockpitProbeId" : "[concat(variables('infraLbId'),'/probes/cockpitProbe')]",
+    "StorageAccountPersistentVolume" : "[concat('sapv', resourceGroup().name)]",
+    "StorageAccountLoggingMetricsVolumes" : "[concat('sapvlm', resourceGroup().name)]",
+    "registryStorageName" : "[concat('sareg', resourceGroup().name)]",
+    "subscriptionId" : "[subscription().subscriptionId]",
+    "StorageAccountLoggingMetricsVolumesVolumeType" : "Premium_LRS",
+    "apiVersion" : "2015-06-15",
+    "apiVersionCompute" : "2015-06-15",
+    "apiVersionNetwork" : "2016-03-30",
+    "tmApiVersion" : "2015-11-01",
+    "apiVersionStorage" : "2015-06-15",
+    "apiVersionLinkTemplate" : "2015-01-01"
+  },
+  "resources" : [
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('infranodeStorageName')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "[variables('vmSizesMap')[parameters('infranodeVMSize')].storageAccountType]"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('nodeStorageName')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "[variables('vmSizesMap')[parameters('nodeVmSize')].storageAccountType]"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('masterStorageName')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "[variables('vmSizesMap')[parameters('masterVMSize')].storageAccountType]"
+      }
+    },
+    {
+      "apiVersion" : "[variables('apiVersion')]",
+      "type" : "Microsoft.Network/virtualNetworks",
+      "name" : "[variables('virtualNetworkName')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "VirtualNetwork"
+      },
+      "properties" : {
+        "addressSpace" : {
+          "addressPrefixes" : [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets" : [
+          {
+            "name" : "[variables('infranodesubnetName')]",
+            "properties" : {
+              "addressPrefix" : "[variables('infranodesubnetPrefix')]"
+            }
+          },
+          {
+            "name" : "[variables('nodesubnetName')]",
+            "properties" : {
+              "addressPrefix" : "[variables('nodesubnetPrefix')]"
+            }
+          },
+          {
+            "name" : "[variables('mastersubnetName')]",
+            "properties" : {
+              "addressPrefix" : "[variables('mastersubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name" : "[concat('nodeSet', copyindex())]",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "copy" : {
+        "name" : "nodeSet",
+        "count" : "[parameters('numberOfNodes')]"
+      },
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('nodeStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriNode')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "[concat('node', padLeft(add(copyindex(), 1), 2, '0'))]"
+          },
+          "sa" : {
+            "value" : "[variables('nodeStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('nodeSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('nodeVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "availabilitySet" : {
+            "value" : "['nodeavailabilityset']"
+          }
+        }
+      }
+    },
+    {
+      "name" : "bastion",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('registryStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriBastion')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "bastion"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'b')]"
+          },
+          "sa" : {
+            "value" : "[variables('masterStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('masterSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[variables('bastionVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "adminPassword" : {
+            "value" : "[parameters('adminPassword')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "numberOfNodes" : {
+            "value" : "[parameters('numberOfNodes')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "routerExtIP" : {
+            "value" : "[reference(parameters('WildcardZone')).ipAddress]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "RHNUserName" : {
+            "value" : "[parameters('RHNUserName')]"
+          },
+          "RHNPassword" : {
+            "value" : "[parameters('RHNPassword')]"
+          },
+          "SubscriptionPoolId" : {
+            "value" : "[parameters('SubscriptionPoolId')]"
+          },
+          "sshPrivateData" : {
+            "value" : "[parameters('sshPrivateData')]"
+          },
+          "wildcardZone" : {
+            "value" : "[parameters('WildcardZone')]"
+          },
+          "registrystoragename" : {
+            "value" : "[variables('registryStorageName')]"
+          },
+          "registrykey" : {
+            "value" : "[listKeys(resourceId('Microsoft.Storage/storageAccounts',variables('registryStorageName')),'2015-06-15').key1]"
+          },
+          "location" : {
+            "value" : "[variables('location')]"
+          },
+          "subscriptionid" : {
+            "value" : "[variables('subscriptionId')]"
+          },
+          "tenantid" : {
+            "value" : "[variables('tenantId')]"
+          },
+          "aadclientid" : {
+            "value" : "[parameters('aadClientId')]"
+          },
+          "aadclientsecret" : {
+            "value" : "[parameters('aadClientSecret')]"
+          },
+          "rhsmmode" : {
+            "value" : "[parameters('rhsmUsernamePasswordOrActivationKey')]"
+          },
+          "openshiftsdn" : {
+            "value" : "[parameters('OpenShiftSDN')]"
+          },
+          "metrics" : {
+            "value" : "[parameters('metrics')]"
+          },
+          "logging" : {
+            "value" : "[parameters('logging')]"
+          },
+          "opslogging" : {
+            "value" : "[parameters('opslogging')]"
+          }
+        }
+      }
+    },
+    {
+      "name" : "master1",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriMaster')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "master1"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'m1')]"
+          },
+          "sa" : {
+            "value" : "[variables('masterStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('masterSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('masterVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "sshPrivateData" : {
+            "value" : "[parameters('sshPrivateData')]"
+          },
+          "masterLoadBalancerName" : {
+            "value" : "[variables('masterLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['masteravailabilityset']"
+          }
+        }
+      }
+    },
+    {
+      "name" : "master2",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriMaster')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "master2"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'m2')]"
+          },
+          "sa" : {
+            "value" : "[variables('masterStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('masterSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('masterVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "sshPrivateData" : {
+            "value" : "[parameters('sshPrivateData')]"
+          },
+          "masterLoadBalancerName" : {
+            "value" : "[variables('masterLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['masteravailabilityset']"
+          }
+        }
+      }
+    },
+    {
+      "name" : "master3",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('masterStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriMaster')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "master3"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'m3')]"
+          },
+          "sa" : {
+            "value" : "[variables('masterStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('masterSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('masterVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "sshPrivateData" : {
+            "value" : "[parameters('sshPrivateData')]"
+          },
+          "masterLoadBalancerName" : {
+            "value" : "[variables('masterLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['masteravailabilityset']"
+          }
+        }
+      }
+    },
+    {
+      "name" : "infranode1",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('infranodeStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriInfranode')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "infranode1"
+          },
+          "sa" : {
+            "value" : "[variables('infranodeStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('infranodeSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('infranodeVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'i1')]"
+          },
+          "LoadBalancerName" : {
+            "value" : "[variables('infraLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['infranodeavailabilityset']"
+          }
+        }
+      }
+    },
+    {
+      "name" : "infranode2",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('infranodeStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriInfranode')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "infranode2"
+          },
+          "sa" : {
+            "value" : "[variables('infranodeStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('infranodeSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('infranodeVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'i2')]"
+          },
+          "LoadBalancerName" : {
+            "value" : "[variables('infraLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['infranodeavailabilityset']"
+          }
+        }
+      }
+    },
+    {
+      "name" : "infranode3",
+      "type" : "Microsoft.Resources/deployments",
+      "apiVersion" : "2015-01-01",
+      "dependsOn" : [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('infranodeStorageName'))]"
+      ],
+      "properties" : {
+        "mode" : "Incremental",
+        "templateLink" : {
+          "uri" : "[variables('baseVMachineTemplateUriInfranode')]",
+          "contentVersion" : "1.0.0.0"
+        },
+        "parameters" : {
+          "vmName" : {
+            "value" : "infranode3"
+          },
+          "sa" : {
+            "value" : "[variables('infranodeStorageName')]"
+          },
+          "subnetRef" : {
+            "value" : "[variables('infranodeSubnetRef')]"
+          },
+          "vmSize" : {
+            "value" : "[parameters('infranodeVMSize')]"
+          },
+          "adminUsername" : {
+            "value" : "[parameters('adminUsername')]"
+          },
+          "sshKeyData" : {
+            "value" : "[parameters('sshKeyData')]"
+          },
+          "baseTemplateUrl" : {
+            "value" : "[variables('baseTemplateUrl')]"
+          },
+          "imageReference" : {
+            "value" : "[variables(parameters('image'))]"
+          },
+          "dnsName" : {
+            "value" : "[concat(resourceGroup().name,'i3')]"
+          },
+          "LoadBalancerName" : {
+            "value" : "[variables('infraLoadBalancerName')]"
+          },
+          "availabilitySet" : {
+            "value" : "['infranodeavailabilityset']"
+          }
+        }
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('registryStorageName')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccount"
+      },
+      "properties" : {
+        "accountType" : "['Standard_RAGRS']"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('StorageAccountPersistentVolume')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccountPersistentVolume"
+      },
+      "properties" : {
+        "accountType" : "[variables('vmSizesMap')[parameters('nodeVmSize')].storageAccountType]"
+      }
+    },
+    {
+      "type" : "Microsoft.Storage/storageAccounts",
+      "name" : "[variables('StorageAccountLoggingMetricsVolumes')]",
+      "apiVersion" : "[variables('apiVersion')]",
+      "location" : "[variables('location')]",
+      "tags" : {
+        "displayName" : "StorageAccountLoggingMetricsVolumes"
+      },
+      "properties" : {
+        "accountType" : "[variables('StorageAccountLoggingMetricsVolumesVolumeType')]"
+      }
+    },
+    {
+      "type" : "Microsoft.Compute/availabilitySets",
+      "name" : "masteravailabilityset",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionCompute')]",
+      "properties" : {}
+    },
+    {
+      "type" : "Microsoft.Compute/availabilitySets",
+      "name" : "infranodeavailabilityset",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionCompute')]",
+      "properties" : {}
+    },
+    {
+      "type" : "Microsoft.Network/publicIPAddresses",
+      "name" : "[parameters('WildcardZone')]",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionNetwork')]",
+      "tags" : {
+        "displayName" : "OpenShiftInfraLBPublicIP"
+      },
+      "properties" : {
+        "publicIPAllocationMethod" : "Static",
+        "dnsSettings" : {
+          "domainNameLabel" : "[parameters('WildcardZone')]"
+        }
+      }
+    },
+    {
+      "type" : "Microsoft.Compute/availabilitySets",
+      "name" : "nodeavailabilityset",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionCompute')]",
+      "properties" : {}
+    },
+    {
+      "type" : "Microsoft.Network/publicIPAddresses",
+      "name" : "[resourceGroup().name]",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionNetwork')]",
+      "tags" : {
+        "displayName" : "OpenShiftMasterPublicIP"
+      },
+      "properties" : {
+        "publicIPAllocationMethod" : "Static",
+        "dnsSettings" : {
+          "domainNameLabel" : "[resourceGroup().name]"
+        }
+      }
+    },
+    {
+      "type" : "Microsoft.Network/loadBalancers",
+      "name" : "[variables('masterLoadBalancerName')]",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionNetwork')]",
+      "tags" : {
+        "displayName" : "OpenShiftMasterLB"
+      },
+      "dependsOn" : [
+        "[concat('Microsoft.Network/publicIPAddresses/', resourceGroup().name)]"
+      ],
+      "properties" : {
+        "frontendIPConfigurations" : [
+          {
+            "name" : "LoadBalancerFrontEnd",
+            "properties" : {
+              "publicIPAddress" : {
+                "id" : "[variables('masterPublicIpAddressId')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools" : [
+          {
+            "name" : "loadBalancerBackEnd"
+          }
+        ],
+        "loadBalancingRules" : [
+          {
+            "name" : "OpenShiftAdminConsole",
+            "properties" : {
+              "frontendIPConfiguration" : {
+                "id" : "[variables('masterLbFrontEndConfigId')]"
+              },
+              "backendAddressPool" : {
+                "id" : "[variables('masterLbBackendPoolId')]"
+              },
+              "protocol" : "Tcp",
+              "loadDistribution" : "SourceIP",
+              "idleTimeoutInMinutes" : 30,
+              "frontendPort" : 8443,
+              "backendPort" : 8443,
+              "probe" : {
+                "id" : "[variables('masterLb8443ProbeId')]"
+              }
+            }
+          }
+        ],
+        "probes" : [
+          {
+            "name" : "8443Probe",
+            "properties" : {
+              "protocol" : "Tcp",
+              "port" : 8443,
+              "intervalInSeconds" : 5,
+              "numberOfProbes" : 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type" : "Microsoft.Network/loadBalancers",
+      "name" : "[variables('infraLoadBalancerName')]",
+      "location" : "[variables('location')]",
+      "apiVersion" : "[variables('apiVersionNetwork')]",
+      "tags" : {
+        "displayName" : "OpenShiftMasterLB"
+      },
+      "dependsOn" : [
+        "[concat('Microsoft.Network/publicIPAddresses/', parameters('WildcardZone'))]"
+      ],
+      "properties" : {
+        "frontendIPConfigurations" : [
+          {
+            "name" : "LoadBalancerFrontEnd",
+            "properties" : {
+              "publicIPAddress" : {
+                "id" : "[variables('infraPublicIpAddressId')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools" : [
+          {
+            "name" : "loadBalancerBackEnd"
+          }
+        ],
+        "loadBalancingRules" : [
+          {
+            "name" : "OpenShiftRouterHTTP",
+            "properties" : {
+              "frontendIPConfiguration" : {
+                "id" : "[variables('infraLbFrontEndConfigId')]"
+              },
+              "backendAddressPool" : {
+                "id" : "[variables('infraLbBackendPoolId')]"
+              },
+              "protocol" : "Tcp",
+              "frontendPort" : 80,
+              "backendPort" : 80,
+              "probe" : {
+                "id" : "[variables('infraLbHttpProbeId')]"
+              }
+            }
+          },
+          {
+            "name" : "OpenShiftRouterHTTPS",
+            "properties" : {
+              "frontendIPConfiguration" : {
+                "id" : "[variables('infraLbFrontEndConfigId')]"
+              },
+              "backendAddressPool" : {
+                "id" : "[variables('infraLbBackendPoolId')]"
+              },
+              "protocol" : "Tcp",
+              "frontendPort" : 443,
+              "backendPort" : 443,
+              "probe" : {
+                "id" : "[variables('infraLbHttpsProbeId')]"
+              }
+            }
+          }
+        ],
+        "probes" : [
+          {
+            "name" : "httpProbe",
+            "properties" : {
+              "protocol" : "Tcp",
+              "port" : 80,
+              "intervalInSeconds" : 5,
+              "numberOfProbes" : 2
+            }
+          },
+          {
+            "name" : "httpsProbe",
+            "properties" : {
+              "protocol" : "Tcp",
+              "port" : 443,
+              "intervalInSeconds" : 5,
+              "numberOfProbes" : 2
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "outputs" : {
+    "Openshift Webconsole" : {
+      "type" : "string",
+      "value" : "[concat('https://', reference(resourceGroup().name).dnsSettings.fqdn, ':8443/console')]"
+    },
+    "Bastion ssh" : {
+      "type" : "string",
+      "value" : "[concat('ssh -A ', reference('bastion').outputs.fqdn.value)]"
+    },
+    "Openshift Router Public IP" : {
+      "type" : "string",
+      "value" : "[reference(parameters('WildcardZone')).ipAddress]"
+    }
+  }
+}

@@ -1,2 +1,0 @@
----
-gluster_crs_required_packages: ['redhat-storage-server', 'heketi-client', 'iptables-services', 'iptables']

@@ -1,9 +1,0 @@
----
-openshift_git_repo_home: "{{ git_repo_home }}/openshift"
-openshift_example_repos:
-- "https://github.com/openshift/cakephp-ex.git"
-- "https://github.com/openshift/dancer-ex.git"
-- "https://github.com/jboss-openshift/openshift-quickstarts.git"
-- "https://github.com/openshift/django-ex.git"
-- "https://github.com/openshift/nodejs-ex.git"
-- "https://github.com/openshift/rails-ex.git"

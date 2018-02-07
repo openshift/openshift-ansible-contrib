@@ -1,7 +1,0 @@
-flake8
-flake8-mutable
-flake8-print
-PyYAML
-yamllint
-git+https://github.com/detiber/molecule@v2_tweaks
-docker-py==1.10.6

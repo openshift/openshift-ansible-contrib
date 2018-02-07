@@ -1,6 +1,0 @@
----
-custom_rules_repo: https://github.com/aweiteka/origin.git
-custom_rules_path: examples/prometheus/rules
-custom_rules_branch: ex-prom-rules
-custom_rules_configmap: base-rules
-metrics_namespace: openshift-metrics

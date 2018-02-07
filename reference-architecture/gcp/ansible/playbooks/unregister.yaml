@@ -1,7 +1,0 @@
----
-- name: create instance groups
-  hosts: localhost
-  roles:
-  - instance-groups
-
-- include: ../../../../playbooks/unregister.yaml
