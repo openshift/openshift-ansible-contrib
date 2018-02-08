@@ -4,6 +4,7 @@
   tasks:
   - command: find /home/vagrant/sync/vagrant/.vagrant/machines -name private_key
     register: private_keys
+    changed_when: no
 
   - file:
       src: "{{ item }}"

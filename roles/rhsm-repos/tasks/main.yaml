@@ -3,6 +3,7 @@
     - name: "Obtain currently enabled repos"
       shell: 'subscription-manager repos --list-enabled | sed -ne "s/^Repo ID:[^a-zA-Z0-9]*\(.*\)/\1/p"'
       register: enabled_repos
+      changed_when: no
 
     - name: "Disable repositories that should not be enabled"
       shell: "subscription-manager repos --disable={{ item }}"
