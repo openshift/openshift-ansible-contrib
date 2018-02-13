@@ -1,0 +1,27 @@
+---
+# defaults file for openshift_grafana
+openshift_grafana_state: present
+
+openshift_grafana_namespace: grafana
+
+# defaults hosts for routes
+openshift_grafana_hostname: grafana-{{openshift_grafana_namespace}}.{{openshift_master_default_subdomain}}
+
+openshift_grafana_node_selector: {"region":"infra"}
+
+openshift_grafana_service_port: 443
+openshift_grafana_service_targetport: 8443
+openshift_grafana_service_account_name: grafana
+
+openshift_grafana_serviceaccount_annotations: []
+l_openshift_grafana_serviceaccount_annotations:
+  - serviceaccounts.openshift.io/oauth-redirectreference.primary='{"kind":"OAuthRedirectReference","apiVersion":"v1","reference":{"kind":"Route","name":"grafana"}}'
+
+openshift_grafana_prometheus_datasource: prometheus
+openshift_grafana_prometheus_namespace: openshift-metrics
+
+# container resources
+openshift_grafana_cpu_limit: null
+openshift_grafana_memory_limit: null
+openshift_grafana_cpu_requests: null
+openshift_grafana_memory_requests: null

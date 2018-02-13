@@ -1,0 +1,75 @@
+---
+- apiVersion: extensions/v1beta1
+  kind: Deployment
+  metadata:
+    labels:
+      app: grafana
+    name: grafana
+    namespace: {{ openshift_grafana_namespace }}
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: grafana
+    template:
+      metadata:
+        labels:
+          app: grafana
+        name: grafana
+      spec:
+        serviceAccountName: {{ openshift_grafana_service_account_name }}
+        containers:
+        - name: oauth-proxy
+          image: {{ openshift_grafana_proxy_image_prefix }}/oauth-proxy:{{ openshift_grafana_proxy_image_version }}
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 8443
+            name: web
+          args:
+          - -https-address=:8443
+          - -http-address=
+          - -email-domain=*
+          - -client-id=system:serviceaccount:{{ openshift_grafana_namespace }}:{{ openshift_grafana_service_account_name }}
+          - -upstream=http://localhost:3000
+          - -provider=openshift
+          - '-openshift-sar={"namespace": "{{ openshift_grafana_namespace }}", "verb": "list", "resource": "services"}'
+          - -tls-cert=/etc/tls/private/tls.crt
+          - -tls-key=/etc/tls/private/tls.key
+          - -client-secret-file=/var/run/secrets/kubernetes.io/serviceaccount/token
+          - -cookie-secret-file=/etc/proxy/secrets/session_secret
+          - -skip-auth-regex=^/metrics,/api/datasources,/api/dashboards
+          volumeMounts:
+          - mountPath: /etc/tls/private
+            name: grafana-tls
+          - mountPath: /etc/proxy/secrets
+            name: secrets
+
+        - name: grafana
+          image: {{ openshift_grafana_image_prefix }}/grafana-ocp:{{ openshift_grafana_image_version }}
+          ports:
+          - name: grafana-http
+            containerPort: 3000
+          volumeMounts:
+          - mountPath: "/root/go/src/github.com/grafana/grafana/data"
+            name: grafana-data
+          - mountPath: "/root/go/src/github.com/grafana/grafana/conf"
+            name: grafanaconfig
+          - mountPath: /etc/tls/private
+            name: grafana-tls
+          - mountPath: /etc/proxy/secrets
+            name: secrets
+          command:
+           - "./bin/grafana-server"
+
+        volumes:
+        - name: grafanaconfig
+          configMap:
+            name: grafana-config
+        - name: secrets
+          secret:
+            secretName: grafana-proxy
+        - name: grafana-tls
+          secret:
+            secretName: grafana-tls
+        - emptyDir: {}
+          name: grafana-data
