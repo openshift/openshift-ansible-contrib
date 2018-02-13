@@ -1,0 +1,127 @@
+---
+# set facts
+- include_tasks: facts.yaml
+
+- name: Ensure that Grafana has nodes to run on
+  fail:
+    msg: |-
+      No schedulable nodes found matching node selector for Grafana - '{{ openshift_grafana_node_selector }}'
+  when:
+  - openshift_schedulable_node_labels | lib_utils_oo_has_no_matching_selector(openshift_grafana_node_selector)
+
+# namespace
+- name: Add grafana project
+  oc_project:
+    state: present
+    name: "{{ openshift_grafana_namespace }}"
+    node_selector: "{{ openshift_grafana_node_selector | lib_utils_oo_selector_to_string_list() }}"
+    description: Grafana
+
+# TODO: Allow user to choose to join the project or not, therefore, to use the
+# service or a route.
+- name: Join project with the prometheus one
+  command: >
+    {{ openshift_client_binary }} adm pod-network join-projects --to={{ openshift_prometheus_namespace }} -n {{ openshift_grafana_namespace }}
+
+# secrets
+- name: Set grafana sesion secrets
+  oc_secret:
+    state: present
+    name: "{{ item }}-proxy"
+    namespace: "{{ openshift_grafana_namespace }}"
+    contents:
+    - path: session_secret
+      data: "{{ 43 | lib_utils_oo_random_word }}="
+  with_items:
+  - grafana
+
+# serviceaccount
+- name: create grafana serviceaccount
+  oc_serviceaccount:
+    state: present
+    name: "{{ openshift_grafana_service_account_name }}"
+    namespace: "{{ openshift_grafana_namespace }}"
+  changed_when: no
+
+# TODO remove this when annotations are supported by oc_serviceaccount
+- name: annotate serviceaccount
+  command: >
+    {{ openshift_client_binary }} annotate --overwrite -n {{ openshift_grafana_namespace }}
+    serviceaccount {{ openshift_grafana_service_name }} {{ item }}
+  with_items:
+    "{{ openshift_grafana_serviceaccount_annotations }}"
+
+# create clusterrolebinding for grafana serviceaccount
+- name: Set cluster-reader permissions for grafana
+  oc_adm_policy_user:
+    state: present
+    namespace: "{{ openshift_grafana_namespace }}"
+    resource_kind: cluster-role
+    resource_name: cluster-reader
+    user: "system:serviceaccount:{{ openshift_grafana_namespace }}:{{ openshift_grafana_service_account_name }}"
+
+- name: create services for grafana
+  oc_service:
+    name: "{{ openshift_grafana_service_name }}"
+    namespace: "{{ openshift_grafana_namespace }}"
+    labels:
+      name: grafana
+    annotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/scheme: https
+      service.alpha.openshift.io/serving-cert-secret-name: grafana-tls
+    ports:
+    - name: grafana
+      port: "{{ openshift_grafana_service_port }}"
+      targetPort: "{{ openshift_grafana_service_targetport }}"
+      protocol: TCP
+    selector:
+      app: grafana
+
+# create grafana route
+- name: create grafana route
+  oc_route:
+    state: present
+    name: "{{ item.name }}"
+    host: "{{ item.host }}"
+    namespace: "{{ openshift_grafana_namespace }}"
+    service_name: "{{ item.name }}"
+    tls_termination: reencrypt
+  with_items:
+  - name: grafana
+    host: "{{ openshift_grafana_hostname }}"
+
+# grafana configmap
+- template:
+    src: defaults.ini.j2
+    dest: "{{ tempdir }}/defaults.ini"
+  changed_when: no
+
+- name: Set grafana configmap
+  oc_configmap:
+    state: present
+    name: "grafana-config"
+    namespace: "{{ openshift_grafana_namespace }}"
+    from_file:
+      defaults.ini: "{{ tempdir }}/defaults.ini"
+
+# create grafana deploymentconfig
+- name: Set grafana template
+  template:
+    src: grafana.yaml.j2
+    dest: "{{ tempdir }}/templates/grafana.yaml"
+  vars:
+    namespace: "{{ openshift_grafana_namespace }}"
+
+- name: Set grafana deploymentconfig
+  oc_obj:
+    state: present
+    name: "grafana"
+    namespace: "{{ openshift_grafana_namespace }}"
+    kind: deploymentconfig
+    files:
+    - "{{ tempdir }}/templates/grafana.yaml"
+    delete_after: true
+
+# TODO: Post installation tasks such as configure prometheus datasource
+# and create default dashboards
