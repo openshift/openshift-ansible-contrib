@@ -33,12 +33,20 @@ PROJECTPATH=$1
 oc create -f ${PROJECTPATH}/ns.json
 sleep 2
 PROJECT=$(oc project -q)
+oc create -f ${PROJECTPATH}/limitranges.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/resourcequotas.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/rolebindings.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/rolebindingrestrictions.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/secrets.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/serviceaccounts.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/podtemplates.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/templates.json -n ${PROJECT}
-oc create -f ${PROJECTPATH}/svcs.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/configmaps.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/egressnetworkpolicies.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/svc_*.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/endpoint_*.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/iss.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/imagestreamtags.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/pvcs.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/cms.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/bcs.json -n ${PROJECT}

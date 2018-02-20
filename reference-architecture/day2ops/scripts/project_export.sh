@@ -1,4 +1,9 @@
 #!/bin/bash
+# OpenShift namespaced objects:
+# oc get --raw /oapi/v1/ |  python -c 'import json,sys ; resources = "\n".join([o["name"] for o in json.load(sys.stdin)["resources"] if o["namespaced"] and "create" in o["verbs"] and "delete" in o["verbs"] ]) ; print resources'
+# Kubernetes namespaced objects:
+# oc get --raw /api/v1/ |  python -c 'import json,sys ; resources = "\n".join([o["name"] for o in json.load(sys.stdin)["resources"] if o["namespaced"] and "create" in o["verbs"] and "delete" in o["verbs"] ]) ; print resources'
+
 set -eo pipefail
 
 die(){
@@ -132,16 +137,29 @@ rcs(){
 }
 
 svcs(){
-  echo "Exporting services to ${PROJECT}/svcs.json"
-  oc get --export -o=json svc -n ${PROJECT} | jq '.items[] |
-    del(.status,
-        .metadata.uid,
-        .metadata.selfLink,
-        .metadata.resourceVersion,
-        .metadata.creationTimestamp,
-        .metadata.generation,
-        .spec.clusterIP
-        )' > ${PROJECT}/svcs.json
+  echo "Exporting services to ${PROJECT}/svc_*.json"
+  SVCS=$(oc get svc -n ${PROJECT} -o jsonpath="{.items[*].metadata.name}")
+  for svc in ${SVCS}; do
+    oc get --export -o=json svc ${svc} -n ${PROJECT} | jq '
+      del(.status,
+            .metadata.uid,
+            .metadata.selfLink,
+            .metadata.resourceVersion,
+            .metadata.creationTimestamp,
+            .metadata.generation,
+            .spec.clusterIP
+            )' > ${PROJECT}/svc_${svc}.json
+    if [[ $(cat ${PROJECT}/svc_${svc}.json | jq -e '.spec.selector.app') == "null" ]]; then
+      oc get --export -o json endpoints ${svc} -n ${PROJECT}| jq '
+        del(.status,
+            .metadata.uid,
+            .metadata.selfLink,
+            .metadata.resourceVersion,
+            .metadata.creationTimestamp,
+            .metadata.generation
+            )' > ${PROJECT}/endpoint_${svc}.json
+    fi
+  done
 }
 
 pods(){
@@ -204,6 +222,67 @@ templates(){
         )' > ${PROJECT}/templates.json
 }
 
+egressnetworkpolicies(){
+  echo "Exporting egressnetworkpolicies to ${PROJECT}/egressnetworkpolicies.json"
+  oc get --export -o=json egressnetworkpolicies -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/egressnetworkpolicies.json
+}
+
+imagestreamtags(){
+  echo "Exporting imagestreamtags to ${PROJECT}/imagestreamtags.json"
+  oc get --export -o=json imagestreamtags -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .tag.generation
+        )' > ${PROJECT}/imagestreamtags.json
+}
+
+rolebindingrestrictions(){
+  echo "Exporting rolebindingrestrictions to ${PROJECT}/rolebindingrestrictions.json"
+  oc get --export -o=json rolebindingrestrictions -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/rolebindingrestrictions.json
+}
+
+limitranges(){
+  echo "Exporting limitranges to ${PROJECT}/limitranges.json"
+  oc get --export -o=json limitranges -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/limitranges.json
+}
+
+resourcequotas(){
+  echo "Exporting resourcequotas to ${PROJECT}/resourcequotas.json"
+  oc get --export -o=json resourcequotas -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/resourcequotas.json
+}
+
+podtemplates(){
+  echo "Exporting podtemplates to ${PROJECT}/podtemplates.json"
+  oc get --export -o=json podtemplates -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/podtemplates.json
+}
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
   usage
@@ -233,10 +312,16 @@ dcs
 bcs
 builds
 is
+imagestreamtags
 rcs
 svcs
 pods
+podtemplates
 cms
+egressnetworkpolicies
+rolebindingrestrictions
+limitranges
+resourcequotas
 pvcs
 routes
 templates
