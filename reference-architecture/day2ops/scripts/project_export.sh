@@ -283,6 +283,39 @@ podtemplates(){
         )' > ${PROJECT}/podtemplates.json
 }
 
+cronjobs(){
+  echo "Exporting cronjobs to ${PROJECT}/cronjobs.json"
+  oc get --export -o=json cronjobs -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .status
+        )' > ${PROJECT}/cronjobs.json
+}
+
+statefulsets(){
+  echo "Exporting statefulsets to ${PROJECT}/statefulsets.json"
+  oc get --export -o=json statefulsets -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .status
+        )' > ${PROJECT}/statefulsets.json
+}
+
+hpas(){
+  echo "Exporting hpas to ${PROJECT}/hpas.json"
+  oc get --export -o=json hpa -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .status
+        )' > ${PROJECT}/hpas.json
+}
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
   usage
@@ -325,5 +358,8 @@ resourcequotas
 pvcs
 routes
 templates
+cronjobs
+statefulsets
+hpas
 
 exit 0
