@@ -269,7 +269,8 @@ resourcequotas(){
     del(.metadata.uid,
         .metadata.selfLink,
         .metadata.resourceVersion,
-        .metadata.creationTimestamp
+        .metadata.creationTimestamp,
+        .status
         )' > ${PROJECT}/resourcequotas.json
 }
 
@@ -336,7 +337,8 @@ replicasets(){
         .metadata.resourceVersion,
         .metadata.creationTimestamp,
         .metadata.generation,
-        .status
+        .status,
+        .ownerReferences.uid
         )' > ${PROJECT}/replicasets.json
 }
 
