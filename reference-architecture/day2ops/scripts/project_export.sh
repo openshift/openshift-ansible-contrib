@@ -273,14 +273,14 @@ resourcequotas(){
         )' > ${PROJECT}/resourcequotas.json
 }
 
-podtemplates(){
-  echo "Exporting podtemplates to ${PROJECT}/podtemplates.json"
-  oc get --export -o=json podtemplates -n ${PROJECT} | jq '.items[] |
+podpreset(){
+  echo "Exporting podpreset to ${PROJECT}/podpreset.json"
+  oc get --export -o=json podpreset -n ${PROJECT} | jq '.items[] |
     del(.metadata.uid,
         .metadata.selfLink,
         .metadata.resourceVersion,
         .metadata.creationTimestamp
-        )' > ${PROJECT}/podtemplates.json
+        )' > ${PROJECT}/podpreset.json
 }
 
 cronjobs(){
@@ -340,6 +340,18 @@ replicasets(){
         )' > ${PROJECT}/replicasets.json
 }
 
+poddisruptionbudget(){
+  echo "Exporting poddisruptionbudget to ${PROJECT}/poddisruptionbudget.json"
+  oc get --export -o=json poddisruptionbudget -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation,
+        .status
+        )' > ${PROJECT}/poddisruptionbudget.json
+}
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
   usage
@@ -373,7 +385,7 @@ imagestreamtags
 rcs
 svcs
 pods
-podtemplates
+podpreset
 cms
 egressnetworkpolicies
 rolebindingrestrictions
@@ -387,5 +399,6 @@ statefulsets
 hpas
 deployments
 replicasets
+poddisruptionbudget
 
 exit 0
