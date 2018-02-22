@@ -64,6 +64,8 @@ do
   fi
 done
 oc create -f ${PROJECTPATH}/rcs.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/deployments.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/replicasets.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/pods.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/routes.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/cronjobs.json -n ${PROJECT}

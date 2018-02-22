@@ -316,6 +316,30 @@ hpas(){
         )' > ${PROJECT}/hpas.json
 }
 
+deployments(){
+  echo "Exporting deployments to ${PROJECT}/deployments.json"
+  oc get --export -o=json deploy -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation,
+        .status
+        )' > ${PROJECT}/deployments.json
+}
+
+replicasets(){
+  echo "Exporting replicasets to ${PROJECT}/replicasets.json"
+  oc get --export -o=json replicasets -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation,
+        .status
+        )' > ${PROJECT}/replicasets.json
+}
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
   usage
@@ -361,5 +385,7 @@ templates
 cronjobs
 statefulsets
 hpas
+deployments
+replicasets
 
 exit 0
