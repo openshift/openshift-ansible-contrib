@@ -194,7 +194,11 @@ pvcs(){
         .metadata.selfLink,
         .metadata.resourceVersion,
         .metadata.creationTimestamp,
-        .metadata.generation
+        .metadata.generation,
+        .metadata.annotations["pv.kubernetes.io/bind-completed"],
+        .metadata.annotations["pv.kubernetes.io/bound-by-controller"],
+        .metadata.annotations["volume.beta.kubernetes.io/storage-provisioner"],
+        .spec.volumeName
         )' > ${PROJECT}/pvcs.json
 }
 
