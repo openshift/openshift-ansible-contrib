@@ -16,22 +16,22 @@ options {
 	memstatistics-file "/var/named/data/named_mem_stats.txt";
 	allow-query     { any ; };
 
-	/* 
+	/*
 	 - If you are building an AUTHORITATIVE DNS server, do NOT enable recursion.
-	 - If you are building a RECURSIVE (caching) DNS server, you need to enable 
-	   recursion. 
-	 - If your recursive DNS server has a public IP address, you MUST enable access 
+	 - If you are building a RECURSIVE (caching) DNS server, you need to enable
+	   recursion.
+	 - If your recursive DNS server has a public IP address, you MUST enable access
 	   control to limit queries to your legitimate users. Failing to do so will
-	   cause your server to become part of large scale DNS amplification 
+	   cause your server to become part of large scale DNS amplification
 	   attacks. Implementing BCP38 within your network would greatly
-	   reduce such attack surface 
+	   reduce such attack surface
 	*/
 	// recursion yes;
   forward only;
   forwarders { {% for ipaddr in forwarders %} {{ ipaddr }} ; {% endfor %} } ;
 
-	dnssec-enable no;
-	dnssec-validation no;
+	dnssec-enable {% if dnssec_enable is defined and dnssec_enable %}yes{% else %}no{% endif %};;
+	dnssec-validation {% if dnssec_validation is defined and dnssec_validation %}yes{% else %}no{% endif %};
 
 	/* Path to ISC DLV key */
 	/* In case you want to use ISC DLV, please uncomment the following line. */
@@ -65,4 +65,3 @@ include "/etc/named.rfc1912.zones";
 include "/etc/named.root.key";
 
 include "/etc/named/zones.conf" ;
-

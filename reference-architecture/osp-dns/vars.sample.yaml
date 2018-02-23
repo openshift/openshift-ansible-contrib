@@ -19,6 +19,10 @@ ssh_key_name: default
 #     rndc-confgen -a -c update.key -k update-key -r /dev/urandom
 update_key: "VXQsVJgDtEj1CFPjnt/OK3ilgJyAzT6OeY9CDoqa0/Q="
 
+# Enable or disable DNSSEC support:
+# https://ftp.isc.org/isc/dnssec-guide/html/dnssec-guide.html#dnssec-validation-explained
+# dnssec_enable: yes
+# dnssec_validation: yes
 
 # stack_name: dns-service
 # slave_count: 3
