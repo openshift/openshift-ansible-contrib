@@ -33,12 +33,27 @@ PROJECTPATH=$1
 oc create -f ${PROJECTPATH}/ns.json
 sleep 2
 PROJECT=$(oc project -q)
+oc create -f ${PROJECTPATH}/limitranges.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/resourcequotas.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/rolebindings.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/rolebindingrestrictions.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/secrets.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/serviceaccounts.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/podpreset.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/poddisruptionbudget.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/templates.json -n ${PROJECT}
-oc create -f ${PROJECTPATH}/svcs.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/cms.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/egressnetworkpolicies.json -n ${PROJECT}
+for svc in ${PROJECTPATH}/svc_*.json
+do
+  oc create -f ${svc} -n ${PROJECT}
+done
+for endpoint in ${PROJECTPATH}/endpoint_*.json
+do
+  oc create -f ${endpoint} -n ${PROJECT}
+done
 oc create -f ${PROJECTPATH}/iss.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/imagestreamtags.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/pvcs.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/cms.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/bcs.json -n ${PROJECT}
@@ -56,7 +71,12 @@ do
   fi
 done
 oc create -f ${PROJECTPATH}/rcs.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/deployments.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/replicasets.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/pods.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/routes.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/cronjobs.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/statefulsets.json -n ${PROJECT}
+oc create -f ${PROJECTPATH}/hpas.json -n ${PROJECT}
 
 exit 0

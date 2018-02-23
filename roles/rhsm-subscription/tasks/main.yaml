@@ -49,7 +49,7 @@
         server_hostname: "{{ rhsm_server }}"
         state: present
         pool: "{{ rhsm_pool }}"
-      when: "('not registered' in subscribed.stdout or 'Current' not in subscribed.stdout) and rhsm_user is defined and rhsm_user"
+      when: "'not registered' in subscribed.stdout and rhsm_user is defined and rhsm_user"
 
     - name: Check if subscription is attached
       command: subscription-manager list --consumed --pool-only --matches="{{ rhsm_pool }}"

@@ -1,4 +1,9 @@
 #!/bin/bash
+# OpenShift namespaced objects:
+# oc get --raw /oapi/v1/ |  python -c 'import json,sys ; resources = "\n".join([o["name"] for o in json.load(sys.stdin)["resources"] if o["namespaced"] and "create" in o["verbs"] and "delete" in o["verbs"] ]) ; print resources'
+# Kubernetes namespaced objects:
+# oc get --raw /api/v1/ |  python -c 'import json,sys ; resources = "\n".join([o["name"] for o in json.load(sys.stdin)["resources"] if o["namespaced"] and "create" in o["verbs"] and "delete" in o["verbs"] ]) ; print resources'
+
 set -eo pipefail
 
 die(){
@@ -132,16 +137,29 @@ rcs(){
 }
 
 svcs(){
-  echo "Exporting services to ${PROJECT}/svcs.json"
-  oc get --export -o=json svc -n ${PROJECT} | jq '.items[] |
-    del(.status,
-        .metadata.uid,
-        .metadata.selfLink,
-        .metadata.resourceVersion,
-        .metadata.creationTimestamp,
-        .metadata.generation,
-        .spec.clusterIP
-        )' > ${PROJECT}/svcs.json
+  echo "Exporting services to ${PROJECT}/svc_*.json"
+  SVCS=$(oc get svc -n ${PROJECT} -o jsonpath="{.items[*].metadata.name}")
+  for svc in ${SVCS}; do
+    oc get --export -o=json svc ${svc} -n ${PROJECT} | jq '
+      del(.status,
+            .metadata.uid,
+            .metadata.selfLink,
+            .metadata.resourceVersion,
+            .metadata.creationTimestamp,
+            .metadata.generation,
+            .spec.clusterIP
+            )' > ${PROJECT}/svc_${svc}.json
+    if [[ $(cat ${PROJECT}/svc_${svc}.json | jq -e '.spec.selector.app') == "null" ]]; then
+      oc get --export -o json endpoints ${svc} -n ${PROJECT}| jq '
+        del(.status,
+            .metadata.uid,
+            .metadata.selfLink,
+            .metadata.resourceVersion,
+            .metadata.creationTimestamp,
+            .metadata.generation
+            )' > ${PROJECT}/endpoint_${svc}.json
+    fi
+  done
 }
 
 pods(){
@@ -176,7 +194,11 @@ pvcs(){
         .metadata.selfLink,
         .metadata.resourceVersion,
         .metadata.creationTimestamp,
-        .metadata.generation
+        .metadata.generation,
+        .metadata.annotations["pv.kubernetes.io/bind-completed"],
+        .metadata.annotations["pv.kubernetes.io/bound-by-controller"],
+        .metadata.annotations["volume.beta.kubernetes.io/storage-provisioner"],
+        .spec.volumeName
         )' > ${PROJECT}/pvcs.json
 }
 
@@ -202,6 +224,138 @@ templates(){
         .metadata.creationTimestamp,
         .metadata.generation
         )' > ${PROJECT}/templates.json
+}
+
+egressnetworkpolicies(){
+  echo "Exporting egressnetworkpolicies to ${PROJECT}/egressnetworkpolicies.json"
+  oc get --export -o=json egressnetworkpolicies -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/egressnetworkpolicies.json
+}
+
+imagestreamtags(){
+  echo "Exporting imagestreamtags to ${PROJECT}/imagestreamtags.json"
+  oc get --export -o=json imagestreamtags -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .tag.generation
+        )' > ${PROJECT}/imagestreamtags.json
+}
+
+rolebindingrestrictions(){
+  echo "Exporting rolebindingrestrictions to ${PROJECT}/rolebindingrestrictions.json"
+  oc get --export -o=json rolebindingrestrictions -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/rolebindingrestrictions.json
+}
+
+limitranges(){
+  echo "Exporting limitranges to ${PROJECT}/limitranges.json"
+  oc get --export -o=json limitranges -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/limitranges.json
+}
+
+resourcequotas(){
+  echo "Exporting resourcequotas to ${PROJECT}/resourcequotas.json"
+  oc get --export -o=json resourcequotas -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .status
+        )' > ${PROJECT}/resourcequotas.json
+}
+
+podpreset(){
+  echo "Exporting podpreset to ${PROJECT}/podpreset.json"
+  oc get --export -o=json podpreset -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp
+        )' > ${PROJECT}/podpreset.json
+}
+
+cronjobs(){
+  echo "Exporting cronjobs to ${PROJECT}/cronjobs.json"
+  oc get --export -o=json cronjobs -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .status
+        )' > ${PROJECT}/cronjobs.json
+}
+
+statefulsets(){
+  echo "Exporting statefulsets to ${PROJECT}/statefulsets.json"
+  oc get --export -o=json statefulsets -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .status
+        )' > ${PROJECT}/statefulsets.json
+}
+
+hpas(){
+  echo "Exporting hpas to ${PROJECT}/hpas.json"
+  oc get --export -o=json hpa -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .status
+        )' > ${PROJECT}/hpas.json
+}
+
+deployments(){
+  echo "Exporting deployments to ${PROJECT}/deployments.json"
+  oc get --export -o=json deploy -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation,
+        .status
+        )' > ${PROJECT}/deployments.json
+}
+
+replicasets(){
+  echo "Exporting replicasets to ${PROJECT}/replicasets.json"
+  oc get --export -o=json replicasets -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation,
+        .status,
+        .ownerReferences.uid
+        )' > ${PROJECT}/replicasets.json
+}
+
+poddisruptionbudget(){
+  echo "Exporting poddisruptionbudget to ${PROJECT}/poddisruptionbudget.json"
+  oc get --export -o=json poddisruptionbudget -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation,
+        .status
+        )' > ${PROJECT}/poddisruptionbudget.json
 }
 
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
@@ -233,12 +387,24 @@ dcs
 bcs
 builds
 is
+imagestreamtags
 rcs
 svcs
 pods
+podpreset
 cms
+egressnetworkpolicies
+rolebindingrestrictions
+limitranges
+resourcequotas
 pvcs
 routes
 templates
+cronjobs
+statefulsets
+hpas
+deployments
+replicasets
+poddisruptionbudget
 
 exit 0

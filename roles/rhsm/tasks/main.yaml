@@ -42,6 +42,7 @@
         username: "{{ rhsm_user | default(omit) }}"
         password: "{{ rhsm_password | default(omit) }}"
         pool: "{{ rhsm_pool | default(omit) }}"
+        server_hostname: "{{ rhsm_satellite | default(omit) }}"
       when:
         - "'not registered' in subscribed.stdout"
         - rhsm_user is defined

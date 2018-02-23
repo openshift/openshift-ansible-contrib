@@ -10,13 +10,4 @@
     command: "ssh-keygen -N '' -f ~/.ssh/id_rsa"
     when: not ssh_key.stat.exists
   when: "'rhv' in provider or 'vsphere' in provider"
-
-# RHV needs an extra repo
-- name: Git clone required ovirt repo
-  git:
-    repo: https://github.com/ovirt/ovirt-ansible
-    dest: ~/git/ovirt-ansible
-    update: no
-  when: "'rhv' in provider"
-
 ...

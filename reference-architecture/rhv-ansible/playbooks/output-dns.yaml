@@ -20,7 +20,15 @@
         - inventory.nsupdate
         - inventory.hosts
     ###############################
-    # Create NSUPDATE entries Reverse first
+    # NSUPDATE
+    - name: Create NSUPDATE server line
+      lineinfile:
+        path: ../inventory.nsupdate
+        line: "server {{ nsupdate_server }}"
+        state: present
+      when: nsupdate_server is defined
+    ###############################
+    # Reverse entries
     - name: Create NSUPDATE reverse pointer entries
       lineinfile:
         path: ../inventory.nsupdate
@@ -31,6 +39,12 @@
         - "{{ groups['tag_openshift_infra'] }}"
         - "{{ groups['tag_openshift_node'] }}"
         - "{{ groups['tag_openshift_lb'] }}"
+    - name: Append show/send lines
+      lineinfile:
+        path: ../inventory.nsupdate
+        line: "show\nsend"
+        state: present
+      when: nsupdate_server is defined
     - name: Create NSUPDATE entries for public hosted zone
       lineinfile:
         path: ../inventory.nsupdate
@@ -56,6 +70,12 @@
         - "{{ groups['tag_openshift_infra'] }}"
         - "{{ groups['tag_openshift_node'] }}"
         - "{{ groups['tag_openshift_lb'] }}"
+    - name: Append show/send lines
+      lineinfile:
+        path: ../inventory.nsupdate
+        line: "show\nsend"
+        state: present
+      when: nsupdate_server is defined
     ###############################
     # Create HOST entries
     - name: Create HOSTS public hostname

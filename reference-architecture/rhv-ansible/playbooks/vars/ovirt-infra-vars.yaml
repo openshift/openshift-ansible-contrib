@@ -11,7 +11,6 @@ data_center_name: Default
 # VM infra
 ##########################
 template_cluster: "{{ rhv_cluster }}"
-template_name: rhel7
 template_memory: 8GiB
 template_cpu: 1
 template_disk_storage: "{{ rhv_data_storage }}"
@@ -23,7 +22,7 @@ template_nics:
 
 master_vm:
   cluster: "{{ rhv_cluster }}"
-  template: rhel7
+  template: "{{ template_name }}"
   memory: 16GiB
   cores: 2
   high_availability: true
@@ -35,7 +34,7 @@ master_vm:
 
 node_vm:
   cluster: "{{ rhv_cluster }}"
-  template: rhel7
+  template: "{{ template_name }}"
   memory: 8GiB
   cores: 2
   disks:

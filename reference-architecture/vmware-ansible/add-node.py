@@ -260,7 +260,20 @@ class VMWareAddNode(object):
                 self.inventory_file = "crs-inventory.json"
             if 'cns' in self.container_storage:
                 self.inventory_file = "cns-inventory.json"
-        required_vars = {'cluster_id':self.cluster_id, 'dns_zone':self.dns_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
+
+        required_vars = {
+            'cluster_id': self.cluster_id,
+            'dns_zone': self.dns_zone,
+            'vcenter_host': self.vcenter_host,
+            'vcenter_password': self.vcenter_password,
+            'vm_ipaddr_start': self.vm_ipaddr_start,
+            'ldap_fqdn': self.ldap_fqdn,
+            'ldap_user_password': self.ldap_user_password,
+            'vm_dns': self.vm_dns,
+            'vm_gw': self.vm_gw,
+            'vm_netmask': self.vm_netmask,
+            'vcenter_datacenter': self.vcenter_datacenter,
+        }
         for k, v in required_vars.items():
             if v == '':
                 err_count += 1
@@ -378,6 +391,14 @@ class VMWareAddNode(object):
         if not self.args.no_confirm:
             if not click.confirm('Continue adding nodes with these values?'):
                 sys.exit(0)
+
+        # grab the default priv key from the user"
+        command='cp -f ~/.ssh/id_rsa ssh_key/ocp-installer'
+        os.system(command)
+
+        # make sure the ssh keys have the proper permissions
+        command='chmod 600 ssh_key/ocp-installer'
+        os.system(command)
 
         if 'cns' in self.container_storage and 'storage' in self.node_type:
             if 'None' in self.tag:

@@ -10,8 +10,21 @@ engine_cafile: ../ca.pem
 
 ##############################################################################
 ### Red Hat Virtualization VM Image
+
+## Overrides flow in this order:
+#    template_name > image_path > qcow_url
+# in other words, if a {{ template_name }} VM template already exists in RHV, no image will be checked.
+# If the image is already downloaded to {{ image_path }}, it will not be re-downloaded.
+
+## Name of template to create openshift nodes from
+template_name: rhel7
+
+## If you prefer to provide a pre-downloaded VM image instead, use an absolute path, e.g.:
+#image_path: /home/myuser/Downloads/{{ template_name }}.qcow2
+
 ## For CentOS 7:
 #qcow_url: https://cloud.centos.org/centos/7/images/CentOS-7-x86_64-GenericCloud.qcow2
+
 ## For RHEL: Find KVM Guest Image in Downloads -> RHEL on https://access.redhat.com/ and use before the link expires:
 #qcow_url:https://access.cdn.redhat.com//content/origin/files/<omitted>/rhel-server-7.4-x86_64-kvm.qcow2?_auth_=<omitted>
 ## Alternatively, download the above KVM image, and re-host it on a local satellite:

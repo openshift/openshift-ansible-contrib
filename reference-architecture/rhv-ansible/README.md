@@ -28,8 +28,9 @@ $ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.y
 ```
 
 ### oVirt Ansible roles
-A copy of the [oVirt Ansible](https://github.com/ovirt/ovirt-ansible) repository will be cloned in a directory
-alongside this repository. Roles from within the ovirt-ansible repository will be called by playbooks in this one.
+[oVirt Ansible roles](https://github.com/ovirt/ovirt-ansible) will be installed
+into your system's Ansible role path, typically `/usr/share/ansible/roles`.
+These are required for playbooks to interact with RHV/oVirt to create VMs.
 
 ### Dynamic Inventory
 A copy of `ovirt4.py` from the Ansible project is provided under the inventory directory. This script will, given credentials to a RHV 4 engine, populate the Ansible inventory with facts about all virtual machines in the cluster. In order to use this dynamic inventory, see the `ovirt.ini.example` file, either providing the relevant Python secrets via environment variables, or by copying it to `ovirt.ini` and filling in the values.
@@ -44,7 +45,7 @@ $ curl --output ca.pem 'http://engine.example.com/ovirt-engine/services/pki-reso
 ```
 
 ### RHEL QCOW2 Image
-The ovirt-ansible role, ovirt-image-template requires a URL to download a QCOW2 KVM image to use as
+The oVirt-ansible role, oVirt.image-template requires a URL to download a QCOW2 KVM image to use as
 the basis for the VMs on which OpenShift will be installed. If a CentOS image is desired, a suitable
 URL is commented out in the variable file, `playbooks/vars/ovirt-infra-vars.yaml`. If a RHEL image
 is preferred, log in at <https://access.redhat.com/>, navigate to Downloads, Red Hat Enterprise Linux,

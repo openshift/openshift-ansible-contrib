@@ -310,7 +310,18 @@ class VMwareOnOCP(object):
         self.ldap_fqdn = config.get('vmware', 'ldap_fqdn')
         err_count=0
 
-        required_vars = {'dns_zone':self.dns_zone, 'vcenter_host':self.vcenter_host, 'vcenter_password':self.vcenter_password, 'vm_ipaddr_start':self.vm_ipaddr_start, 'ldap_fqdn':self.ldap_fqdn, 'ldap_user_password':self.ldap_user_password, 'vm_dns':self.vm_dns, 'vm_gw':self.vm_gw, 'vm_netmask':self.vm_netmask, 'vcenter_datacenter':self.vcenter_datacenter}
+        required_vars = {
+            'dns_zone': self.dns_zone,
+            'vcenter_host': self.vcenter_host,
+            'vcenter_password': self.vcenter_password,
+            'vm_ipaddr_start': self.vm_ipaddr_start,
+            'ldap_fqdn': self.ldap_fqdn,
+            'ldap_user_password': self.ldap_user_password,
+            'vm_dns': self.vm_dns,
+            'vm_gw': self.vm_gw,
+            'vm_netmask': self.vm_netmask,
+            'vcenter_datacenter': self.vcenter_datacenter,
+        }
 
         for k, v in required_vars.items():
             if v == '':
@@ -459,7 +470,7 @@ class VMwareOnOCP(object):
         print "# Please note, if you have chosen to bring your own loadbalancer and NFS Server you will need to ensure that these records are added to DNS and properly resolve. "
 
         with open(self.inventory_file, 'w') as outfile:
-            json.dump(d, outfile)
+            json.dump(d, outfile, indent=4, sort_keys=True)
 
         if self.args.create_inventory:
             exit(0)

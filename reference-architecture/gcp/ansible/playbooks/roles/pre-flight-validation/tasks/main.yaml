@@ -9,6 +9,7 @@
   - git
   - python-libcloud
   - python2-jmespath
+  - python2-crypto
 
 - name: check required packages for enterprise deployments
   include: check-package.yaml

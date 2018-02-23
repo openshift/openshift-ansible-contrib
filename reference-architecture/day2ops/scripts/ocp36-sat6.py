@@ -74,7 +74,7 @@ class ocpSat6(object):
             if self.args.orgid in line:
                 orgLabel = line.split("|")[2].lower()
                 hostname = socket.getfqdn()
-                oreg_url = "%s:5000/%s-%s-openshift3_ose-${component}:${version}" % ( hostname, orgLabel, self.args.productname )
+                oreg_url = "%s-%s-openshift3_ose-${component}:${version}" % ( orgLabel, self.args.productname )
                 print "oreg_url: %s" % ( oreg_url.replace(" ", ""))
         print 'openshift_disable_check: "docker_image_availability"'
         print 'openshift_docker_insecure_registries: "%s:5000"' % hostname
