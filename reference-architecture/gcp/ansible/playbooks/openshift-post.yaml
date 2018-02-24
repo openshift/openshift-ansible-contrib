@@ -13,9 +13,9 @@
   roles:
   - role: openshift_default_storage_class
     openshift_storageclass_default: false
-    openshift_storageclass_name: ssd
+    openshift_storageclass_name: gcp-default
     openshift_storageclass_parameters:
-      type: pd-ssd
+      type: {{ properties['disk_type'] }}
   tasks:
   - name: gather facts
     openshift_facts:

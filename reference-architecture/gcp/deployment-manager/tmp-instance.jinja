@@ -12,7 +12,7 @@ resources:
       initializeParams:
         sourceImage: {{ properties['source_family'] }}
         diskSizeGb: 10
-        diskType: zones/{{ properties['zone'] }}/diskTypes/pd-ssd
+        diskType: zones/{{ properties['zone'] }}/diskTypes/{{ properties['disk_type'] }}
     machineType: zones/{{ properties['zone'] }}/machineTypes/n1-standard-1
     metadata: {}
     networkInterfaces:

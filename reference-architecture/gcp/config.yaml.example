@@ -90,6 +90,8 @@ openshift_master_identity_providers:
 ### Supplemental options ###
 ###
 
+# Disk types
+gcloud_disk_type: pd-ssd
 
 # Disk sizes in GB
 bastion_disk_size: 20
