@@ -8,4 +8,6 @@ resources:
     zone: {{ gcloud_zone }}
     region: {{ gcloud_region }}
     gce_vpc_custom_subnet_cidr: {{ gce_vpc_custom_subnet_cidr }}
+    gce_custom_vpc_network: {{ gce_custom_vpc_network }}
+    gce_custom_vpc_subnet: {{ gce_custom_vpc_subnet }}
     source_family: {{ 'projects/' + gcloud_project + '/global/images/family/rhel-guest-clean' if openshift_deployment_type == 'openshift-enterprise' else 'projects/centos-cloud/global/images/family/centos-7' }}

@@ -1,4 +1,8 @@
 resources:
+{% if properties['gce_custom_vpc_network'] %}
+{% set network = 'projects/' + env['project'] + '/global/networks/' + properties['gce_custom_vpc_network'] %}
+{% else %}
+{% set network = '$(ref.' + properties['prefix'] + '-network.selfLink)' %}
 - name: {{ properties['prefix'] }}-network
   properties:
   {% if properties['gce_vpc_custom_subnet_cidr'] %}
@@ -12,16 +16,17 @@ resources:
   properties:
     ipCidrRange: {{ properties['gce_vpc_custom_subnet_cidr'] }}
     privateIpGoogleAccess: true
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     region: {{ properties['region'] }}
   type: compute.v1.subnetwork
+{% endif %}
 {% endif %}
 - name: {{ properties['prefix'] }}-icmp
   properties:
     allowed:
     - IPProtocol: icmp
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceRanges:
     - 0.0.0.0/0
   type: compute.v1.firewall
@@ -32,7 +37,7 @@ resources:
       ports:
       - '22'
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceRanges:
     - 0.0.0.0/0
     targetTags:
@@ -45,7 +50,7 @@ resources:
       ports:
       - '22'
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceTags:
     - {{ properties['prefix'] }}-bastion
   type: compute.v1.firewall
@@ -59,7 +64,7 @@ resources:
       ports:
       - '8053'
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceTags:
     - {{ properties['prefix'] }}
     targetTags:
@@ -75,7 +80,7 @@ resources:
       ports:
       - '2380'
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceTags:
     - {{ properties['prefix'] }}-master
     targetTags:
@@ -88,7 +93,7 @@ resources:
       ports:
       - {{ properties['console_port'] }}
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceRanges:
     - 0.0.0.0/0
     targetTags:
@@ -101,7 +106,7 @@ resources:
       ports:
       - '4789'
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceTags:
     - {{ properties['prefix'] }}-master
     - {{ properties['prefix'] }}-node
@@ -118,7 +123,7 @@ resources:
       ports:
       - '10250'
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceTags:
     - {{ properties['prefix'] }}-master
     - {{ properties['prefix'] }}-infra-node
@@ -137,7 +142,7 @@ resources:
       ports:
       - '443'
     description: ''
-    network: $(ref.{{ properties['prefix'] }}-network.selfLink)
+    network: {{ network }}
     sourceRanges:
     - 0.0.0.0/0
     targetTags:
