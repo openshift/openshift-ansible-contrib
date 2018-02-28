@@ -408,6 +408,6 @@ replicasets
 poddisruptionbudget
 
 echo "Removing empty files"
-find ${PROJECT} -type f -empty -delete
+find "${PROJECT}" -type f -empty -delete
 
 exit 0
