@@ -377,7 +377,7 @@ done
 
 PROJECT=${1}
 
-mkdir ${PROJECT}
+mkdir -p ${PROJECT}
 
 ns
 rolebindings
@@ -406,5 +406,8 @@ hpas
 deployments
 replicasets
 poddisruptionbudget
+
+echo "Removing empty files"
+find ${PROJECT} -type f -empty -delete
 
 exit 0
