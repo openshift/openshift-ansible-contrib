@@ -32,7 +32,7 @@ done
 PROJECTPATH=$1
 oc create -f ${PROJECTPATH}/ns.json
 sleep 2
-PROJECT=$(oc project -q)
+PROJECT=$(jq -r .metadata.name ${PROJECTPATH}/ns.json)
 oc create -f ${PROJECTPATH}/limitranges.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/resourcequotas.json -n ${PROJECT}
 oc create -f ${PROJECTPATH}/rolebindings.json -n ${PROJECT}
