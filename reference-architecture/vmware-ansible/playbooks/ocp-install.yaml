@@ -11,7 +11,7 @@
 - include: prerequisite.yaml
 
 - name: call openshift includes for installer
-  include: /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+  include: "{{ openshift_ansible_path|default('/usr/share/ansible/openshift-ansible') }}/playbooks/byo/config.yml"
   vars:
     openshift_release: "v3.6"
     debug_level: 2

@@ -1,5 +1,5 @@
 ---
-- include: /usr/share/ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml
+- include: "{{ openshift_ansible_path|default('/usr/share/ansible/openshift-ansible') }}/playbooks/byo/openshift-node/scaleup.yml"
   vars:
     debug_level: 2
     openshift_debug_level: "{{ debug_level }}"
