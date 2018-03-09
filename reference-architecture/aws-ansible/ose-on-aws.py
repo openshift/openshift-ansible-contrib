@@ -308,6 +308,7 @@ def launch_refarch_env(region=None,
     openshift_hosted_logging_storage_volume_size=%s \
     openshift_disable_check=%s \
     openshift_version=%s \
+    etcd_image=registry.fedoraproject.org/f26/etcd \
     openshift_ansible_path=%s\' \
     %s' % (region,
                     stack_name,
