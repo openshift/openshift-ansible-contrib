@@ -1,4 +1,9 @@
 ---
+- name: Ensure openshift-ansible installer package deps are installed
+  package:
+    name: "{{ 'python-ipaddress' if ansible_distribution != 'Fedora' else '' }}"
+    state: present
+
 - name: Gather facts
   openshift_facts:
     role: common

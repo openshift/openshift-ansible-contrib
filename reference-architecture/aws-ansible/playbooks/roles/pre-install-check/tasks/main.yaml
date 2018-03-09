@@ -6,10 +6,10 @@
 
 - name: Validate that openshift rpms are installed or git repo has been cloned
   stat:
-    path: /usr/share/ansible/openshift-ansible
+    path: "{{ openshift_ansible_path|default('/usr/share/ansible/openshift-ansible') }}"
   register: openshift_directory
 
 - name: Fail if directory doesn't exist
   fail:
-    msg: "The directory of /usr/share/ansible/ must contain OpenShift playbooks and roles which can be installed by rpm or git clone"
+    msg: "The directory of {{ openshift_ansible_path|default('/usr/share/ansible/openshift-ansible') }} must contain OpenShift playbooks and roles which can be installed by rpm or git clone"
   when: openshift_directory.stat.exists == False

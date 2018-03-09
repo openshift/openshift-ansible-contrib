@@ -8,83 +8,58 @@ import sys
 @click.command()
 
 ### Cluster options
-@click.option('--stack-name', default='openshift-infra', help='Cloudformation stack name. Must be unique',
-              show_default=True)
-@click.option('--console-port', default='443', type=click.IntRange(1,65535), help='OpenShift web console port',
-              show_default=True)
-@click.option('--deployment-type', default='openshift-enterprise', type=click.Choice(['origin', 'openshift-enterprise']),  help='OpenShift deployment type',
-              show_default=True)
-@click.option('--openshift-sdn', default='redhat/openshift-ovs-multitenant', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)',
-              show_default=True)
+@click.option('--openshift-ansible-path', default='/usr/share/ansible/openshift-ansible', help='Default path to openshift-ansible playbooks', show_default=True)
+@click.option('--stack-name', default='openshift-infra', help='Cloudformation stack name. Must be unique', show_default=True)
+@click.option('--console-port', default='8443', type=click.IntRange(1,65535), help='OpenShift web console port', show_default=True)
+@click.option('--deployment-type', default='openshift-enterprise', type=click.Choice(['origin', 'openshift-enterprise']),  help='OpenShift deployment type', show_default=True)
+@click.option('--openshift-sdn', default='redhat/openshift-ovs-multitenant', help='OpenShift SDN (redhat/openshift-ovs-subnet, redhat/openshift-ovs-multitenant, or other supported SDN)', show_default=True)
 
 ### AWS/EC2 options
-@click.option('--region', default='us-east-1', help='ec2 region',
-              show_default=True)
-@click.option('--ami', default='ami-fbc89880', help='ec2 ami',
-              show_default=True)
-@click.option('--master-instance-type', default='m4.xlarge', help='ec2 instance type',
-              show_default=True)
-@click.option('--node-instance-type', default='m4.xlarge', help='ec2 instance type',
-              show_default=True)
-@click.option('--app-instance-type', default='t2.large', help='ec2 instance type',
-              show_default=True)
-@click.option('--app-node-count', default='3', help='Number of Application Nodes',
-              show_default=True)
-@click.option('--keypair', help='ec2 keypair name',
-              show_default=True)
-@click.option('--create-key', default='no', help='Create SSH keypair',
-              show_default=True)
-@click.option('--key-path', default='/dev/null', help='Path to SSH public key. Default is /dev/null which will skip the step',
-              show_default=True)
-@click.option('--create-vpc', default='yes', help='Create VPC',
-              show_default=True)
-@click.option('--vpc-id', help='Specify an already existing VPC',
-              show_default=True)
-@click.option('--private-subnet-id1', help='Specify a Private subnet within the existing VPC',
-              show_default=True)
-@click.option('--private-subnet-id2', help='Specify a Private subnet within the existing VPC',
-              show_default=True)
-@click.option('--private-subnet-id3', help='Specify a Private subnet within the existing VPC',
-              show_default=True)
-@click.option('--public-subnet-id1', help='Specify a Public subnet within the existing VPC',
-              show_default=True)
-@click.option('--public-subnet-id2', help='Specify a Public subnet within the existing VPC',
-              show_default=True)
-@click.option('--public-subnet-id3', help='Specify a Public subnet within the existing VPC',
-              show_default=True)
+@click.option('--region', default='us-east-1', help='ec2 region', show_default=True)
+@click.option('--ami', default='ami-fbc89880', help='ec2 ami', show_default=True)
+@click.option('--master-instance-type', default='m4.xlarge', help='ec2 instance type', show_default=True)
+@click.option('--node-instance-type', default='m4.xlarge', help='ec2 instance type', show_default=True)
+@click.option('--app-instance-type', default='t2.large', help='ec2 instance type', show_default=True)
+@click.option('--app-node-count', default='3', help='Number of Application Nodes', show_default=True)
+@click.option('--keypair', help='ec2 keypair name', show_default=True)
+@click.option('--create-key', default='no', help='Create SSH keypair', show_default=True)
+@click.option('--key-path', default='/dev/null', help='Path to SSH public key. Default is /dev/null which will skip the step', show_default=True)
+@click.option('--create-vpc', default='yes', help='Create VPC', show_default=True)
+@click.option('--all-in-one', default='false', help='Cluster of single node OpenShift', show_default=True)
+@click.option('--vpc-id', help='Specify an already existing VPC', show_default=True)
+@click.option('--private-subnet-id1', help='Specify a Private subnet within the existing VPC', show_default=True)
+@click.option('--private-subnet-id2', help='Specify a Private subnet within the existing VPC', show_default=True)
+@click.option('--private-subnet-id3', help='Specify a Private subnet within the existing VPC', show_default=True)
+@click.option('--public-subnet-id1', help='Specify a Public subnet within the existing VPC', show_default=True)
+@click.option('--public-subnet-id2', help='Specify a Public subnet within the existing VPC', show_default=True)
+@click.option('--public-subnet-id3', help='Specify a Public subnet within the existing VPC', show_default=True)
 
 ### DNS options
 @click.option('--public-hosted-zone', help='hosted zone for accessing the environment')
-@click.option('--app-dns-prefix', default='apps', help='application dns prefix',
-              show_default=True)
+@click.option('--app-dns-prefix', default='apps', help='application dns prefix', show_default=True)
 
 
 ### Subscription and Software options
 @click.option('--rhsm-user', help='Red Hat Subscription Management User')
-@click.option('--rhsm-password', help='Red Hat Subscription Management Password',
-                hide_input=True,)
+@click.option('--rhsm-password', help='Red Hat Subscription Management Password', hide_input=True,)
 @click.option('--rhsm-pool', help='Red Hat Subscription Management Pool Name')
 
 ### Miscellaneous options
-@click.option('--byo-bastion', default='no', help='skip bastion install when one exists within the cloud provider',
-              show_default=True)
-@click.option('--bastion-sg', default='/dev/null', help='Specify Bastion Security group used with byo-bastion',
-              show_default=True)
-@click.option('--containerized', default='False', help='Containerized installation of OpenShift',
-              show_default=True)
+@click.option('--byo-bastion', default='no', help='skip bastion install when one exists within the cloud provider', show_default=True)
+@click.option('--bastion-sg', default='/dev/null', help='Specify Bastion Security group used with byo-bastion', show_default=True)
+@click.option('--containerized', default='False', help='Containerized installation of OpenShift', show_default=True)
 @click.option('--s3-bucket-name', help='Bucket name for S3 for registry')
-@click.option('--github-client-id', help='GitHub OAuth ClientID')
-@click.option('--github-client-secret', help='GitHub OAuth Client Secret')
-@click.option('--github-organization', multiple=True, help='GitHub Organization')
+@click.option('--google-client-id', help='Google OAuth ClientID')
+@click.option('--google-client-secret', help='Google OAuth Client Secret')
+@click.option('--google-hosted-domain', help='Google Hosted Domain')
 @click.option('--s3-username',  help='S3 user for registry access')
+@click.option('--openshift-docker-storage-volume-size', default='25Gi', help='Size of OptionShift Docker Logical Volume On Application Nodes', show_default=False)
 @click.option('--openshift-metrics-deploy',  help='Deploy OpenShift Metrics', type=click.Choice(['true', 'false']), default='true')
 @click.option('--openshift-logging-deploy',  help='Deploy OpenShift Logging', type=click.Choice(['true', 'false']), default='true')
-@click.option('--openshift-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume',
-              show_default=False)
-@click.option('--openshift-logging-storage-volume-size', default='100Gi', help='Size of OptionShift Logging Persistent Volume',
-              show_default=False)
-@click.option('--no-confirm', is_flag=True,
-              help='Skip confirmation prompt')
+@click.option('--openshift-metrics-storage-volume-size', default='20Gi', help='Size of OptionShift Metrics Persistent Volume', show_default=False)
+@click.option('--openshift-logging-storage-volume-size', default='100Gi', help='Size of OptionShift Logging Persistent Volume', show_default=False)
+@click.option('--openshift-disable-check', default='', help='Disable check on aspects of hardware requirements', show_default=True)
+@click.option('--no-confirm', is_flag=True, help='Skip confirmation prompt')
 @click.help_option('--help', '-h')
 @click.option('-v', '--verbose', count=True)
 
@@ -100,6 +75,7 @@ def launch_refarch_env(region=None,
                     create_key=None,
                     key_path=None,
                     create_vpc=None,
+                    all_in_one=None,
                     vpc_id=None,
                     private_subnet_id1=None,
                     private_subnet_id2=None,
@@ -113,20 +89,23 @@ def launch_refarch_env(region=None,
                     app_dns_prefix=None,
                     deployment_type=None,
                     openshift_sdn=None,
-                    console_port=443,
+                    console_port=8443,
                     rhsm_user=None,
                     rhsm_password=None,
                     rhsm_pool=None,
                     containerized=None,
                     s3_bucket_name=None,
                     s3_username=None,
-                    github_client_id=None,
-                    github_client_secret=None,
-                    github_organization=None,
+                    google_client_id=None,
+                    google_client_secret=None,
+                    google_hosted_domain=None,
+                    openshift_docker_storage_volume_size=None,
                     openshift_metrics_deploy=None,
                     openshift_metrics_storage_volume_size=None,
                     openshift_logging_deploy=None,
                     openshift_logging_storage_volume_size=None,
+                    openshift_disable_check=None,
+                    openshift_ansible_path=None,
                     verbose=0):
 
   # Need to prompt for the R53 zone:
@@ -202,17 +181,14 @@ def launch_refarch_env(region=None,
   # Calculate various DNS values
   wildcard_zone="%s.%s" % (app_dns_prefix, public_hosted_zone)
 
-  # GitHub Authentication
-  if github_organization is None or not github_organization:
-    click.echo('A GitHub organization must be provided')
+  # Google Authentication
+  if google_hosted_domain is None or not google_hosted_domain:
+    click.echo('A Google hosted domain must be provided')
     sys.exit(1)
-  if github_client_id is None:
-    github_client_id = click.prompt('Specify the ClientID for GitHub OAuth')
-  if github_client_secret is None:
-    github_client_secret = click.prompt('Specify the Client Secret for GitHub OAuth')
-
-  if isinstance(github_organization, str) or isinstance(github_organization, unicode):
-    github_organization = [github_organization]
+  if google_client_id is None:
+    google_client_id = click.prompt('Specify the ClientID for Google OAuth')
+  if google_client_secret is None:
+    google_client_secret = click.prompt('Specify the Client Secret for Google OAuth')
 
   deploy_glusterfs = "false"
 
@@ -229,6 +205,7 @@ def launch_refarch_env(region=None,
   click.echo('\tcreate_key: %s' % create_key)
   click.echo('\tkey_path: %s' % key_path)
   click.echo('\tcreate_vpc: %s' % create_vpc)
+  click.echo('\tall_in_one: %s' % all_in_one)
   click.echo('\tvpc_id: %s' % vpc_id)
   click.echo('\tprivate_subnet_id1: %s' % private_subnet_id1)
   click.echo('\tprivate_subnet_id2: %s' % private_subnet_id2)
@@ -247,13 +224,16 @@ def launch_refarch_env(region=None,
   click.echo('\tcontainerized: %s' % containerized)
   click.echo('\ts3_bucket_name: %s' % s3_bucket_name)
   click.echo('\ts3_username: %s' % s3_username)
-  click.echo('\tgithub_client_id: *******')
-  click.echo('\tgithub_client_secret: *******')
-  click.echo('\tgithub_organization: %s' % (','.join(github_organization)))
+  click.echo('\tgoogle_client_id: *******')
+  click.echo('\tgoogle_client_secret: *******')
+  click.echo('\tgoogle_hosted_domain: %s' % google_hosted_domain)
+  click.echo('\topenshift_docker_storage_volume_size: %s' % openshift_docker_storage_volume_size)
   click.echo('\topenshift_metrics_deploy: %s' % openshift_metrics_deploy)
   click.echo('\topenshift_metrics_storage_volume_size: %s' % openshift_metrics_storage_volume_size)
   click.echo('\topenshift_logging_deploy: %s' % openshift_logging_deploy)
   click.echo('\topenshift_logging_storage_volume_size: %s' % openshift_logging_storage_volume_size)
+  click.echo('\topenshift_disable_check: %s' % openshift_disable_check)
+  click.echo('\topenshift_ansible_path: %s' % openshift_ansible_path)
   click.echo("")
 
   # app_node_count = (app_node_count +1)
@@ -280,7 +260,8 @@ def launch_refarch_env(region=None,
     command='rm -rf .ansible/cached_facts'
     os.system(command)
 
-    command='ansible-playbook -i inventory/aws/hosts -e \'region=%s \
+    command='ansible-playbook -i inventory/aws/hosts -v -e \'region=%s \
+    enable_excluders=false \
     stack_name=%s \
     ami=%s \
     keypair=%s \
@@ -288,6 +269,7 @@ def launch_refarch_env(region=None,
     add_node=no \
     key_path=%s \
     create_vpc=%s \
+    all_in_one=%s \
     vpc_id=%s \
     private_subnet_id1=%s \
     private_subnet_id2=%s \
@@ -312,20 +294,25 @@ def launch_refarch_env(region=None,
     containerized=%s \
     s3_bucket_name=%s \
     s3_username=%s \
-    github_client_id=%s \
-    github_client_secret=%s \
-    github_organization=%s \
+    google_client_id=%s \
+    google_client_secret=%s \
+    google_hosted_domain=%s \
+    openshift_docker_storage_volume_size=%s \
     deploy_glusterfs=%s \
     openshift_hosted_metrics_deploy=%s \
     openshift_hosted_metrics_storage_volume_size=%s \
     openshift_hosted_logging_deploy=%s \
-    openshift_hosted_logging_storage_volume_size=%s \' %s' % (region,
+    openshift_hosted_logging_storage_volume_size=%s \
+    openshift_disable_check=%s \
+    openshift_ansible_path=%s\' \
+    %s' % (region,
                     stack_name,
                     ami,
                     keypair,
                     create_key,
                     key_path,
                     create_vpc,
+                    all_in_one,
                     vpc_id,
                     private_subnet_id1,
                     private_subnet_id2,
@@ -350,14 +337,17 @@ def launch_refarch_env(region=None,
                     containerized,
                     s3_bucket_name,
                     s3_username,
-                    github_client_id,
-                    github_client_secret,
-                    str(map(lambda x: x.encode('utf8'), github_organization)).replace("'", '"').replace(' ', ''),
+                    google_client_id,
+                    google_client_secret,
+                    google_hosted_domain,
+                    openshift_docker_storage_volume_size,
                     deploy_glusterfs,
                     openshift_metrics_deploy,
                     openshift_metrics_storage_volume_size,
                     openshift_logging_deploy,
                     openshift_logging_storage_volume_size,
+                    openshift_disable_check,
+                    openshift_ansible_path,
                     playbook)
 
     if verbose > 0:

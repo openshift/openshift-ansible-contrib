@@ -24,7 +24,7 @@
 
     - name: create symlink from aoi dir to rpm location
       file:
-        src: /usr/share/ansible/openshift-ansible
+        src: "{{ openshift_ansible_path|default('/usr/share/ansible/openshift-ansible') }}"
         dest: '{{ openshift_ansible_installer_dir }}'
         state: link
     when: aoi_available | succeeded
