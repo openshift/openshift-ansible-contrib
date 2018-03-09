@@ -358,6 +358,18 @@ poddisruptionbudget(){
         )' > ${PROJECT}/poddisruptionbudget.json
 }
 
+daemonset(){
+  echo "Exporting daemonset to ${PROJECT}/daemonset.json"
+  oc get --export -o=json daemonset -n ${PROJECT} | jq '.items[] |
+    del(.metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation,
+        .status
+        )' > ${PROJECT}/daemonset.json
+}
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
   usage
@@ -406,6 +418,7 @@ hpas
 deployments
 replicasets
 poddisruptionbudget
+daemonset
 
 echo "Removing empty files"
 find "${PROJECT}" -type f -empty -delete
