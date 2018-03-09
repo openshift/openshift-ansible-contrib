@@ -30,9 +30,13 @@ do
 done
 
 PROJECTPATH=$1
+PROJECT=$(jq -r .metadata.name ${PROJECTPATH}/ns.json)
+
+$(oc get projects -o name | grep "^projects/${PROJECT}\$" -q) && \
+  die "Project ${PROJECT} exists" 4
+
 oc create -f ${PROJECTPATH}/ns.json
 sleep 2
-PROJECT=$(jq -r .metadata.name ${PROJECTPATH}/ns.json)
 
 # First we create optional objects
 for object in limitranges resourcequotas rolebindings rolebindingrestrictions secrets serviceaccounts podpreset poddisruptionbudget templates cms egressnetworkpolicies iss imagestreams pvcs routes hpas
