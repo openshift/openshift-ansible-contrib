@@ -83,4 +83,7 @@ do
     oc create -f ${PROJECTPATH}/${object}.json -n ${PROJECT}
 done
 
+[[ -f ${PROJECTPATH}/pvcs_attachment.json ]] &&
+  echo "There are pvcs objects with attachment information included in the ${PROJECTPATH}/pvcs_attachment.json file, remove the current pvcs and restore them using that file if required"
+
 exit 0

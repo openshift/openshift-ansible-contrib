@@ -202,6 +202,18 @@ pvcs(){
         )' > ${PROJECT}/pvcs.json
 }
 
+pvcs_attachment(){
+  echo "Exporting pvcs (with attachment included data) to ${PROJECT}/pvcs_attachment.json"
+  oc get --export -o=json pvc -n ${PROJECT} | jq '.items[] |
+    del(.status,
+        .metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation
+        )' > ${PROJECT}/pvcs_attachment.json
+}
+
 routes(){
   echo "Exporting routes to ${PROJECT}/routes.json"
   oc get --export -o=json routes -n ${PROJECT} | jq '.items[] |
@@ -410,6 +422,7 @@ rolebindingrestrictions
 limitranges
 resourcequotas
 pvcs
+pvcs_attachment
 routes
 templates
 cronjobs
