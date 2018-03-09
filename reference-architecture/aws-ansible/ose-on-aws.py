@@ -9,6 +9,7 @@ import sys
 
 ### Cluster options
 @click.option('--openshift-ansible-path', default='/usr/share/ansible/openshift-ansible', help='Default path to openshift-ansible playbooks', show_default=True)
+@click.option('--openshift-version', default='3.6.1', help='Openshift version', show_default=True)
 @click.option('--stack-name', default='openshift-infra', help='Cloudformation stack name. Must be unique', show_default=True)
 @click.option('--console-port', default='8443', type=click.IntRange(1,65535), help='OpenShift web console port', show_default=True)
 @click.option('--deployment-type', default='openshift-enterprise', type=click.Choice(['origin', 'openshift-enterprise']),  help='OpenShift deployment type', show_default=True)
@@ -105,6 +106,7 @@ def launch_refarch_env(region=None,
                     openshift_logging_deploy=None,
                     openshift_logging_storage_volume_size=None,
                     openshift_disable_check=None,
+                    openshift_version=None,
                     openshift_ansible_path=None,
                     verbose=0):
 
@@ -233,6 +235,7 @@ def launch_refarch_env(region=None,
   click.echo('\topenshift_logging_deploy: %s' % openshift_logging_deploy)
   click.echo('\topenshift_logging_storage_volume_size: %s' % openshift_logging_storage_volume_size)
   click.echo('\topenshift_disable_check: %s' % openshift_disable_check)
+  click.echo('\topenshift_version: %s' % openshift_version)
   click.echo('\topenshift_ansible_path: %s' % openshift_ansible_path)
   click.echo("")
 
@@ -304,7 +307,7 @@ def launch_refarch_env(region=None,
     openshift_hosted_logging_deploy=%s \
     openshift_hosted_logging_storage_volume_size=%s \
     openshift_disable_check=%s \
-    openshift_version=3.6.1 \
+    openshift_version=%s \
     openshift_ansible_path=%s\' \
     %s' % (region,
                     stack_name,
@@ -348,6 +351,7 @@ def launch_refarch_env(region=None,
                     openshift_logging_deploy,
                     openshift_logging_storage_volume_size,
                     openshift_disable_check,
+                    openshift_version,
                     openshift_ansible_path,
                     playbook)
 
