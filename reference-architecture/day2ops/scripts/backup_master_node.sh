@@ -18,7 +18,9 @@ ocpfiles(){
   mkdir -p ${BACKUPLOCATION}/etc/sysconfig
   echo "Exporting OCP related files to ${BACKUPLOCATION}"
   cp -aR /etc/origin ${BACKUPLOCATION}/etc
-  cp -aR /etc/sysconfig/atomic-* ${BACKUPLOCATION}/etc/sysconfig
+  if ls /etc/sysconfig/atomic-* 1> /dev/null 2>&1; then
+    cp -aR /etc/sysconfig/atomic-* ${BACKUPLOCATION}/etc/sysconfig
+  fi
 }
 
 otherfiles(){
