@@ -1,5 +1,7 @@
 #!/bin/bash
 set -eo pipefail
+ORIGINFILES="origin-master origin-master-api origin-master-controllers origin-node"
+OCPFILES="atomic-openshift-master atomic-openshift-master-api atomic-openshift-master-controllers atomic-openshift-node"
 
 die(){
   echo "$1"
@@ -18,7 +20,13 @@ ocpfiles(){
   mkdir -p ${BACKUPLOCATION}/etc/sysconfig
   echo "Exporting OCP related files to ${BACKUPLOCATION}"
   cp -aR /etc/origin ${BACKUPLOCATION}/etc
-  cp -aR /etc/sysconfig/atomic-* ${BACKUPLOCATION}/etc/sysconfig
+  for file in ${ORIGINFILES} ${OCPFILES}
+  do
+    if [ -f /etc/sysconfig/${file} ]
+    then
+      cp -aR /etc/sysconfig/${file} ${BACKUPLOCATION}/etc/sysconfig/
+    fi
+  done
 }
 
 otherfiles(){
