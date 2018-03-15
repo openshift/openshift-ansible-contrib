@@ -1,0 +1,5 @@
+---
+- include: prerreq.yaml
+- include: ocpfiles.yaml
+- include: otherfiles.yaml
+- include: packagelist.yaml

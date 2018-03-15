@@ -1,0 +1,5 @@
+---
+backup_location: "/backup"
+iptables_config_file: "/etc/sysconfig/iptables"
+flannel_config_file: "/etc/sysconfig/flanneld"
+dnsmasq_config_file: "/etc/dnsmasq.conf"

@@ -1,0 +1,7 @@
+---
+- name: backup-ocp-hosts
+  hosts: all
+  gather_facts: yes
+
+  roles:
+  - { role: backup-ocp-hosts }

@@ -1,0 +1,4 @@
+---
+- name: Create list of installed packages
+  shell:
+    rpm -qa | sort > {{ backup_location }}/{{ ansible_date_time.date }}/packages.txt
