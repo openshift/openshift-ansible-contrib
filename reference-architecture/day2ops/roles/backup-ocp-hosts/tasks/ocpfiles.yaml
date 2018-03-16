@@ -39,7 +39,7 @@
     path: /etc/sysconfig
     recurse: yes
     file_type: file
-    patterns: '*atomic-*'
+    patterns: '*atomic-*,origin-*'
   register: atomic_result
   become: yes
 
