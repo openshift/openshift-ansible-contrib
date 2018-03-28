@@ -6,6 +6,18 @@
 
 set -eo pipefail
 
+warnuser(){
+  cat << EOF
+###########
+# WARNING #
+###########
+This script is distributed WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND
+Beware ImageStreams objects are not importables due to the way they work
+See https://github.com/openshift/openshift-ansible-contrib/issues/967
+for more information
+EOF
+}
+
 die(){
   echo "$1"
   exit $2
@@ -16,6 +28,7 @@ usage(){
   echo "  projectname  The OCP project to be exported"
   echo "Examples:"
   echo "    $0 myproject"
+  warnuser
 }
 
 ns(){
@@ -398,6 +411,8 @@ for i in jq oc
 do
   command -v $i >/dev/null 2>&1 || die "$i required but not found" 3
 done
+
+warnuser
 
 PROJECT=${1}
 
