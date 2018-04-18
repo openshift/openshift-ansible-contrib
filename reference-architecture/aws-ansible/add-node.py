@@ -164,7 +164,7 @@ def launch_refarch_env(region=None,
       click.echo('\tcontainerized: %s' % containerized)
       click.echo('\tnode_type: %s' % node_type)
       click.echo('\texisting_stack: %s' % existing_stack)
-      click.echo('\topenshit_sdn: %s' % openshift_sdn)
+      click.echo('\topenshift_sdn: %s' % openshift_sdn)
       click.echo('\tSubnets, Security Groups, and IAM Roles will be gather from the CloudFormation')
       click.echo("")
   else:
