@@ -4,6 +4,8 @@
   roles:
   - instance-groups
 
+- include: ../../../../../openshift-ansible/playbooks/byo/openshift_facts.yml
 - include: ../../../../playbooks/prerequisite.yaml
-- include: ../../../../../openshift-ansible/playbooks/byo/config.yml
+- include: ../../../../../openshift-ansible/playbooks/prerequisites.yml
+- include: ../../../../../openshift-ansible/playbooks/deploy_cluster.yml
 - include: openshift-post.yaml

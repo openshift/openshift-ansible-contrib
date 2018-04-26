@@ -5,7 +5,7 @@
   roles:
   - rhsm-timeout
   - role: atomic-update
-    when: openshift.common.is_atomic
+    when: openshift_is_atomic
 
 - hosts: new_nodes
   gather_facts: no

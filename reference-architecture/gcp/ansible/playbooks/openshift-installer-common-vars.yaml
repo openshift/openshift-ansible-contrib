@@ -8,6 +8,8 @@ osm_default_node_selector: 'role=app'
 osm_default_subdomain: '{{ wildcard_zone }}'
 osm_use_cockpit: true
 openshift_cloudprovider_kind: gce
+openshift_gcp_project: '{{ gcloud_project }}'
+openshift_gcp_prefix: '{{ prefix }}'
 openshift_master_api_port: '{{ console_port }}'
 openshift_master_console_port: '{{ console_port }}'
 openshift_master_cluster_method: native
@@ -22,7 +24,7 @@ openshift_hosted_registry_storage_gcs_rootdirectory: /registry
 openshift_hosted_registry_pullthrough: true
 openshift_hosted_registry_acceptschema2: true
 openshift_hosted_registry_enforcequota: true
-openshift_hosted_metrics_storage_kind: dynamic
+openshift_metrics_storage_kind: dynamic
 openshift_metrics_hawkular_nodeselector: { 'role': 'infra' }
 openshift_metrics_cassandra_nodeselector: { 'role': 'infra' }
 openshift_metrics_heapster_nodeselector: { 'role': 'infra' }
