@@ -85,7 +85,7 @@ Four files will need to be copied from examples and edited:
 
 * The [`ovirt-infra-vars.yaml`](ovirt-infra-vars.yaml) file defines the virtual machines created by the `ovirt-vm-infra.yaml` playbook. The host names created here must match those in the static inventory.
 
-* A copy of a static inventory is provided as [yaml](example/inventory.yaml) or [ini](example/inventory), populated with hosts in the example.com domain along with variables pertaining to the reference architecture. 
+* A copy of a static inventory is provided as [yaml](example/inventory.yaml) or [ini](example/inventory), populated with hosts in the example.com domain along with variables pertaining to the reference architecture. This inventory should be added to /etc/ansible/hosts (or added manually using the -i flag).
 
 ### Set up virtual machines in RHV
 From the `reference-architecture/rhv-ansible` directory, run
@@ -96,14 +96,14 @@ ansible-playbook -e@ocp-vars.yaml -e@~/vault.yaml playbooks/ovirt-vm-infra.yaml
 ### Optionally output DNS entries and update DNS records with dynamically provisioned information
 
 ```
-ansible-playbook -e@ocp-vars.yaml -e@~/vault.yaml playbooks/output-dns.yaml
+ansible-playbook -i inventory -e@ocp-vars.yaml -e@~/vault.yaml playbooks/output-dns.yaml
 ```
 
 ### Set up OpenShift Container Platform on the VMs from the previous step
 
 ```
-ansible-playbook -e@~/vault.yaml -i inventory.yaml /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml 
+ansible-playbook -e@~/vault.yaml /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
 
-ansible-playbook -e@~/vault.yaml -i inventory.yaml /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+ansible-playbook -e@~/vault.yaml /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
 ```
 
