@@ -757,6 +757,7 @@ export AAD_CLIENT_ID=$(< ~/.azuresettings/aad_client_id)
 export AAD_CLIENT_SECRET=$(< ~/.azuresettings/aad_client_secret)
 export RESOURCEGROUP=$(< ~/.azuresettings/resource_group)
 azure login --service-principal --tenant ${TENANT}  -u ${AAD_CLIENT_ID} -p ${AAD_CLIENT_SECRET}
+azure account set ${SUBSCRIPTIONID}
 azure storage account connectionstring show ${1} --resource-group ${RESOURCEGROUP}  > ~/.azuresettings/$1/connection.out
 sed -n '/connectionstring:/{p}' < ~/.azuresettings/${1}/connection.out > ~/.azuresettings/${1}/dataline.out
 export DATALINE=$(< ~/.azuresettings/${1}/dataline.out)
@@ -884,6 +885,7 @@ export AAD_CLIENT_ID=$(< ~/.azuresettings/aad_client_id)
 export AAD_CLIENT_SECRET=$(< ~/.azuresettings/aad_client_secret)
 export RESOURCEGROUP=$(< ~/.azuresettings/resource_group)
 azure login --service-principal --tenant ${TENANT}  -u ${AAD_CLIENT_ID} -p ${AAD_CLIENT_SECRET}
+azure account set ${SUBSCRIPTIONID}
 azure storage account connectionstring show ${1} --resource-group ${RESOURCEGROUP} > ~/.azuresettings/$1/connection.out
 sed -n '/connectionstring:/{p}' < ~/.azuresettings/${1}/connection.out > ~/.azuresettings/${1}/dataline.out
 export DATALINE=$(< ~/.azuresettings/${1}/dataline.out)
