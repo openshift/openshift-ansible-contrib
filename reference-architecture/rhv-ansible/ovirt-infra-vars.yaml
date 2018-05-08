@@ -36,13 +36,17 @@ master_vm:
   cores: 2
   high_availability: true
   disks:
-    - size: 100GiB
+    - size: 15GiB
       storage_domain: "{{ rhv_data_storage }}"
       name: docker_disk
       interface: virtio
-    - size: 50GiB
+    - size: 30GiB
       storage_domain: "{{ rhv_data_storage }}"
       name: localvol_disk
+      interface: virtio
+    - size: 25GiB
+      storage_domain: "{{ rhv_data_storage }}"
+      name: etcd_disk
       interface: virtio
   state: running
 
@@ -52,11 +56,11 @@ node_vm:
   memory: 8GiB
   cores: 2
   disks:
-    - size: 100GiB
+    - size: 15GiB
       storage_domain: "{{ rhv_data_storage }}"
       name: docker_disk
       interface: virtio
-    - size: 50GiB
+    - size: 30GiB
       storage_domain: "{{ rhv_data_storage }}"
       name: localvol_disk
       interface: virtio
@@ -71,6 +75,25 @@ node_vm:
 #    - sed -i 's@com.redhat.rhevm.vdsm@ovirt-guest-agent.0@' /etc/udev/rules.d/55-ovirt-guest-agent.rules
 #    - 'udevadm trigger --subsystem-match="virtio-ports"'
 
+cloud_init_script_master: |
+  runcmd:
+    - mkdir -p '/var/lib/origin/openshift.local.volumes'
+    - mkdir -p '/var/lib/etcd'
+    - /usr/sbin/mkfs.xfs -L localvol /dev/vdc
+    - /usr/sbin/mkfs.xfs -L etcd /dev/vdd
+    - sleep "$(($RANDOM % 60))"
+    - sync
+    - reboot
+  mounts:
+    - [ '/dev/vdc', '/var/lib/origin/openshift.local.volumes', 'xfs', 'defaults,gquota' ]
+    - [ '/dev/vdd', '/var/lib/etcd', 'xfs', 'defaults' ]
+  rh_subscription:
+    username: {{vault_rhsub_user}}
+    password: {{vault_rhsub_password}}
+    add-pool: [{{vault_rhsub_pool}}]
+    server-hostname: {{vault_rhsub_server}}
+    enable-repo: ['rhel-7-server-rpms', 'rhel-7-server-extras-rpms', 'rhel-7-fast-datapath-rpms', 'rhel-7-server-ose-3.9-rpms']
+    disable-repo: []
 cloud_init_script: |
   runcmd:
     - mkdir -p '/var/lib/origin/openshift.local.volumes'
@@ -96,21 +119,21 @@ vms:
     cloud_init:
       host_name: "master0.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ cloud_init_script }}"
+      custom_script: "{{ cloud_init_script_master }}"
   - name: "master1.{{ public_hosted_zone }}"
     tag: openshift_master
     profile: "{{ master_vm }}"
     cloud_init:
       host_name: "master1.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ cloud_init_script }}"
+      custom_script: "{{ cloud_init_script_master }}"
   - name: "master2.{{ public_hosted_zone }}"
     tag: openshift_master
     profile: "{{ master_vm }}"
     cloud_init:
       host_name: "master2.{{ public_hosted_zone }}"
       authorized_ssh_keys: "{{ root_ssh_key }}"
-      custom_script: "{{ cloud_init_script }}"
+      custom_script: "{{ cloud_init_script_master }}"
 
   # Infra VMs
   - name: "infra0.{{ public_hosted_zone }}"
