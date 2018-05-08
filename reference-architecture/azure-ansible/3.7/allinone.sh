@@ -777,6 +777,8 @@ metadata:
     volume.beta.kubernetes.io/storage-provisioner: kubernetes.io/azure-disk
 provisioner: kubernetes.io/azure-disk
 parameters:
+  #added 'kind: dedicated' as workaround of bug https://bugzilla.redhat.com/show_bug.cgi?id=1552384
+  kind: dedicated
   storageAccount: sapv${RESOURCEGROUP}
   location: ${LOCATION}
 EOF
