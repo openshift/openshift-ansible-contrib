@@ -1,6 +1,6 @@
 # The Reference Architecture OpenShift on VMware
 
-**NOTE: This repository containing deprecated scripts and ansible playbooks. See the official documentation [Deploying and Managing OpenShift 3.9 on VMware vSphere](https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_vmware_vsphere/)**
+**NOTE: This repository contains deprecated scripts and ansible playbooks. Refer to the official documentation [Deploying and Managing OpenShift 3.9 on VMware vSphere](https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_vmware_vsphere/)**
 
 This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.6 on VMware
 
