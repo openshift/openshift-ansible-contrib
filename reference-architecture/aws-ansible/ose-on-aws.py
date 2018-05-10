@@ -171,8 +171,8 @@ def launch_refarch_env(region=None,
     public_subnet_id3 = click.prompt('Specify the third Public subnet within the existing VPC')
 
   app_node_count = int(app_node_count)
-  if app_node_count > 3:
-    click.echo("Please choose a value between 1 and 3")
+  if app_node_count < 1:
+    click.echo("Specify at least one app node")
     sys.exit(1)
 
   if master_instance_type in ['m4.large', 't2.micro', 't2.small', 't2.nano', 'm3.medium', 'm3.large', 'm3.xlarge']:
