@@ -1,5 +1,7 @@
 # Red Hat OpenShift Container Platform on Azure
 
+**NOTE: This repository containing deprecated scripts and ansible playbooks. See the official documentation [Deploying and Managing OpenShift 3.9 on Azure](https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_azure/)**
+
 ## Overview
 The reference architecture supports the creation of either a multi-node full HA
 production cluster or a single node designed for exploration of OpenShift on Azure.

@@ -1,8 +1,11 @@
 # The Reference Architecture OpenShift on VMware
+
+**NOTE: This repository containing deprecated scripts and ansible playbooks. See the official documentation [Deploying and Managing OpenShift 3.9 on VMware vSphere](https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_vmware_vsphere/)**
+
 This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.6 on VMware
 
 ## Overview
-The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes. 
+The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes.
 
 ![Architecture](images/OCP-on-VMware-Architecture.jpg)
 
@@ -93,17 +96,17 @@ Continue using these values? [y/N]:
 ### Existing VM Environment and Deployment (Brownfield)
 The `ocp-on-vmware.py` script allows for deployments into an existing environment
 in which VMs already exists and are subscribed to the proper `RHEL` [channels](https://access.redhat.com/documentation/en/openshift-container-platform/3.6/single/installation-and-configuration/#installing-base-packages).
-The prerequisite packages will be installed. The script expects the proper VM annotations are created on the existing VMs. 
+The prerequisite packages will be installed. The script expects the proper VM annotations are created on the existing VMs.
 
 The annotation is a combination of a unique` cluster_id` plus the node type:
 
-* app nodes will be labeled with **"-app"** 
+* app nodes will be labeled with **"-app"**
 * infra nodes labeled with **"-infra"**
 * master nodes labeled with **"-master"**
 
 Lastly, the prepared VMs must correspond to the following hardware requirements:
 
-|Node Type | CPUs | Memory | Disk 1 | Disk 2 | Disk 3 | Disk 4 | 
+|Node Type | CPUs | Memory | Disk 1 | Disk 2 | Disk 3 | Disk 4 |
 | ------- | ------- | ------- | ------- | ------- | ------- | ------- |
 | Master  | 2 vCPU | 16GB RAM | 1 x 60GB - OS RHEL 7.4 | 1 x 40GB - Docker volume | 1 x 40Gb -  EmptyDir volume | 1 x 40GB - ETCD volume |
 | Node | 2 vCPU | 8GB RAM | 1 x 60GB - OS RHEL 7.4 | 1 x 40GB - Docker volume | 1 x 40Gb - EmptyDir volume | |
@@ -161,7 +164,7 @@ can be ran as many times as needed.
 ```bash
 $ ./add-node.py --node_type=app
 Configured inventory values:
-     cluster_id:  0klgsla 
+     cluster_id:  0klgsla
      console_port:  8443
      deployment_type:  openshift-enterprise
      openshift_vers:  v3_6
@@ -203,7 +206,7 @@ container_storage=cns
 
 $ ./add-node.py --node_type=storage
 Configured inventory values:
-     cluster_id:  0klgsla 
+     cluster_id:  0klgsla
      console_port:  8443
      deployment_type:  openshift-enterprise
      openshift_vers:  v3_6
@@ -246,7 +249,7 @@ $ cd ~/openshift-ansible-contrib/reference-architecture/vmware-ansible/ && ./ocp
 ```bash
 # yum install -y git ansible
 $ cd ~/git/ && git clone https://github.com/openshift/openshift-ansible-contrib
-$ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=vsphere 
+$ cd ~/git/openshift-ansible-contrib && ansible-playbook playbooks/deploy-host.yaml -e provider=vsphere
 ```
 
 * Fill out the variables in the ocp-on-vmware.ini file and run ocp installer.

@@ -1,5 +1,7 @@
 == Scripted Installation of OpenShift on OpenStack.
 
+NOTE: This repository containing deprecated scripts and ansible playbooks. See the official documentation https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_red_hat_openstack_platform_10/[Deploying and Managing OpenShift 3.9 on Red Hat OpenStack Platform 10]
+
 The scripts presented here match those in https://access.redhat.com/articles/2743631[Red Hat OpenShift Container Platform 3 on Red Hat OpenStack Platform 8] reference architecture document.  These script fragments are intended to demonstrate the steps needed to deploy OCP on OSP, but they are not the recommended method for doing so.  Production deployment should be done using the https://github.com/openshift/openshift-on-openstack[OpenShift on OpenStack] Heat templates and the https://github.com/openshift/openshift-ansible[OpenShift Ansible] playbooks.
 
 The documentation here does not provide comprehensive usage
@@ -29,7 +31,7 @@ The `APP_DNS_SUFFIX` domain name is a _wildcard record_.  The hostname
 portion is an asterisk (*).  This will match any name in that
 subdomain.
 
-.Proxy DNS Records 
+.Proxy DNS Records
 ----
 proxy.ocp3.example.com.	300 IN	A	10.19.XX.XX
 devs.ocp3.example.com. 300 IN	A	10.19.XX.XX
@@ -68,7 +70,7 @@ export OCP3_KEY_NAME=ocp3
 export OCP3_KEY_FILE=~/keys/ocp3_rsa
 export PUBLIC_NETWORK=public_network
 
-# Naming and DNS 
+# Naming and DNS
 export OCP3_DOMAIN=ocp3.example.com
 export OCP3_DNS_SERVER=10.19.X.X
 export OCP3_DNS_UPDATE_KEY=~/keys/dns-update.key
@@ -90,7 +92,7 @@ subscription pool which contains the OCP and OSP repositories for the
 selected versions.
 
 Each host must be registered to receive software from the Red Hat RPM
-repositories. 
+repositories.
 
 * `rhel-7-server-ose-${OCP_VERSION}-rpms`
 * `rhel-7-server-openstack-${OSP_VERSION}-rpms`
