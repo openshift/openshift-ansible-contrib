@@ -2,6 +2,8 @@
 
 == DNS Service for OpenStack with Heat
 
+NOTE: This repository contains deprecated scripts and ansible playbooks. Refer to the official documentation https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_red_hat_openstack_platform_10/[Deploying and Managing OpenShift 3.9 on Red Hat OpenStack Platform 10]
+
 This repository defines a simple distributed DNS service within an
 OpenStack Heat stack.  The goal is to de-mystify DNS services and
 deployments for low level delegated sub-domains.  It is NOT to provide
