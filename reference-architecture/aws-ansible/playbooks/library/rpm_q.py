@@ -1,1 +1,1 @@
-/usr/share/ansible/openshift-ansible/library/rpm_q.py
+/usr/share/ansible/openshift-ansible/roles/lib_utils/library/rpm_q.py
