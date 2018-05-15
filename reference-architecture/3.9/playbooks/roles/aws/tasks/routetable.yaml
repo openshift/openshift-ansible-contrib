@@ -1,11 +1,11 @@
 ---
-- name: Create RouteTable (routing)
+- name: Create RouteTable ( Public )
   ec2_vpc_route_table:
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     subnets:
-      - "{{ subnet_routing.results.0.subnet.id }}"
-      - "{{ subnet_routing.results.1.subnet.id }}"
-      - "{{ subnet_routing.results.2.subnet.id }}"
+      - "{{ subnet_public.results.0.subnet.id }}"
+      - "{{ subnet_public.results.1.subnet.id }}"
+      - "{{ subnet_public.results.2.subnet.id }}"
     routes:
       - dest: 0.0.0.0/0
         gateway_id: "{{ igw.gateway_id }}"
@@ -14,11 +14,10 @@
     vpc_id: "{{ vpc.vpc.id }}"
   retries: 3
   delay: 3
-  register: rt
 
-- name: Create RouteTables (internal)
+- name: Create RouteTables ( Private )
   ec2_vpc_route_table:
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     subnets:
       - "{{ item.subnet }}"
     routes:
@@ -29,14 +28,13 @@
     vpc_id: "{{ vpc.vpc.id }}"
   retries: 3
   delay: 5
-  register: rt
   with_items:
     - az: "{{ vpc_subnet_azs.0 }}"
-      subnet: "{{ subnet_internal.results.0.subnet.id }}"
+      subnet: "{{ subnet_private.results.0.subnet.id }}"
       natgw: "{{ natgw.results.0.nat_gateway_id }}"
     - az: "{{ vpc_subnet_azs.1 }}"
-      subnet: "{{ subnet_internal.results.1.subnet.id }}"
+      subnet: "{{ subnet_private.results.1.subnet.id }}"
       natgw: "{{ natgw.results.1.nat_gateway_id }}"
     - az: "{{ vpc_subnet_azs.2 }}"
-      subnet: "{{ subnet_internal.results.2.subnet.id }}"
+      subnet: "{{ subnet_private.results.2.subnet.id }}"
       natgw: "{{ natgw.results.2.nat_gateway_id }}"

@@ -3,6 +3,6 @@
   ec2_key:
     key_material: "{{ lookup('file', '~/.ssh/' + clusterid + '.pub') | expanduser }}"
     name: "{{ clusterid }}"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     state: present
   with_file: "~/.ssh/{{ clusterid }}.pub"

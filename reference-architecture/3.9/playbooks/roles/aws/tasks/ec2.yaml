@@ -1,5 +1,5 @@
 ---
-- name: Create EC2 bastion instance
+- name: Create EC2 instance ( Bastion )
   ec2:
     assign_public_ip: yes
     count_tag:
@@ -17,7 +17,7 @@
       "kubernetes.io/cluster/{{ clusterid }}": "{{ clusterid }}"
     key_name: "{{ clusterid }}"
     monitoring: no
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     termination_protection: no
     user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_bastion.sh') ) }}"
     volumes:
@@ -25,7 +25,7 @@
         volume_type: gp2
         volume_size: 25
         delete_on_termination: true
-    vpc_subnet_id: "{{ subnet_routing.results.0.subnet.id }}"
+    vpc_subnet_id: "{{ subnet_public.results.0.subnet.id }}"
     wait: yes
   retries: 3
   delay: 3
@@ -43,23 +43,22 @@
     - tagss: "Name={{ item.id }}-rootvol, clusterid={{ clusterid }}, "
   with_items: "{{ ec2bastion.tagged_instances }}"
 
-- name: Create EIP instance for EC2 / bastion
+- name: Create EIP instance for EC2 / Bastion
   ec2_eip:
     device_id: "{{ ec2bastion.tagged_instances.0.id }}"
     in_vpc: yes
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     state: present
   retries: 3
   register: eipbastion
 
-- name: Create EC2 master instances
+- name: Create EC2 instances ( Master )
   ec2:
     assign_public_ip: no
     count_tag:
       Name: "{{ item.name }}"
     exact_count: 1
     group: [
-      "SSH",
       "master",
       "node"
     ]
@@ -69,7 +68,7 @@
       Name: "{{ item.name }}"
     key_name: "{{ clusterid }}"
     monitoring: no
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     termination_protection: no
     user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_master.sh') ) }}"
     volumes:
@@ -90,11 +89,11 @@
     wait: yes
   with_items:
     - name: "master1"
-      subnet: "{{ subnet_internal.results.0.subnet.id }}"
+      subnet: "{{ subnet_private.results.0.subnet.id }}"
     - name: "master2"
-      subnet: "{{ subnet_internal.results.1.subnet.id }}"
+      subnet: "{{ subnet_private.results.1.subnet.id }}"
     - name: "master3"
-      subnet: "{{ subnet_internal.results.2.subnet.id }}"
+      subnet: "{{ subnet_private.results.2.subnet.id }}"
   retries: 3
   delay: 3
   register: ec2master
@@ -129,14 +128,13 @@
     - tagss: "Name={{ item.tagged_instances[0].id }}-xvdd, clusterid={{ clusterid }}, "
   with_items: "{{ ec2master.results }}"
 
-- name: Create EC2 infra instances
+- name: Create EC2 instances ( Infrastructure )
   ec2:
     assign_public_ip: no
     count_tag:
       Name: "{{ item.name }}"
     exact_count: 1
     group: [
-      "SSH",
       "infra",
       "node"
     ]
@@ -146,7 +144,7 @@
       Name: "{{ item.name }}"
     key_name: "{{ clusterid }}"
     monitoring: no
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     termination_protection: no
     user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_node.sh') ) }}"
     volumes:
@@ -160,11 +158,11 @@
     wait: yes
   with_items:
     - name: "infra1"
-      subnet: "{{ subnet_internal.results.0.subnet.id }}"
+      subnet: "{{ subnet_private.results.0.subnet.id }}"
     - name: "infra2"
-      subnet: "{{ subnet_internal.results.1.subnet.id }}"
+      subnet: "{{ subnet_private.results.1.subnet.id }}"
     - name: "infra3"
-      subnet: "{{ subnet_internal.results.2.subnet.id }}"
+      subnet: "{{ subnet_private.results.2.subnet.id }}"
   retries: 3
   delay: 3
   register: ec2infra
@@ -187,14 +185,13 @@
     - tagss: "Name={{ item.tagged_instances[0].id }}-xvdb, clusterid={{ clusterid }}, "
   with_items: "{{ ec2infra.results }}"
 
-- name: Create EC2 node instances
+- name: Create EC2 instances ( App node )
   ec2:
     assign_public_ip: no
     count_tag:
       Name: "{{ item.name }}"
     exact_count: 1
     group: [
-      "SSH",
       "node"
     ]
     instance_type: "{{ ec2_type_node }}"
@@ -203,7 +200,7 @@
       Name: "{{ item.name }}"
     key_name: "{{ clusterid }}"
     monitoring: no
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     termination_protection: no
     user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_node.sh') ) }}"
     volumes:
@@ -220,11 +217,11 @@
     wait: yes
   with_items:
     - name: "node1"
-      subnet: "{{ subnet_internal.results.0.subnet.id }}"
+      subnet: "{{ subnet_private.results.0.subnet.id }}"
     - name: "node2"
-      subnet: "{{ subnet_internal.results.1.subnet.id }}"
+      subnet: "{{ subnet_private.results.1.subnet.id }}"
     - name: "node3"
-      subnet: "{{ subnet_internal.results.2.subnet.id }}"
+      subnet: "{{ subnet_private.results.2.subnet.id }}"
   retries: 3
   delay: 3
   register: ec2node

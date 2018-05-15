@@ -1,11 +1,29 @@
 ---
+- name: Create AWS SecurityGroup (SSH)
+  ec2_group:
+    name: "Bastion"
+    description: "Bastion"
+    purge_rules: false
+    purge_rules_egress: false
+    region: "{{ aws_region }}"
+    vpc_id: "{{ vpc.vpc.id }}"
+    rules:
+      - proto: icmp
+        from_port: 8
+        to_port: -1
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: "22"
+        to_port: "22"
+        cidr_ip: "0.0.0.0/0"
+
 - name: "Create AWS SecurityGroups Rules (Infra)"
   ec2_group:
     name: "infra"
     description: "infra"
     purge_rules: true
     purge_rules_egress: true
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     vpc_id: "{{ vpc.vpc.id }}"
     rules:
       - proto: tcp
@@ -31,7 +49,7 @@
     description: "master"
     purge_rules: true
     purge_rules_egress: true
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     vpc_id: "{{ vpc.vpc.id }}"
     rules:
       - proto: tcp
@@ -65,7 +83,7 @@
     description: "node"
     purge_rules: true
     purge_rules_egress: true
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     vpc_id: "{{ vpc.vpc.id }}"
     rules:
       - proto: icmp

@@ -1,18 +1,21 @@
 ---
+aws_cred_profile: "default"
+
+# password for ssh key - ~/.ssh/{{ clusterid }}
+sshkey_password: 'abc123'
+
 clusterid: "refarch"
-domain: "example.com"
-region: "us-east-1"
-credsprofile: "default"
-ssh_password: 'abc123'
+dns_domain: "example.com"
+aws_region: "us-east-1"
 
-cidrvpc: "172.16.0.0/16"
+vpc_cidr: "172.16.0.0/16"
 
-cidrsubnets_routing:
+subnets_public_cidr:
   - 172.16.0.0/24
   - 172.16.1.0/24
   - 172.16.2.0/24
 
-cidrsubnets:
+subnets_private_cidr:
   - 172.16.16.0/20
   - 172.16.32.0/20
   - 172.16.48.0/20
@@ -23,4 +26,4 @@ ec2_type_infra: "m5.2xlarge"
 ec2_type_node: "m5.2xlarge"
 ec2_type_cns: "m5.2xlarge"
 
-rhelrel: "rhel-7.5"
+rhel_release: "rhel-7.5"

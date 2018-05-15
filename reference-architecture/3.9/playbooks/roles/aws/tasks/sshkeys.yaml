@@ -13,7 +13,7 @@
   failed_when: "'r3dh@t' in sshkeys.state"
 
 - name: "Generate SSH key"
-  command: ssh-keygen -b 2048 -t rsa -f ~/.ssh/{{ clusterid }} -q -C user@"{{ domain }}" -N "{{ ssh_password }}" -q
+  command: ssh-keygen -b 2048 -t rsa -f ~/.ssh/{{ clusterid }} -q -C user@"{{ dns_domain }}" -N "{{ sshkey_password }}" -q
   args:
     creates: "~/.ssh/{{ clusterid }}"
   when: sshkeys.changed

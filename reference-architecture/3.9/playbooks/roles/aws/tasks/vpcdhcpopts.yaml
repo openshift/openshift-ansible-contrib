@@ -2,7 +2,7 @@
 - name: "Create VPC DHCP Options"
   ec2_vpc_dhcp_options:
     domain_name: "ec2.internal"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     dns_servers:
       - AmazonProvidedDNS
     inherit_existing: False

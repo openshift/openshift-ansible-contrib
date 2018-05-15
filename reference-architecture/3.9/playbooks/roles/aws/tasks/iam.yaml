@@ -29,11 +29,10 @@
 - name: Create IAM policy for cloudprovider_kind
   iam_policy:
     iam_type: user
-    iam_name: "{{ cpkuser.user_meta.created_user.user_name }}"
+    iam_name: "{{ clusterid }}-admin"
     policy_name: "Admin"
     state: present
-    policy_json: "{{ lookup('template', playbook_dir + '/roles/aws/templates/iam_policy_cpkuser.json.j2', convert_data=False) | string }}"
-  when: cpkuser.changed
+    policy_json: "{{ lookup('template', playbook_dir + '/roles/aws/templates/iam_policy_cpkuser.json.j2') }}"
 
 - name: Create IAM user for Registry S3 storage
   iam:
@@ -61,8 +60,7 @@
 - name: Create IAM policy for OCP Docker Registry AWS S3 bucket
   iam_policy:
     iam_type: user
-    iam_name: "{{ s3user.user_meta.created_user.user_name }}"
+    iam_name: "{{ clusterid }}-registry"
     policy_name: "S3"
     state: present
-    policy_json: "{{ lookup('template', playbook_dir + '/roles/aws/templates/iam_policy_s3user.json.j2', convert_data=False) | string }}"
-  when: s3user.changed
+    policy_json: "{{ lookup('template', playbook_dir + '/roles/aws/templates/iam_policy_s3user.json.j2') }}"

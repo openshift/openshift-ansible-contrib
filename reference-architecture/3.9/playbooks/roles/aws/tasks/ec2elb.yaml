@@ -4,7 +4,7 @@
   ec2_elb:
     instance_id: "{{ item.tagged_instances[0].id }}"
     ec2_elbs: "{{ elbextmaster.elb.name }}"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     state: present
   with_items:
     - "{{ ec2master.results }}"
@@ -16,7 +16,7 @@
   ec2_elb:
     instance_id: "{{ item.tagged_instances[0].id }}"
     ec2_elbs: "{{ elbintmaster.elb.name }}"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     state: present
   with_items:
     - "{{ ec2master.results }}"
@@ -28,7 +28,7 @@
   ec2_elb:
     instance_id: "{{ item.tagged_instances[0].id }}"
     ec2_elbs: "{{ elbextinfra.elb.name }}"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     state: present
   with_items:
     - "{{ ec2infra.results }}"

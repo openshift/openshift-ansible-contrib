@@ -2,10 +2,10 @@
 - name: Create VPC
   ec2_vpc_net:
     state: present
-    cidr_block: "{{ cidrvpc }}"
+    cidr_block: "{{ vpc_cidr }}"
     dhcp_opts_id: "{{ vpcdhcpopts.dhcp_options_id }}"
     name: "{{ clusterid }}"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
   retries: 3
   delay: 5
   register: vpc

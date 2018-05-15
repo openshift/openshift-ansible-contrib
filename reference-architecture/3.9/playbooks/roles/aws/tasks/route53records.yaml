@@ -42,7 +42,7 @@
     command: create
     overwrite: yes
     private_zone: no
-    record: "*.apps.{{ clusterid }}.{{ domain }}"
+    record: "*.apps.{{ clusterid }}.{{ dns_domain }}"
     type: CNAME
     ttl: 300
     value: "{{ elbextinfra.elb.dns_name }}"

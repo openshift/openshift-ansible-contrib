@@ -25,14 +25,14 @@ class LookupModule(LookupBase):
     def run(self, args, inject=None, **kwargs):
         try:
             for a in list(args):
-                if 'region' in a:
-                    region = a['region']
+                if 'aws_region' in a:
+                    aws_region = a['aws_region']
         except Exception as e:
             raise errors.AnsibleError("%s" % (e))
 
         try:
             zones = []
-            response = boto3.client('ec2', region).describe_availability_zones()
+            response = boto3.client('ec2', aws_region).describe_availability_zones()
             for k in response['AvailabilityZones']:
                 zones.append(k['ZoneName'])
             return(zones)
