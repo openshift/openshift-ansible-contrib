@@ -1,5 +1,5 @@
 Host bastion
-  HostName                 {{ ec2bastion.tagged_instances[0].public_dns_name }}
+  HostName                 {{ ec2bastion.public_ip }}
   User                     ec2-user
   StrictHostKeyChecking    no
   ProxyCommand             none
@@ -13,6 +13,13 @@ Host bastion
   IdentityFile             ~/.ssh/{{ clusterid }}
 
 Host *.compute-1.amazonaws.com
+  user                     ec2-user
+  StrictHostKeyChecking    no
+  CheckHostIP              no
+  IdentityFile             ~/.ssh/{{ clusterid }}
+
+Host *.compute.internal
+  ProxyCommand             ssh -W %h:%p bastion
   user                     ec2-user
   StrictHostKeyChecking    no
   CheckHostIP              no

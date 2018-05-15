@@ -6,7 +6,6 @@
       Name: "{{ item.name }}"
     exact_count: 1
     group: [
-      "SSH",
       "cns",
       "node"
     ]
@@ -16,7 +15,7 @@
       Name: "{{ item.name }}"
     key_name: "{{ clusterid }}"
     monitoring: no
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     termination_protection: no
     user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_node.sh') ) }}"
     volumes:
@@ -37,11 +36,11 @@
     wait: yes
   with_items:
     - name: "cns1"
-      subnet: "{{ subnet_internal.results.0.subnet.id }}"
+      subnet: "{{ subnet_private.results.0.subnet.id }}"
     - name: "cns2"
-      subnet: "{{ subnet_internal.results.1.subnet.id }}"
+      subnet: "{{ subnet_private.results.1.subnet.id }}"
     - name: "cns3"
-      subnet: "{{ subnet_internal.results.2.subnet.id }}"
+      subnet: "{{ subnet_private.results.2.subnet.id }}"
   retries: 3
   delay: 3
   register: ec2cns

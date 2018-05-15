@@ -1,7 +1,7 @@
 ---
 - name: Create IGW
   ec2_vpc_igw:
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     state: present
     vpc_id: "{{ vpc.vpc.id }}"
   retries: 3

@@ -1,5 +1,5 @@
 ---
-- name: Create ELB ( master internet-facing endpoint )
+- name: Create ELB ( master internet-facing )
   ec2_elb_lb:
     cross_az_load_balancing: "yes"
     health_check:
@@ -16,23 +16,24 @@
         instance_protocol: tcp
         instance_port: 443
     name: "{{ clusterid }}-master-external"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     scheme: internet-facing
     security_group_names:
       - "master"
     state: present
     subnets:
-      - "{{ subnet_routing.results.0.subnet.id }}"
-      - "{{ subnet_routing.results.1.subnet.id }}"
-      - "{{ subnet_routing.results.2.subnet.id }}"
+      - "{{ subnet_public.results.0.subnet.id }}"
+      - "{{ subnet_public.results.1.subnet.id }}"
+      - "{{ subnet_public.results.2.subnet.id }}"
     tags:
       Name: "{{ clusterid }}-master-external"
       Clusterif: "{{ clusterid }}"
+    wait: true
   retries: 3
   delay: 3
   register: elbextmaster
 
-- name: Create ELB ( master internal endpoint )
+- name: Create ELB ( master internal )
   ec2_elb_lb:
     cross_az_load_balancing: "yes"
     health_check:
@@ -49,23 +50,24 @@
         instance_protocol: tcp
         instance_port: 443
     name: "{{ clusterid }}-master-internal"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     scheme: internal
     security_group_names:
       - "master"
     state: present
     subnets:
-      - "{{ subnet_internal.results.0.subnet.id }}"
-      - "{{ subnet_internal.results.1.subnet.id }}"
-      - "{{ subnet_internal.results.2.subnet.id }}"
+      - "{{ subnet_private.results.0.subnet.id }}"
+      - "{{ subnet_private.results.1.subnet.id }}"
+      - "{{ subnet_private.results.2.subnet.id }}"
     tags:
       Name: "{{ clusterid }}-master-internal"
       Clusterif: "{{ clusterid }}"
+    wait: true
   retries: 3
   delay: 3
   register: elbintmaster
 
-- name: Create ELB ( infra internet-facing endpoint )
+- name: Create ELB ( infra internet-facing )
   ec2_elb_lb:
     cross_az_load_balancing: "yes"
     health_check:
@@ -93,18 +95,19 @@
         instance_protocol: tcp
         instance_port: 9090
     name: "{{ clusterid }}-infra-external"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     scheme: internet-facing
     security_group_names:
       - "infra"
     state: present
     subnets:
-      - "{{ subnet_routing.results.0.subnet.id }}"
-      - "{{ subnet_routing.results.1.subnet.id }}"
-      - "{{ subnet_routing.results.2.subnet.id }}"
+      - "{{ subnet_public.results.0.subnet.id }}"
+      - "{{ subnet_public.results.1.subnet.id }}"
+      - "{{ subnet_public.results.2.subnet.id }}"
     tags:
       Name: "{{ clusterid }}-infra-external"
       Clusterid: "{{ clusterid }}"
+    wait: true
   retries: 3
   delay: 3
   register: elbextinfra

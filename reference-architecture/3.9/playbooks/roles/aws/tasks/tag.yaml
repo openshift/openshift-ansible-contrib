@@ -8,6 +8,6 @@
 - name: Create tag
   ec2_tag:
     resource: "{{ resource }}"
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     state: present
     tags: "{{ tagss }}"

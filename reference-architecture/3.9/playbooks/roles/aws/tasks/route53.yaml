@@ -1,19 +1,19 @@
 ---
 - name: Create Route53 external zone
   route53_zone:
-    comment: "{{ clusterid }}.{{ domain }}"
+    comment: "{{ clusterid }}.{{ dns_domain }}"
     state: present
-    vpc_region: "{{ region }}"
-    zone: "{{ clusterid }}.{{ domain }}"
+    vpc_region: "{{ aws_region }}"
+    zone: "{{ clusterid }}.{{ dns_domain }}"
   register: r53zoneext
 
 - name: Create Route53 internal zone
   route53_zone:
-    comment: "{{ clusterid }}.{{ domain }}"
+    comment: "{{ clusterid }}.{{ dns_domain }}"
     state: present
     vpc_id: "{{ vpc.vpc.id }}"
-    vpc_region: "{{ region }}"
-    zone: "{{ clusterid }}.{{ domain }}"
+    vpc_region: "{{ aws_region }}"
+    zone: "{{ clusterid }}.{{ dns_domain }}"
   register: r53zoneint
 
 - name: 'Set fact: arg for lookup query'

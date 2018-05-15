@@ -1,11 +1,12 @@
 ---
 - name: Fetch Red Hat Cloud Access ami
-  shell: aws ec2 describe-images --owners 309956199498 | \
+  shell: aws ec2 describe-images \
+    --region "{{ aws_region }}" --owners 309956199498 | \
     jq -r '.Images[] | [.Name,.ImageId] | @csv' | \
     sed -e 's/\"//g' | \
     grep -v Beta | \
     grep -i Access2-GP2 | \
-    grep -i "{{ rhelrel }}" | \
+    grep -i "{{ rhel_release }}" | \
     sort | \
     tail -1
   args:

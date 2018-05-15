@@ -1,22 +1,12 @@
 ---
-- name: Create AWS SecurityGroup (SSH)
+- name: Create AWS SecurityGroup (Bastion)
   ec2_group:
-    name: "SSH"
-    description: "SSH"
+    name: "Bastion"
+    description: "Bastion"
     purge_rules: false
     purge_rules_egress: false
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     vpc_id: "{{ vpc.vpc.id }}"
-    rules:
-      - proto: icmp
-        from_port: 8
-        to_port: -1
-        cidr_ip: 0.0.0.0/0
-      - proto: tcp
-        from_port: "22"
-        to_port: "22"
-        cidr_ip: "0.0.0.0/0"
-  register: sshsg
 
 - name: "Create AWS SecurityGroups"
   ec2_group:
@@ -24,7 +14,7 @@
     description: "{{ item.name }}"
     purge_rules: false
     purge_rules_egress: false
-    region: "{{ region }}"
+    region: "{{ aws_region }}"
     vpc_id: "{{ vpc.vpc.id }}"
   register: sg
   with_items:
