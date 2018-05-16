@@ -1,6 +1,6 @@
 == Scripted Installation of OpenShift on OpenStack.
 
-NOTE: This repository contains deprecated scripts and ansible playbooks. Refer to the official documentation https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_red_hat_openstack_platform_10/[Deploying and Managing OpenShift 3.9 on Red Hat OpenStack Platform 10]
+## **NOTE: This repository contains deprecated scripts and ansible playbooks. Refer to the official documentation https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_red_hat_openstack_platform_10/[Deploying and Managing OpenShift 3.9 on Red Hat OpenStack Platform 10]**
 
 The scripts presented here match those in https://access.redhat.com/articles/2743631[Red Hat OpenShift Container Platform 3 on Red Hat OpenStack Platform 8] reference architecture document.  These script fragments are intended to demonstrate the steps needed to deploy OCP on OSP, but they are not the recommended method for doing so.  Production deployment should be done using the https://github.com/openshift/openshift-on-openstack[OpenShift on OpenStack] Heat templates and the https://github.com/openshift/openshift-ansible[OpenShift Ansible] playbooks.
 
