@@ -6,7 +6,6 @@
     region: "{{ aws_region }}"
     state: present
     vpc_id: "{{ vpc.vpc.id }}"
-    wait: False
   with_items:
     - cidr: "{{ subnets_public_cidr.0 }}"
       az: "{{ vpc_subnet_azs.0 }}"
@@ -25,7 +24,6 @@
     region: "{{ aws_region }}"
     state: present
     vpc_id: "{{ vpc.vpc.id }}"
-    wait: False
   with_items:
     - cidr: "{{ subnets_private_cidr.0 }}"
       az: "{{ vpc_subnet_azs.0 }}"

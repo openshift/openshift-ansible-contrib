@@ -17,37 +17,3 @@
   args:
     creates: "~/.ssh/{{ clusterid }}"
   when: sshkeys.changed
-
-- name: "Set fact: sshkey"
-  set_fact:
-    sshkey: "{{ lookup('file', '~/.ssh/{{ clusterid }}.pub').split(' ') }}"
-  register: sshkey
-
-- name: "Check for running ssh-agent"
-  shell: ps -ef | grep -v grep | grep ssh-agent
-  ignore_errors: yes
-  changed_when: sshagent_proc.rc != 0
-  failed_when: sshagent_proc.rc == 99
-  register: sshagent_proc
-
-- name: "Start ssh-agent"
-  shell: "ssh-agent"
-  args:
-    executable: /bin/bash
-  register: sshagent_proc
-  when: sshagent_proc.changed
-
-- name: "Check for registered sshkey"
-  shell: "ssh-add -L | grep {{ sshkey[1] }}"
-  ignore_errors: yes
-  changed_when: sshagent_sshkey.rc != 0
-  failed_when:
-    - "sshagent_sshkey.rc == 99"
-    - "'agent refused operation' in sshagent_sshkey.stderr"
-  register: sshagent_sshkey
-
-- name: "Add SSH key to ssh-agent.  Interactive password is mandatory here!"
-  command: ssh-add ~/.ssh/"{{ clusterid }}"
-  failed_when: sshagent_sshkey.rc != 0
-  register: sshagent_sshkey
-  when: sshagent_sshkey.changed

@@ -1,5 +1,5 @@
 Host bastion
-  HostName                 {{ ec2bastion.public_ip }}
+  HostName                 {{ eipbastion.public_ip }}
   User                     ec2-user
   StrictHostKeyChecking    no
   ProxyCommand             none
@@ -10,12 +10,6 @@ Host bastion
   ControlMaster            auto
   ControlPath              ~/.ssh/mux-%r@%h:%p
   ControlPersist           15m
-  IdentityFile             ~/.ssh/{{ clusterid }}
-
-Host *.compute-1.amazonaws.com
-  user                     ec2-user
-  StrictHostKeyChecking    no
-  CheckHostIP              no
   IdentityFile             ~/.ssh/{{ clusterid }}
 
 Host *.compute.internal
