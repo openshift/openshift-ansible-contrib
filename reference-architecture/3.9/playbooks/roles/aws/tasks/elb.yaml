@@ -86,14 +86,6 @@
         load_balancer_port: 443
         instance_protocol: tcp
         instance_port: 443
-      - protocol: tcp
-        load_balancer_port: 5000
-        instance_protocol: tcp
-        instance_port: 5000
-      - protocol: tcp
-        load_balancer_port: 9090
-        instance_protocol: tcp
-        instance_port: 9090
     name: "{{ clusterid }}-infra-external"
     region: "{{ aws_region }}"
     scheme: internet-facing

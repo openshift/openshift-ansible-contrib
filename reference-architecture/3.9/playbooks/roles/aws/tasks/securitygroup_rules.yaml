@@ -53,10 +53,6 @@
     vpc_id: "{{ vpc.vpc.id }}"
     rules:
       - proto: tcp
-        from_port: 80
-        to_port: 80
-        group_name: "master"
-      - proto: tcp
         from_port: 443
         to_port: 443
         group_name: "master"
