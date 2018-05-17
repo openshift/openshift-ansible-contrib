@@ -61,6 +61,10 @@
         to_port: 443
         group_name: "master"
       - proto: tcp
+        from_port: 443
+        to_port: 443
+        group_name: "node"
+      - proto: tcp
         from_port: 2379
         to_port: 2380
         group_name: "master"
