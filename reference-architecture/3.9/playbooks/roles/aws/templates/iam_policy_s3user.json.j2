@@ -8,8 +8,8 @@
             ],
             "Effect": "Allow",
             "Resource": [
-                "arn:aws:s3:::{{ clusterid }}-registry",
-                "arn:aws:s3:::{{ clusterid }}-registry/*"
+                "arn:aws:s3:::{{ clusterid }}.{{ dns_domain }}-registry",
+                "arn:aws:s3:::{{ clusterid }}.{{ dns_domain }}-registry/*"
             ]
         }
     ]

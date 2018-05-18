@@ -5,10 +5,10 @@
 			"Sid": "1",
 			"Effect": "Allow",
 			"Principal": {
-				"AWS": "arn:aws:iam::{{ iam_identity }}:user/{{ clusterid }}-registry"
+				"AWS": "arn:aws:iam::{{ iam_identity }}:user/{{ clusterid }}.{{ dns_domain }}-registry"
 			},
 			"Action": "s3:*",
-			"Resource": "arn:aws:s3:::{{ clusterid }}-registry"
+			"Resource": "arn:aws:s3:::{{ clusterid }}.{{ dns_domain }}-registry"
 		}
 	]
 }

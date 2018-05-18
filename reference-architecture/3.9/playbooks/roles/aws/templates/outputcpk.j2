@@ -1,0 +1,11 @@
+openshift_cloudprovider_kind=aws
+openshift_clusterid={{ clusterid }}
+{{ lookup('file', (
+                   '~/.ssh/config-' +
+                    clusterid +
+                    '.' +
+                    dns_domain +
+                    '-cpkuser_access_key'
+                  ) ) |
+                  regex_replace(".* ANSIBLE MANAGED BLOCK .*", '') |
+                  trim }}

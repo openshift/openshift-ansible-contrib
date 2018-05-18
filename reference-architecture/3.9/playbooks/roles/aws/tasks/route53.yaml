@@ -1,5 +1,5 @@
 ---
-- name: Create Route53 external zone
+- name: Create Route53 public zone
   route53_zone:
     comment: "{{ clusterid }}.{{ dns_domain }}"
     state: present
@@ -7,7 +7,7 @@
     zone: "{{ clusterid }}.{{ dns_domain }}"
   register: r53zoneext
 
-- name: Create Route53 internal zone
+- name: Create Route53 private zone
   route53_zone:
     comment: "{{ clusterid }}.{{ dns_domain }}"
     state: present
@@ -21,6 +21,6 @@
     args:
       id: "{{ r53zoneext.result.zone_id }}"
 
-- name: Fetch SOA records Route53 external zone
+- name: Fetch SOA records Route53 public zone
   set_fact:
     ns: "{{ lookup('route53_namservers', args).split(',') }}"

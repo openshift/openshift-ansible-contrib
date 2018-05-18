@@ -6,7 +6,7 @@
 - name: Create IAM user for cloudprovider_kind
   iam:
     iam_type: user
-    name: "{{ clusterid }}-admin"
+    name: "{{ clusterid }}.{{ dns_domain }}-admin"
     state: present
     access_key_state: create
   register: cpkuser
@@ -18,7 +18,7 @@
 
 - name: Land IAM cloudprovider_kind access key into file
   blockinfile:
-    path: "~/.ssh/config-{{ clusterid }}-cpkuser_access_key"
+    path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-cpkuser_access_key"
     create: yes
     marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
     content: |
@@ -29,7 +29,7 @@
 - name: Create IAM policy for cloudprovider_kind
   iam_policy:
     iam_type: user
-    iam_name: "{{ clusterid }}-admin"
+    iam_name: "{{ clusterid }}.{{ dns_domain }}-admin"
     policy_name: "Admin"
     state: present
     policy_json: "{{ lookup('template', playbook_dir + '/roles/aws/templates/iam_policy_cpkuser.json.j2') }}"
@@ -37,7 +37,7 @@
 - name: Create IAM user for Registry S3 storage
   iam:
     iam_type: user
-    name: "{{ clusterid }}-registry"
+    name: "{{ clusterid }}.{{ dns_domain }}-registry"
     state: present
     access_key_state: create
   register: s3user
@@ -49,7 +49,7 @@
 
 - name: Land IAM s3user access key into file
   blockinfile:
-    path: "~/.ssh/config-{{ clusterid }}-s3user_access_key"
+    path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-s3user_access_key"
     create: yes
     marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
     content: |
@@ -60,7 +60,7 @@
 - name: Create IAM policy for OCP Docker Registry AWS S3 bucket
   iam_policy:
     iam_type: user
-    iam_name: "{{ clusterid }}-registry"
+    iam_name: "{{ clusterid }}.{{ dns_domain }}-registry"
     policy_name: "S3"
     state: present
     policy_json: "{{ lookup('template', playbook_dir + '/roles/aws/templates/iam_policy_s3user.json.j2') }}"
