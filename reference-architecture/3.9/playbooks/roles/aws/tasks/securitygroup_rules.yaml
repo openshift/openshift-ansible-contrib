@@ -55,11 +55,7 @@
       - proto: tcp
         from_port: 443
         to_port: 443
-        group_name: "master"
-      - proto: tcp
-        from_port: 443
-        to_port: 443
-        group_name: "node"
+        cidr_ip: 0.0.0.0/0
       - proto: tcp
         from_port: 2379
         to_port: 2380
