@@ -1,5 +1,7 @@
 # The Reference Architecture OpenShift on Google Cloud Platform
 
+## **NOTE: This repository contains deprecated scripts and ansible playbooks. Refer to the official documentation [Deploying and Managing OpenShift 3.9 on Google Cloud Platform](https://access.redhat.com/documentation/en-us/reference_architectures/2018/html-single/deploying_and_managing_openshift_3.9_on_google_cloud_platform/)**
+
 This repository contains the code used to deploy an OpenShift Container Platform or OpenShift Origin environment based off of the [Reference Architecture Guide for OCP 3 on Google Cloud Platform](https://access.redhat.com/articles/2751521).
 
 ## Overview
