@@ -12,10 +12,8 @@ masters
 {% for i in ec2node.results -%}
 {{ i.tagged_instances[0].private_dns_name }} openshift_node_labels="{'region': 'apps'}"
 {% endfor -%}
-{%- for i in ec2infra.results -%}
+{% for i in ec2infra.results -%}
 {{ i.tagged_instances[0].private_dns_name }} openshift_node_labels="{'region': 'infra', 'zone': 'default'}"
-{% endfor -%}
-{% include 'roles/aws/templates/config-' + clusterid + '-ocpinstallerhostscns' ignore missing %}
-
+{% endfor %}
 [nodes:children]
 masters

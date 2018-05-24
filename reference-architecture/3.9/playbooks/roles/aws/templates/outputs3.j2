@@ -6,7 +6,7 @@ openshift_hosted_registry_storage_provider=s3
                     '.' +
                     dns_domain +
                     '-s3user_access_key') ) |
-                    regex_replace(".* ANSIBLE MANAGED BLOCK .*", '') |
+                    regex_replace(".* OUTPUT .*", '') |
                     trim }}
 openshift_hosted_registry_storage_s3_bucket={{ clusterid }}.{{ dns_domain }}-registry
 openshift_hosted_registry_storage_s3_region={{ aws_region }}

@@ -7,5 +7,5 @@ openshift_clusterid={{ clusterid }}
                     dns_domain +
                     '-cpkuser_access_key'
                   ) ) |
-                  regex_replace(".* ANSIBLE MANAGED BLOCK .*", '') |
+                  regex_replace(".* OUTPUT .*", '') |
                   trim }}

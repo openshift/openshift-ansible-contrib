@@ -1,41 +1,27 @@
 ---
-- name: "Create Route53 CNAME record for [master,logging,registry] external ELBs"
+- name: "Create Route53 CNAME record for master public ELBs"
   no_log: True
   route53:
     command: create
     overwrite: yes
     private_zone: no
-    record: "{{ item.record }}.{{ r53zoneext.result.name }}"
+    record: "master.{{ r53zoneext.result.name }}"
     type: CNAME
     ttl: 300
-    value: "{{ item.value.elb.dns_name }}"
+    value: "{{ elbextmaster.elb.dns_name }}"
     zone: "{{ r53zoneext.result.name }}"
-  with_items:
-    - record: 'master'
-      value: "{{ elbextmaster }}"
-    - record: 'logging'
-      value: "{{ elbextinfra }}"
-    - record: 'registry'
-      value: "{{ elbextinfra }}"
 
-- name: "Create Route53 CNAME record for [master,logging,registry] internal ELBs"
+- name: "Create Route53 CNAME record for master private ELBs"
   no_log: True
   route53:
     command: create
     overwrite: yes
     private_zone: yes
-    record: "{{ item.record }}.{{ r53zoneint.result.name }}"
+    record: "master.{{ r53zoneint.result.name }}"
     type: CNAME
     ttl: 300
-    value: "{{ item.value.elb.dns_name }}"
+    value: "{{ elbintmaster.elb.dns_name }}"
     zone: "{{ r53zoneint.result.name }}"
-  with_items:
-    - record: 'master'
-      value: "{{ elbintmaster }}"
-    - record: 'logging'
-      value: "{{ elbintmaster }}"
-    - record: 'registry'
-      value: "{{ elbintmaster }}"
 
 - name: "Create Route53 wildcard CNAME record (external)"
   route53:

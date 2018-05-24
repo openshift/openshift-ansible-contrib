@@ -1,8 +1,8 @@
 ---
 - name: Creating AWS Keypair
   ec2_key:
-    key_material: "{{ lookup('file', '~/.ssh/' + clusterid + '.pub') | expanduser }}"
+    key_material: "{{ lookup('file', '~/.ssh/' + clusterid + dns_domain + '.pub') | expanduser }}"
     name: "{{ clusterid }}"
     region: "{{ aws_region }}"
     state: present
-  with_file: "~/.ssh/{{ clusterid }}.pub"
+  with_file: "~/.ssh/{{ clusterid }}.{{ dns_domain }}.pub"

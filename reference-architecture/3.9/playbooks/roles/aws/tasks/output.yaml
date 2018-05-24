@@ -3,7 +3,7 @@
   blockinfile:
     path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}"
     create: yes
-    marker: "#<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    marker: "#<!-- {mark} OUTPUT -->"
     content: |
       {{ lookup('template', ( playbook_dir + '/roles/aws/templates/ssh_config.j2') ) }}
 
@@ -11,7 +11,7 @@
   blockinfile:
     path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-domaindelegation"
     create: yes
-    marker: "#<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    marker: "#<!-- {mark} OUTPUT -->"
     content: |
       {{ lookup('template', ( playbook_dir + '/roles/aws/templates/outputdomaindeleg.j2') ) }}
 
@@ -19,7 +19,7 @@
   blockinfile:
     path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-cpk"
     create: yes
-    marker: "#<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    marker: "#<!-- {mark} OUTPUT -->"
     content: |
       {{ lookup('template', ( playbook_dir + '/roles/aws/templates/outputcpk.j2') ) }}
 
@@ -27,15 +27,15 @@
   blockinfile:
     path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-s3"
     create: yes
-    marker: "#<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    marker: "#<!-- {mark} OUTPUT -->"
     content: |
       {{ lookup('template', ( playbook_dir + '/roles/aws/templates/outputs3.j2') ) }}
 
-- name: "Land openshift-ansible installer master hostnames"
+- name: "Land openshift-ansible installer urls"
   blockinfile:
     path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-urls"
     create: yes
-    marker: "#<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    marker: "#<!-- {mark} OUTPUT -->"
     content: |
       {{ lookup('template', ( playbook_dir + '/roles/aws/templates/outputurls.j2') ) }}
 

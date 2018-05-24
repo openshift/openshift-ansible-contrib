@@ -15,7 +15,7 @@
       Clusterid: "{{ clusterid }}"
       ami: "{{ ec2ami }}"
       "kubernetes.io/cluster/{{ clusterid }}": "{{ clusterid }}"
-    key_name: "{{ clusterid }}"
+    key_name: "{{ clusterid }}.{{ dns_domain }}"
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no
@@ -66,7 +66,7 @@
     image: "{{ ec2ami }}"
     instance_tags:
       Name: "{{ item.name }}"
-    key_name: "{{ clusterid }}"
+    key_name: "{{ clusterid }}.{{ dns_domain }}"
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no
@@ -142,7 +142,7 @@
     image: "{{ ec2ami }}"
     instance_tags:
       Name: "{{ item.name }}"
-    key_name: "{{ clusterid }}"
+    key_name: "{{ clusterid }}.{{ dns_domain }}"
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no
@@ -207,7 +207,7 @@
     image: "{{ ec2ami }}"
     instance_tags:
       Name: "{{ item.name }}"
-    key_name: "{{ clusterid }}"
+    key_name: "{{ clusterid }}.{{ dns_domain }}"
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no

@@ -57,7 +57,7 @@
       openshift_hosted_registry_storage_s3_secretkey={{ s3user.user_meta.access_keys[0].secret_access_key }}
   when: s3user.changed
 
-- name: Create IAM policy for OCP Docker Registry AWS S3 bucket
+- name: Create IAM policy for S3 bucket user
   iam_policy:
     iam_type: user
     iam_name: "{{ clusterid }}.{{ dns_domain }}-registry"

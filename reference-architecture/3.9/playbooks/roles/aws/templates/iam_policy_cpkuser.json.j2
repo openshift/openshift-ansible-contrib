@@ -2,7 +2,6 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "1",
             "Action": [
                 "ec2:DescribeVolumes",
                 "ec2:CreateVolume",
@@ -28,8 +27,9 @@
                 "elasticloadbalancing:ModifyLoadBalancerAttributes",
                 "elasticloadbalancing:DescribeLoadBalancerAttributes"
             ],
+            "Resource": "*",
             "Effect": "Allow",
-            "Resource": "*"
+            "Sid": "1"
         }
     ]
 }
