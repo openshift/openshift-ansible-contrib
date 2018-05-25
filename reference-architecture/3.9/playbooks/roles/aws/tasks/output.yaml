@@ -31,7 +31,7 @@
     content: |
       {{ lookup('template', ( playbook_dir + '/roles/aws/templates/outputs3.j2') ) }}
 
-- name: "Land openshift-ansible installer master hostnames"
+- name: "Land openshift-ansible installer urls"
   blockinfile:
     path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-urls"
     create: yes
