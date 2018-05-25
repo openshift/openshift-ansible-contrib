@@ -1,5 +1,5 @@
 ---
-- name: Create AWS SecurityGroup (SSH)
+- name: Create AWS SecurityGroup Rules (Bastion)
   ec2_group:
     name: "Bastion"
     description: "Bastion"

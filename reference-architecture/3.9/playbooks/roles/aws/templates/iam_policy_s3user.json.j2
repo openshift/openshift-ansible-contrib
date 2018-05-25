@@ -2,7 +2,6 @@
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "1",
             "Action": [
                 "s3:*"
             ],
@@ -10,7 +9,9 @@
             "Resource": [
                 "arn:aws:s3:::{{ clusterid }}.{{ dns_domain }}-registry",
                 "arn:aws:s3:::{{ clusterid }}.{{ dns_domain }}-registry/*"
-            ]
+            ],
+            "Effect": "Allow",
+            "Sid": "1"
         }
     ]
 }

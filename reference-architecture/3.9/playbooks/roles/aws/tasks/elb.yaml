@@ -18,8 +18,8 @@
     name: "{{ clusterid }}-public-master"
     region: "{{ aws_region }}"
     scheme: internet-facing
-    security_group_names:
-      - "master"
+    security_group_ids:
+      - "{{ sg.results.0.group_id }}"
     state: present
     subnets:
       - "{{ subnet_public.results.0.subnet.id }}"
@@ -27,7 +27,7 @@
       - "{{ subnet_public.results.2.subnet.id }}"
     tags:
       name: "{{ clusterid }}-public-master"
-      Clusterif: "{{ clusterid }}"
+      Clusterid: "{{ clusterid }}"
     wait: true
   retries: 3
   delay: 3
@@ -52,8 +52,8 @@
     name: "{{ clusterid }}-private-master"
     region: "{{ aws_region }}"
     scheme: internal
-    security_group_names:
-      - "master"
+    security_group_ids:
+      - "{{ sg.results.0.group_id }}"
     state: present
     subnets:
       - "{{ subnet_private.results.0.subnet.id }}"
@@ -61,7 +61,7 @@
       - "{{ subnet_private.results.2.subnet.id }}"
     tags:
       name: "{{ clusterid }}-private-master"
-      Clusterif: "{{ clusterid }}"
+      Clusterid: "{{ clusterid }}"
     wait: true
   retries: 3
   delay: 3
@@ -89,8 +89,8 @@
     name: "{{ clusterid }}-public-infra"
     region: "{{ aws_region }}"
     scheme: internet-facing
-    security_group_names:
-      - "infra"
+    security_group_ids:
+      - "{{ sg.results.1.group_id }}"
     state: present
     subnets:
       - "{{ subnet_public.results.0.subnet.id }}"

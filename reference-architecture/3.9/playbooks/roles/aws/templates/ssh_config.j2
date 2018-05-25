@@ -11,15 +11,7 @@ Host bastion
   ControlPath              ~/.ssh/mux-%r@%h:%p
   ControlPersist           15m
   ServerAliveInterval      30
-  IdentityFile             ~/.ssh/{{ clusterid }}
-
-Host *.compute.internal
-  ProxyCommand             ssh -w 300 -W %h:%p bastion
-  user                     ec2-user
-  StrictHostKeyChecking    no
-  CheckHostIP              no
-  ServerAliveInterval      30
-  IdentityFile             ~/.ssh/{{ clusterid }}
+  IdentityFile             ~/.ssh/{{ clusterid }}.{{ dns_domain }}
 
 Host *.ec2.internal
   ProxyCommand             ssh -w 300 -W %h:%p bastion
@@ -27,4 +19,4 @@ Host *.ec2.internal
   StrictHostKeyChecking    no
   CheckHostIP              no
   ServerAliveInterval      30
-  IdentityFile             ~/.ssh/{{ clusterid }}
+  IdentityFile             ~/.ssh/{{ clusterid }}.{{ dns_domain }}

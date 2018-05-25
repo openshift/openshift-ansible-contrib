@@ -9,9 +9,3 @@
   retries: 3
   delay: 3
   register: vpcdhcpopts
-
-- include_tasks: tag.yaml
-  vars:
-    - resource: "{{ vpcdhcpopts.dhcp_options_id }}"
-    - tagss: { 'Name': "{{ clusterid }}", 'Clusterid': "{{ clusterid }}" }
-  when: vpcdhcpopts.changed

@@ -6,14 +6,14 @@
 
 - name: "Stat clusterid SSH key"
   file:
-    path: "~/.ssh/{{ clusterid }}"
+    path: "~/.ssh/{{ clusterid }}.{{ dns_domain }}"
     state: file
   register: sshkeys
   changed_when: "'absent' in sshkeys.state"
   failed_when: "'r3dh@t' in sshkeys.state"
 
 - name: "Generate SSH key"
-  command: ssh-keygen -b 2048 -t rsa -f ~/.ssh/{{ clusterid }} -q -C user@"{{ dns_domain }}" -N "{{ sshkey_password }}" -q
+  command: ssh-keygen -b 2048 -t rsa -f ~/.ssh/{{ clusterid }}.{{ dns_domain }} -q -C user@"{{ dns_domain }}" -N "{{ sshkey_password }}" -q
   args:
-    creates: "~/.ssh/{{ clusterid }}"
+    creates: "~/.ssh/{{ clusterid }}.{{ dns_domain }}"
   when: sshkeys.changed

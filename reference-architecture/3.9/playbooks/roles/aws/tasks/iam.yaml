@@ -20,7 +20,7 @@
   blockinfile:
     path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-cpkuser_access_key"
     create: yes
-    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    marker: "<!-- {mark} OUTPUT -->"
     content: |
       openshift_cloudprovider_aws_access_key={{ cpkuser.user_meta.access_keys[0].access_key_id }}
       openshift_cloudprovider_aws_secret_key={{ cpkuser.user_meta.access_keys[0].secret_access_key }}
@@ -51,13 +51,13 @@
   blockinfile:
     path: "~/.ssh/config-{{ clusterid }}.{{ dns_domain }}-s3user_access_key"
     create: yes
-    marker: "<!-- {mark} ANSIBLE MANAGED BLOCK -->"
+    marker: "<!-- {mark} OUTPUT -->"
     content: |
       openshift_hosted_registry_storage_s3_accesskey={{ s3user.user_meta.access_keys[0].access_key_id }}
       openshift_hosted_registry_storage_s3_secretkey={{ s3user.user_meta.access_keys[0].secret_access_key }}
   when: s3user.changed
 
-- name: Create IAM policy for OCP Docker Registry AWS S3 bucket
+- name: Create IAM policy for S3 bucket user
   iam_policy:
     iam_type: user
     iam_name: "{{ clusterid }}.{{ dns_domain }}-registry"
