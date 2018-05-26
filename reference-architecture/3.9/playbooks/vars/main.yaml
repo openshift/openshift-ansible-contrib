@@ -1,7 +1,7 @@
 ---
 aws_cred_profile: "default"
 
-# password for ssh key - ~/.ssh/{{ clusterid }}
+# password for ssh key - ~/.ssh/{{ clusterid }}.{{ dns_domain }}
 sshkey_password: 'abc123'
 
 clusterid: "refarch"
