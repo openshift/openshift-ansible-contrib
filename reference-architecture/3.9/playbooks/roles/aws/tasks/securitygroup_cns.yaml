@@ -29,17 +29,33 @@
         to_port: 3260
         group_name: "cns"
       - proto: tcp
+        from_port: 3260
+        to_port: 3260
+        group_name: "node"
+      - proto: tcp
         from_port: 24007
         to_port: 24008
         group_name: "cns"
+      - proto: tcp
+        from_port: 24007
+        to_port: 24008
+        group_name: "node"
       - proto: tcp
         from_port: 24010
         to_port: 24010
         group_name: "cns"
       - proto: tcp
+        from_port: 24010
+        to_port: 24010
+        group_name: "node"
+      - proto: tcp
         from_port: 49152
         to_port: 49664
         group_name: "cns"
+      - proto: tcp
+        from_port: 49152
+        to_port: 49664
+        group_name: "node"
       - proto: udp
         from_port: 111
         to_port: 111

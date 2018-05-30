@@ -1,4 +1,4 @@
 [glusterfs]
 {% for i in ec2cns.results %}
-{{ i.tagged_instances[0].private_dns_name }} glusterfs_devices='[ "/dev/nvme1n1" ]'
+{{ i.tagged_instances[0].private_dns_name }} glusterfs_devices='[ "/dev/nvme3n1" ]'
 {% endfor %}
