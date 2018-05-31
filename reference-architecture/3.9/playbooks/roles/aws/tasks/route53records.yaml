@@ -31,3 +31,14 @@
     ttl: 300
     value: "{{ elbextinfra.elb.dns_name }}"
     zone: "{{ r53zoneext.result.name }}"
+
+- name: "Create Route53 wildcard CNAME record (internal)"
+  route53:
+    command: create
+    overwrite: yes
+    private_zone: no
+    record: "*.apps.{{ clusterid }}.{{ dns_domain }}"
+    type: CNAME
+    ttl: 300
+    value: "{{ elbextinfra.elb.dns_name }}"
+    zone: "{{ r53zoneint.result.name }}"
