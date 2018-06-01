@@ -41,7 +41,7 @@ into your system's Ansible role path, typically `/usr/share/ansible/roles`.
 These are required for playbooks to interact with RHV/oVirt to create VMs.
 
 ### Dynamic Inventory
-A copy of `ovirt4.py` from the Ansible project is provided under the inventory directory. This script will, given credentials to a RHV 4 engine, populate the Ansible inventory with facts about all virtual machines in the cluster. In order to use this dynamic inventory, see the [`ovirt.ini.example`](inventory/ovirt.ini.example) file, either providing the relevant Python secrets via environment variables, or by copying it to `ovirt.ini` and filling in the values.
+A copy of [`ovirt4.py`](inventory/ovirt4.py) from the Ansible project is provided under the [`reference-architecture/rhv-ansible/inventory`](inventory) directory. This script will, given credentials to a RHV 4 engine, populate the Ansible inventory with facts about all virtual machines in the cluster. In order to use this dynamic inventory, see the [`ovirt.ini.example`](inventory/ovirt.ini.example) file, either providing the relevant Python secrets via environment variables, or by copying it to `ovirt.ini` and filling in the values.
 
 This reference architecture uses the dynamic inventory to establish DNS entries in the form of either an /etc/hosts file or nsupdate script for the provisioned virtual machines. All other playbooks are performed using a static inventory. If DNS updates are to be performed manually, the dynamic inventory script may be unnecessary.
 
