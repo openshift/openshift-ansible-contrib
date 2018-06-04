@@ -1,0 +1,87 @@
+#cloud-config
+cloud_config_modules:
+{% if 'bastion' in item.name %}
+- package-update-upgrade-install
+{% else %}
+- package-update-upgrade-install
+- disk_setup
+- mounts
+- cc_write_files
+{% endif %}
+
+packages:
+{% if 'bastion' in item.name -%}
+- nmap-ncat
+{% else -%}
+- lvm2
+{% endif %}
+{% if 'bastion' not in item.name %}
+
+write_files:
+- content: |
+    STORAGE_DRIVER=overlay2
+    DEVS=/dev/{%
+  if 'c5' in item.type %}
+nvme1n1 {%
+  elif 'c5d' in item.type %}
+nvme1n1 {%
+  elif 'm5' in item.type %}
+nvme1n1 {%
+  elif 'i3.metal' in item.type %}
+nvme1n1 {%
+  else %}
+xvdb {%
+  endif %}
+
+    VG=dockervg
+    CONTAINER_ROOT_LV_NAME=dockerlv
+    CONTAINER_ROOT_LV_MOUNT_PATH=/var/lib/docker
+    CONTAINER_ROOT_LV_SIZE=100%FREE
+  path: "/etc/sysconfig/docker-storage-setup"
+  permissions: "0644"
+  owner: "root"
+
+fs_setup:
+- label: ocp_emptydir
+  filesystem: xfs
+  device: /dev/{%
+  if 'c5' in item.type %}
+nvme2n1 {%
+  elif 'c5d' in item.type %}
+nvme2n1 {%
+  elif 'm5' in item.type %}
+nvme2n1 {%
+  elif 'i3.metal' in item.type %}
+nvme2n1 {%
+  else %}
+xvdc{%
+  endif %}
+
+  partition: auto{%
+  if 'master' in item.name %}
+
+- label: etcd
+  filesystem: xfs
+  device: /dev/{%
+    if 'c5' in item.type %}
+nvme3n1 {%
+    elif 'c5d' in item.type %}
+nvme3n1 {%
+    elif 'm5' in item.type %}
+nvme3n1 {%
+    elif 'i3.metal' in item.type %}
+nvme3n1 {%
+    else %}
+xvdd{%
+  endif %}
+
+  partition: auto
+  {% endif %}
+
+mounts:
+- [ "LABEL=ocp_emptydir", "/var/lib/origin/openshift.local.volumes", xfs, "defaults,gquota" ]{%
+  if 'master' in item.name %}
+
+- [ "LABEL=etcd", "/var/lib/etcd", xfs, "defaults,gquota" ]
+  {% endif %}
+{%- endif %}

@@ -9,7 +9,7 @@
       "cns",
       "node"
     ]
-    instance_type: "{{ ec2_type_cns }}"
+    instance_type: "{{ item.type }}"
     image: "{{ ec2ami }}"
     instance_tags:
       Name: "{{ item.name }}"
@@ -17,7 +17,7 @@
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no
-    user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_node.sh') ) }}"
+    user_data: "{{ lookup('template', ( playbook_dir + '/roles/aws/templates/ec2_userdata.sh.j2') ) }}"
     volumes:
       - device_name: /dev/sda1
         volume_type: gp2
@@ -37,10 +37,13 @@
   with_items:
     - name: "cns1"
       subnet: "{{ subnet_private.results.0.subnet.id }}"
+      type: "{{ ec2_type_cns }}"
     - name: "cns2"
       subnet: "{{ subnet_private.results.1.subnet.id }}"
+      type: "{{ ec2_type_cns }}"
     - name: "cns3"
       subnet: "{{ subnet_private.results.2.subnet.id }}"
+      type: "{{ ec2_type_cns }}"
   retries: 3
   delay: 3
   register: ec2cns

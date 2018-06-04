@@ -19,33 +19,37 @@
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no
-    user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_bastion.sh') ) }}"
+    user_data: "{{ lookup('template', ( playbook_dir + '/roles/aws/templates/ec2_userdata.sh.j2') ) }}"
     volumes:
       - device_name: /dev/sda1
         volume_type: gp2
         volume_size: 25
         delete_on_termination: true
-    vpc_subnet_id: "{{ subnet_public.results.0.subnet.id }}"
+    vpc_subnet_id: "{{ item.subnet }}"
     wait: yes
+  with_items:
+    - name: "bastion"
+      subnet: "{{ subnet_public.results.0.subnet.id }}"
+      type: "{{ ec2_type_bastion }}"
   retries: 3
   delay: 3
   register: ec2bastion
 
 - include_tasks: tag.yaml
   vars:
-    - resource: "{{ item.id }}"
+    - resource: "{{ item.tagged_instances[0].id }}"
     - tagss: "clusterid={{ clusterid }}, ami={{ ec2ami }}"
-  with_items: "{{ ec2bastion.tagged_instances }}"
+  with_items: "{{ ec2bastion.results }}"
 
 - include_tasks: tag.yaml
   vars:
-    - resource: "{{ item.block_device_mapping['/dev/sda1'].volume_id }}"
-    - tagss: "Name={{ item.id }}-rootvol, clusterid={{ clusterid }}, "
-  with_items: "{{ ec2bastion.tagged_instances }}"
+    - resource: "{{ item.tagged_instances[0].block_device_mapping['/dev/sda1'].volume_id }}"
+    - tagss: "Name={{ item.tagged_instances[0].id }}-rootvol, clusterid={{ clusterid }}, "
+  with_items: "{{ ec2bastion.results }}"
 
 - name: Create EIP instance for EC2 / Bastion
   ec2_eip:
-    device_id: "{{ ec2bastion.tagged_instances.0.id }}"
+    device_id: "{{ ec2bastion.results[0].tagged_instances[0].id }}"
     in_vpc: yes
     region: "{{ aws_region }}"
     state: present
@@ -62,7 +66,7 @@
       "master",
       "node"
     ]
-    instance_type: "{{ ec2_type_master }}"
+    instance_type: "{{ item.type }}"
     image: "{{ ec2ami }}"
     instance_tags:
       Name: "{{ item.name }}"
@@ -70,7 +74,7 @@
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no
-    user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_master.sh') ) }}"
+    user_data: "{{ lookup('template', ( playbook_dir + '/roles/aws/templates/ec2_userdata.sh.j2') ) }}"
     volumes:
       - device_name: /dev/sda1
         volume_type: gp2
@@ -90,10 +94,13 @@
   with_items:
     - name: "master1"
       subnet: "{{ subnet_private.results.0.subnet.id }}"
+      type: "{{ ec2_type_master }}"
     - name: "master2"
       subnet: "{{ subnet_private.results.1.subnet.id }}"
+      type: "{{ ec2_type_master }}"
     - name: "master3"
       subnet: "{{ subnet_private.results.2.subnet.id }}"
+      type: "{{ ec2_type_master }}"
   retries: 3
   delay: 3
   register: ec2master
@@ -138,7 +145,7 @@
       "infra",
       "node"
     ]
-    instance_type: "{{ ec2_type_infra }}"
+    instance_type: "{{ item.type }}"
     image: "{{ ec2ami }}"
     instance_tags:
       Name: "{{ item.name }}"
@@ -146,7 +153,7 @@
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no
-    user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_node.sh') ) }}"
+    user_data: "{{ lookup('template', ( playbook_dir + '/roles/aws/templates/ec2_userdata.sh.j2') ) }}"
     volumes:
       - device_name: /dev/sda1
         volume_type: gp2
@@ -162,10 +169,13 @@
   with_items:
     - name: "infra1"
       subnet: "{{ subnet_private.results.0.subnet.id }}"
+      type: "{{ ec2_type_infra }}"
     - name: "infra2"
       subnet: "{{ subnet_private.results.1.subnet.id }}"
+      type: "{{ ec2_type_infra }}"
     - name: "infra3"
       subnet: "{{ subnet_private.results.2.subnet.id }}"
+      type: "{{ ec2_type_infra }}"
   retries: 3
   delay: 3
   register: ec2infra
@@ -203,7 +213,7 @@
     group: [
       "node"
     ]
-    instance_type: "{{ ec2_type_node }}"
+    instance_type: "{{ item.type }}"
     image: "{{ ec2ami }}"
     instance_tags:
       Name: "{{ item.name }}"
@@ -211,7 +221,7 @@
     monitoring: no
     region: "{{ aws_region }}"
     termination_protection: no
-    user_data: "{{ lookup('file', ( playbook_dir + '/roles/aws/files/ec2_userdata_node.sh') ) }}"
+    user_data: "{{ lookup('template', ( playbook_dir + '/roles/aws/templates/ec2_userdata.sh.j2') ) }}"
     volumes:
       - device_name: /dev/sda1
         volume_type: gp2
@@ -227,10 +237,13 @@
   with_items:
     - name: "node1"
       subnet: "{{ subnet_private.results.0.subnet.id }}"
+      type: "{{ ec2_type_node }}"
     - name: "node2"
       subnet: "{{ subnet_private.results.1.subnet.id }}"
+      type: "{{ ec2_type_node }}"
     - name: "node3"
       subnet: "{{ subnet_private.results.2.subnet.id }}"
+      type: "{{ ec2_type_node }}"
   retries: 3
   delay: 3
   register: ec2node
