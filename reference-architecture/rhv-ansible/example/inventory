@@ -66,8 +66,8 @@ container_runtime_docker_storage_type=overlay2
 openshift_docker_use_system_container=False
 openshift_node_local_quota_per_fsgroup=512Mi
 openshift_use_system_containers=False
-oreg_url_master="registry.access.redhat.com/openshift3/ose-${component}:${version}"
-oreg_url_node="registry.access.redhat.com/openshift3/ose-${component}:${version}"
+oreg_url="registry.access.redhat.com/openshift3/ose-${component}:${version}"
+openshift_examples_modify_imagestreams=true
 
 # Pod Networking
 os_sdn_network_plugin_name=redhat/openshift-ovs-networkpolicy
