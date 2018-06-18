@@ -58,7 +58,7 @@
     record: "*.apps.{{ clusterid }}.{{ dns_domain }}"
     type: CNAME
     ttl: 300
-    value: "{{ elbextinfra.results[0].elb.name if (state is undefined or 'absent' not in state) else r53_record.results[3].set.value }}"
+    value: "{{ elbextinfra.results[0].elb.dns_name if (state is undefined or 'absent' not in state) else r53_record.results[3].set.value }}"
     zone: "{{ clusterid + '.' + dns_domain }}."
   when: "\
   ( ( elbextinfra is defined ) and ( elbextinfra.results[0] is defined ) and ( elbextinfra.results[0].elb.name is defined ) ) \
