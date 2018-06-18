@@ -21,10 +21,19 @@ subnets_private_cidr:
   - 172.16.48.0/20
 
 ec2_type_bastion: "t2.medium"
+
+#ec2_count_master: 3
 ec2_type_master: "m5.2xlarge"
+
+#ec2_count_infra: 3
 ec2_type_infra: "m5.2xlarge"
+
+#ec2_count_node: 3
 ec2_type_node: "m5.2xlarge"
+
+#ec2_count_cns: 3
 ec2_type_cns: "m5.2xlarge"
 
 rhel_release: "rhel-7.5"
+
 #ec2ami: ami-abc3231a

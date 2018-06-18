@@ -86,16 +86,27 @@
         delete_on_termination: true
     vpc_subnet_id: "{{ item.subnet }}"
     wait: yes
-  with_items:
-    - name: "master1"
-      subnet: "{{ subnet_private.results.0.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_master }}"
-    - name: "master2"
-      subnet: "{{ subnet_private.results.1.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_master }}"
-    - name: "master3"
-      subnet: "{{ subnet_private.results.2.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_master }}"
+  with_items: "\
+{%- set i = 1 -%}
+{%- set j = 0 -%}
+{%- for k in range(0, ( ec2_count_master if ec2_count_master is defined else 3 ) ) -%}
+    {
+'name': 'master{{ i }}',
+'subnet': '{{ subnet_private.results[j].subnet.id if subnet_private is defined else '' }}',
+'type': '{{ ec2_type_master }}'
+    },
+    {%- if i <= ( ec2_count_master if ec2_count_master is defined else 3 ) -%}
+        {%- set i = i + 1 -%}
+    {%- endif -%}
+    {%- if subnet_private is defined -%}
+      {%- if j < subnet_private.results | length - 1 -%}
+          {%- set j = j + 1 -%}
+      {%- else -%}
+          {%- set j = 0 -%}
+      {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+    "
   retries: 3
   delay: 3
   register: ec2master
@@ -176,16 +187,27 @@
         volume_size: 100
     vpc_subnet_id: "{{ item.subnet }}"
     wait: yes
-  with_items:
-    - name: "infra1"
-      subnet: "{{ subnet_private.results.0.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_infra }}"
-    - name: "infra2"
-      subnet: "{{ subnet_private.results.1.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_infra }}"
-    - name: "infra3"
-      subnet: "{{ subnet_private.results.2.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_infra }}"
+  with_items: "\
+{%- set i = 1 -%}
+{%- set j = 0 -%}
+{%- for k in range(0, ( ec2_count_infra if ec2_count_infra is defined else 3 ) ) -%}
+    {
+'name': 'infra{{ i }}',
+'subnet': '{{ subnet_private.results[j].subnet.id if (state is undefined or 'absent' not in state) else '' }}',
+'type': '{{ ec2_type_infra }}'
+    },
+    {%- if i <= ( ec2_count_infra if ec2_count_infra is defined else 3 ) -%}
+        {%- set i = i + 1 -%}
+    {%- endif -%}
+    {%- if subnet_private is defined -%}
+      {%- if j < subnet_private.results | length - 1 -%}
+          {%- set j = j + 1 -%}
+      {%- else -%}
+          {%- set j = 0 -%}
+      {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+    "
   retries: 3
   delay: 3
   register: ec2infra
@@ -257,16 +279,27 @@
         volume_size: 100
     vpc_subnet_id: "{{ item.subnet }}"
     wait: yes
-  with_items:
-    - name: "node1"
-      subnet: "{{ subnet_private.results.0.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_node }}"
-    - name: "node2"
-      subnet: "{{ subnet_private.results.1.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_node }}"
-    - name: "node3"
-      subnet: "{{ subnet_private.results.2.subnet.id if (state is undefined or 'absent' not in state) else '' }}"
-      type: "{{ ec2_type_node }}"
+  with_items: "\
+{%- set i = 1 -%}
+{%- set j = 0 -%}
+{%- for k in range(0, ( ec2_count_node if ec2_count_node is defined else 3 ) ) -%}
+    {
+'name': 'node{{ i }}',
+'subnet': '{{ subnet_private.results[j].subnet.id if subnet_private is defined else '' }}',
+'type': '{{ ec2_type_node }}'
+    },
+    {%- if i <= ( ec2_count_node if ec2_count_node is defined else 3 ) -%}
+        {%- set i = i + 1 -%}
+    {%- endif -%}
+    {%- if subnet_private is defined -%}
+      {%- if j < subnet_private.results | length - 1 -%}
+          {%- set j = j + 1 -%}
+      {%- else -%}
+          {%- set j = 0 -%}
+      {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
+    "
   retries: 3
   delay: 3
   register: ec2node
