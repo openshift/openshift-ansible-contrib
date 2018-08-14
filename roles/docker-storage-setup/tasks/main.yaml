@@ -47,7 +47,7 @@
 
 - name: Install Docker
   package: name=docker state=present
-  when: not openshift.common.is_atomic | bool
+  when: not openshift_is_atomic | bool
 
 - name: start docker
   service: name=docker state=restarted enabled=true
@@ -72,5 +72,5 @@
     - name: (Atomic) Force Ansible to re-gather disk facts
       setup:
         filter: 'ansible_mounts'
-  when: openshift.common.is_atomic | bool
+  when: openshift_is_atomic | bool
 ...

@@ -21,10 +21,12 @@
     openshift_facts:
       role: common
   - name: set node selector for openshift-infra namespace
-    command: "{{ openshift.common.client_binary }} annotate --overwrite namespace openshift-infra openshift.io/node-selector='role=infra'"
+    command: "{{ openshift_client_binary }} annotate --overwrite namespace openshift-infra openshift.io/node-selector='role=infra'"
   - name: move registry console to infra nodes
     # workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1425022
-    command: "{{ openshift.common.client_binary }} patch dc registry-console -n default -p '{{ infra_selector | to_json }}'"
+    command: "{{ openshift_client_binary }} patch dc registry-console -n default -p '{{ infra_selector | to_json }}'"
+    register: registry_console_patch
+    failed_when: not "not patched" in registry_console_patch.stderr or not "patched" in registry_console_patch.stdout
 
 - name: post ocp deploy tasks for master nodes
   hosts: masters

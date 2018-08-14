@@ -61,4 +61,4 @@
     delegate_to: 127.0.0.1
     when: patched.changed
 
-  when: openshift.common.is_atomic | bool
+  when: openshift_is_atomic | bool
