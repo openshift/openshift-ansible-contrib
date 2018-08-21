@@ -103,7 +103,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider "virtualbox" do |v, override|
     #v.customize ["setextradata", :id, "VBoxInternal2/SharedFoldersEnableSymlinksCreate//vagrant","1"]
-    v.memory = 1024
+    v.memory = 2048
     v.cpus = 1
     override.vm.box = box_name
     provider_name = 'virtualbox'
@@ -111,7 +111,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider "libvirt" do |libvirt, override|
     libvirt.cpus = 1
-    libvirt.memory = 1024
+    libvirt.memory = 2048
     libvirt.driver = 'kvm'
     override.vm.box = box_name
     provider_name = 'libvirt'
@@ -157,6 +157,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         openshift_deployment_type: deployment_type,
         openshift_clock_enabled: true,
         os_firewall_use_firewalld: true,
+        openshift_disable_check: "docker_storage,memory_availability,package_version",
         openshift_master_identity_providers: "[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'file': '/etc/origin/master/htpasswd'}]",
         openshift_master_htpasswd_users: "{'admin': '$apr1$nWG7vwhy$jCMCBmBrW3MEYmCFCckYk1'}",
         openshift_master_default_subdomain: 'apps.example.com',
