@@ -66,12 +66,6 @@
         },
         {
         'proto': 'tcp',
-        'from_port': '2049',
-        'to_port': '2049',
-        'group_name': 'node'
-        },
-        {
-        'proto': 'tcp',
         'from_port': '8053',
         'to_port': '8053',
         'group_name': 'node'
