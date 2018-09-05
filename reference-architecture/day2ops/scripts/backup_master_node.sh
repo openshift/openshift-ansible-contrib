@@ -38,7 +38,7 @@ otherfiles(){
     cp -a /etc/sysconfig/flanneld \
       ${BACKUPLOCATION}/etc/sysconfig/
   fi
-  cp -aR /etc/sysconfig/{iptables,docker-*} \
+  cp -aR /etc/sysconfig/docker-* \
     ${BACKUPLOCATION}/etc/sysconfig/
   if [ -d /etc/cni ]
   then
@@ -47,6 +47,15 @@ otherfiles(){
   cp -aR /etc/dnsmasq* ${BACKUPLOCATION}/etc/
   cp -aR /etc/pki/ca-trust/source/anchors/* \
     ${BACKUPLOCATION}/etc/pki/ca-trust/source/anchors/
+}
+
+firewall_files(){
+  if $(firewall-cmd --state --quiet); then
+    cp -aR /etc/sysconfig/firewalld ${BACKUPLOCATION}/etc/sysconfig/
+    cp -aR /etc/firewalld ${BACKUPLOCATION}/etc/
+  else
+    cp -aR /etc/sysconfig/iptables ${BACKUPLOCATION}/etc/sysconfig/
+  fi
 }
 
 packagelist(){
@@ -66,6 +75,7 @@ mkdir -p ${BACKUPLOCATION}
 
 ocpfiles
 otherfiles
+firewall_files
 packagelist
 
 exit 0
