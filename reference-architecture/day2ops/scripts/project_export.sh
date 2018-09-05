@@ -1,8 +1,6 @@
 #!/bin/bash
-# OpenShift namespaced objects:
-# oc get --raw /oapi/v1/ |  python -c 'import json,sys ; resources = "\n".join([o["name"] for o in json.load(sys.stdin)["resources"] if o["namespaced"] and "create" in o["verbs"] and "delete" in o["verbs"] ]) ; print resources'
-# Kubernetes namespaced objects:
-# oc get --raw /api/v1/ |  python -c 'import json,sys ; resources = "\n".join([o["name"] for o in json.load(sys.stdin)["resources"] if o["namespaced"] and "create" in o["verbs"] and "delete" in o["verbs"] ]) ; print resources'
+# Get namespaced objects:
+# oc api-resources --namespaced=true -o name
 
 set -eo pipefail
 
@@ -471,6 +469,15 @@ daemonset(){
 '.items[].status)'
 }
 
+get_raw_objects(){
+  for object in $(oc api-resources --namespaced=true --verbs=get -o name)
+  do
+    {
+      oc get ${object} -o json --export -n ${PROJECT} 2> /dev/null || true
+    } > ${PROJECT}/raw/${object}.json
+  done
+}
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
   usage
@@ -492,7 +499,7 @@ warnuser
 
 PROJECT=${1}
 
-mkdir -p ${PROJECT}
+mkdir -p ${PROJECT}/raw
 
 ns
 rolebindings
@@ -523,5 +530,7 @@ deployments
 replicasets
 poddisruptionbudget
 daemonset
+
+get_raw_objects
 
 exit 0
