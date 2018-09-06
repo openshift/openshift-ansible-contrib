@@ -1,6 +1,6 @@
 ---
 - name: Create openshift volume group
-  lvg: vg=etcd_vg pvs=/dev/sdd
+  lvg: vg=etcd_vg pvs={{ etcd_pvs }}
 
 - name: Create lvm volumes
   lvol: vg=etcd_vg lv=etcd_lv size=95%FREE state=present shrink=no
