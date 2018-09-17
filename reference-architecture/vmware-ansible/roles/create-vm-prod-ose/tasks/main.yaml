@@ -1,5 +1,12 @@
 ---
-- name: Create production master node VMs on vCenter
+- debug: var=hostvars[item].vm_name
+  loop: "{{ query('inventory_hostnames', vm_guest_group_names | join(':')) }}"
+- debug: var=hostvars[item].vm_guest_disk
+  loop: "{{ query('inventory_hostnames', vm_guest_group_names | join(':')) }}"
+- debug: var=hostvars[item].vm_guest_hardware
+  loop: "{{ query('inventory_hostnames', vm_guest_group_names | join(':')) }}"
+
+- name: Create production node VMs on vCenter
   vmware_guest:
     hostname: "{{ openshift_cloudprovider_vsphere_host }}"
     username: "{{ openshift_cloudprovider_vsphere_username }}"
@@ -13,21 +20,8 @@
     state: poweredon
     wait_for_ip_address: true
     folder: "{{ openshift_cloudprovider_vsphere_datacenter }}/vm/{{ openshift_cloudprovider_vsphere_folder }}"
-    disk:
-    - size_gb: 60
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 40
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 40
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 40
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    hardware:
-      memory_mb: 16384
+    disk: "{{ hostvars[item].vm_guest_disk }}"
+    hardware: "{{ hostvars[item].vm_guest_hardware }}"
     networks:
     - name: "{{ openshift_cloudprovider_vsphere_vm_network }}"
       ip: "{{ hostvars[item].ipv4addr }}"
@@ -39,88 +33,4 @@
       - "{{ openshift_cloudprovider_vsphere_vm_dns }}"
       dns_suffix: "{{ default_subdomain }}"
       hostname: "{{ hostvars[item].vm_name }}"
-  with_items: "{{ groups['masters'] }}"
-
-- name: Create production infra node VMs on vCenter
-  vmware_guest:
-    hostname: "{{ openshift_cloudprovider_vsphere_host }}"
-    username: "{{ openshift_cloudprovider_vsphere_username }}"
-    password: "{{ openshift_cloudprovider_vsphere_password }}"
-    validate_certs: False
-    name: "{{ hostvars[item].vm_name }}" 
-    cluster: "{{ openshift_cloudprovider_vsphere_cluster}}"
-    datacenter: "{{ openshift_cloudprovider_vsphere_datacenter }}"
-    resource_pool: "{{ openshift_cloudprovider_vsphere_resource_pool }}"
-    template: "{{ openshift_cloudprovider_vsphere_template }}"
-    state: poweredon
-    wait_for_ip_address: true
-    disk:
-    - size_gb: 60
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 40
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 40
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 300
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: eagerZeroedThick
-    folder: "{{ openshift_cloudprovider_vsphere_datacenter }}/vm/{{ openshift_cloudprovider_vsphere_folder }}" 
-    hardware:
-      memory_mb: 8192
-    networks:
-    - name: "{{ openshift_cloudprovider_vsphere_vm_network }}"
-      ip: "{{ hostvars[item].ipv4addr }}"
-      netmask: "{{ openshift_cloudprovider_vsphere_vm_netmask }}"
-      gateway: "{{ openshift_cloudprovider_vsphere_vm_gateway }}"
-    customization:
-      domain: "{{ default_subdomain }}"
-      dns_servers:
-      - "{{ openshift_cloudprovider_vsphere_vm_dns }}"
-      dns_suffix: "{{ default_subdomain }}"
-      hostname: "{{ hostvars[item].vm_name }}"
-  with_items: "{{ groups['infras'] }}"
-
-- name: Create production app node VMs on vCenter
-  vmware_guest:
-    hostname: "{{ openshift_cloudprovider_vsphere_host }}"
-    username: "{{ openshift_cloudprovider_vsphere_username }}"
-    password: "{{ openshift_cloudprovider_vsphere_password }}"
-    validate_certs: False
-    name: "{{ hostvars[item].vm_name }}"
-    cluster: "{{ openshift_cloudprovider_vsphere_cluster}}"
-    datacenter: "{{ openshift_cloudprovider_vsphere_datacenter }}"
-    resource_pool: "{{ openshift_cloudprovider_vsphere_resource_pool }}"
-    template: "{{ openshift_cloudprovider_vsphere_template }}"
-    state: poweredon
-    wait_for_ip_address: true
-    disk:
-    - size_gb: 60
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 40
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 40
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: thin
-    - size_gb: 300
-      datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
-      type: eagerZeroedThick
-    folder: "{{ openshift_cloudprovider_vsphere_datacenter }}/vm/{{ openshift_cloudprovider_vsphere_folder }}" 
-    hardware:
-      memory_mb: "8192"
-    networks:
-    - name: "{{ openshift_cloudprovider_vsphere_vm_network }}"
-      ip: "{{  hostvars[item].ipv4addr }}"
-      netmask: "{{ openshift_cloudprovider_vsphere_vm_netmask }}"
-      gateway: "{{ openshift_cloudprovider_vsphere_vm_gateway }}"
-    customization:
-      domain: "{{ default_subdomain }}"
-      dns_servers:
-      - "{{ openshift_cloudprovider_vsphere_vm_dns }}"
-      dns_suffix: "{{ default_subdomain }}"
-      hostname: "{{  hostvars[item].vm_name }}"
-  with_items: "{{ groups['apps'] }}"
+  loop: "{{ query('inventory_hostnames', vm_guest_group_names | join(':')) }}"

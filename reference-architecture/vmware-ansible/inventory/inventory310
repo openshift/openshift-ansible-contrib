@@ -1,0 +1,158 @@
+[OSEv3:children]
+ansible
+masters
+etcd
+apps
+infras
+nodes 
+haproxy
+glusterfs
+glusterfs_registry
+
+[OSEv3:vars]
+openshift_release="3.10"
+
+deployment_type=openshift-enterprise
+os_sdn_network_plugin_name='redhat/openshift-ovs-multitenant'
+openshift_override_hostname_check=true
+
+load_balancer_hostname=
+openshift_master_cluster_hostname="{{ load_balancer_hostname }}"
+openshift_master_cluster_public_hostname="{{ load_balancer_hostname }}"
+default_subdomain=
+openshift_master_cluster_method=native
+osm_default_subdomain="apps.{{ default_subdomain }}"
+
+openshift_cloudprovider_kind=vsphere
+openshift_cloudprovider_vsphere_username="administrator@vsphere.local"
+openshift_cloudprovider_vsphere_password="password"
+openshift_cloudprovider_vsphere_host="vcenter.example.com"
+openshift_cloudprovider_vsphere_datacenter=datacenter
+openshift_cloudprovider_vsphere_cluster=cluster
+openshift_cloudprovider_vsphere_resource_pool=ocp39
+openshift_cloudprovider_vsphere_datastore="datastore"
+openshift_cloudprovider_vsphere_folder=ocp39
+openshift_cloudprovider_vsphere_template="ocp-server-template"
+openshift_cloudprovider_vsphere_vm_network="VM Network"
+openshift_cloudprovider_vsphere_vm_netmask="255.255.255.0"
+openshift_cloudprovider_vsphere_vm_gateway="192.168.1.1"
+openshift_cloudprovider_vsphere_vm_dns="192.168.2.250"
+
+
+
+openshift_master_identity_providers=[{ "name": "Active_Directory", "challenge": true, "login": true, "kind": "LDAPPasswordIdentityProvider", "attributes": { "id": [ "dn" ], "email": [ "mail" ], "name": [ "cn" ], "preferredUsername": [ "uid" ] }, "insecure": true, "url": "ldap://example.com:389/CN=Users,DC=example,DC=com?sAMAccountName", "bindDN": "CN=openshift,CN=Users,DC=example,DC=com", "bindPassword": "password"}]
+
+
+openshift_enable_service_catalog=false
+openshift_node_local_quota_per_fsgroup=512Mi
+osm_cluster_network_cidr=172.16.0.0/16
+osm_use_cockpit=false
+
+# red hat subscription name and password
+rhsub_user=rhn_user
+rhsub_pass=rhn_pass
+rhsub_pool=8a85f9815e9b371b015e9b501d081d4b
+ 
+# logging and metrics
+openshift_metrics_install_metrics=false                           	 
+
+# registry
+openshift_hosted_registry_replicas=1
+openshift_registry_selector="region=infra"  	 
+openshift_hosted_registry_storage_kind=glusterfs	 
+openshift_hosted_registry_storage_volume_size=25Gi
+
+# Prometheus
+openshift_hosted_prometheus_deploy=true
+openshift_prometheus_namespace=openshift-metrics
+openshift_prometheus_node_selector={"region":"infra"}
+openshift_prometheus_storage_kind=glusterfs 
+openshift_prometheus_storage_type=pvc
+openshift_prometheus_alertbuffer_storage_type=pvc
+openshift_prometheus_alertmanager_storage_type=pvc
+
+# logging
+openshift_logging_install_logging=true                       	 
+openshift_logging_es_cluster_size=3  
+openshift_logging_es_nodeselector={"region":"infra"}           	 
+openshift_logging_kibana_nodeselector={"region":"infra"}
+openshift_logging_curator_nodeselector={"region":"infra"}
+openshift_logging_fluentd_nodeselector={"region":"infra"}
+openshift_logging_storage_kind=pvc
+ 
+# CNS storage for applications
+openshift_storage_glusterfs_namespace=app-storage    
+openshift_storage_glusterfs_storageclass=true   
+openshift_storage_glusterfs_block_deploy=false 
+
+# CNS storage for OpenShift infrastructure
+openshift_storage_glusterfs_registry_namespace=infra-storage 	 
+openshift_storage_glusterfs_registry_storageclass=false      	 
+openshift_storage_glusterfs_registry_block_deploy=true  	 
+openshift_storage_glusterfs_registry_block_host_vol_create=true    
+openshift_storage_glusterfs_registry_block_host_vol_size=200  	 
+openshift_storage_glusterfs_registry_block_storageclass=true
+openshift_storage_glusterfs_registry_block_storageclass_default=true
+openshift_storageclass_default=false
+
+[ansible]
+localhost
+
+[infras]
+infra-0  openshift_node_labels="{'region': 'infra'}" ipv4addr=192.168.114.8
+infra-1  openshift_node_labels="{'region': 'infra'}" ipv4addr=192.168.114.9
+infra-2  openshift_node_labels="{'region': 'infra'}" ipv4addr=192.168.114.13
+
+[apps]
+app-0  openshift_node_labels="{'region': 'app'}" ipv4addr=192.168.114.10
+app-1  openshift_node_labels="{'region': 'app'}" ipv4addr=192.168.114.11
+app-2  openshift_node_labels="{'region': 'app'}" ipv4addr=192.168.114.12
+app-3  openshift_node_labels="{'region': 'app'}" ipv4addr=192.168.114.14
+app-4  openshift_node_labels="{'region': 'app'}" ipv4addr=192.168.114.15
+app-5  openshift_node_labels="{'region': 'app'}" ipv4addr=192.168.114.16
+
+[masters]
+master-0 openshift_node_labels="{'region': 'master'}" ipv4addr=192.168.114.6
+master-1 openshift_node_labels="{'region': 'master'}" ipv4addr=192.168.114.7
+master-2 openshift_node_labels="{'region': 'master'}" ipv4addr=192.168.114.17
+
+[etcd]
+master-0
+master-1
+master-2
+
+[haproxy]
+haproxy-0 openshift_node_labels="{'region': 'haproxy'}" ipv4addr=192.168.114.18
+haproxy-1 openshift_node_labels="{'region': 'haproxy'}" ipv4addr=192.168.114.19 
+
+[nodes]
+master-0 openshift_node_labels="{'region': 'master'}" openshift_schedulable=true openshift_hostname=master-0 vm_name=master-0
+master-1 openshift_node_labels="{'region': 'master'}" openshift_schedulable=true openshift_hostname=master-1 vm_name=master-1
+master-2 openshift_node_labels="{'region': 'master'}" openshift_schedulable=true openshift_hostname=master-2 vm_name=master-2
+infra-0  openshift_node_labels="{'region': 'infra'}" openshift_hostname=infra-0 vm_name=infra-0
+infra-1  openshift_node_labels="{'region': 'infra'}" openshift_hostname=infra-1 vm_name=infra-1
+infra-2  openshift_node_labels="{'region': 'infra'}" openshift_hostname=infra-2 vm_name=infra-2
+app-0  openshift_node_labels="{'region': 'app'}" openshift_hostname=app-0 vm_name=app-0
+app-1  openshift_node_labels="{'region': 'app'}" openshift_hostname=app-1 vm_name=app-1
+app-2  openshift_node_labels="{'region': 'app'}" openshift_hostname=app-2 vm_name=app-2
+app-3  openshift_node_labels="{'region': 'app'}" openshift_hostname=app-3 vm_name=app-3
+app-4  openshift_node_labels="{'region': 'app'}" openshift_hostname=app-4 vm_name=app-4
+app-5  openshift_node_labels="{'region': 'app'}" openshift_hostname=app-5 vm_name=app-5
+cns-0  openshift_node_labels="{'region': 'storage'}" openshift_hostname=cns-0 vm_name=cns-0
+cns-1  openshift_node_labels="{'region': 'storage'}" openshift_hostname=cns-1 vm_name=cns-1
+cns-2  openshift_node_labels="{'region': 'storage'}" openshift_hostname=cns-2 vm_name=cns-2
+
+[glusterfs]
+cns-0  glusterfs_devices='[ "/dev/sdd" ]'
+cns-1  glusterfs_devices='[ "/dev/sdd" ]'
+cns-2  glusterfs_devices='[ "/dev/sdd" ]'
+
+[glusterfs_registry]
+infra-0  glusterfs_devices='[ "/dev/sdd" ]'
+infra-1  glusterfs_devices='[ "/dev/sdd" ]'
+infra-2  glusterfs_devices='[ "/dev/sdd" ]'
+
+# Customize group 'masters' vm_guest disk and hardware specs as needed by uncommenting section below
+#[masters:vars]
+#vm_guest_disk=[{ "size_gb": 60, "datastore": "{{ openshift_cloudprovider_vsphere_datastore }}", "type": "thin" }, { "size_gb": 40, "datastore": "{{ openshift_cloudprovider_vsphere_datastore }}", "type": "thin" }, { "size_gb": 40, "datastore": "{{ openshift_cloudprovider_vsphere_datastore }}", "type": "thin" }, { "size_gb": 300, "datastore": "{{ openshift_cloudprovider_vsphere_datastore }}", "type": "eagerZeroedThick" }]
+#vm_guest_hardware={ "memory_mb" : 8192 }

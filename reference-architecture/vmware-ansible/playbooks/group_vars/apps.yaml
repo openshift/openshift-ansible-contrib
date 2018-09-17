@@ -1,0 +1,17 @@
+---
+vm_guest_disk:
+- size_gb: 60
+  datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
+  type: thin
+- size_gb: 40
+  datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
+  type: thin
+- size_gb: 40
+  datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
+  type: thin
+- size_gb: 300
+  datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
+  type: eagerZeroedThick
+
+vm_guest_hardware:
+  memory_mb: 8192

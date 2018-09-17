@@ -1,0 +1,2 @@
+---
+vm_guest_group_names: ['masters', 'infras', 'apps']
