@@ -52,7 +52,7 @@ exportlist(){
   fi
 
   # return if list empty
-  if [ $(echo ${BUFFER} | jq '.items | length > 0') == "false" ]; then
+  if [ "$(echo ${BUFFER} | jq '.items | length > 0')" == "false" ]; then
     echo "Skipped: list empty"
     return
   fi
@@ -61,16 +61,15 @@ exportlist(){
 }
 
 ns(){
-  exportlist \
-    ns \
-    ns \
-    'del('\
-'.items[].status,'\
-'.items[].metadata.uid,'\
-'.items[].metadata.selfLink,'\
-'.items[].metadata.resourceVersion,'\
-'.items[].metadata.creationTimestamp,'\
-'.items[].metadata.generation)'
+  echo "Exporting namespace to ${PROJECT}/ns.json"
+  oc get --export -o=json ns ${PROJECT} | jq '
+    del(.status,
+        .metadata.uid,
+        .metadata.selfLink,
+        .metadata.resourceVersion,
+        .metadata.creationTimestamp,
+        .metadata.generation
+        )' > ${PROJECT}/ns.json
 }
 
 rolebindings(){
