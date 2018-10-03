@@ -5,7 +5,9 @@
     - create-vm-prod-ose
 
 - name: Prepare VMs for  OSE3 install
-  hosts: nodes
+  hosts: 
+    - nodes
+    - new_nodes
   roles:
     - rhsm
     - vmware-guest-setup
