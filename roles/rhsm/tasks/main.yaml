@@ -20,7 +20,7 @@
       ignore_errors: yes
 
     - name: Install Satellite certificate (if applicable)
-      command: "rpm -Uh --force {{ rhsm_katello_url }}"
+      command: "rpm -ivh --force {{ rhsm_katello_url }}"
       when:
         - kat_cfg.stat.exists == False
         - rhsm_katello_url is defined
