@@ -5,7 +5,7 @@
     - create-vm-prod-ose
 
 - name: Prepare VMs for  OSE3 install
-  hosts: 
+  hosts:
     - nodes
     - new_nodes
   roles:
