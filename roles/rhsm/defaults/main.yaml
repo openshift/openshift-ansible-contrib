@@ -1,2 +1,3 @@
 ---
 openshift_required_repos: ['rhel-7-server-rpms', 'rhel-7-server-extras-rpms', 'rhel-7-server-ose-3.9-rpms', 'rhel-7-fast-datapath-rpms']
+openshift_satellite_tools_repo: rhel7-server-satellite-tools-6.4-rpms

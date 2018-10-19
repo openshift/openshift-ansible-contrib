@@ -82,7 +82,7 @@
         - "{{ openshift_required_repos | difference(enabled_repos.stdout_lines) }}"
 
     - name: Enable satellite tools repo if required
-      command: "subscription-manager repos --enable=rhel-7-server-satellite-tools-6.2-rpms"
+      command: "subscription-manager repos --enable={{ openshift_satellite_tools_repo }}"
       when: rhsm_activation_key is defined and rhsm_activation_key|trim != ''
 
   when: ansible_distribution == "RedHat"
