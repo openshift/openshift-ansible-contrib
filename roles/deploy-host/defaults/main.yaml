@@ -1,5 +1,5 @@
 ---
-openshift_deploy_repos: ['rhel-7-server-rpms', 'rhel-7-server-extras-rpms', 'rhel-7-server-ose-3.9-rpms']
+openshift_deploy_repos: ['rhel-7-server-rpms', 'rhel-7-server-extras-rpms', 'rhel-7-server-ose-3.10-rpms']
 # openshift_deploy_repos_by_provider
 # VMW - 'rhel-server-rhscl-7-rpms'
 
