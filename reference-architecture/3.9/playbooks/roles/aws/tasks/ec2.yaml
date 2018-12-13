@@ -87,24 +87,12 @@
     vpc_subnet_id: "{{ item.subnet }}"
     wait: yes
   with_items: "\
-{%- set i = 1 -%}
-{%- set j = 0 -%}
 {%- for k in range(0, ( ec2_count_master if ec2_count_master is defined else 3 ) ) -%}
     {
-'name': 'master{{ i }}',
-'subnet': '{{ subnet_private.results[j].subnet.id if subnet_private is defined else '' }}',
+'name': 'master{{ k + 1 }}',
+'subnet': '{{ subnet_private.results[k % subnet_private.results | length].subnet.id if subnet_private is defined else '' }}',
 'type': '{{ ec2_type_master }}'
     },
-    {%- if i <= ( ec2_count_master if ec2_count_master is defined else 3 ) -%}
-        {%- set i = i + 1 -%}
-    {%- endif -%}
-    {%- if subnet_private is defined -%}
-      {%- if j < subnet_private.results | length - 1 -%}
-          {%- set j = j + 1 -%}
-      {%- else -%}
-          {%- set j = 0 -%}
-      {%- endif -%}
-    {%- endif -%}
 {%- endfor -%}
     "
   retries: 3
@@ -188,24 +176,12 @@
     vpc_subnet_id: "{{ item.subnet }}"
     wait: yes
   with_items: "\
-{%- set i = 1 -%}
-{%- set j = 0 -%}
 {%- for k in range(0, ( ec2_count_infra if ec2_count_infra is defined else 3 ) ) -%}
     {
-'name': 'infra{{ i }}',
-'subnet': '{{ subnet_private.results[j].subnet.id if (state is undefined or 'absent' not in state) else '' }}',
+'name': 'infra{{ k + 1 }}',
+'subnet': '{{ subnet_private.results[k % subnet_private.results | length].subnet.id if (state is undefined or 'absent' not in state) else '' }}',
 'type': '{{ ec2_type_infra }}'
     },
-    {%- if i <= ( ec2_count_infra if ec2_count_infra is defined else 3 ) -%}
-        {%- set i = i + 1 -%}
-    {%- endif -%}
-    {%- if subnet_private is defined -%}
-      {%- if j < subnet_private.results | length - 1 -%}
-          {%- set j = j + 1 -%}
-      {%- else -%}
-          {%- set j = 0 -%}
-      {%- endif -%}
-    {%- endif -%}
 {%- endfor -%}
     "
   retries: 3
@@ -280,24 +256,12 @@
     vpc_subnet_id: "{{ item.subnet }}"
     wait: yes
   with_items: "\
-{%- set i = 1 -%}
-{%- set j = 0 -%}
 {%- for k in range(0, ( ec2_count_node if ec2_count_node is defined else 3 ) ) -%}
     {
-'name': 'node{{ i }}',
-'subnet': '{{ subnet_private.results[j].subnet.id if subnet_private is defined else '' }}',
+'name': 'node{{ k + 1 }}',
+'subnet': '{{ subnet_private.results[k % subnet_private.results | length].subnet.id if subnet_private is defined else '' }}',
 'type': '{{ ec2_type_node }}'
     },
-    {%- if i <= ( ec2_count_node if ec2_count_node is defined else 3 ) -%}
-        {%- set i = i + 1 -%}
-    {%- endif -%}
-    {%- if subnet_private is defined -%}
-      {%- if j < subnet_private.results | length - 1 -%}
-          {%- set j = j + 1 -%}
-      {%- else -%}
-          {%- set j = 0 -%}
-      {%- endif -%}
-    {%- endif -%}
 {%- endfor -%}
     "
   retries: 3
