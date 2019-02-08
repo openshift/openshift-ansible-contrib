@@ -23,7 +23,6 @@
     state: poweredon
     wait_for_ip_address: True
     folder: "{{ openshift_cloudprovider_vsphere_datacenter }}/vm/{{ openshift_cloudprovider_vsphere_folder }}" 
-    annotation: "{{ item.value.tag }}"
     hardware:
       memory_mb: "{{ app_memory }}"
     networks:
