@@ -13,7 +13,6 @@
     state: poweredon
     wait_for_ip_address: true
     folder: "{{ openshift_cloudprovider_vsphere_datacenter }}/vm/{{ openshift_cloudprovider_vsphere_folder }}" 
-    annotation: "{{ hostvars[item].openshift_node_labels }}"
     disk:
     - size_gb: 60
       datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
