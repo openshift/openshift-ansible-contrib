@@ -17,12 +17,58 @@ class ocpSat6(object):
             self._syncData()
 
     def _loadImageList(self):
-        cmd='curl -s https://registry.access.redhat.com/v1/search?q="openshift3" | python -mjson.tool | grep ".name.:" | cut -d: -f2 | sed -e "s/ "//g"" -e "s/,"//g""'
-        result = subprocess.check_output(cmd, shell=True)
-        lines = result.splitlines()
-        for line in lines:
-            nl = line.replace('"', '')
-            self.openshift3Images.append(nl)
+        # from https://access.redhat.com/solutions/3435901
+        containerlist=[
+            "openshift3/ose-ansible",
+            "openshift3/ose-web-console",
+            "openshift3/ose-cluster-capacity",
+            "openshift3/ose-deployer",
+            "openshift3/ose-docker-builder",
+            "openshift3/oauth-proxy",
+            "openshift3/ose-docker-registry",
+            "openshift3/ose-egress-http-proxy",
+            "openshift3/ose-egress-router",
+            "openshift3/ose-f5-router",
+            "openshift3/ose-haproxy-router",
+            "openshift3/ose-keepalived-ipfailover",
+            "openshift3/ose-pod",
+            "openshift3/ose-sti-builder",
+            "openshift3/ose",
+            "openshift3/container-engine",
+            "openshift3/node",
+            "openshift3/openvswitch",
+            "rhel7/etcd",
+            "openshift3/ose-recycler",
+            "openshift3/logging-auth-proxy",
+            "openshift3/logging-curator",
+            "openshift3/logging-elasticsearch",
+            "openshift3/logging-fluentd",
+            "openshift3/logging-kibana",
+            "openshift3/metrics-cassandra",
+            "openshift3/metrics-hawkular-metrics",
+            "openshift3/metrics-hawkular-openshift-agent",
+            "openshift3/metrics-heapster",
+            "openshift3/prometheus",
+            "openshift3/prometheus-alert-buffer",
+            "openshift3/prometheus-alertmanager",
+            "openshift3/prometheus-node-exporter",
+            "cloudforms46/cfme-openshift-postgresql",
+            "cloudforms46/cfme-openshift-memcached",
+            "cloudforms46/cfme-openshift-app-ui",
+            "cloudforms46/cfme-openshift-app",
+            "cloudforms46/cfme-openshift-embedded-ansible",
+            "cloudforms46/cfme-openshift-httpd",
+            "cloudforms46/cfme-httpd-configmap-generator",
+            "rhgs3/rhgs-server-rhel7",
+            "rhgs3/rhgs-volmanager-rhel7",
+            "rhgs3/rhgs-gluster-block-prov-rhel7",
+            "rhgs3/rhgs-s3-server-rhel7",
+            "openshift3/ose-service-catalog",
+            "openshift3/ose-ansible-service-broker",
+            "openshift3/mediawiki-apb",
+            "openshift3/postgresql-apb",
+        ]
+        self.openshift3Images.append(containerlist)
 
     def _parseCli(self):
 
