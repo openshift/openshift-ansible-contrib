@@ -11,7 +11,7 @@
     resource_pool: "{{ openshift_cloudprovider_vsphere_resource_pool }}"
     template: "{{ openshift_cloudprovider_vsphere_template }}"
     state: poweredon
-    wait_for_ip_address: true
+    wait_for_ip_address: false
     folder: "{{ openshift_cloudprovider_vsphere_datacenter }}/vm/{{ openshift_cloudprovider_vsphere_folder }}"
     disk:
     - size_gb: 60
@@ -53,7 +53,7 @@
     resource_pool: "{{ openshift_cloudprovider_vsphere_resource_pool }}"
     template: "{{ openshift_cloudprovider_vsphere_template }}"
     state: poweredon
-    wait_for_ip_address: true
+    wait_for_ip_address: false
     disk:
     - size_gb: 60
       datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
@@ -95,7 +95,7 @@
     resource_pool: "{{ openshift_cloudprovider_vsphere_resource_pool }}"
     template: "{{ openshift_cloudprovider_vsphere_template }}"
     state: poweredon
-    wait_for_ip_address: true
+    wait_for_ip_address: false
     disk:
     - size_gb: 60
       datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
