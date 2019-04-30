@@ -1,0 +1,72 @@
+Last login: Tue Apr 30 11:11:45 on ttys004
+(dphillip-mac)(dphillip)(/Users/dphillip)(04/30/19) (11:30:45 AM)
+-> vim af
+(dphillip-mac)(dphillip)(/Users/dphillip)(04/30/19) (11:30:52 AM)
+-> vim af311
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[OSEv3:children]
+ansible
+masters
+infras
+apps
+etcd
+nodes
+lb
+
+[OSEv3:vars]
+
+ansible_ssh_user=cloud-user
+deployment_type=openshift-enterprise
+debug_level=2
+openshift_release="v3.11"
+openshift_version="3.11"
+become=yes
+ansible_become=yes
+ansible_user=root
+
+# See https://access.redhat.com/solutions/3480921
+oreg_url=registry.access.redhat.com/openshift3/ose-${component}:${version}
+openshift_examples_modify_imagestreams=true
+
+oreg_auth_user="registry_user"
+oreg_auth_password="registry_password"
+
+openshift_master_ldap_ca_file=/home/cloud-user/mycert.crt
+*openshift_master_identity_providers=[{'name': 'idm', 'challenge': 'true', 'login': 'true', 'kind': 'LDAPPasswordIdentityProvider', 'attributes': {'id': ['dn'], 'email': ['mail'], 'name': ['cn'], 'preferredUsername': ['uid']}, 'bindDN': 'uid=admin,cn=users,cn=accounts,dc=example,dc=com', 'bindPassword': 'ldapadmin', 'ca': '/etc/origin/master/ca.crt', 'insecure': 'false', 'url': 'ldap://ldap.example.com/cn=users,cn=accounts,dc=example,dc=com?uid?sub?(memberOf=cn=ose-user,cn=groups,cn=accounts,dc=openshift,dc=com)'}]*
+
+openshift_hosted_router_replicas=3
+openshift_hosted_registry_storage_kind=vsphere
+openshift_hosted_registry_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_registry_storage_annotations=['volume.beta.kubernetes.io/storage-provisioner: kubernetes.io/vsphere-volume']
+openshift_hosted_registry_replicas=1
+
+openshift_master_cluster_method=native
+openshift_node_local_quota_per_fsgroup=512Mi
