@@ -60,7 +60,7 @@ oc create -f ${PROJECTPATH}/ns.json
 sleep 2
 
 # First we create optional objects
-for object in limitranges resourcequotas rolebindings rolebindingrestrictions secrets serviceaccounts podpreset poddisruptionbudget templates cms egressnetworkpolicies iss imagestreams pvcs routes hpas
+for object in limitranges resourcequotas rolebindings rolebindingrestrictions secrets serviceaccounts podpreset poddisruptionbudget templates cms egressnetworkpolicies iss imagestreams pvcs routes hpas networkpolicies
 do
   [[ -f ${PROJECTPATH}/${object}.json ]] && \
     oc create -f ${PROJECTPATH}/${object}.json -n ${PROJECT}
