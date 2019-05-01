@@ -470,6 +470,17 @@ daemonset(){
 '.items[].status)'
 }
 
+networkpolicies(){
+  exportlist \
+    networkpolicies \
+    networkpolicies \
+    'del('\
+'.items[].metadata.uid,'\
+'.items[].metadata.selfLink,'\
+'.items[].metadata.resourceVersion,'\
+'.items[].metadata.creationTimestamp)'
+}
+
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then
   usage
@@ -522,5 +533,5 @@ deployments
 replicasets
 poddisruptionbudget
 daemonset
-
+networkpolicies
 exit 0
