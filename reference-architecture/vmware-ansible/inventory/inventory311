@@ -8,31 +8,110 @@ nodes
 lb
 
 [OSEv3:vars]
-
 ansible_ssh_user=cloud-user
 deployment_type=openshift-enterprise
-debug_level=2
 openshift_release="v3.11"
-openshift_version="3.11"
 become=yes
 ansible_become=yes
 ansible_user=root
 
-# See https://access.redhat.com/solutions/3480921
-oreg_url=registry.access.redhat.com/openshift3/ose-${component}:${version}
-openshift_examples_modify_imagestreams=true
+ # See https://access.redhat.com/solutions/3480921
+ oreg_url=registry.access.redhat.com/openshift3/ose-${component}:${version}
+ openshift_examples_modify_imagestreams=true
 
+# Authentication for registry images and RHN network
 oreg_auth_user="registry_user"
 oreg_auth_password="registry_password"
+rhsub_user=username
+rhsub_pass=password
+rhsub_pool=8a85f9815e9b371b015e9b501d081d4b
 
+# Authentication settings for OCP
 openshift_master_ldap_ca_file=/home/cloud-user/mycert.crt
-*openshift_master_identity_providers=[{'name': 'idm', 'challenge': 'true', 'login': 'true', 'kind': 'LDAPPasswordIdentityProvider', 'attributes': {'id': ['dn'], 'email': ['mail'], 'name': ['cn'], 'preferredUsername': ['uid']}, 'bindDN': 'uid=admin,cn=users,cn=accounts,dc=example,dc=com', 'bindPassword': 'ldapadmin', 'ca': '/etc/origin/master/ca.crt', 'insecure': 'false', 'url': 'ldap://ldap.example.com/cn=users,cn=accounts,dc=example,dc=com?uid?sub?(memberOf=cn=ose-user,cn=groups,cn=accounts,dc=openshift,dc=com)'}]*
+openshift_master_identity_providers=[{'name': 'idm', 'challenge': 'true', 'login': 'true', 'kind': 'LDAPPasswordIdentityProvider', 'attributes': {'id': ['dn'], 'email': ['mail'], 'name': ['cn'], 'preferredUsername': ['uid']}, 'bindDN': 'uid=admin,cn=users,cn=accounts,dc=example,dc=com', 'bindPassword': 'ldapadmin', 'ca': '/etc/origin/master/ca.crt', 'insecure': 'false', 'url': 'ldap://ldap.example.com/cn=users,cn=accounts,dc=example,dc=com?uid?sub?(memberOf=cn=ose-user,cn=groups,cn=accounts,dc=openshift,dc=com)'}]
 
-openshift_hosted_router_replicas=3
+# Registry
 openshift_hosted_registry_storage_kind=vsphere
 openshift_hosted_registry_storage_access_modes=['ReadWriteOnce']
 openshift_hosted_registry_storage_annotations=['volume.beta.kubernetes.io/storage-provisioner: kubernetes.io/vsphere-volume']
 openshift_hosted_registry_replicas=1
 
+# vSphere Cloud provider
+openshift_cloudprovider_kind=vsphere
+openshift_cloudprovider_vsphere_username="administrator@vsphere.local"
+openshift_cloudprovider_vsphere_password="password"
+openshift_cloudprovider_vsphere_host="vcenter.example.com"
+openshift_cloudprovider_vsphere_datacenter=datacenter
+openshift_cloudprovider_vsphere_cluster=cluster
+openshift_cloudprovider_vsphere_resource_pool=ocp311
+openshift_cloudprovider_vsphere_datastore="datastore"
+openshift_cloudprovider_vsphere_folder=ocp311
+
+#VM deployment
+openshift_cloudprovider_vsphere_template="ocp-server-template"
+openshift_cloudprovider_vsphere_vm_network="VM Network"
+openshift_cloudprovider_vsphere_vm_netmask="255.255.255.0"
+openshift_cloudprovider_vsphere_vm_gateway="192.168.1.1"
+openshift_cloudprovider_vsphere_vm_dns="192.168.2.250"
+openshift_required_repos=['rhel-7-server-rpms', 'rhel-7-server-extras-rpms', 'rhel-7-server-ose-3.11-rpms']
+
+# OCP vars
 openshift_master_cluster_method=native
 openshift_node_local_quota_per_fsgroup=512Mi
+default_subdomain=example.com
+openshift_master_cluster_hostname=openshift.example.com
+openshift_master_cluster_public_hostname=openshift.example.com
+openshift_master_default_subdomain=apps.example.com*
+os_sdn_network_plugin_name='redhat/openshift-ovs-networkpolicy'
+
+# metrics 
+openshift_metrics_install_metrics=true
+openshift_metrics_storage_kind=dynamic
+openshift_metrics_storage_volume_size=25Gi
+
+# logging 
+openshift_logging_install_logging=true
+openshift_logging_es_pvc_dynamic=true
+openshift_logging_es_pvc_size=30Gi
+openshift_logging_es_cluster_size=1
+openshift_logging_es_nodeselector={"node-role.kubernetes.io/infra": "true"} 
+openshift_logging_kibana_nodeselector={"node-role.kubernetes.io/infra": "true"} 
+openshift_logging_curator_nodeselector={"node-role.kubernetes.io/infra": "true"} 
+openshift_logging_fluentd_nodeselector={"node-role.kubernetes.io/infra": "true"} 
+
+[ansible]
+localhost
+
+[masters]
+master-0 vm_name=master-0 ipv4addr=10.x.y.103
+master-1 vm_name=master-1 ipv4addr=10.x.y.104
+master-2 vm_name=master-2 ipv4addr=10.x.y.105
+
+[infras]
+infra-0  vm_name=infra-0 ipv4addr=10.x.y.100
+infra-1  vm_name=infra-1 ipv4addr=10.x.y.101
+infra-2  vm_name=infra-2 ipv4addr=10.x.y.102
+
+[apps]
+app-0  vm_name=app-0 ipv4addr=10.x.y.106
+app-1  vm_name=app-1 ipv4addr=10.x.y.107
+app-2  vm_name=app-2 ipv4addr=10.x.y.108
+
+[etcd]
+master-0
+master-1
+master-2
+
+[lb]
+haproxy-0 vm_name=haproxy-0 ipv4addr=10.x.y.200
+
+[nodes]
+master-0 openshift_node_group_name="node-config-master"
+master-1 openshift_node_group_name="node-config-master"
+master-2 openshift_node_group_name="node-config-master"
+infra-0  openshift_node_group_name="node-config-infra"
+infra-1  openshift_node_group_name="node-config-infra"
+infra-2  openshift_node_group_name="node-config-infra"
+app-0  openshift_node_group_name="node-config-compute"
+app-1  openshift_node_group_name="node-config-compute"
+app-2  openshift_node_group_name="node-config-compute"
