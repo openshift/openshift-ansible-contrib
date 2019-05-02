@@ -12,7 +12,7 @@
     template: "{{ openshift_cloudprovider_vsphere_template }}"
     folder: "{{ openshift_cloudprovider_vsphere_datacenter }}/vm/{{ openshift_cloudprovider_vsphere_folder }}"
     state: poweredon
-    wait_for_ip_address: false
+    wait_for_ip_address: true
     disk:
     - size_gb: 60
       datastore: "{{ openshift_cloudprovider_vsphere_datastore }}"
