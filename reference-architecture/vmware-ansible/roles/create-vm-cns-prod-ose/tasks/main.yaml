@@ -38,5 +38,5 @@
       dns_servers:
       - "{{ openshift_cloudprovider_vsphere_vm_dns }}"
       dns_suffix: "{{ default_subdomain }}"
-      hostname: "{{ hostvars[item].inventory_hostname }}"
+      hostname: "{{ hostvars[item].vm_name }}"
   with_items: "{{ groups['glusterfs'] }}" 
