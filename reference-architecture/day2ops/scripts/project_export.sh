@@ -52,12 +52,12 @@ exportlist(){
   fi
 
   # return if list empty
-  if [ "$(echo ${BUFFER} | jq '.items | length > 0')" == "false" ]; then
+  if [ "$(echo \"${BUFFER}\" | jq '.items | length > 0')" == "false" ]; then
     echo "Skipped: list empty"
     return
   fi
 
-  echo ${BUFFER} | jq ${DELETEPARAM} > ${PROJECT}/${BASENAME}.json
+  echo "${BUFFER}" | jq ${DELETEPARAM} > ${PROJECT}/${BASENAME}.json
 }
 
 ns(){
