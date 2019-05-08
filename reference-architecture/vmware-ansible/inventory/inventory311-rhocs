@@ -6,6 +6,8 @@ apps
 etcd
 nodes
 lb
+glusterfs
+glusterfs_registry
 
 [OSEv3:vars]
 ansible_ssh_user=cloud-user
@@ -14,10 +16,6 @@ openshift_release="v3.11"
 become=yes
 ansible_become=yes
 ansible_user=root
-
- # See https://access.redhat.com/solutions/3480921
- oreg_url=registry.access.redhat.com/openshift3/ose-${component}:${version}
- openshift_examples_modify_imagestreams=true
 
 # Authentication for registry images and RHN network
 oreg_auth_user="registry_user"
@@ -143,12 +141,16 @@ infra-2  openshift_node_group_name="node-config-infra"
 app-0  openshift_node_group_name="node-config-compute"
 app-1  openshift_node_group_name="node-config-compute"
 app-2  openshift_node_group_name="node-config-compute"
+storage-0 openshift_node_group_name="node-config-compute"   
+storage-1 openshift_node_group_name="node-config-compute" 
+storage-2 openshift_node_group_name="node-config-compute" 
+storage-3 openshift_node_group_name="node-config-compute" 
 
 [glusterfs]
-storage-0 vm_name=storage-0 glusterfs_zone=1 glusterfs_devices='[ "/dev/sdd" ]'   
-storage-1 vm_name=storage-1 glusterfs_zone=2 glusterfs_devices='[ "/dev/sdd" ]'
-storage-2 vm_name=storage-2 glusterfs_zone=3 glusterfs_devices='[ "/dev/sdd" ]'
-storage-3 vm_name=storage-3 glusterfs_zone=1 glusterfs_devices='[ "/dev/sdd" ]'
+storage-0 vm_name=storage-0 ipv4addr=10.x.y.109 glusterfs_zone=1 glusterfs_devices='[ "/dev/sdd" ]'   
+storage-1 vm_name=storage-1 ipv4addr=10.x.y.110 glusterfs_zone=2 glusterfs_devices='[ "/dev/sdd" ]'
+storage-2 vm_name=storage-2 ipv4addr=10.x.y.111 glusterfs_zone=3 glusterfs_devices='[ "/dev/sdd" ]'
+storage-3 vm_name=storage-3 ipv4addr=10.x.y.112 glusterfs_zone=4 glusterfs_devices='[ "/dev/sdd" ]'
 
 [glusterfs_registry]
 infra-0 glusterfs_zone=1 glusterfs_devices='[ "/dev/sdd" ]'
