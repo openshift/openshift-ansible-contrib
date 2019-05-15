@@ -5,13 +5,13 @@
     username: "{{ openshift_cloudprovider_vsphere_username }}"
     password: "{{ openshift_cloudprovider_vsphere_password }}"
     validate_certs: False
-    name: "{{ hostvars[item].inventory_hostname }}" 
+    name: "{{ hostvars[item].vm_name }}" 
     cluster: "{{ openshift_cloudprovider_vsphere_cluster}}"
     datacenter: "{{ openshift_cloudprovider_vsphere_datacenter }}"
     resource_pool: "{{ openshift_cloudprovider_vsphere_resource_pool }}"
     template: "{{openshift_cloudprovider_vsphere_template}}"
     state: poweredon
-    wait_for_ip_address: true
+    wait_for_ip_address: false
     folder: "{{ openshift_cloudprovider_vsphere_datacenter }}/vm/{{ openshift_cloudprovider_vsphere_folder }}" 
     disk:
     - size_gb: 60
@@ -38,5 +38,5 @@
       dns_servers:
       - "{{ openshift_cloudprovider_vsphere_vm_dns }}"
       dns_suffix: "{{ default_subdomain }}"
-      hostname: "{{ hostvars[item].inventory_hostname }}"
-  with_items: "{{ groups['storage'] }}" 
+      hostname: "{{ hostvars[item].vm_name }}"
+  with_items: "{{ groups['glusterfs'] }}" 

@@ -26,6 +26,10 @@
         - iptables
         - iptables-services
         - docker
+        - skopeo 
+        - atomic 
+        - cri-o 
+        - cri-tools
 
     - name: be sure katello-agent is installed
       yum: name=katello-agent state=installed
