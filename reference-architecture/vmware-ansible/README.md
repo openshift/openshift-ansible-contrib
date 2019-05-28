@@ -1,5 +1,5 @@
 # The Reference Architecture OpenShift on VMware
-This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.10 on VMware
+This repository contains the scripts used to deploy an OpenShift environment based off of the Reference Architecture Guide for OpenShift 3.11 on VMware
 
 ## Overview
 The repository contains Ansible playbooks which deploy 3 masters, 3 infrastructure nodes and 3 application nodes. All nodes could utilize anti-affinity rules to separate them on the number of hypervisors you have allocated for this deployment. The playbooks deploy a Docker registry and scale the router to the number of Infrastruture nodes. 
@@ -31,7 +31,7 @@ To deploy a working vSphere environment on the deployment host, first prepare it
 ```
 # yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
 # yum install -y python2-pyvmomi
-$ git clone -b vmw-3.10 https://github.com/openshift/openshift-ansible-contrib
+$ git clone -b vmw-3.11 https://github.com/openshift/openshift-ansible-contrib
 $ cd openshift-ansible-contrib/reference-architecture/vmware-ansible/
 ```
 
@@ -39,7 +39,7 @@ Verify that the inventory file has the appropriate variables including IPv4 addr
 for the virtual machines in question and logins for the Red Hat Subscription Network.
 All of the appropriate nodes should be listed in the proper groups: masters, infras, apps.
 
-NOTE: A sample inventory file has been provided in openshift-ansible-contrib/reference-architecture/vmware-ansible/inventory/inventory310
+NOTE: A sample inventory file has been provided in openshift-ansible-contrib/reference-architecture/vmware-ansible/inventory/inventory311
 
 ```
 $ cat /etc/ansible/hosts | egrep 'rhsub|ip'
