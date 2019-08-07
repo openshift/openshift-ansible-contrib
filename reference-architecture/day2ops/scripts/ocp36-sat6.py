@@ -17,7 +17,7 @@ class ocpSat6(object):
             self._syncData()
 
     def _loadImageList(self):
-        cmd='curl -s https://registry.access.redhat.com/v1/search?q="openshift3" | python -mjson.tool | grep ".name.:" | cut -d: -f2 | sed -e "s/ "//g"" -e "s/,"//g""'
+        cmd='curl -s https://registry.access.redhat.com/v1/search?q="openshift3" | python -mjson.tool | grep ".name.:" | cut -d: -f2 | sed -e "s/ "//g"" -e "s/,"//g"" | grep -E \'(ose-haproxy-router|registry-console|ose-deployer|ose-pod|ose-docker-registry)\''
         result = subprocess.check_output(cmd, shell=True)
         lines = result.splitlines()
         for line in lines:
