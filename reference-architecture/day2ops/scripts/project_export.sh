@@ -206,7 +206,7 @@ svcs(){
             .metadata.generation,
             .spec.clusterIP
             )' > ${PROJECT}/svc_${svc}.json
-    if [[ $(cat ${PROJECT}/svc_${svc}.json | jq -e '.spec.selector.app') == "null" ]]; then
+    if [[ $(cat ${PROJECT}/svc_${svc}.json | jq -e '.spec.selector') != "null" ]]; then
       oc get --export -o json endpoints ${svc} -n ${PROJECT}| jq '
         del(.status,
             .metadata.uid,
