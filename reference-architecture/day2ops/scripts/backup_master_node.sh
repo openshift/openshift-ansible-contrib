@@ -31,7 +31,7 @@ ocpfiles(){
 
 otherfiles(){
   mkdir -p ${BACKUPLOCATION}/etc/sysconfig
-  mkdir -p ${BACKUPLOCATION}/etc/pki/ca-trust/source/anchors
+  mkdir -p ${BACKUPLOCATION}/etc/pki/ca-trust/source
   echo "Exporting other important files to ${BACKUPLOCATION}"
   if [ -f /etc/sysconfig/flanneld ]
   then
@@ -45,8 +45,8 @@ otherfiles(){
     cp -aR /etc/cni ${BACKUPLOCATION}/etc/
   fi
   cp -aR /etc/dnsmasq* ${BACKUPLOCATION}/etc/
-  cp -aR /etc/pki/ca-trust/source/anchors/* \
-    ${BACKUPLOCATION}/etc/pki/ca-trust/source/anchors/
+  cp -aR /etc/pki/ca-trust/source/anchors \
+    ${BACKUPLOCATION}/etc/pki/ca-trust/source/
 }
 
 packagelist(){
