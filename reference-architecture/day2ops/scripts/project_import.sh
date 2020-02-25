@@ -37,7 +37,7 @@ then
   die "Missing project directory" 3
 fi
 
-for i in oc
+for i in jq oc
 do
   command -v $i >/dev/null 2>&1 || die "$i required but not found" 3
 done
