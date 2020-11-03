@@ -1,5 +1,10 @@
 ---
-- name: Create filesystem for /var/lib/origin/openshift.local.volumes
+- name: Create filesystem for /var/lib/origin/openshift.local.volumes only if it's not present.
+  when:
+  - >-
+    ansible_mounts | json_query("[?device=='" + local_volumes_device + "']") | length == 0
+  - >-
+    ansible_mounts | json_query("[?mount=='" + local_volumes_path + "']") | length == 0
   filesystem:
     fstype: "{{ local_volumes_fstype }}"
     dev: "{{ local_volumes_device }}"
