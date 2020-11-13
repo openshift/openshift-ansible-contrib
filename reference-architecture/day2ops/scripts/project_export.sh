@@ -129,7 +129,7 @@ dcs(){
           .metadata.generation,
           .spec.triggers[].imageChangeParams.lastTriggeredImage
           )' > ${PROJECT}/dc_${dc}.json
-    if [ !$(cat ${PROJECT}/dc_${dc}.json | jq '.spec.triggers[].type' | grep -q "ImageChange") ]; then
+    if ! $(cat ${PROJECT}/dc_${dc}.json | jq '.spec.triggers[].type' | grep -q "ImageChange"); then
       for container in $(cat ${PROJECT}/dc_${dc}.json | jq -r '.spec.triggers[] | select(.type == "ImageChange") .imageChangeParams.containerNames[]'); do
         echo "Patching DC..."
         OLD_IMAGE=$(cat ${PROJECT}/dc_${dc}.json | jq --arg cname ${container} -r '.spec.template.spec.containers[] | select(.name == $cname)| .image')
